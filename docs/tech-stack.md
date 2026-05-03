@@ -7,7 +7,7 @@
 | Framework | Next.js 14+ App Router + TypeScript | Full-stack, SSR, file-based routing |
 | Auth | Clerk | Auth completo out-of-the-box, UI lista, webhooks |
 | Base de datos | Convex | Reactivo en tiempo real, sin servidor, schema TypeScript |
-| IA | AI SDK (Vercel) + Gemini `gemini-2.0-flash` | Abstracción unificada, `generateObject` valida con Zod |
+| IA | AI SDK (Vercel) + Gemini `gemini-2.5-flash` | Abstracción unificada, `generateObject` valida con Zod. En free tier de Google AI Studio. |
 | UI | Tailwind CSS + shadcn/ui | Componentes accesibles y personalizables |
 | Links compra | URLs de búsqueda Amazon generadas | Sin API key, funcional de inmediato |
 
