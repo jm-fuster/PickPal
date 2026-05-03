@@ -2,6 +2,7 @@
 
 import { use, useState } from "react";
 import Link from "next/link";
+import { Sparkles } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { toast } from "sonner";
@@ -66,32 +67,42 @@ export default function GiftsPage({
   };
 
   return (
-    <main className="flex flex-1 flex-col gap-6 p-8">
-      <div className="space-y-1">
+    <main className="flex flex-1 flex-col gap-8 p-8 max-w-6xl">
+      <div className="space-y-2">
         <Link
           href={`/people/${id}`}
-          className="text-sm text-muted-foreground hover:text-foreground"
+          className="text-sm text-muted-foreground hover:text-foreground w-fit"
         >
-          ← Volver al perfil
+          ← {person.name}
         </Link>
-        <h1 className="text-3xl font-bold tracking-tight">
-          Ideas de regalo para {person.name}
+        <h1 className="text-4xl font-medium leading-tight">
+          Ideas de regalo
         </h1>
+        <p className="text-sm text-muted-foreground">
+          Sugerencias personalizadas con sus intereses, notas y presupuesto.
+        </p>
       </div>
 
-      <div className="flex flex-wrap items-end gap-3 max-w-xl">
-        <div className="flex-1 min-w-[180px] space-y-1.5">
-          <Label htmlFor="occasion">Ocasión</Label>
-          <Input
-            id="occasion"
-            value={occasion}
-            onChange={(e) => setOccasion(e.target.value)}
-            placeholder="Cumpleaños, Aniversario…"
-          />
+      <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-5">
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="flex-1 min-w-[200px] space-y-1.5">
+            <Label htmlFor="occasion">¿Para qué ocasión?</Label>
+            <Input
+              id="occasion"
+              value={occasion}
+              onChange={(e) => setOccasion(e.target.value)}
+              placeholder="Cumpleaños, aniversario, Navidad…"
+            />
+          </div>
+          <Button
+            size="lg"
+            onClick={generate}
+            disabled={loading || !occasion.trim()}
+          >
+            <Sparkles className="size-4" aria-hidden />
+            {loading ? "Generando…" : "Generar 6 ideas"}
+          </Button>
         </div>
-        <Button onClick={generate} disabled={loading || !occasion.trim()}>
-          {loading ? "Generando…" : "Generar 6 ideas"}
-        </Button>
       </div>
 
       {loading ? (
@@ -99,22 +110,28 @@ export default function GiftsPage({
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="h-44 rounded-md border border-dashed animate-pulse"
+              className="h-52 rounded-2xl border border-dashed border-border/60 animate-pulse"
             />
           ))}
         </div>
       ) : ideas ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {ideas.map((idea, i) => (
-            <GiftRecommendationCard key={i} idea={idea} />
+            <GiftRecommendationCard key={i} idea={idea} index={i} />
           ))}
         </div>
       ) : (
-        <p className="text-sm text-muted-foreground">
-          Pulsa &ldquo;Generar 6 ideas&rdquo; para que la IA cree recomendaciones
-          personalizadas según los intereses, presupuesto y notas de{" "}
-          {person.name}.
-        </p>
+        <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-14 text-center">
+          <div className="text-4xl mb-3" aria-hidden>
+            ✨
+          </div>
+          <h2 className="text-2xl font-medium mb-2">A medida para {person.name}</h2>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto">
+            La IA combinará intereses, notas y presupuesto que has guardado
+            con la ocasión que elijas para sugerir seis ideas concretas con
+            enlace a Amazon.
+          </p>
+        </div>
       )}
     </main>
   );

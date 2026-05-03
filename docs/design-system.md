@@ -85,6 +85,7 @@ Cargadas en [`src/app/layout.tsx`](../src/app/layout.tsx) y expuestas como varia
 - **Hover · cards con acción interna** (la card no es link, pero contiene botón): `transition-shadow hover:shadow-md`. Sin translate ni cambio de fondo. Ejemplo: `GiftRecommendationCard`.
 - **Cards estáticas** (sin acción): solo `shadow-sm`, sin hover. Ejemplo: feature cards de la landing.
 - **Card de urgencia** (UpcomingDateCard cuando `daysUntil <= 7`): `border-primary/60 shadow-sm bg-primary/5`. El tinte rosado del primary llama la atención sin chillar.
+- **Cards generadas por IA** (GiftRecommendationCard): un `<Sparkles>` discreto en `text-primary/80 size-4` antes del título marca la procedencia. Footer separado por `border-t border-border/50` con badge de categoría + precio prominente (`text-lg font-medium`) a la izquierda y CTA a la derecha. Stagger animation `animate-in fade-in slide-in-from-bottom-2 duration-500` con `animationDelay: index * 60ms` para que aparezcan en cascada.
 
 ### Buttons
 
@@ -109,6 +110,15 @@ Cargadas en [`src/app/layout.tsx`](../src/app/layout.tsx) y expuestas como varia
 - Tamaño default `size-10`–`size-12` en cards, `size-20`–`size-24` en headers de detalle.
 - En headers grandes, añadir `ring-1 ring-border` para definir el contorno sin que pese.
 - Si no hay foto, fallback con iniciales (2 letras max, mayúsculas).
+
+### Animaciones
+
+`tw-animate-css` ya está disponible (instalado por shadcn). Reglas:
+
+- **Aparición de listas grandes** (>3 elementos generados): stagger fade-in usando `animate-in fade-in slide-in-from-bottom-2 duration-500 fill-mode-both` + `style={{ animationDelay: '${i * 60}ms' }}`. 60ms entre cards, no más, para no demorar la lectura. Ejemplo: cards de `/people/[id]/gifts`.
+- **Hover sobre cards**: ya cubierto en sus reglas. `transition-all` o `transition-shadow` solo, duración por defecto (~150ms).
+- **No animar**: aparición de un único elemento (es ruido), elementos que reaparecen tras refresh, headers, navegación.
+- **`fill-mode-both`** es importante en stagger: sin él, las cards parpadean al inicio porque la animación no tiene estado inicial.
 
 ### Iconografía
 
@@ -197,7 +207,7 @@ Lista de cosas que sé que faltan o que no han recibido pasada todavía. Se irá
 - [x] ~~Hover de cards interactivas~~ → resuelto, ver Componentes · Cards.
 - [x] ~~Iconografía~~ → resuelto: lucide-react adoptado, ver Componentes · Iconografía.
 - [x] ~~Página `/people/[id]` (detalle)~~ → primera pasada de jerarquía: header limpio con back-link, acciones secundarias como icon-only, info y fechas en dos cards a dos columnas en desktop.
-- [ ] **Página `/people/[id]/gifts`**: las cards de regalo IA son funcionales pero podrían tener identidad propia (etiqueta "IA", animación al aparecer).
+- [x] ~~Página `/people/[id]/gifts`~~ → resuelto: `<Sparkles>` en titulo de card, footer separado con border-t y precio prominente, stagger animation, empty state con copy "A medida para X", input de ocasión en card border-dashed.
 - [ ] **Footer global**: minimal por ahora. Decidir si crece o se queda así.
 - [ ] **Skeletons consistentes**: todos en `rounded-2xl` y `border-dashed`, pero verificar dimensiones uniformes.
 - [ ] **Mobile < 380px**: sin probar. Hero de landing podría descuadrar.
