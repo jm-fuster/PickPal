@@ -45,11 +45,11 @@ export default function DashboardPage() {
   }, [upcoming, windowDays]);
 
   return (
-    <main className="flex flex-1 flex-col gap-6 p-8">
+    <main className="flex flex-1 flex-col gap-8 p-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Fechas que se acercan en los próximos {windowDays} días.
+        <h1 className="text-4xl font-medium">Dashboard</h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          Lo que llega en los próximos {windowDays} días.
         </p>
       </div>
 
@@ -67,13 +67,28 @@ export default function DashboardPage() {
       </div>
 
       {!ready || upcoming === undefined ? (
-        <p className="text-muted-foreground">Cargando…</p>
+        <div className="space-y-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div
+              key={i}
+              className="h-20 rounded-2xl border border-dashed border-border/60 animate-pulse"
+            />
+          ))}
+        </div>
       ) : filtered.length === 0 ? (
-        <div className="rounded-md border border-dashed p-12 text-center">
-          <p className="text-muted-foreground mb-4">
-            No hay fechas en los próximos {windowDays} días.
+        <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-14 text-center">
+          <div className="text-4xl mb-3" aria-hidden>
+            ☕
+          </div>
+          <h2 className="text-2xl font-medium mb-2">Calma por delante</h2>
+          <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
+            No hay fechas en los próximos {windowDays} días. Buen momento
+            para añadir a alguien que te falte.
           </p>
-          <Link href="/people" className={buttonVariants({ variant: "outline" })}>
+          <Link
+            href="/people"
+            className={buttonVariants({ variant: "outline" })}
+          >
             Ver personas
           </Link>
         </div>

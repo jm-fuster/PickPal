@@ -7,16 +7,19 @@ import { ThemeToggle } from "@/components/theme-toggle";
 
 const FEATURES = [
   {
-    title: "Una sola lista de personas",
-    body: "Guarda intereses, presupuesto y notas de cada persona que te importa, en un solo sitio.",
+    emoji: "🪴",
+    title: "Una libreta para los tuyos",
+    body: "Guarda intereses, presupuesto y notas de cada persona que te importa. Como una agenda de papel, pero que no se pierde.",
   },
   {
-    title: "Avisos a tiempo",
-    body: "Configura cuántos días antes quieres saberlo. La campanita y el dashboard te avisan.",
+    emoji: "🔔",
+    title: "Avisos cuando hacen falta",
+    body: "Decide tú con cuántos días de antelación quieres saberlo. La campanita y el dashboard te avisan a tiempo.",
   },
   {
-    title: "6 ideas, una IA",
-    body: "Pulsa un botón y recibe seis sugerencias personalizadas con enlace directo a Amazon.",
+    emoji: "✨",
+    title: "Seis ideas hechas a medida",
+    body: "Pulsa un botón y recibe seis sugerencias adaptadas a sus gustos, con enlace directo a Amazon.",
   },
 ];
 
@@ -26,24 +29,27 @@ export default async function Home() {
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="flex items-center justify-between p-6">
-        <span className="font-semibold">Giftly</span>
+      <header className="flex items-center justify-between px-6 py-5">
+        <span className="text-lg font-medium tracking-tight">Giftly</span>
         <div className="flex items-center gap-3">
           <ThemeToggle />
           {isSignedIn ? <UserButton /> : null}
         </div>
       </header>
 
-      <main className="flex flex-1 flex-col items-center justify-center gap-12 px-6 py-12 text-center">
-        <section className="space-y-5 max-w-2xl">
-          <h1 className="text-5xl font-bold tracking-tight sm:text-6xl">
-            No olvides a las personas que te importan.
+      <main className="flex flex-1 flex-col items-center justify-center gap-16 px-6 py-16">
+        <section className="space-y-6 max-w-3xl text-center">
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
+            Para las personas que te importan
+          </p>
+          <h1 className="text-balance text-5xl font-medium leading-[1.05] sm:text-6xl md:text-7xl">
+            No olvides el cumpleaños de quien te hace bien.
           </h1>
-          <p className="text-lg text-muted-foreground">
+          <p className="mx-auto max-w-xl text-lg text-muted-foreground">
             Guarda fechas importantes y recibe ideas de regalo personalizadas
             con IA cuando se acerca cada ocasión.
           </p>
-          <div className="flex justify-center gap-3 pt-2">
+          <div className="flex flex-wrap justify-center gap-3 pt-3">
             {isSignedIn ? (
               <Link href="/dashboard" className={buttonVariants({ size: "lg" })}>
                 Ir al dashboard
@@ -64,20 +70,25 @@ export default async function Home() {
           </div>
         </section>
 
-        <section className="grid w-full max-w-4xl gap-4 sm:grid-cols-3">
+        <section className="grid w-full max-w-5xl gap-4 sm:grid-cols-3">
           {FEATURES.map((f) => (
-            <Card key={f.title}>
-              <CardContent className="p-5 text-left space-y-2">
-                <h2 className="font-medium">{f.title}</h2>
-                <p className="text-sm text-muted-foreground">{f.body}</p>
+            <Card key={f.title} className="border-border/60 shadow-sm">
+              <CardContent className="space-y-3 p-6">
+                <div className="text-2xl" aria-hidden>
+                  {f.emoji}
+                </div>
+                <h2 className="text-xl font-medium">{f.title}</h2>
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  {f.body}
+                </p>
               </CardContent>
             </Card>
           ))}
         </section>
       </main>
 
-      <footer className="text-center text-xs text-muted-foreground p-6">
-        Giftly · Hecho con Next.js, Convex y Gemini.
+      <footer className="px-6 py-8 text-center text-xs text-muted-foreground">
+        Giftly · Hecho con cariño en Next.js, Convex y Gemini.
       </footer>
     </div>
   );

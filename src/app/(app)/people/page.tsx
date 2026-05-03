@@ -15,9 +15,14 @@ export default function PeoplePage() {
   );
 
   return (
-    <main className="flex flex-1 flex-col gap-6 p-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">Personas</h1>
+    <main className="flex flex-1 flex-col gap-8 p-8">
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <h1 className="text-4xl font-medium">Personas</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Quienes te importan, en una sola libreta.
+          </p>
+        </div>
         <Link href="/people/new" className={buttonVariants({ size: "lg" })}>
           + Nueva persona
         </Link>
@@ -28,17 +33,22 @@ export default function PeoplePage() {
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="h-24 rounded-md border border-dashed animate-pulse"
+              className="h-24 rounded-2xl border border-dashed border-border/60 animate-pulse"
             />
           ))}
         </div>
       ) : people.length === 0 ? (
-        <div className="rounded-md border border-dashed p-12 text-center">
-          <p className="text-muted-foreground mb-4">
-            Aún no tienes personas guardadas.
+        <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-14 text-center">
+          <div className="text-4xl mb-3" aria-hidden>
+            📓
+          </div>
+          <h2 className="text-2xl font-medium mb-2">Una libreta en blanco</h2>
+          <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
+            Empieza por alguien fácil — pareja, padres, mejor amigo. Anota sus
+            intereses y déjanos cuidar las fechas.
           </p>
-          <Link href="/people/new" className={buttonVariants()}>
-            Añadir la primera
+          <Link href="/people/new" className={buttonVariants({ size: "lg" })}>
+            Añadir la primera persona
           </Link>
         </div>
       ) : (
