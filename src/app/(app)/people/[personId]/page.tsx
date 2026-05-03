@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { use } from "react";
+import { Pencil, Sparkles, Trash2, X } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
 import { useRouter } from "next/navigation";
@@ -11,6 +12,7 @@ import type { Id } from "../../../../../convex/_generated/dataModel";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { ImportantDateForm } from "@/components/people/ImportantDateForm";
 import { RELATIONSHIPS } from "@/lib/schemas";
 
@@ -92,110 +94,149 @@ export default function PersonDetailPage({
       : budgetMin || budgetMax;
 
   return (
-    <main className="flex flex-1 flex-col gap-8 p-8">
-      <header className="flex items-start gap-5">
-        <Avatar className="size-20">
+    <main className="flex flex-1 flex-col gap-8 p-8 max-w-4xl">
+      <Link
+        href="/people"
+        className="text-sm text-muted-foreground hover:text-foreground w-fit"
+      >
+        ← Personas
+      </Link>
+
+      <header className="flex flex-col gap-6 sm:flex-row sm:items-center">
+        <Avatar className="size-24 ring-1 ring-border">
           {person.photoUrl ? <AvatarImage src={person.photoUrl} /> : null}
-          <AvatarFallback className="text-lg">
+          <AvatarFallback className="text-xl">
             {person.name.slice(0, 2).toUpperCase()}
           </AvatarFallback>
         </Avatar>
-        <div className="flex-1 space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight">{person.name}</h1>
-          <p className="text-sm text-muted-foreground">{relationshipLabel}</p>
-          {budget ? (
-            <p className="text-sm">
-              <span className="text-muted-foreground">Presupuesto:</span>{" "}
-              {budget}
-            </p>
-          ) : null}
+
+        <div className="flex-1 space-y-1.5">
+          <h1 className="text-4xl font-medium leading-tight">{person.name}</h1>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+            <span>{relationshipLabel}</span>
+            {budget ? (
+              <>
+                <span aria-hidden>·</span>
+                <span>{budget}</span>
+              </>
+            ) : null}
+          </div>
         </div>
-        <div className="flex gap-2">
+
+        <div className="flex flex-wrap items-center gap-2">
           <Link
             href={`/people/${person._id}/gifts`}
             className={buttonVariants()}
           >
+            <Sparkles className="size-4" aria-hidden />
             Ideas de regalo
           </Link>
           <Link
             href={`/people/${person._id}/edit`}
-            className={buttonVariants({ variant: "outline" })}
+            className={buttonVariants({ variant: "ghost", size: "icon" })}
+            aria-label="Editar"
+            title="Editar"
           >
-            Editar
+            <Pencil className="size-4" aria-hidden />
           </Link>
-          <Button variant="destructive" onClick={handleDelete}>
-            Eliminar
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleDelete}
+            aria-label="Eliminar"
+            title="Eliminar"
+            className="text-destructive hover:text-destructive"
+          >
+            <Trash2 className="size-4" aria-hidden />
           </Button>
         </div>
       </header>
 
-      {person.interests.length > 0 ? (
-        <section className="space-y-2">
-          <h2 className="text-sm font-medium text-muted-foreground">
-            Intereses
-          </h2>
-          <div className="flex flex-wrap gap-2">
-            {person.interests.map((i) => (
-              <Badge key={i} variant="secondary">
-                {i}
-              </Badge>
-            ))}
-          </div>
-        </section>
-      ) : null}
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card className="border-border/60 shadow-sm">
+          <CardContent className="space-y-4 p-5">
+            <h2 className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+              Intereses
+            </h2>
+            {person.interests.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {person.interests.map((i) => (
+                  <Badge key={i} variant="secondary">
+                    {i}
+                  </Badge>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Aún no has anotado intereses. Edita la persona para añadirlos.
+              </p>
+            )}
 
-      {person.notes ? (
-        <section className="space-y-2">
-          <h2 className="text-sm font-medium text-muted-foreground">Notas</h2>
-          <p className="text-sm whitespace-pre-wrap">{person.notes}</p>
-        </section>
-      ) : null}
+            {person.notes ? (
+              <>
+                <h2 className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground pt-2">
+                  Notas
+                </h2>
+                <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                  {person.notes}
+                </p>
+              </>
+            ) : null}
+          </CardContent>
+        </Card>
 
-      <section className="space-y-3">
-        <h2 className="text-sm font-medium text-muted-foreground">
-          Fechas importantes
-        </h2>
-        {dates.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Aún no hay fechas guardadas.
-          </p>
-        ) : (
-          <ul className="space-y-2">
-            {dates.map((d) => (
-              <li
-                key={d._id}
-                className="flex items-center justify-between rounded-md border p-3 text-sm"
-              >
-                <span>
-                  <span className="font-medium">{d.label}</span>
-                  <span className="text-muted-foreground">
-                    {" "}
-                    — {d.day} {MONTHS[d.month - 1]}
-                    {d.year ? ` ${d.year}` : ""}
-                  </span>
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={async () => {
-                    try {
-                      await removeDate({ id: d._id });
-                      toast.success("Fecha eliminada");
-                    } catch (err) {
-                      toast.error(
-                        err instanceof Error ? err.message : "Error",
-                      );
-                    }
-                  }}
-                >
-                  Quitar
-                </Button>
-              </li>
-            ))}
-          </ul>
-        )}
-        <ImportantDateForm personId={id} />
-      </section>
+        <Card className="border-border/60 shadow-sm">
+          <CardContent className="space-y-4 p-5">
+            <h2 className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+              Fechas importantes
+            </h2>
+
+            {dates.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Aún no hay fechas guardadas. Añade la primera abajo.
+              </p>
+            ) : (
+              <ul className="space-y-2">
+                {dates.map((d) => (
+                  <li
+                    key={d._id}
+                    className="flex items-center justify-between rounded-lg border border-border/60 bg-background/60 p-3 text-sm"
+                  >
+                    <span>
+                      <span className="font-medium">{d.label}</span>
+                      <span className="text-muted-foreground">
+                        {" · "}
+                        {d.day} {MONTHS[d.month - 1]}
+                        {d.year ? ` ${d.year}` : ""}
+                      </span>
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label="Quitar fecha"
+                      title="Quitar fecha"
+                      onClick={async () => {
+                        try {
+                          await removeDate({ id: d._id });
+                          toast.success("Fecha eliminada");
+                        } catch (err) {
+                          toast.error(
+                            err instanceof Error ? err.message : "Error",
+                          );
+                        }
+                      }}
+                    >
+                      <X className="size-3.5" aria-hidden />
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <ImportantDateForm personId={id} />
+          </CardContent>
+        </Card>
+      </div>
     </main>
   );
 }

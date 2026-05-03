@@ -9,7 +9,7 @@ const formatRange = (min: number, max: number) =>
 
 export function GiftRecommendationCard({ idea }: { idea: GiftRecommendation }) {
   return (
-    <Card className="flex flex-col h-full">
+    <Card className="flex flex-col h-full border-border/60 shadow-sm transition-shadow hover:shadow-md">
       <CardContent className="flex flex-1 flex-col gap-3 p-5">
         <div className="flex items-start justify-between gap-2">
           <h3 className="font-medium leading-tight">{idea.title}</h3>

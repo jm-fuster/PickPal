@@ -18,7 +18,7 @@ const initials = (name: string) =>
 export function PersonCard({ person }: { person: Doc<"people"> }) {
   return (
     <Link href={`/people/${person._id}`} className="block">
-      <Card className="hover:bg-muted/50 transition-colors h-full">
+      <Card className="h-full border-border/60 transition-all hover:bg-muted/40 hover:shadow-md hover:-translate-y-0.5">
         <CardContent className="flex items-center gap-4 p-4">
           <Avatar>
             {person.photoUrl ? <AvatarImage src={person.photoUrl} /> : null}

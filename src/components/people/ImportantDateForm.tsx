@@ -55,9 +55,11 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="space-y-3 rounded-md border p-4"
+      className="space-y-3 rounded-xl border border-dashed border-border/70 bg-background/40 p-4"
     >
-      <p className="text-sm font-medium">Añadir fecha</p>
+      <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+        Añadir fecha
+      </p>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <div className="space-y-1.5 md:col-span-2">

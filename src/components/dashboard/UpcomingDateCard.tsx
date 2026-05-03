@@ -26,7 +26,13 @@ export function UpcomingDateCard({
   const urgent = daysUntil <= 7;
 
   return (
-    <Card className={urgent ? "border-primary" : undefined}>
+    <Card
+      className={
+        urgent
+          ? "border-primary/60 shadow-sm bg-primary/5"
+          : "border-border/60 shadow-sm"
+      }
+    >
       <CardContent className="flex items-center gap-4 p-4">
         <Avatar className="size-12">
           {person.photoUrl ? <AvatarImage src={person.photoUrl} /> : null}

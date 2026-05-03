@@ -79,10 +79,12 @@ Cargadas en [`src/app/layout.tsx`](../src/app/layout.tsx) y expuestas como varia
 
 ### Cards (shadcn `Card`)
 
-- Default: `rounded` heredado del token, `border border-border`, `shadow-sm`.
-- Para cards en grids de listado (PersonCard, feature cards de la landing): añadir `border-border/60` para que la línea sea sutil.
+- Default: `rounded` heredado del token, `border border-border/60` para que la línea sea sutil, `shadow-sm`.
 - Padding: `p-4` en cards densas (PersonCard), `p-5`–`p-6` en cards informativas (UpcomingDateCard, GiftRecommendationCard, feature cards).
-- **Hover sutil**: `hover:bg-muted/50 transition-colors` cuando la card es clicable. Nada de elevación dramática.
+- **Hover · cards completamente clicables** (toda la card es Link): `transition-all hover:bg-muted/40 hover:shadow-md hover:-translate-y-0.5`. Sutilmente "el papel se levanta". Ejemplo: `PersonCard`.
+- **Hover · cards con acción interna** (la card no es link, pero contiene botón): `transition-shadow hover:shadow-md`. Sin translate ni cambio de fondo. Ejemplo: `GiftRecommendationCard`.
+- **Cards estáticas** (sin acción): solo `shadow-sm`, sin hover. Ejemplo: feature cards de la landing.
+- **Card de urgencia** (UpcomingDateCard cuando `daysUntil <= 7`): `border-primary/60 shadow-sm bg-primary/5`. El tinte rosado del primary llama la atención sin chillar.
 
 ### Buttons
 
@@ -104,8 +106,28 @@ Cargadas en [`src/app/layout.tsx`](../src/app/layout.tsx) y expuestas como varia
 
 ### Avatars
 
-- Tamaño default `size-10`–`size-12` en cards, `size-20` en headers de detalle.
+- Tamaño default `size-10`–`size-12` en cards, `size-20`–`size-24` en headers de detalle.
+- En headers grandes, añadir `ring-1 ring-border` para definir el contorno sin que pese.
 - Si no hay foto, fallback con iniciales (2 letras max, mayúsculas).
+
+### Iconografía
+
+Set único: [`lucide-react`](https://lucide.dev). Stroke 2 (default), tamaño `size-4` (16px) en botones y nav, `size-3.5` en botones `icon-sm`, `size-5` para iconos decorativos en headers.
+
+Iconos en uso:
+- `Bell` — campanita de notificaciones.
+- `Sun` / `Moon` — toggle de tema.
+- `Plus` — crear nueva entidad.
+- `Sparkles` — acciones que invocan IA ("Ideas de regalo").
+- `Pencil` — editar.
+- `Trash2` — eliminar (siempre con `text-destructive`).
+- `X` — cerrar / quitar elemento de una lista.
+
+**Reglas:**
+- **Botones icon-only** necesitan `aria-label` y `title`. Usar variant `ghost` y size `icon` o `icon-sm`.
+- **Botones con icono + texto**: el icono va antes del texto, separado por el gap nativo del botón. No añadir `mr-2`.
+- **No mezclar sets**: no usar Heroicons / Phosphor / SVG inline. Si lucide no tiene un icono concreto, abrir issue en pendientes antes de meter algo ad-hoc.
+- **Iconos decorativos**: `aria-hidden`. Solo los que aportan información llevan label.
 
 ---
 
@@ -172,15 +194,15 @@ Cosas que se han probado o considerado y NO funcionan. Si vuelven a tentar, leer
 
 Lista de cosas que sé que faltan o que no han recibido pasada todavía. Se irán tachando o convirtiéndose en reglas a medida que se resuelvan.
 
-- [ ] **Hover de cards interactivas** (PersonCard, UpcomingDateCard): actualmente solo `bg-muted/50`. Falta decidir si añadir un `shadow-md` sutil o un translate-y muy ligero.
-- [ ] **Página `/people/[id]` (detalle)**: tipografía heredada bien, pero la disposición de info (avatar + datos + botones) merece repaso de jerarquía.
+- [x] ~~Hover de cards interactivas~~ → resuelto, ver Componentes · Cards.
+- [x] ~~Iconografía~~ → resuelto: lucide-react adoptado, ver Componentes · Iconografía.
+- [x] ~~Página `/people/[id]` (detalle)~~ → primera pasada de jerarquía: header limpio con back-link, acciones secundarias como icon-only, info y fechas en dos cards a dos columnas en desktop.
 - [ ] **Página `/people/[id]/gifts`**: las cards de regalo IA son funcionales pero podrían tener identidad propia (etiqueta "IA", animación al aparecer).
 - [ ] **Footer global**: minimal por ahora. Decidir si crece o se queda así.
 - [ ] **Skeletons consistentes**: todos en `rounded-2xl` y `border-dashed`, pero verificar dimensiones uniformes.
 - [ ] **Mobile < 380px**: sin probar. Hero de landing podría descuadrar.
 - [ ] **Tono de los toasts de error** (sonner): voz por defecto, podría tener un tono propio.
 - [ ] **Estado de loading global / transiciones de página**: actualmente cada página gestiona el suyo. ¿Vale la pena una skeleton global o no?
-- [ ] **Iconografía**: usamos un único bell SVG inline. Si crece la necesidad, decidir set (`lucide-react` ya está instalado pero no se usa).
 
 ---
 

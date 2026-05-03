@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Plus } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
@@ -24,7 +25,8 @@ export default function PeoplePage() {
           </p>
         </div>
         <Link href="/people/new" className={buttonVariants({ size: "lg" })}>
-          + Nueva persona
+          <Plus className="size-4" aria-hidden />
+          Nueva persona
         </Link>
       </div>
 
