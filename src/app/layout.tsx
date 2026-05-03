@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Gift Reminder",
+  title: "Giftly",
   description:
     "Recuerda fechas importantes y recibe ideas de regalo personalizadas con IA.",
 };

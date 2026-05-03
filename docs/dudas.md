@@ -44,6 +44,6 @@ Lista de preguntas abiertas que hay que resolver antes o durante el desarrollo.
 
 ## Diseño / UX
 
-- [ ] **¿Nombre de la app?** — "Gift Reminder" es provisional.
+- [x] **Nombre de la app:** Giftly. Repo: `JMFusterr/Giftly`. Proyectos en Clerk y Convex también nombrados `Giftly`/`giftly`.
 - [ ] **¿Modo oscuro?** shadcn/ui lo soporta con Tailwind, pero hay que decidirlo antes de montar el tema.
 - [ ] **¿La landing page pública explica el producto o redirige directamente a login?**

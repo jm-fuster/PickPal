@@ -15,7 +15,7 @@
 
 ```bash
 # Proyecto base
-npx create-next-app@latest gift-reminder --typescript --tailwind --app --src-dir
+npx create-next-app@latest giftly --typescript --tailwind --app --src-dir
 
 # Auth + BD
 npm install @clerk/nextjs convex

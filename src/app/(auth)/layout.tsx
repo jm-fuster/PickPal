@@ -10,7 +10,7 @@ export default function AuthLayout({
     <div className="flex flex-1 flex-col">
       <header className="flex items-center justify-between p-6">
         <Link href="/" className="font-semibold">
-          Gift Reminder
+          Giftly
         </Link>
         <ThemeToggle />
       </header>

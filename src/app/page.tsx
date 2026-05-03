@@ -27,7 +27,7 @@ export default async function Home() {
   return (
     <div className="flex flex-1 flex-col">
       <header className="flex items-center justify-between p-6">
-        <span className="font-semibold">Gift Reminder</span>
+        <span className="font-semibold">Giftly</span>
         <div className="flex items-center gap-3">
           <ThemeToggle />
           {isSignedIn ? <UserButton /> : null}
@@ -77,7 +77,7 @@ export default async function Home() {
       </main>
 
       <footer className="text-center text-xs text-muted-foreground p-6">
-        Gift Reminder · Hecho con Next.js, Convex y Gemini.
+        Giftly · Hecho con Next.js, Convex y Gemini.
       </footer>
     </div>
   );

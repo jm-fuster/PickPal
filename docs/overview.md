@@ -1,4 +1,4 @@
-# Gift Reminder App — Visión general
+# Giftly — Visión general
 
 App web para recordar fechas importantes y recibir recomendaciones de regalos personalizadas con IA.
 

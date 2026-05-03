@@ -1,7 +1,7 @@
 # Estructura del proyecto
 
 ```
-gift-reminder/
+giftly/
 ├── convex/                                     # backend Convex (BD + lógica servidor)
 │   ├── schema.ts                               # definición de tablas
 │   ├── people.ts                               # queries y mutations de personas
