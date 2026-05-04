@@ -7,10 +7,10 @@ Lista de preguntas abiertas que hay que resolver antes o durante el desarrollo.
 ## Producto
 
 - [ ] **¿El usuario puede configurar cuántos días antes quiere recibir aviso?**
-  Actualmente el plan contempla un campo `notifyDaysBefore` en settings. ¿Es por usuario global o por persona o por fecha?
+  Actualmente el plan contempla un campo `notifyDaysBefore` en settings. ¿Es por usuario global o por persona o por fecha? La tabla `userSettings` ya existe en Convex; falta UI en `/settings` para editarlo.
 
 - [ ] **¿Se guardan las recomendaciones generadas o se regeneran cada vez?**
-  Ahora mismo se generan en cada visita a `/gifts`. ¿Interesa guardarlas en Convex para no consumir créditos de API innecesariamente?
+  Ahora mismo se generan en cada visita a `/gifts`. Con el rate limit de 10/día/usuario el riesgo es bajo, pero guardarlas en Convex permitiría volver a verlas sin gastar cuota.
 
 - [ ] **¿Notificaciones por email/push además del badge en la app?**
   Clerk soporta envío de emails. ¿Se quiere enviar un recordatorio por email X días antes?
@@ -28,19 +28,16 @@ Lista de preguntas abiertas que hay que resolver antes o durante el desarrollo.
 - [ ] **¿Internacionalización (i18n)?**
   La app está pensada para España (amazon.es, euros). ¿Se quiere soportar otros idiomas o mercados desde el inicio?
 
-- [ ] **¿Cómo manejar el 29 de febrero en años no bisiestos?**
-  `computeDaysUntilNextOccurrence` necesita un fallback explícito (usar 28 de febrero o 1 de marzo).
-
-- [ ] **¿Rate limiting en `/api/recommendations`?**
-  Gemini tiene cuotas. ¿Se limita el número de generaciones por usuario/día para evitar abuso?
-
 - [ ] **¿Testing automatizado?**
-  ¿Se implementan tests desde el inicio (Vitest + Playwright) o se deja para después del MVP?
+  Cero tests de momento. Vitest para utilidades y esquemas Zod, `convex-test` para mutaciones críticas — buen siguiente paso.
 
 ---
 
-## Diseño / UX
+## Resueltas
 
-- [x] **Nombre de la app:** Giftly. Repo: `JMFusterr/Giftly`. Proyectos en Clerk y Convex también nombrados `Giftly`/`giftly`.
-- [ ] **¿Modo oscuro?** shadcn/ui lo soporta con Tailwind, pero hay que decidirlo antes de montar el tema.
-- [ ] **¿La landing page pública explica el producto o redirige directamente a login?**
+- [x] **Nombre de la app:** Giftly. Repo: `JMFusterr/Giftly`. Proyectos en Clerk y Convex también `giftly`.
+- [x] **Modo oscuro.** Implementado con `next-themes` + shadcn/ui (`ThemeProvider`, `ThemeToggle`).
+- [x] **Landing page pública.** Explica el producto con tres tarjetas de features y CTA dual (registro / login).
+- [x] **Rate limiting en `/api/recommendations`.** 10 generaciones por usuario y día (UTC), tabla `recommendationUsage` en Convex.
+- [x] **Manejo del 29 de febrero.** En años no bisiestos cae al 28 de febrero (fix en `src/lib/dates.ts`).
+- [x] **Hosting / despliegue.** Vercel auto-deploy desde `main` + Convex dev. Primer dominio: `giftly-blond.vercel.app`.
