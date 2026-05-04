@@ -8,6 +8,7 @@ import { api } from "../../../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { LoadingFallback } from "@/components/layout/LoadingFallback";
 
 export default function SettingsPage() {
   const { isLoaded, isSignedIn } = useAuth();
@@ -27,7 +28,7 @@ export default function SettingsPage() {
   }, [settings]);
 
   if (!ready || settings === undefined) {
-    return <p className="p-8 text-muted-foreground">Cargando…</p>;
+    return <LoadingFallback />;
   }
 
   const onSave = async () => {

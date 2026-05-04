@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { use } from "react";
+import { use, useState } from "react";
 import { Pencil, Sparkles, Trash2, X } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
@@ -13,7 +13,17 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { ImportantDateForm } from "@/components/people/ImportantDateForm";
+import { LoadingFallback } from "@/components/layout/LoadingFallback";
 import { RELATIONSHIPS } from "@/lib/schemas";
 
 const MONTHS = [
@@ -54,8 +64,11 @@ export default function PersonDetailPage({
   const removePerson = useMutation(api.people.remove);
   const removeDate = useMutation(api.importantDates.remove);
 
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
   if (!ready || person === undefined || dates === undefined) {
-    return <p className="p-8 text-muted-foreground">Cargando…</p>;
+    return <LoadingFallback />;
   }
 
   if (person === null) {
@@ -70,15 +83,14 @@ export default function PersonDetailPage({
   }
 
   const handleDelete = async () => {
-    if (!confirm(`¿Eliminar a ${person.name}? Esto borra también sus fechas.`)) {
-      return;
-    }
+    setDeleting(true);
     try {
       await removePerson({ id });
       toast.success("Persona eliminada");
       router.push("/people");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error");
+      setDeleting(false);
     }
   };
 
@@ -141,7 +153,7 @@ export default function PersonDetailPage({
           <Button
             variant="ghost"
             size="icon"
-            onClick={handleDelete}
+            onClick={() => setConfirmDeleteOpen(true)}
             aria-label="Eliminar"
             title="Eliminar"
             className="text-destructive hover:text-destructive"
@@ -150,6 +162,34 @@ export default function PersonDetailPage({
           </Button>
         </div>
       </header>
+
+      <Dialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>¿Eliminar a {person.name}?</DialogTitle>
+            <DialogDescription>
+              Se borrarán también todas sus fechas importantes. Esta acción no
+              se puede deshacer.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose
+              render={
+                <Button variant="outline" disabled={deleting}>
+                  Cancelar
+                </Button>
+              }
+            />
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={deleting}
+            >
+              {deleting ? "Eliminando…" : "Eliminar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card className="border-border/60 shadow-sm">

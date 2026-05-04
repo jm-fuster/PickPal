@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { api } from "../../../../../../convex/_generated/api";
 import type { Id } from "../../../../../../convex/_generated/dataModel";
 import { PersonForm } from "@/components/people/PersonForm";
+import { LoadingFallback } from "@/components/layout/LoadingFallback";
 import type { PersonFormValues } from "@/lib/schemas";
 
 export default function EditPersonPage({
@@ -25,7 +26,7 @@ export default function EditPersonPage({
   const update = useMutation(api.people.update);
 
   if (!ready || person === undefined) {
-    return <p className="p-8 text-muted-foreground">Cargando…</p>;
+    return <LoadingFallback />;
   }
   if (person === null) {
     return <p className="p-8">Persona no encontrada.</p>;

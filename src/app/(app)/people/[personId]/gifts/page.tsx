@@ -12,6 +12,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { GiftRecommendationCard } from "@/components/gifts/GiftRecommendationCard";
+import { LoadingFallback } from "@/components/layout/LoadingFallback";
 import type { GiftRecommendation } from "@/lib/gifts";
 
 export default function GiftsPage({
@@ -31,7 +32,7 @@ export default function GiftsPage({
   const [loading, setLoading] = useState(false);
 
   if (!ready || person === undefined) {
-    return <p className="p-8 text-muted-foreground">Cargando…</p>;
+    return <LoadingFallback />;
   }
   if (person === null) {
     return (
