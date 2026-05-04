@@ -1,4 +1,4 @@
-# Contribuir a Giftly
+# Contribuir a PickPal
 
 ¡Gracias por querer contribuir! Esta guía es corta a propósito.
 
@@ -11,8 +11,8 @@ Echa un ojo a [`docs/dudas.md`](docs/dudas.md) — ahí están las decisiones de
 ## Setup local
 
 ```bash
-git clone https://github.com/JMFusterr/Giftly.git
-cd Giftly
+git clone https://github.com/JMFusterr/PickPal.git
+cd PickPal
 npm install
 cp .env.example .env.local        # rellena las claves
 npx convex dev                    # terminal 1

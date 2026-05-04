@@ -35,9 +35,9 @@ Lista de preguntas abiertas que hay que resolver antes o durante el desarrollo.
 
 ## Resueltas
 
-- [x] **Nombre de la app:** Giftly. Repo: `JMFusterr/Giftly`. Proyectos en Clerk y Convex también `giftly`.
+- [x] **Nombre de la app:** PickPal. Repo: `JMFusterr/PickPal`. Proyectos en Clerk y Convex también `pickpal`. _Renombrado desde "Giftly" el 2026-05-04 por colisión con apps existentes._
 - [x] **Modo oscuro.** Implementado con `next-themes` + shadcn/ui (`ThemeProvider`, `ThemeToggle`).
 - [x] **Landing page pública.** Explica el producto con tres tarjetas de features y CTA dual (registro / login).
 - [x] **Rate limiting en `/api/recommendations`.** 10 generaciones por usuario y día (UTC), tabla `recommendationUsage` en Convex.
 - [x] **Manejo del 29 de febrero.** En años no bisiestos cae al 28 de febrero (fix en `src/lib/dates.ts`).
-- [x] **Hosting / despliegue.** Vercel auto-deploy desde `main` + Convex dev. Primer dominio: `giftly-blond.vercel.app`.
+- [x] **Hosting / despliegue.** Vercel auto-deploy desde `main` + Convex dev. Dominio: `pickpal.vercel.app` (anterior: `giftly-blond.vercel.app`).

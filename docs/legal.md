@@ -1,4 +1,4 @@
-# Aviso legal y términos · Giftly
+# Aviso legal y términos · PickPal
 
 **Esqueleto. No publicar tal cual.** Los marcadores `{{...}}` son huecos a rellenar. Las secciones marcadas con _Revisar_ requieren decisión consciente antes de hacer pública la app.
 
@@ -22,21 +22,21 @@ Por exigencia de la Ley 34/2002 de Servicios de la Sociedad de la Información:
 
 ## 2. Objeto
 
-Giftly es una aplicación web que permite al usuario guardar información sobre personas de su entorno (intereses, fechas señaladas, notas) y obtener recomendaciones personalizadas de regalo generadas por inteligencia artificial.
+PickPal es una aplicación web que permite al usuario guardar información sobre personas de su entorno (intereses, fechas señaladas, notas) y obtener recomendaciones personalizadas de regalo generadas por inteligencia artificial.
 
-El uso de Giftly está sujeto a los presentes términos y a la [política de privacidad](privacy.md).
+El uso de PickPal está sujeto a los presentes términos y a la [política de privacidad](privacy.md).
 
 ---
 
 ## 3. Aceptación
 
-Al registrarse y utilizar Giftly, el usuario acepta estos términos. Si no está de acuerdo, no debe registrarse ni utilizar el servicio.
+Al registrarse y utilizar PickPal, el usuario acepta estos términos. Si no está de acuerdo, no debe registrarse ni utilizar el servicio.
 
 ---
 
 ## 4. Cuenta de usuario
 
-- Para usar Giftly hay que registrarse mediante `{{METODOS_LOGIN}}` _(p. ej. email + contraseña, Google)_.
+- Para usar PickPal hay que registrarse mediante `{{METODOS_LOGIN}}` _(p. ej. email + contraseña, Google)_.
 - El usuario es responsable de mantener la confidencialidad de sus credenciales.
 - El usuario debe ser **mayor de 14 años**. Para menores de 14 se requiere consentimiento de sus tutores legales (RGPD art. 8 + LOPDGDD art. 7).
 
@@ -62,21 +62,21 @@ Las ideas de regalo se generan con un modelo de lenguaje (Google Gemini) a parti
 
 - Las sugerencias son **orientativas**: precios, disponibilidad y descripciones pueden no ser exactos.
 - Los enlaces a Amazon son búsquedas: no garantizan la existencia ni el precio del producto.
-- Giftly **no se hace responsable** de compras realizadas a partir de las recomendaciones.
+- PickPal **no se hace responsable** de compras realizadas a partir de las recomendaciones.
 
 ---
 
 ## 7. Propiedad intelectual
 
-- El código de Giftly se distribuye bajo licencia MIT (ver [`LICENSE`](../LICENSE)).
+- El código de PickPal se distribuye bajo licencia MIT (ver [`LICENSE`](../LICENSE)).
 - La marca, el diseño y el contenido editorial son propiedad de `{{NOMBRE_O_RAZON_SOCIAL}}`.
-- Los datos introducidos por el usuario son **del usuario**. Giftly los procesa en los términos descritos en la política de privacidad.
+- Los datos introducidos por el usuario son **del usuario**. PickPal los procesa en los términos descritos en la política de privacidad.
 
 ---
 
 ## 8. Disponibilidad y modificaciones del servicio
 
-- Giftly se ofrece "tal cual" y "según disponibilidad". No garantizamos disponibilidad ininterrumpida.
+- PickPal se ofrece "tal cual" y "según disponibilidad". No garantizamos disponibilidad ininterrumpida.
 - Podemos modificar, suspender o discontinuar funcionalidades. Avisaremos con antelación razonable de cambios sustanciales.
 - _Revisar:_ política de retención de datos en caso de cierre del servicio (recomendable: 30 días para descargar copia + borrado).
 
@@ -86,9 +86,9 @@ Las ideas de regalo se generan con un modelo de lenguaje (Google Gemini) a parti
 
 En la medida permitida por la ley:
 
-- Giftly no se responsabiliza de daños indirectos, lucro cesante o pérdida de datos derivados del uso o imposibilidad de uso del servicio.
-- Giftly no se responsabiliza del uso que el usuario haga de las recomendaciones generadas.
-- Giftly no se responsabiliza de los datos que el usuario introduzca sobre terceros sin la legitimación adecuada.
+- PickPal no se responsabiliza de daños indirectos, lucro cesante o pérdida de datos derivados del uso o imposibilidad de uso del servicio.
+- PickPal no se responsabiliza del uso que el usuario haga de las recomendaciones generadas.
+- PickPal no se responsabiliza de los datos que el usuario introduzca sobre terceros sin la legitimación adecuada.
 
 Estas limitaciones no afectan a derechos del consumidor que sean irrenunciables por ley.
 

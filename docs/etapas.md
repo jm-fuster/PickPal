@@ -4,7 +4,7 @@
 
 Montar la base del proyecto con todas las herramientas configuradas.
 
-- [ ] `npx create-next-app@latest giftly --typescript --tailwind --app --src-dir`
+- [ ] `npx create-next-app@latest pickpal --typescript --tailwind --app --src-dir`
 - [ ] Instalar dependencias (ver [tech-stack.md](tech-stack.md))
 - [ ] Configurar Clerk: crear app en dashboard, añadir variables de entorno
 - [ ] Configurar Convex: `npx convex dev`, enlazar proyecto, añadir URL a `.env.local`

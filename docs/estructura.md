@@ -1,7 +1,7 @@
 # Estructura del proyecto
 
 ```
-giftly/
+pickpal/
 ├── convex/                                     # backend Convex (BD + lógica servidor)
 │   ├── schema.ts                               # definición de tablas
 │   ├── people.ts                               # queries y mutations de personas

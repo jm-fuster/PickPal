@@ -1,4 +1,4 @@
-# Seguridad · Giftly
+# Seguridad · PickPal
 
 Documento vivo. Captura los principios y checklists que mantienen seguro el backend y las APIs. Cuando una decisión cambie o se introduzca un patrón nuevo, se actualiza este archivo en el mismo commit que toca el código.
 

@@ -1,4 +1,4 @@
-# Giftly — Visión general
+# PickPal — Visión general
 
 App web para recordar fechas importantes y recibir recomendaciones de regalos personalizadas con IA.
 

@@ -30,7 +30,7 @@ export default async function Home() {
   return (
     <div className="flex flex-1 flex-col">
       <header className="flex items-center justify-between px-6 py-5">
-        <span className="text-lg font-medium tracking-tight">Giftly</span>
+        <span className="text-lg font-medium tracking-tight">PickPal</span>
         <div className="flex items-center gap-3">
           <ThemeToggle />
           {isSignedIn ? <UserButton /> : null}
@@ -88,7 +88,7 @@ export default async function Home() {
       </main>
 
       <footer className="px-6 py-8 text-center text-xs text-muted-foreground">
-        Giftly · Hecho con cariño en Next.js, Convex y Gemini.
+        PickPal · Hecho con cariño en Next.js, Convex y Gemini.
       </footer>
     </div>
   );

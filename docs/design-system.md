@@ -1,4 +1,4 @@
-# Sistema de diseño · Giftly
+# Sistema de diseño · PickPal
 
 Documento vivo. Captura las decisiones visuales del producto y el porqué de cada una. Cuando una decisión cambie, se actualiza este archivo en el mismo commit que toca el código.
 
@@ -6,7 +6,7 @@ Documento vivo. Captura las decisiones visuales del producto y el porqué de cad
 
 ## Intención
 
-Giftly es una app sobre **personas queridas y ocasiones que importan**. El registro visual es el de una libreta de papel cálido, no el de un dashboard SaaS.
+PickPal es una app sobre **personas queridas y ocasiones que importan**. El registro visual es el de una libreta de papel cálido, no el de un dashboard SaaS.
 
 - **Sí somos**: Things 3 con calor, Notion personal, papelería de calidad, una agenda de regalos hecha con mimo.
 - **No somos**: Linear, Material, Stripe Dashboard, Vercel admin. Nada de gris frío ni gradientes corporativos.

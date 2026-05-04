@@ -1,4 +1,4 @@
-# Política de privacidad · Giftly
+# Política de privacidad · PickPal
 
 **Esqueleto. No publicar tal cual.** Los marcadores `{{...}}` son huecos a rellenar antes de hacer la app pública. Las secciones marcadas con _Revisar_ requieren decisión consciente.
 
@@ -14,7 +14,7 @@
 - **NIF/CIF:** `{{NIF}}`
 - **Dirección:** `{{DIRECCION_POSTAL}}`
 - **Email de contacto:** `{{EMAIL_CONTACTO}}`
-- **Delegado de protección de datos (DPO):** _No aplica_ (no se cumplen los supuestos del art. 37 RGPD para Giftly mientras sea operación a pequeña escala).
+- **Delegado de protección de datos (DPO):** _No aplica_ (no se cumplen los supuestos del art. 37 RGPD para PickPal mientras sea operación a pequeña escala).
 
 ---
 
@@ -108,10 +108,10 @@ _Revisar:_ implementar el flujo de borrado de cuenta en la app antes de publicar
 
 ## 7. Datos sobre terceros (importante)
 
-Giftly permite al usuario guardar información sobre personas de su entorno que **no han prestado consentimiento directamente** (su pareja, familia, amigos).
+PickPal permite al usuario guardar información sobre personas de su entorno que **no han prestado consentimiento directamente** (su pareja, familia, amigos).
 
 - El **usuario es el responsable** de los datos que introduce sobre terceros: debe asegurarse de tener una base legítima (relación personal cercana) y no introducir datos sensibles innecesarios.
-- **Giftly actúa como encargado** del tratamiento para esos datos.
+- **PickPal actúa como encargado** del tratamiento para esos datos.
 - Cualquier tercero puede solicitar el borrado o información sobre los datos que se guardan sobre él escribiendo a `{{EMAIL_CONTACTO}}`. Daremos curso a la petición localizando los registros que le mencionen y eliminándolos en un plazo máximo de 30 días.
 - **Datos sensibles** (salud, ideología, orientación sexual, etc., art. 9 RGPD): el usuario **no debe** introducirlos en notas. Si se detecta su uso sistemático, podemos suspender la cuenta.
 
@@ -145,7 +145,7 @@ Las medidas técnicas y organizativas se documentan en [`security.md`](security.
 
 ## 10. Menores
 
-Giftly no está dirigida a menores de 14 años. Si detectamos una cuenta de un menor sin consentimiento de sus tutores, será eliminada.
+PickPal no está dirigida a menores de 14 años. Si detectamos una cuenta de un menor sin consentimiento de sus tutores, será eliminada.
 
 ---
 

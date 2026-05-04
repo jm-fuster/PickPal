@@ -24,7 +24,7 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "Giftly",
+  title: "PickPal",
   description:
     "Recuerda fechas importantes y recibe ideas de regalo personalizadas con IA.",
 };

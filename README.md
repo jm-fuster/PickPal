@@ -1,10 +1,10 @@
-# Giftly
+# PickPal
 
 > No olvides el cumpleaños de quien te hace bien.
 
 App web open-source para recordar fechas importantes (cumpleaños, aniversarios) de la gente que te importa y recibir ideas de regalo personalizadas con IA cuando se acerca cada ocasión.
 
-**Demo:** [giftly-blond.vercel.app](https://giftly-blond.vercel.app)
+**Demo:** [pickpal.vercel.app](https://pickpal.vercel.app)
 
 ## Funcionalidades
 
@@ -25,8 +25,8 @@ App web open-source para recordar fechas importantes (cumpleaños, aniversarios)
 ## Desarrollo local
 
 ```bash
-git clone https://github.com/JMFusterr/Giftly.git
-cd Giftly
+git clone https://github.com/JMFusterr/PickPal.git
+cd PickPal
 npm install
 cp .env.example .env.local        # rellena las claves (ver más abajo)
 npx convex dev                    # terminal 1 — sincroniza el backend
