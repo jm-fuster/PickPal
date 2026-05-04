@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { fetchQuery } from "convex/nextjs";
+import { fetchMutation, fetchQuery } from "convex/nextjs";
 import { generateObject } from "ai";
 import { google } from "@ai-sdk/google";
 import { z } from "zod";
@@ -68,6 +68,16 @@ export async function POST(req: NextRequest) {
       { error: "Persona no encontrada" },
       { status: 404 },
     );
+  }
+
+  // Rate limit: 10 recomendaciones por usuario y día (UTC).
+  // Protege la cuota gratuita de Gemini frente a abuso.
+  try {
+    await fetchMutation(api.recommendationUsage.consume, {}, { token });
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Límite diario alcanzado";
+    return NextResponse.json({ error: message }, { status: 429 });
   }
 
   const relationshipLabel =

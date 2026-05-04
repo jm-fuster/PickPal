@@ -24,4 +24,10 @@ export default defineSchema({
     clerkUserId: v.string(),
     notifyDaysBefore: v.number(),
   }).index("by_user", ["clerkUserId"]),
+
+  recommendationUsage: defineTable({
+    clerkUserId: v.string(),
+    day: v.string(), // "YYYY-MM-DD" en UTC
+    count: v.number(),
+  }).index("by_user_day", ["clerkUserId", "day"]),
 });

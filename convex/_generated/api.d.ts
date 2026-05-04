@@ -11,6 +11,7 @@
 import type * as auth from "../auth.js";
 import type * as importantDates from "../importantDates.js";
 import type * as people from "../people.js";
+import type * as recommendationUsage from "../recommendationUsage.js";
 import type * as settings from "../settings.js";
 
 import type {
@@ -23,6 +24,7 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   importantDates: typeof importantDates;
   people: typeof people;
+  recommendationUsage: typeof recommendationUsage;
   settings: typeof settings;
 }>;
 
