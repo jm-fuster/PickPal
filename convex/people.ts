@@ -33,7 +33,6 @@ export const create = mutation({
     notes: v.optional(v.string()),
     budgetMin: v.optional(v.number()),
     budgetMax: v.optional(v.number()),
-    photoUrl: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const clerkUserId = await requireUser(ctx);
@@ -50,7 +49,6 @@ export const update = mutation({
     notes: v.optional(v.string()),
     budgetMin: v.optional(v.number()),
     budgetMax: v.optional(v.number()),
-    photoUrl: v.optional(v.string()),
   },
   handler: async (ctx, { id, ...patch }) => {
     const clerkUserId = await requireUser(ctx);

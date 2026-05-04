@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { formatDayMonth, formatDaysUntil } from "@/lib/dates";
@@ -35,7 +35,6 @@ export function UpcomingDateCard({
     >
       <CardContent className="flex items-center gap-4 p-4">
         <Avatar className="size-12">
-          {person.photoUrl ? <AvatarImage src={person.photoUrl} /> : null}
           <AvatarFallback>{initials(person.name)}</AvatarFallback>
         </Avatar>
 

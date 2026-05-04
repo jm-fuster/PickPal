@@ -67,7 +67,6 @@ export default defineSchema({
     notes: v.optional(v.string()),     // situación, preferencias, restricciones
     budgetMin: v.optional(v.number()), // en céntimos (2500 = 25€)
     budgetMax: v.optional(v.number()),
-    photoUrl: v.optional(v.string()),
   }).index("by_user", ["clerkUserId"]),
 
   importantDates: defineTable({

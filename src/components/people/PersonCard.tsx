@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { RELATIONSHIPS } from "@/lib/schemas";
@@ -21,7 +21,6 @@ export function PersonCard({ person }: { person: Doc<"people"> }) {
       <Card className="h-full border-border/60 transition-all hover:bg-muted/40 hover:shadow-md hover:-translate-y-0.5">
         <CardContent className="flex items-center gap-4 p-4">
           <Avatar>
-            {person.photoUrl ? <AvatarImage src={person.photoUrl} /> : null}
             <AvatarFallback>{initials(person.name)}</AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">

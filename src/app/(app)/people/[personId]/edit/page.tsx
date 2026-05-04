@@ -46,7 +46,6 @@ export default function EditPersonPage({
         values.budgetMaxEuros !== undefined
           ? Math.round(values.budgetMaxEuros * 100)
           : undefined,
-      photoUrl: values.photoUrl || undefined,
     });
     toast.success("Persona actualizada");
     router.push(`/people/${id}`);
@@ -63,7 +62,6 @@ export default function EditPersonPage({
           relationship: person.relationship,
           interests: person.interests,
           notes: person.notes ?? "",
-          photoUrl: person.photoUrl ?? "",
           budgetMinEuros:
             person.budgetMin !== undefined ? person.budgetMin / 100 : undefined,
           budgetMaxEuros:

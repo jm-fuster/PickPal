@@ -10,7 +10,6 @@ export default defineSchema({
     notes: v.optional(v.string()),
     budgetMin: v.optional(v.number()),
     budgetMax: v.optional(v.number()),
-    photoUrl: v.optional(v.string()),
   }).index("by_user", ["clerkUserId"]),
 
   importantDates: defineTable({

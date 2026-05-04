@@ -8,39 +8,6 @@ export const RELATIONSHIPS = [
   { value: "other", label: "Otro" },
 ] as const;
 
-export const personFormSchema = z
-  .object({
-    name: z.string().trim().min(1, "El nombre es obligatorio").max(80),
-    relationship: z.enum(
-      RELATIONSHIPS.map((r) => r.value) as [string, ...string[]],
-    ),
-    interests: z.array(z.string().trim().min(1)).max(20),
-    notes: z.string().max(1000).optional(),
-    budgetMinEuros: z
-      .number({ error: "Debe ser un número" })
-      .min(0)
-      .max(100000)
-      .optional(),
-    budgetMaxEuros: z
-      .number({ error: "Debe ser un número" })
-      .min(0)
-      .max(100000)
-      .optional(),
-    photoUrl: z.url("URL no válida").optional().or(z.literal("")),
-  })
-  .refine(
-    (v) =>
-      v.budgetMinEuros === undefined ||
-      v.budgetMaxEuros === undefined ||
-      v.budgetMinEuros <= v.budgetMaxEuros,
-    {
-      message: "El mínimo debe ser menor o igual al máximo",
-      path: ["budgetMaxEuros"],
-    },
-  );
-
-export type PersonFormValues = z.infer<typeof personFormSchema>;
-
 export const importantDateSchema = z
   .object({
     label: z.string().trim().min(1, "Etiqueta obligatoria").max(40),
@@ -63,3 +30,36 @@ export const importantDateSchema = z
   );
 
 export type ImportantDateFormValues = z.infer<typeof importantDateSchema>;
+
+export const personFormSchema = z
+  .object({
+    name: z.string().trim().min(1, "El nombre es obligatorio").max(80),
+    relationship: z.enum(
+      RELATIONSHIPS.map((r) => r.value) as [string, ...string[]],
+    ),
+    interests: z.array(z.string().trim().min(1)).max(20),
+    notes: z.string().max(1000).optional(),
+    budgetMinEuros: z
+      .number({ error: "Debe ser un número" })
+      .min(0)
+      .max(100000)
+      .optional(),
+    budgetMaxEuros: z
+      .number({ error: "Debe ser un número" })
+      .min(0)
+      .max(100000)
+      .optional(),
+    dates: z.array(importantDateSchema).max(10),
+  })
+  .refine(
+    (v) =>
+      v.budgetMinEuros === undefined ||
+      v.budgetMaxEuros === undefined ||
+      v.budgetMinEuros <= v.budgetMaxEuros,
+    {
+      message: "El mínimo debe ser menor o igual al máximo",
+      path: ["budgetMaxEuros"],
+    },
+  );
+
+export type PersonFormValues = z.infer<typeof personFormSchema>;

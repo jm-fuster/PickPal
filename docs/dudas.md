@@ -34,9 +34,6 @@ Lista de preguntas abiertas que hay que resolver antes o durante el desarrollo.
 - [ ] **¿Rate limiting en `/api/recommendations`?**
   Gemini tiene cuotas. ¿Se limita el número de generaciones por usuario/día para evitar abuso?
 
-- [ ] **¿Imagen de perfil para las personas?**
-  El schema tiene `photoUrl` opcional. ¿Se sube una imagen real (Convex file storage) o solo se permite URL externa?
-
 - [ ] **¿Testing automatizado?**
   ¿Se implementan tests desde el inicio (Vitest + Playwright) o se deja para después del MVP?
 
