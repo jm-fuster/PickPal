@@ -31,12 +31,12 @@ export async function POST(req: NextRequest) {
   }
 
   if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+    console.error(
+      "[recommendations] Falta GOOGLE_GENERATIVE_AI_API_KEY en el entorno del servidor.",
+    );
     return NextResponse.json(
-      {
-        error:
-          "Falta GOOGLE_GENERATIVE_AI_API_KEY en .env.local. Configúrala en aistudio.google.com.",
-      },
-      { status: 500 },
+      { error: "Servicio temporalmente no disponible." },
+      { status: 503 },
     );
   }
 
@@ -75,9 +75,11 @@ export async function POST(req: NextRequest) {
   try {
     await fetchMutation(api.recommendationUsage.consume, {}, { token });
   } catch (err) {
-    const message =
-      err instanceof Error ? err.message : "Límite diario alcanzado";
-    return NextResponse.json({ error: message }, { status: 429 });
+    console.error("[recommendations] rate limit:", err);
+    return NextResponse.json(
+      { error: "Has alcanzado el límite diario de recomendaciones." },
+      { status: 429 },
+    );
   }
 
   const relationshipLabel =
@@ -116,9 +118,9 @@ Reglas:
     });
     return NextResponse.json(object);
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Error desconocido";
+    console.error("[recommendations] gemini:", err);
     return NextResponse.json(
-      { error: `Error generando recomendaciones: ${message}` },
+      { error: "Error generando recomendaciones." },
       { status: 500 },
     );
   }

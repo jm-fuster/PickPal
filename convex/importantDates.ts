@@ -1,7 +1,11 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireUser } from "./auth";
+import { validateDateInput } from "./validators";
+import { checkAndIncrement } from "./rateLimit";
 import { Doc, Id } from "./_generated/dataModel";
+
+const CREATE_DATE_DAILY_LIMIT = 100;
 
 function assertValidDate(month: number, day: number) {
   if (!Number.isInteger(month) || month < 1 || month > 12) {
@@ -74,6 +78,13 @@ export const create = mutation({
     const clerkUserId = await requireUser(ctx);
     await assertOwnsPerson(ctx, args.personId, clerkUserId);
     assertValidDate(args.month, args.day);
+    validateDateInput({ label: args.label, year: args.year });
+    await checkAndIncrement(
+      ctx,
+      clerkUserId,
+      "create_date",
+      CREATE_DATE_DAILY_LIMIT,
+    );
     return await ctx.db.insert("importantDates", args);
   },
 });
@@ -97,6 +108,10 @@ export const update = mutation({
         patch.day ?? existing.day,
       );
     }
+    validateDateInput({
+      label: patch.label ?? existing.label,
+      year: patch.year ?? existing.year,
+    });
     await ctx.db.patch(id, patch);
   },
 });

@@ -1,6 +1,10 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireUser } from "./auth";
+import { validatePersonInput } from "./validators";
+import { checkAndIncrement } from "./rateLimit";
+
+const CREATE_PERSON_DAILY_LIMIT = 50;
 
 export const getAll = query({
   args: {},
@@ -36,6 +40,13 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     const clerkUserId = await requireUser(ctx);
+    validatePersonInput(args);
+    await checkAndIncrement(
+      ctx,
+      clerkUserId,
+      "create_person",
+      CREATE_PERSON_DAILY_LIMIT,
+    );
     return await ctx.db.insert("people", { ...args, clerkUserId });
   },
 });
@@ -56,6 +67,15 @@ export const update = mutation({
     if (!existing || existing.clerkUserId !== clerkUserId) {
       throw new Error("Persona no encontrada.");
     }
+    const merged = { ...existing, ...patch };
+    validatePersonInput({
+      name: merged.name,
+      relationship: merged.relationship,
+      interests: merged.interests,
+      notes: merged.notes,
+      budgetMin: merged.budgetMin,
+      budgetMax: merged.budgetMax,
+    });
     await ctx.db.patch(id, patch);
   },
 });

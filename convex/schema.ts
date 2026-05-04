@@ -30,4 +30,11 @@ export default defineSchema({
     day: v.string(), // "YYYY-MM-DD" en UTC
     count: v.number(),
   }).index("by_user_day", ["clerkUserId", "day"]),
+
+  rateLimitBuckets: defineTable({
+    clerkUserId: v.string(),
+    day: v.string(), // "YYYY-MM-DD" en UTC
+    bucket: v.string(), // p.ej. "create_person", "create_date"
+    count: v.number(),
+  }).index("by_user_day_bucket", ["clerkUserId", "day", "bucket"]),
 });

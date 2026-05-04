@@ -17,3 +17,7 @@ Convex agent skills for common tasks can be installed by running
 `npx convex ai-files install`.
 
 <!-- convex-ai-end -->
+
+# Seguridad
+
+Antes de añadir endpoints, mutations Convex, rutas o variables de entorno, **lee [`docs/security.md`](docs/security.md)**. Contiene los patrones obligatorios (auth, ownership, validación, rate limit, sanitización de errores) y el checklist de PR. Actualízalo en el mismo commit si introduces un patrón nuevo o tomas una decisión explícita de "ahora no".
