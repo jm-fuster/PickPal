@@ -4,7 +4,7 @@
 
 App web open-source para recordar fechas importantes (cumpleaños, aniversarios) de la gente que te importa y recibir ideas de regalo personalizadas con IA cuando se acerca cada ocasión.
 
-**Demo:** [pickpal.vercel.app](https://pickpal.vercel.app)
+**Demo:** [pickpal-app.vercel.app](https://pickpal-app.vercel.app)
 
 ## Funcionalidades
 
