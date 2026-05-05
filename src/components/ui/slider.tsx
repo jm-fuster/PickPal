@@ -55,7 +55,7 @@ function SliderThumb({ className, ...props }: SliderPrimitive.Thumb.Props) {
     <SliderPrimitive.Thumb
       data-slot="slider-thumb"
       className={cn(
-        "block size-4 shrink-0 rounded-full border-2 border-primary bg-background shadow-sm ring-ring/50 transition-[width,height] outline-none focus-visible:ring-3 data-dragging:size-5 data-dragging:ring-3",
+        "block size-4 shrink-0 rounded-full bg-primary shadow-sm outline-none ring-ring/50 transition-[width,height] focus-visible:ring-3 data-dragging:size-5 data-dragging:ring-3",
         className,
       )}
       {...props}
