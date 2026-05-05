@@ -2,7 +2,7 @@
 
 import { use, useState } from "react";
 import Link from "next/link";
-import { Sparkles } from "lucide-react";
+import { Sparkles, RefreshCw } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { toast } from "sonner";
@@ -30,6 +30,11 @@ export default function GiftsPage({
   const [occasion, setOccasion] = useState("Cumpleaños");
   const [ideas, setIdeas] = useState<GiftRecommendation[] | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const cached = useQuery(
+    api.recommendations.getByPersonOccasion,
+    ready ? { personId: id, occasionLabel: occasion } : "skip",
+  );
 
   if (!ready || person === undefined) {
     return <LoadingFallback />;
@@ -67,6 +72,9 @@ export default function GiftsPage({
     }
   };
 
+  const hasCached = cached !== undefined && cached !== null;
+  const showIdeas = ideas ?? (hasCached ? (cached!.ideas as GiftRecommendation[]) : null);
+
   return (
     <main className="flex flex-1 flex-col gap-8 p-8 max-w-6xl">
       <div className="space-y-2">
@@ -91,7 +99,10 @@ export default function GiftsPage({
             <Input
               id="occasion"
               value={occasion}
-              onChange={(e) => setOccasion(e.target.value)}
+              onChange={(e) => {
+                setOccasion(e.target.value);
+                setIdeas(null);
+              }}
               placeholder="Cumpleaños, aniversario, Navidad…"
             />
           </div>
@@ -100,10 +111,19 @@ export default function GiftsPage({
             onClick={generate}
             disabled={loading || !occasion.trim()}
           >
-            <Sparkles className="size-4" aria-hidden />
-            {loading ? "Generando…" : "Generar 6 ideas"}
+            {hasCached ? (
+              <RefreshCw className="size-4" aria-hidden />
+            ) : (
+              <Sparkles className="size-4" aria-hidden />
+            )}
+            {loading ? "Generando…" : hasCached ? "Regenerar" : "Generar 6 ideas"}
           </Button>
         </div>
+        {hasCached && !loading && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            Tienes ideas guardadas para esta ocasión. Regenerar consume cuota diaria.
+          </p>
+        )}
       </div>
 
       {loading ? (
@@ -115,9 +135,9 @@ export default function GiftsPage({
             />
           ))}
         </div>
-      ) : ideas ? (
+      ) : showIdeas ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {ideas.map((idea, i) => (
+          {showIdeas.map((idea, i) => (
             <GiftRecommendationCard key={i} idea={idea} index={i} />
           ))}
         </div>

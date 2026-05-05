@@ -116,6 +116,13 @@ Reglas:
       schema: giftRecommendationsSchema,
       prompt,
     });
+
+    await fetchMutation(
+      api.recommendations.upsert,
+      { personId, occasionLabel, ideas: object.ideas },
+      { token },
+    );
+
     return NextResponse.json(object);
   } catch (err) {
     console.error("[recommendations] gemini:", err);

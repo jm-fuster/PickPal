@@ -37,4 +37,22 @@ export default defineSchema({
     bucket: v.string(), // p.ej. "create_person", "create_date"
     count: v.number(),
   }).index("by_user_day_bucket", ["clerkUserId", "day", "bucket"]),
+
+  recommendations: defineTable({
+    clerkUserId: v.string(),
+    personId: v.id("people"),
+    occasionLabel: v.string(),
+    ideas: v.array(
+      v.object({
+        title: v.string(),
+        description: v.string(),
+        priceMinEuros: v.number(),
+        priceMaxEuros: v.number(),
+        category: v.string(),
+        amazonQuery: v.string(),
+      }),
+    ),
+  })
+    .index("by_user_person_occasion", ["clerkUserId", "personId", "occasionLabel"])
+    .index("by_person", ["personId"]),
 });
