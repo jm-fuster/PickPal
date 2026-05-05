@@ -36,6 +36,7 @@ export const importantDateSchema = z
       .max(2100)
       .optional()
       .or(z.literal(undefined)),
+    recurring: z.boolean().default(true),
     budgetMinEuros: z
       .number({ error: "Debe ser un número" })
       .min(0)
@@ -47,6 +48,10 @@ export const importantDateSchema = z
       .max(100000)
       .optional(),
   })
+  .refine(
+    (v) => v.recurring !== false || v.year !== undefined,
+    { message: "Indica el año del evento", path: ["year"] },
+  )
   .refine(
     (v) => {
       const daysInMonth = new Date(v.year ?? 2024, v.month, 0).getDate();

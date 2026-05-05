@@ -7,7 +7,7 @@ import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { DateGroupedList } from "@/components/dashboard/DateGroupedList";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { computeDaysUntilNextOccurrence } from "@/lib/dates";
+import { computeDaysUntil } from "@/lib/dates";
 
 const WINDOWS = [
   { value: 30, label: "30 días" },
@@ -31,16 +31,11 @@ export default function DashboardPage() {
     if (!upcoming) return [];
     const today = new Date();
     return upcoming
-      .map(({ date, person }) => ({
-        date,
-        person,
-        daysUntil: computeDaysUntilNextOccurrence(
-          date.month,
-          date.day,
-          today,
-        ),
-      }))
-      .filter((entry) => entry.daysUntil <= windowDays)
+      .map(({ date, person }) => {
+        const daysUntil = computeDaysUntil(date, today);
+        return daysUntil === null ? null : { date, person, daysUntil };
+      })
+      .filter((e): e is NonNullable<typeof e> => e !== null && e.daysUntil <= windowDays)
       .sort((a, b) => a.daysUntil - b.daysUntil);
   }, [upcoming, windowDays]);
 

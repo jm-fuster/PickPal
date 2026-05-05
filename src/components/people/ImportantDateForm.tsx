@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "convex/react";
 import { toast } from "sonner";
@@ -36,11 +36,14 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<ImportantDateFormValues>({
     resolver: zodResolver(importantDateSchema),
-    defaultValues: { label: "Cumpleaños", month: 1, day: 1 },
+    defaultValues: { label: "Cumpleaños", month: 1, day: 1, recurring: true },
   });
+
+  const watchedRecurring = useWatch({ control, name: "recurring" });
 
   const onSubmit = async (values: ImportantDateFormValues) => {
     try {
@@ -52,7 +55,7 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
         budgetMax: budgetMaxEuros !== undefined ? Math.round(budgetMaxEuros * 100) : undefined,
       });
       toast.success("Fecha añadida");
-      reset({ label: "Cumpleaños", month: 1, day: 1, year: undefined, budgetMinEuros: undefined, budgetMaxEuros: undefined });
+      reset({ label: "Cumpleaños", month: 1, day: 1, year: undefined, recurring: true, budgetMinEuros: undefined, budgetMaxEuros: undefined });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "No se pudo añadir la fecha");
     }
@@ -106,19 +109,39 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
         </div>
       </div>
 
-      <div className="space-y-1.5 max-w-xs">
-        <Label htmlFor="date-year">Año (opcional)</Label>
-        <Input
-          id="date-year"
-          type="number"
-          min={1900}
-          max={2100}
-          placeholder="Vacío = se repite cada año"
-          {...register("year", {
-            setValueAs: (v) =>
-              v === "" || v === null ? undefined : Number(v),
-          })}
-        />
+      <div className="grid grid-cols-2 gap-3 max-w-sm">
+        <div className="space-y-1.5">
+          <Label htmlFor="date-recurring">Recurrencia</Label>
+          <select
+            id="date-recurring"
+            className="h-8 w-full rounded-md border bg-background px-2 text-sm"
+            {...register("recurring", {
+              setValueAs: (v) => v === "true" || v === true,
+            })}
+          >
+            <option value="true">Todos los años</option>
+            <option value="false">Fecha única</option>
+          </select>
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="date-year">
+            {watchedRecurring === false ? "Año *" : "Año de nacimiento (opc.)"}
+          </Label>
+          <Input
+            id="date-year"
+            type="number"
+            min={1900}
+            max={2100}
+            placeholder={watchedRecurring === false ? "Ej. 2025" : "Opc."}
+            {...register("year", {
+              setValueAs: (v) =>
+                v === "" || v === null ? undefined : Number(v),
+            })}
+          />
+          {errors.year ? (
+            <p className="text-xs text-destructive">{errors.year.message}</p>
+          ) : null}
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3 max-w-xs">

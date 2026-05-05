@@ -6,7 +6,7 @@ import { useAuth } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
-import { computeDaysUntilNextOccurrence } from "@/lib/dates";
+import { computeDaysUntil } from "@/lib/dates";
 
 export function NotificationBell() {
   const { isLoaded, isSignedIn } = useAuth();
@@ -17,10 +17,10 @@ export function NotificationBell() {
   const windowDays = settings?.notifyDaysBefore ?? 30;
 
   const count =
-    upcoming?.filter(
-      ({ date }) =>
-        computeDaysUntilNextOccurrence(date.month, date.day) <= windowDays,
-    ).length ?? 0;
+    upcoming?.filter(({ date }) => {
+      const days = computeDaysUntil(date);
+      return days !== null && days <= windowDays;
+    }).length ?? 0;
 
   return (
     <Link

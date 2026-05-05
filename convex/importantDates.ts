@@ -62,7 +62,18 @@ export const getUpcoming = query({
         result.push({ date, person });
       }
     }
-    return result;
+
+    const todayStart = new Date(Date.now());
+    todayStart.setHours(0, 0, 0, 0);
+    return result.filter(({ date }) => {
+      if (date.recurring === false) {
+        if (date.year === undefined) return false;
+        const d = new Date(date.year, date.month - 1, date.day);
+        d.setHours(23, 59, 59, 999);
+        return d.getTime() >= todayStart.getTime();
+      }
+      return true;
+    });
   },
 });
 
@@ -73,6 +84,7 @@ export const create = mutation({
     month: v.number(),
     day: v.number(),
     year: v.optional(v.number()),
+    recurring: v.optional(v.boolean()),
     budgetMin: v.optional(v.number()),
     budgetMax: v.optional(v.number()),
   },
@@ -80,7 +92,7 @@ export const create = mutation({
     const clerkUserId = await requireUser(ctx);
     await assertOwnsPerson(ctx, args.personId, clerkUserId);
     assertValidDate(args.month, args.day);
-    validateDateInput({ label: args.label, year: args.year, budgetMin: args.budgetMin, budgetMax: args.budgetMax });
+    validateDateInput({ label: args.label, year: args.year, recurring: args.recurring, budgetMin: args.budgetMin, budgetMax: args.budgetMax });
     await checkAndIncrement(
       ctx,
       clerkUserId,
@@ -98,6 +110,7 @@ export const update = mutation({
     month: v.optional(v.number()),
     day: v.optional(v.number()),
     year: v.optional(v.number()),
+    recurring: v.optional(v.boolean()),
     budgetMin: v.optional(v.number()),
     budgetMax: v.optional(v.number()),
   },
@@ -112,9 +125,12 @@ export const update = mutation({
         patch.day ?? existing.day,
       );
     }
+    const mergedRecurring = patch.recurring ?? existing.recurring;
+    const mergedYear = patch.year ?? existing.year;
     validateDateInput({
       label: patch.label ?? existing.label,
-      year: patch.year ?? existing.year,
+      year: mergedYear,
+      recurring: mergedRecurring,
       budgetMin: patch.budgetMin ?? existing.budgetMin,
       budgetMax: patch.budgetMax ?? existing.budgetMax,
     });

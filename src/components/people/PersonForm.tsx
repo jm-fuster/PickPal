@@ -215,7 +215,7 @@ export function PersonForm({
               size="sm"
               variant="ghost"
               onClick={() =>
-                append({ label: "Cumpleaños", month: 1, day: 1, year: undefined, budgetMinEuros: undefined, budgetMaxEuros: undefined })
+                append({ label: "Cumpleaños", month: 1, day: 1, year: undefined, recurring: true, budgetMinEuros: undefined, budgetMaxEuros: undefined })
               }
             >
               <Plus className="size-3.5" />
@@ -232,7 +232,7 @@ export function PersonForm({
           {fields.map((field, idx) => (
             <div
               key={field.id}
-              className="grid grid-cols-2 gap-2 rounded-lg bg-background/60 p-3 md:grid-cols-[1fr_8rem_5rem_6rem_6rem_6rem_2rem]"
+              className="grid grid-cols-2 gap-2 rounded-lg bg-background/60 p-3 md:grid-cols-[1fr_8rem_5rem_8rem_6rem_6rem_6rem_2rem]"
             >
               <div className="space-y-1 md:col-span-1">
                 <Label htmlFor={`dates.${idx}.label`} className="text-xs">
@@ -286,6 +286,21 @@ export function PersonForm({
                 ) : null}
               </div>
               <div className="space-y-1">
+                <Label htmlFor={`dates.${idx}.recurring`} className="text-xs">
+                  Recurrencia
+                </Label>
+                <select
+                  id={`dates.${idx}.recurring`}
+                  className="h-9 w-full rounded-md border bg-background px-2 text-sm"
+                  {...register(`dates.${idx}.recurring` as const, {
+                    setValueAs: (v) => v === "true" || v === true,
+                  })}
+                >
+                  <option value="true">Todos los años</option>
+                  <option value="false">Fecha única</option>
+                </select>
+              </div>
+              <div className="space-y-1">
                 <Label htmlFor={`dates.${idx}.year`} className="text-xs">
                   Año
                 </Label>
@@ -300,6 +315,11 @@ export function PersonForm({
                       v === "" || v === null ? undefined : Number(v),
                   })}
                 />
+                {errors.dates?.[idx]?.year ? (
+                  <p className="text-xs text-destructive">
+                    {errors.dates[idx]?.year?.message}
+                  </p>
+                ) : null}
               </div>
               <div className="space-y-1">
                 <Label htmlFor={`dates.${idx}.budgetMinEuros`} className="text-xs">

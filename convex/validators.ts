@@ -101,6 +101,7 @@ export function validateBudget(min?: number, max?: number) {
 export function validateDateInput(input: {
   label?: string;
   year?: number;
+  recurring?: boolean;
   budgetMin?: number;
   budgetMax?: number;
 }) {
@@ -108,6 +109,9 @@ export function validateDateInput(input: {
     const trimmed = input.label.trim();
     if (trimmed.length === 0) throw new Error("La etiqueta es obligatoria.");
     if (trimmed.length > MAX_LABEL) throw new Error("Etiqueta demasiado larga.");
+  }
+  if (input.recurring === false && input.year === undefined) {
+    throw new Error("Las fechas únicas requieren un año.");
   }
   if (input.year !== undefined) {
     if (

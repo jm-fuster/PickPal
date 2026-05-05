@@ -49,6 +49,24 @@ export function computeDaysUntilNextOccurrence(
   return Math.round((next.getTime() - today.getTime()) / MS_PER_DAY);
 }
 
+/**
+ * Días hasta la fecha. Para fechas únicas (recurring=false) devuelve null si
+ * ya pasaron. Para recurrentes, siempre devuelve la próxima ocurrencia anual.
+ */
+export function computeDaysUntil(
+  date: { month: number; day: number; year?: number; recurring?: boolean },
+  from: Date = new Date(),
+): number | null {
+  if (date.recurring === false) {
+    if (date.year === undefined) return null;
+    const target = new Date(date.year, date.month - 1, date.day);
+    const today = startOfDay(from);
+    const diff = Math.round((target.getTime() - today.getTime()) / MS_PER_DAY);
+    return diff >= 0 ? diff : null;
+  }
+  return computeDaysUntilNextOccurrence(date.month, date.day, from);
+}
+
 export function formatDayMonth(month: number, day: number): string {
   return `${day} de ${MONTHS_ES[month - 1]}`;
 }

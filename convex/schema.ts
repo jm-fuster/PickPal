@@ -21,6 +21,7 @@ export default defineSchema({
     month: v.number(),
     day: v.number(),
     year: v.optional(v.number()),
+    recurring: v.optional(v.boolean()),
     budgetMin: v.optional(v.number()),
     budgetMax: v.optional(v.number()),
   }).index("by_person", ["personId"]),
