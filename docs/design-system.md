@@ -25,9 +25,11 @@ Definidos en [`src/app/globals.css`](../src/app/globals.css). Todos los colores 
 |---|---|---|
 | `--background` | `oklch(0.975 0.012 80)` (~`#FBF7EE`) | Crema cálida. Evoca papel ligeramente envejecido, no blanco quirófano. |
 | `--foreground` | `oklch(0.27 0.02 50)` | Marrón cálido oscuro, no negro puro. Acompaña al fondo crema sin chocar. |
-| `--primary` | `oklch(0.62 0.13 45)` (~`#C9784E`) | Terracota. Atardecer, papel envuelto, no "primary corporativo". |
-| `--secondary` / `--muted` / `--accent` | `oklch(0.93 0.022 75)` | Beige cálido — para fondos sutiles, badges neutros, hover. |
+| `--primary` | `oklch(0.25 0.055 148)` (~`#2D4033`) | Verde bosque. Arraigado, cálido-natural, sin ser "eco startup". |
+| `--secondary` | `oklch(0.62 0.13 45)` (~`#D97757`) | Terracota. Acento cálido para badges de relación y elementos de énfasis. |
+| `--muted` / `--accent` | `oklch(0.93 0.022 75)` / `oklch(0.93 0.03 78)` | Beige/ámbar sutil — fondos de hover, badges neutros. |
 | `--border` | `oklch(0.88 0.025 75)` | Tostado discreto. Define sin gritar. |
+| `--chart-3` | `oklch(0.77 0.12 72)` (~`#E8B059`) | Ámbar dorado — acento terciario para gráficas y datos. |
 
 ### Colores · dark
 
@@ -37,7 +39,8 @@ Mantenemos calidez también en oscuro. Nada de marrón griseado.
 |---|---|---|
 | `--background` | `oklch(0.18 0.012 50)` | Marrón profundo, no negro. Sigue evocando papel a baja luz. |
 | `--foreground` | `oklch(0.94 0.012 80)` | Crema clara con un toque cálido. |
-| `--primary` | `oklch(0.7 0.12 45)` | Terracota más luminosa para no hundirse contra el marrón. |
+| `--primary` | `oklch(0.42 0.07 148)` | Verde bosque más luminoso para contrastar sobre el fondo oscuro. |
+| `--secondary` | `oklch(0.70 0.12 45)` | Terracota más luminosa para badges sobre fondo oscuro. |
 
 ### Radii
 
@@ -77,11 +80,23 @@ Cargadas en [`src/app/layout.tsx`](../src/app/layout.tsx) y expuestas como varia
 
 ## Componentes
 
+### Sidebar
+
+Visible a partir de `lg` (1024px). Implementado en `src/app/(app)/layout.tsx`.
+
+- Fondo: `bg-sidebar` (`oklch(0.22 0.04 148)` — verde oscuro, no negro).
+- Links activos: `bg-sidebar-accent text-sidebar-accent-foreground font-medium`.
+- Links inactivos: `text-sidebar-foreground/70 hover:bg-sidebar-accent`.
+- El componente `SidebarLink` usa `usePathname()` y compara con `startsWith` para resaltar rutas anidadas.
+- En móvil (`< lg`): header horizontal clásico, mismos links.
+- Controles de usuario (NotificationBell, ThemeToggle, UserButton) en el pie del sidebar (desktop) o derecha del header (móvil).
+
 ### Cards (shadcn `Card`)
 
 - Default: `rounded` heredado del token, `border border-border/60` para que la línea sea sutil, `shadow-sm`.
 - Padding: `p-4` en cards densas (PersonCard), `p-5`–`p-6` en cards informativas (UpcomingDateCard, GiftRecommendationCard, feature cards).
 - **Hover · cards completamente clicables** (toda la card es Link): `transition-all hover:bg-muted/40 hover:shadow-md hover:-translate-y-0.5`. Sutilmente "el papel se levanta". Ejemplo: `PersonCard`.
+- **PersonCard**: layout vertical. Avatar `size-16` centrado arriba, nombre centrado, badge de relación (`variant="secondary"`) posicionado `absolute top-3 right-3`, sección de intereses con eyebrow label, y CTA "Ver perfil" (`buttonVariants outline sm w-full`) en el pie. Grid: `sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3`.
 - **Hover · cards con acción interna** (la card no es link, pero contiene botón): `transition-shadow hover:shadow-md`. Sin translate ni cambio de fondo. Ejemplo: `GiftRecommendationCard`.
 - **Cards estáticas** (sin acción): solo `shadow-sm`, sin hover. Ejemplo: feature cards de la landing.
 - **Card de urgencia** (UpcomingDateCard cuando `daysUntil <= 7`): `border-primary/60 shadow-sm bg-primary/5`. El tinte rosado del primary llama la atención sin chillar.
