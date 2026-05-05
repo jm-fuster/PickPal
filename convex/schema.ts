@@ -58,6 +58,7 @@ export default defineSchema({
         amazonQuery: v.string(),
       }),
     ),
+    discardedTitles: v.optional(v.array(v.string())),
   })
     .index("by_user_person_occasion_type", [
       "clerkUserId",

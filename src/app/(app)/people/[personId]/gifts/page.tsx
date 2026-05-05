@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useRef, useState } from "react";
 import Link from "next/link";
 import { Sparkles, RefreshCw } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
@@ -33,6 +33,10 @@ export default function GiftsPage({
   const [loading, setLoading] = useState(false);
 
   const removeIdea = useMutation(api.recommendations.removeIdea);
+  const restoreIdea = useMutation(api.recommendations.restoreIdea);
+  const clearDiscarded = useMutation(api.recommendations.clearDiscarded);
+
+  const lastDiscarded = useRef<{ idea: GiftRecommendation; index: number } | null>(null);
 
   const cached = useQuery(
     api.recommendations.getByPersonOccasion,
@@ -60,7 +64,12 @@ export default function GiftsPage({
       const res = await fetch("/api/recommendations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ personId: id, occasionLabel: occasion, giftType }),
+        body: JSON.stringify({
+          personId: id,
+          occasionLabel: occasion,
+          giftType,
+          excludedTitles: cached?.discardedTitles ?? [],
+        }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -76,16 +85,37 @@ export default function GiftsPage({
   };
 
   const handleDiscard = (index: number) => {
-    setIdeas((prev) => {
-      const base = prev ?? (cached?.ideas as GiftRecommendation[] ?? []);
-      return base.filter((_, i) => i !== index);
-    });
+    const base = ideas ?? (cached?.ideas as GiftRecommendation[] ?? []);
+    const discarded = base[index];
+    lastDiscarded.current = { idea: discarded, index };
+
+    setIdeas(base.filter((_, i) => i !== index));
+
     removeIdea({ personId: id, occasionLabel: occasion, giftType, ideaIndex: index })
       .catch(() => toast.error("No se pudo descartar la idea, inténtalo de nuevo"));
+
+    toast("Idea descartada", {
+      action: {
+        label: "Deshacer",
+        onClick: () => {
+          const saved = lastDiscarded.current;
+          if (!saved) return;
+          setIdeas((prev) => {
+            const arr = [...(prev ?? [])];
+            arr.splice(saved.index, 0, saved.idea);
+            return arr;
+          });
+          restoreIdea({ personId: id, occasionLabel: occasion, giftType, idea: saved.idea })
+            .catch(() => toast.error("No se pudo restaurar la idea, inténtalo de nuevo"));
+          lastDiscarded.current = null;
+        },
+      },
+    });
   };
 
   const hasCached = cached !== undefined && cached !== null;
   const showIdeas = ideas ?? (hasCached ? (cached!.ideas as GiftRecommendation[]) : null);
+  const discardedCount = cached?.discardedTitles?.length ?? 0;
 
   return (
     <main className="flex flex-1 flex-col gap-8 p-8 max-w-6xl">
@@ -182,7 +212,25 @@ export default function GiftsPage({
             />
           ))}
         </div>
-      ) : (
+      ) : null}
+
+      {!loading && discardedCount > 0 && (
+        <p className="text-xs text-muted-foreground text-center">
+          {discardedCount} {discardedCount === 1 ? "idea descartada" : "ideas descartadas"} · {" "}
+          <button
+            type="button"
+            className="underline underline-offset-2 hover:text-foreground transition-colors"
+            onClick={() => {
+              clearDiscarded({ personId: id, occasionLabel: occasion, giftType })
+                .catch(() => toast.error("No se pudo limpiar el historial, inténtalo de nuevo"));
+            }}
+          >
+            Permitir de nuevo al regenerar
+          </button>
+        </p>
+      )}
+
+      {!loading && !showIdeas?.length && (
         <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-14 text-center">
           <div className="text-4xl mb-3" aria-hidden>
             ✨
