@@ -38,7 +38,6 @@ const YEARS = Array.from({ length: YEAR_END - YEAR_START + 1 }, (_, i) =>
   String(YEAR_START + i),
 );
 const DAYS = Array.from({ length: 31 }, (_, i) => String(i + 1));
-
 const ITEM_H = 48;
 
 function formatDate(day: number, month: number, year?: number) {
@@ -46,7 +45,7 @@ function formatDate(day: number, month: number, year?: number) {
   return year ? `${day} de ${m} de ${year}` : `${day} de ${m}`;
 }
 
-// ─── Scroll column ────────────────────────────────────────────────────────────
+// ─── Scroll column (mobile picker) ───────────────────────────────────────────
 
 interface ScrollColumnProps {
   items: string[];
@@ -61,7 +60,6 @@ function ScrollColumn({ items, initialIndex, onChange }: ScrollColumnProps) {
   const dragStartTop = useRef(0);
   const snapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Scroll to initial position on mount (runs once)
   useEffect(() => {
     ref.current?.scrollTo({ top: initialIndex * ITEM_H, behavior: "instant" });
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -121,17 +119,12 @@ function ScrollColumn({ items, initialIndex, onChange }: ScrollColumnProps) {
       >
         <div className="py-12">
           {items.map((item, i) => (
-            <div
-              key={i}
-              className="h-12 flex items-center justify-center text-lg select-none"
-            >
+            <div key={i} className="h-12 flex items-center justify-center text-lg select-none">
               {item}
             </div>
           ))}
         </div>
       </div>
-
-      {/* Center-item guide lines + fade edges */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute inset-x-0 top-12 h-px bg-border" />
         <div className="absolute inset-x-0 bottom-12 h-px bg-border" />
@@ -142,7 +135,7 @@ function ScrollColumn({ items, initialIndex, onChange }: ScrollColumnProps) {
   );
 }
 
-// ─── Date picker dialog ───────────────────────────────────────────────────────
+// ─── Date picker dialog (mobile) ─────────────────────────────────────────────
 
 interface DatePickerDialogProps {
   open: boolean;
@@ -159,7 +152,6 @@ function DatePickerDialog({ open, day, month, year, onChange, onClose }: DatePic
   const [includeYear, setIncludeYear] = useState(year !== undefined);
   const [tmpYear, setTmpYear] = useState(year ?? new Date().getFullYear());
 
-  // Reset temp state each time the dialog opens
   useEffect(() => {
     if (open) {
       setTmpDay(day);
@@ -169,12 +161,6 @@ function DatePickerDialog({ open, day, month, year, onChange, onClose }: DatePic
     }
   }, [open, day, month, year]);
 
-  function handleAccept() {
-    onChange(tmpDay, tmpMonth, includeYear ? tmpYear : undefined);
-    onClose();
-  }
-
-  // Key forces ScrollColumn to remount (and re-init scroll) when dialog opens
   const openKey = open ? "open" : "closed";
 
   return (
@@ -213,19 +199,14 @@ function DatePickerDialog({ open, day, month, year, onChange, onClose }: DatePic
             onCheckedChange={setIncludeYear}
             id="picker-include-year"
           />
-          <label
-            htmlFor="picker-include-year"
-            className="text-sm cursor-pointer select-none"
-          >
+          <label htmlFor="picker-include-year" className="text-sm cursor-pointer select-none">
             Incluir año
           </label>
         </div>
 
         <DialogFooter>
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            Cancelar
-          </Button>
-          <Button size="sm" onClick={handleAccept}>
+          <Button variant="ghost" size="sm" onClick={onClose}>Cancelar</Button>
+          <Button size="sm" onClick={() => { onChange(tmpDay, tmpMonth, includeYear ? tmpYear : undefined); onClose(); }}>
             Aceptar
           </Button>
         </DialogFooter>
@@ -305,6 +286,7 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
 
   return (
     <>
+      {/* Mobile drum-roll picker (rendered in a portal, not inside <form>) */}
       <DatePickerDialog
         open={pickerOpen}
         day={watchedDay ?? 1}
@@ -326,43 +308,102 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
           Añadir fecha
         </p>
 
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-          <div className="space-y-1.5 md:col-span-2">
-            <Label htmlFor="date-label">Etiqueta</Label>
-            <Input id="date-label" {...register("label")} />
-            {errors.label ? (
-              <p className="text-xs text-destructive">{errors.label.message}</p>
-            ) : null}
-          </div>
-
-          <div className="space-y-1.5">
-            <Label>Fecha</Label>
-            <button
-              type="button"
-              onClick={() => setPickerOpen(true)}
-              className="h-8 w-full rounded-md border bg-background px-3 text-sm text-left transition-colors hover:bg-muted/50"
-            >
-              {formatDate(watchedDay ?? 1, watchedMonth ?? 1, watchedYear)}
-            </button>
-            {/* Hidden RHF fields */}
-            <input type="hidden" {...register("day", { valueAsNumber: true })} />
-            <input type="hidden" {...register("month", { valueAsNumber: true })} />
-            <input
-              type="hidden"
-              {...register("year", {
-                setValueAs: (v) =>
-                  v === "" || v === null || v === undefined ? undefined : Number(v),
-              })}
-            />
-            {errors.day || errors.month ? (
-              <p className="text-xs text-destructive">Fecha no válida</p>
-            ) : null}
-            {errors.year ? (
-              <p className="text-xs text-destructive">{errors.year.message}</p>
-            ) : null}
-          </div>
+        {/* Etiqueta — full width on both breakpoints */}
+        <div className="space-y-1.5">
+          <Label htmlFor="date-label">Etiqueta</Label>
+          <Input id="date-label" {...register("label")} />
+          {errors.label ? (
+            <p className="text-xs text-destructive">{errors.label.message}</p>
+          ) : null}
         </div>
 
+        {/*
+          Hidden inputs keep RHF registered for day / month / year.
+          Both the desktop inputs and the mobile picker write to these
+          via setValue, so there's a single source of truth.
+        */}
+        <input type="hidden" {...register("day", { valueAsNumber: true })} />
+        <input type="hidden" {...register("month", { valueAsNumber: true })} />
+        <input
+          type="hidden"
+          {...register("year", {
+            setValueAs: (v) =>
+              v === "" || v === null || v === undefined ? undefined : Number(v),
+          })}
+        />
+
+        {/* ── Desktop: three inline inputs ── */}
+        <div className="hidden md:grid md:grid-cols-3 gap-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="date-day-desktop">Día</Label>
+            <Input
+              id="date-day-desktop"
+              type="number"
+              min={1}
+              max={31}
+              placeholder="Día"
+              value={watchedDay ?? ""}
+              onChange={(e) =>
+                setValue("day", e.target.value ? Number(e.target.value) : 1, {
+                  shouldValidate: true,
+                })
+              }
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="date-month-desktop">Mes</Label>
+            <select
+              id="date-month-desktop"
+              className="h-8 w-full rounded-md border bg-background px-2 text-sm"
+              value={watchedMonth ?? 1}
+              onChange={(e) =>
+                setValue("month", Number(e.target.value), { shouldValidate: true })
+              }
+            >
+              {MONTHS.map((m, i) => (
+                <option key={m} value={i + 1}>{m}</option>
+              ))}
+            </select>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="date-year-desktop">Año (opcional)</Label>
+            <Input
+              id="date-year-desktop"
+              type="number"
+              min={1900}
+              max={2100}
+              placeholder="Año (opcional)"
+              value={watchedYear ?? ""}
+              onChange={(e) =>
+                setValue("year", e.target.value ? Number(e.target.value) : undefined)
+              }
+            />
+          </div>
+          {errors.day || errors.month || errors.year ? (
+            <p className="text-xs text-destructive md:col-span-3">
+              {errors.day?.message ?? errors.month?.message ?? errors.year?.message}
+            </p>
+          ) : null}
+        </div>
+
+        {/* ── Mobile: single button that opens drum-roll picker ── */}
+        <div className="md:hidden space-y-1.5">
+          <Label>Fecha</Label>
+          <button
+            type="button"
+            onClick={() => setPickerOpen(true)}
+            className="h-8 w-full rounded-md border bg-background px-3 text-sm text-left transition-colors hover:bg-muted/50"
+          >
+            {formatDate(watchedDay ?? 1, watchedMonth ?? 1, watchedYear)}
+          </button>
+          {errors.day || errors.month || errors.year ? (
+            <p className="text-xs text-destructive">
+              {errors.day?.message ?? errors.month?.message ?? errors.year?.message}
+            </p>
+          ) : null}
+        </div>
+
+        {/* Recurrencia */}
         <div className="space-y-1.5 max-w-[14rem]">
           <Label htmlFor="date-recurring">Recurrencia</Label>
           <select
@@ -377,11 +418,12 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
           </select>
           {watchedRecurring === false && !watchedYear ? (
             <p className="text-xs text-muted-foreground">
-              Activa &ldquo;Incluir año&rdquo; en el selector de fecha.
+              Indica el año en el campo Año (obligatorio para fechas únicas).
             </p>
           ) : null}
         </div>
 
+        {/* Presupuesto */}
         <div className="grid grid-cols-2 gap-3 max-w-xs">
           <div className="space-y-1.5">
             <Label htmlFor="date-budget-min">Presupuesto mín. € (opcional)</Label>
