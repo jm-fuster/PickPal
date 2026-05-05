@@ -1,9 +1,9 @@
 import { z } from "zod";
 
 export const REACTIONS = [
-  { value: "loved", label: "Le encantó", emoji: "❤️" },
-  { value: "ok", label: "Ni fu ni fa", emoji: "👍" },
-  { value: "bad", label: "Lo devolvió / No gustó", emoji: "😞" },
+  { value: "loved", label: "Le encantó" },
+  { value: "ok", label: "Le dio igual" },
+  { value: "bad", label: "No gustó" },
 ] as const;
 
 export const giftHistorySchema = z.object({

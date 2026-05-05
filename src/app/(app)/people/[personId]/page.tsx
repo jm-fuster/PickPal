@@ -331,15 +331,13 @@ export default function PersonDetailPage({
                     className="flex items-center justify-between rounded-lg border border-border/60 bg-background/60 p-3 text-sm"
                   >
                     <span className="flex items-center gap-2 min-w-0">
-                      <span aria-hidden className="text-base shrink-0">
-                        {reaction?.emoji}
-                      </span>
                       <span className="truncate">
                         <span className="font-medium">{h.giftName}</span>
                         <span className="text-muted-foreground">
                           {" · "}
                           {h.occasionLabel}
                           {h.year ? ` ${h.year}` : ""}
+                          {reaction ? ` · ${reaction.label}` : ""}
                         </span>
                       </span>
                     </span>

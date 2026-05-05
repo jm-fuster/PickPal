@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const DEFAULT_VALUES = { giftName: "", occasionLabel: "Cumpleaños", reaction: "loved" as const };
+const DEFAULT_VALUES = { giftName: "", occasionLabel: "", reaction: "" };
 
 export function GiftHistoryForm({ personId }: { personId: Id<"people"> }) {
   const [showForm, setShowForm] = useState(false);
@@ -133,12 +133,12 @@ export function GiftHistoryForm({ personId }: { personId: Id<"people"> }) {
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Reacción…" />
                 </SelectTrigger>
                 <SelectContent>
                   {REACTIONS.map((r) => (
                     <SelectItem key={r.value} value={r.value}>
-                      {r.emoji} {r.label}
+                      {r.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
