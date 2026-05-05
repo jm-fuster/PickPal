@@ -9,11 +9,14 @@ import { toast } from "sonner";
 import { api } from "../../../../../../convex/_generated/api";
 import type { Id } from "../../../../../../convex/_generated/dataModel";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { GiftRecommendationCard } from "@/components/gifts/GiftRecommendationCard";
 import { LoadingFallback } from "@/components/layout/LoadingFallback";
 import { GIFT_TYPES, type GiftType, type GiftRecommendation } from "@/lib/gifts";
+
+const DISCARD_WARNED_KEY = "pickpal_discard_warned";
 
 export default function GiftsPage({
   params,
@@ -37,6 +40,7 @@ export default function GiftsPage({
   const clearDiscarded = useMutation(api.recommendations.clearDiscarded);
 
   const lastDiscarded = useRef<{ idea: GiftRecommendation; index: number } | null>(null);
+  const [pendingDiscard, setPendingDiscard] = useState<{ idea: GiftRecommendation; index: number } | null>(null);
 
   const cached = useQuery(
     api.recommendations.getByPersonOccasion,
@@ -84,11 +88,10 @@ export default function GiftsPage({
     }
   };
 
-  const handleDiscard = (index: number) => {
-    const base = ideas ?? (cached?.ideas as GiftRecommendation[] ?? []);
-    const discarded = base[index];
-    lastDiscarded.current = { idea: discarded, index };
+  const executeDiscard = (idea: GiftRecommendation, index: number) => {
+    lastDiscarded.current = { idea, index };
 
+    const base = ideas ?? (cached?.ideas as GiftRecommendation[] ?? []);
     setIdeas(base.filter((_, i) => i !== index));
 
     removeIdea({ personId: id, occasionLabel: occasion, giftType, ideaIndex: index })
@@ -111,6 +114,16 @@ export default function GiftsPage({
         },
       },
     });
+  };
+
+  const handleDiscard = (index: number) => {
+    const base = ideas ?? (cached?.ideas as GiftRecommendation[] ?? []);
+    const idea = base[index];
+    if (localStorage.getItem(DISCARD_WARNED_KEY)) {
+      executeDiscard(idea, index);
+    } else {
+      setPendingDiscard({ idea, index });
+    }
   };
 
   const hasCached = cached !== undefined && cached !== null;
@@ -242,6 +255,32 @@ export default function GiftsPage({
           </p>
         </div>
       )}
+      <Dialog open={!!pendingDiscard} onOpenChange={(open) => { if (!open) setPendingDiscard(null); }}>
+        <DialogContent showCloseButton={false}>
+          <DialogHeader>
+            <DialogTitle>¿Descartar esta idea?</DialogTitle>
+            <DialogDescription>
+              PickPal no volverá a sugerirte <span className="font-medium text-foreground">"{pendingDiscard?.idea.title}"</span> para {person.name}. Siempre puedes deshacerlo justo después con el aviso que aparece.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPendingDiscard(null)}>
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (!pendingDiscard) return;
+                localStorage.setItem(DISCARD_WARNED_KEY, "1");
+                executeDiscard(pendingDiscard.idea, pendingDiscard.index);
+                setPendingDiscard(null);
+              }}
+            >
+              Descartar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }
