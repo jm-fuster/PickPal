@@ -21,7 +21,7 @@ import {
   SelectTrigger,
 } from "@/components/ui/select";
 
-const DEFAULT_VALUES = { giftName: "", occasionLabel: "", reaction: "" };
+const DEFAULT_VALUES = { giftName: "", occasionLabel: "", reaction: "", year: undefined as number | undefined, notes: "" };
 
 export function GiftHistoryForm({ personId }: { personId: Id<"people"> }) {
   const [showForm, setShowForm] = useState(false);
@@ -49,7 +49,7 @@ export function GiftHistoryForm({ personId }: { personId: Id<"people"> }) {
         notes: values.notes || undefined,
       });
       toast.success("Regalo añadido al historial");
-      reset({ ...DEFAULT_VALUES, year: undefined, notes: "" });
+      reset(DEFAULT_VALUES);
       setShowForm(false);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "No se pudo añadir el regalo");
