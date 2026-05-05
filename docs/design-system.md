@@ -88,15 +88,18 @@ Visible a partir de `lg` (1024px). Implementado en `src/app/(app)/layout.tsx`.
 - Links activos: `bg-sidebar-accent text-sidebar-accent-foreground font-medium`.
 - Links inactivos: `text-sidebar-foreground/70 hover:bg-sidebar-accent`.
 - El componente `SidebarLink` usa `usePathname()` y compara con `startsWith` para resaltar rutas anidadas.
-- En móvil (`< lg`): header horizontal clásico, mismos links.
-- Controles de usuario (NotificationBell, ThemeToggle, UserButton) en el pie del sidebar (desktop) o derecha del header (móvil).
+- El `<aside>` usa `h-screen sticky top-0` para que el pie quede siempre visible sin que el contenido principal lo desplace.
+- **Header del sidebar**: `PickPal` (link) a la izquierda + `SafeNotificationBell` a la derecha. `flex items-center justify-between`.
+- **Pie del sidebar**: `SidebarUserInfo` — `UserButton` de Clerk + email del usuario truncado (`text-xs text-muted-foreground`).
+- **Tema**: `defaultTheme="dark"` sin `enableSystem`. El toggle está en `/settings`. No hay ThemeToggle en sidebar ni en el header.
+- En móvil (`< lg`): header compacto con hamburguesa (`MobileNav`) + logo a la izquierda, campana + UserButton a la derecha. La navegación se abre en un `Sheet` lateral (shadcn `sheet.tsx`) desde la izquierda. `MobileNav` es un componente cliente en `src/components/layout/MobileNav.tsx`.
 
 ### Cards (shadcn `Card`)
 
 - Default: `rounded` heredado del token, `border border-border/60` para que la línea sea sutil, `shadow-sm`.
 - Padding: `p-4` en cards densas (PersonCard), `p-5`–`p-6` en cards informativas (UpcomingDateCard, GiftRecommendationCard, feature cards).
 - **Hover · cards completamente clicables** (toda la card es Link): `transition-all hover:bg-muted/40 hover:shadow-md hover:-translate-y-0.5`. Sutilmente "el papel se levanta". Ejemplo: `PersonCard`.
-- **PersonCard**: layout vertical. Avatar `size-16` centrado arriba, nombre centrado, badge de relación (`variant="secondary"`) posicionado `absolute top-3 right-3`, sección de intereses con eyebrow label, y CTA "Ver perfil" (`buttonVariants outline sm w-full`) en el pie. Grid: `sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3`.
+- **PersonCard**: layout vertical. Avatar `size-16` centrado arriba, nombre centrado, badge de relación (`variant="secondary"`) posicionado `absolute top-3 right-3`, sección de intereses con eyebrow label, y CTA "Ver perfil" (`buttonVariants outline sm w-full`) en el pie. Grid responsive: `sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5`.
 - **Hover · cards con acción interna** (la card no es link, pero contiene botón): `transition-shadow hover:shadow-md`. Sin translate ni cambio de fondo. Ejemplo: `GiftRecommendationCard`.
 - **Cards estáticas** (sin acción): solo `shadow-sm`, sin hover. Ejemplo: feature cards de la landing.
 - **Card de urgencia** (UpcomingDateCard cuando `daysUntil <= 7`): `border-primary/60 shadow-sm bg-primary/5`. El tinte rosado del primary llama la atención sin chillar.
@@ -114,6 +117,16 @@ Visible a partir de `lg` (1024px). Implementado en `src/app/(app)/layout.tsx`.
 - `default` (terracota): solo para énfasis o urgencia. Ejemplo: badge del NotificationBell con el contador.
 - `outline`: para "+N más" tipo "+3 intereses adicionales".
 
+### Páginas — padding y layout
+
+Padding de página responsive en todos los `<main>`: `p-4 sm:p-6 lg:p-8`. No usar `p-8` fijo.
+
+**Dashboard** (`/dashboard`): los grupos de fechas usan `DateGroupedList`. Las cards dentro de cada grupo se disponen en grid: `grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3`.
+
+**Detalle de persona** (`/people/[id]`): `max-w-6xl w-full`. Suficiente para no desbordar en monitores muy anchos, pero sin el desperdicio de `max-w-4xl`.
+
+**Formularios** (`PersonForm`): `max-w-xl`. Los formularios sí tienen techo para no estirar los inputs hasta el infinito.
+
 ### Inputs / Forms
 
 - Siempre con `border` visible. Nada de inputs invisibles a la Material.
@@ -125,6 +138,7 @@ Visible a partir de `lg` (1024px). Implementado en `src/app/(app)/layout.tsx`.
 - Tamaño default `size-10`–`size-12` en cards, `size-20`–`size-24` en headers de detalle.
 - En headers grandes, añadir `ring-1 ring-border` para definir el contorno sin que pese.
 - Si no hay foto, fallback con iniciales (2 letras max, mayúsculas).
+- **Avatar picker**: integrado en `PersonForm`. Usa la API de [DiceBear](https://api.dicebear.com/9.x/) con el estilo `big-ears-neutral`. Genera 12 opciones a partir del nombre de la persona como seed. "Regenerar" avanza el offset en +12. La URL seleccionada se guarda en `person.avatarUrl` (opcional). El componente vive en `src/components/people/AvatarPicker.tsx`. Validación server-side: solo se aceptan URLs que empiecen por `https://api.dicebear.com/`.
 
 ### Animaciones
 
@@ -141,12 +155,13 @@ Set único: [`lucide-react`](https://lucide.dev). Stroke 2 (default), tamaño `s
 
 Iconos en uso:
 - `Bell` — campanita de notificaciones.
-- `Sun` / `Moon` — toggle de tema.
+- `Menu` — hamburguesa, abre el `Sheet` de navegación en móvil.
 - `Plus` — crear nueva entidad.
 - `Sparkles` — acciones que invocan IA ("Ideas de regalo").
 - `Pencil` — editar.
 - `Trash2` — eliminar (siempre con `text-destructive`).
 - `X` — cerrar / quitar elemento de una lista.
+- `RefreshCw` — regenerar (avatar picker).
 
 **Reglas:**
 - **Botones icon-only** necesitan `aria-label` y `title`. Usar variant `ghost` y size `icon` o `icon-sm`.
@@ -228,6 +243,9 @@ Lista de cosas que sé que faltan o que no han recibido pasada todavía. Se irá
 - [ ] **Mobile < 380px**: sin probar. Hero de landing podría descuadrar.
 - [ ] **Tono de los toasts de error** (sonner): voz por defecto, podría tener un tono propio.
 - [ ] **Estado de loading global / transiciones de página**: actualmente cada página gestiona el suyo. ¿Vale la pena una skeleton global o no?
+- [x] ~~ThemeToggle en sidebar~~ → retirado. El toggle vive solo en `/settings`. Tema fijo: `dark` por defecto.
+- [x] ~~Navegación móvil~~ → hamburguesa + Sheet lateral (`MobileNav`).
+- [x] ~~Grids fijos en desktop~~ → todos los grids son ahora responsive con columnas dinámicas.
 
 ---
 
