@@ -51,6 +51,7 @@ export default function EditPersonPage({
       clothingSize: values.clothingSize || undefined,
       allergies: values.allergies || undefined,
       dislikes: values.dislikes || undefined,
+      avatarUrl: values.avatarUrl || undefined,
     });
     toast.success("Persona actualizada");
     router.push(`/people/${id}`);
@@ -75,6 +76,7 @@ export default function EditPersonPage({
           clothingSize: person.clothingSize ?? "",
           allergies: person.allergies ?? "",
           dislikes: person.dislikes ?? "",
+          avatarUrl: person.avatarUrl ?? undefined,
         }}
         onSubmit={onSubmit}
         submitLabel="Guardar cambios"

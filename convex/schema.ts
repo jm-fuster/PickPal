@@ -14,6 +14,7 @@ export default defineSchema({
     clothingSize: v.optional(v.string()),
     allergies: v.optional(v.string()),
     dislikes: v.optional(v.string()),
+    avatarUrl: v.optional(v.string()),
   }).index("by_user", ["clerkUserId"]),
 
   importantDates: defineTable({

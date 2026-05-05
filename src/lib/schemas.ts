@@ -70,6 +70,7 @@ export const personFormSchema = z
     clothingSize: z.string().max(20).optional(),
     allergies: z.string().max(200).optional(),
     dislikes: z.string().max(200).optional(),
+    avatarUrl: z.string().url().optional(),
   })
   .refine(
     (v) =>

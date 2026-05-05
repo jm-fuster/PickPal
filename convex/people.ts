@@ -41,6 +41,7 @@ export const create = mutation({
     clothingSize: v.optional(v.string()),
     allergies: v.optional(v.string()),
     dislikes: v.optional(v.string()),
+    avatarUrl: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const clerkUserId = await requireUser(ctx);
@@ -68,6 +69,7 @@ export const update = mutation({
     clothingSize: v.optional(v.string()),
     allergies: v.optional(v.string()),
     dislikes: v.optional(v.string()),
+    avatarUrl: v.optional(v.string()),
   },
   handler: async (ctx, { id, ...patch }) => {
     const clerkUserId = await requireUser(ctx);
@@ -87,6 +89,7 @@ export const update = mutation({
       clothingSize: merged.clothingSize,
       allergies: merged.allergies,
       dislikes: merged.dislikes,
+      avatarUrl: merged.avatarUrl,
     });
     await ctx.db.patch(id, patch);
   },

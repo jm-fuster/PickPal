@@ -13,6 +13,8 @@ const MIN_YEAR = 1900;
 const MAX_YEAR = 2100;
 const MAX_SIZE = 20;
 const MAX_QUIRK = 200;
+const MAX_AVATAR_URL = 512;
+const DICEBEAR_PREFIX = "https://api.dicebear.com/";
 
 const ALLOWED_RELATIONSHIPS = [
   "friend",
@@ -33,6 +35,7 @@ export function validatePersonInput(input: {
   clothingSize?: string;
   allergies?: string;
   dislikes?: string;
+  avatarUrl?: string;
 }) {
   if (input.name !== undefined) {
     const trimmed = input.name.trim();
@@ -72,6 +75,14 @@ export function validatePersonInput(input: {
   }
   if (input.dislikes !== undefined && input.dislikes.length > MAX_QUIRK) {
     throw new Error("Campo no le gusta demasiado largo.");
+  }
+  if (input.avatarUrl !== undefined) {
+    if (
+      input.avatarUrl.length > MAX_AVATAR_URL ||
+      !input.avatarUrl.startsWith(DICEBEAR_PREFIX)
+    ) {
+      throw new Error("URL de avatar inválida.");
+    }
   }
 }
 

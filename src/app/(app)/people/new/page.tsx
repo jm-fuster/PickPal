@@ -26,6 +26,7 @@ export default function NewPersonPage() {
         values.budgetMaxEuros !== undefined
           ? Math.round(values.budgetMaxEuros * 100)
           : undefined,
+      avatarUrl: values.avatarUrl || undefined,
     });
 
     if (values.dates.length > 0) {

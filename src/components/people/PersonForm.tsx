@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm, Controller, useFieldArray } from "react-hook-form";
+import { useForm, Controller, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Plus, Trash2 } from "lucide-react";
@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { InterestTagInput } from "./InterestTagInput";
+import { AvatarPicker } from "./AvatarPicker";
 
 const MONTHS = [
   "Enero",
@@ -66,11 +67,13 @@ export function PersonForm({
       interests: [],
       notes: "",
       dates: [],
+      avatarUrl: undefined,
       ...defaultValues,
     },
   });
 
   const { fields, append, remove } = useFieldArray({ control, name: "dates" });
+  const watchedName = useWatch({ control, name: "name" });
 
   const submit = async (values: PersonFormValues) => {
     setSubmitting(true);
@@ -85,6 +88,21 @@ export function PersonForm({
 
   return (
     <form onSubmit={handleSubmit(submit)} className="space-y-5 max-w-xl">
+      <div className="space-y-1.5">
+        <Label>Avatar</Label>
+        <Controller
+          name="avatarUrl"
+          control={control}
+          render={({ field }) => (
+            <AvatarPicker
+              name={watchedName}
+              value={field.value}
+              onChange={field.onChange}
+            />
+          )}
+        />
+      </div>
+
       <div className="space-y-1.5">
         <Label htmlFor="name">Nombre</Label>
         <Input id="name" {...register("name")} />
