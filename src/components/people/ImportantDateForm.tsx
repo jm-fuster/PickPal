@@ -16,12 +16,109 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import {
+  SliderRoot,
+  SliderControl,
+  SliderTrack,
+  SliderIndicator,
+  SliderThumb,
+} from "@/components/ui/slider";
+import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
+
+// ─── Budget range slider ──────────────────────────────────────────────────────
+
+const BUDGET_MAX = 500;
+const BUDGET_STEP = 5;
+
+interface BudgetRangeSliderProps {
+  minValue: number | undefined;
+  maxValue: number | undefined;
+  onMinChange: (v: number | undefined) => void;
+  onMaxChange: (v: number | undefined) => void;
+  minError?: string;
+  maxError?: string;
+}
+
+function BudgetRangeSlider({
+  minValue,
+  maxValue,
+  onMinChange,
+  onMaxChange,
+  minError,
+  maxError,
+}: BudgetRangeSliderProps) {
+  const sliderMin = Math.min(Math.max(minValue ?? 0, 0), BUDGET_MAX);
+  const sliderMax = Math.min(Math.max(maxValue ?? BUDGET_MAX, 0), BUDGET_MAX);
+
+  return (
+    <div className="space-y-3">
+      <Label>Presupuesto (opcional)</Label>
+
+      <SliderRoot
+        value={[sliderMin, sliderMax]}
+        onValueChange={(values) => {
+          const [lo, hi] = values as number[];
+          onMinChange(lo);
+          onMaxChange(hi);
+        }}
+        min={0}
+        max={BUDGET_MAX}
+        step={BUDGET_STEP}
+        minStepsBetweenValues={BUDGET_STEP}
+        className="py-2"
+      >
+        <SliderControl>
+          <SliderTrack>
+            <SliderIndicator />
+            <SliderThumb getAriaLabel={() => "Presupuesto mínimo"} />
+            <SliderThumb getAriaLabel={() => "Presupuesto máximo"} />
+          </SliderTrack>
+        </SliderControl>
+      </SliderRoot>
+
+      <div className="flex items-center gap-2 text-sm">
+        <div className="flex items-center gap-1">
+          <Input
+            type="number"
+            min={0}
+            step={1}
+            placeholder="Mín."
+            value={minValue ?? ""}
+            onChange={(e) =>
+              onMinChange(e.target.value !== "" ? Number(e.target.value) : undefined)
+            }
+            className="h-7 w-20 text-sm"
+          />
+          <span className="text-muted-foreground">€</span>
+        </div>
+        <span className="text-muted-foreground">–</span>
+        <div className="flex items-center gap-1">
+          <Input
+            type="number"
+            min={0}
+            step={1}
+            placeholder="Máx."
+            value={maxValue ?? ""}
+            onChange={(e) =>
+              onMaxChange(e.target.value !== "" ? Number(e.target.value) : undefined)
+            }
+            className="h-7 w-20 text-sm"
+          />
+          <span className="text-muted-foreground">€</span>
+        </div>
+      </div>
+
+      {minError || maxError ? (
+        <p className="text-xs text-destructive">{minError ?? maxError}</p>
+      ) : null}
+    </div>
+  );
+}
 
 const MONTHS = [
   "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
@@ -238,6 +335,8 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
   const watchedMonth = useWatch({ control, name: "month" });
   const watchedYear = useWatch({ control, name: "year" });
   const watchedRecurring = useWatch({ control, name: "recurring" });
+  const watchedBudgetMin = useWatch({ control, name: "budgetMinEuros" });
+  const watchedBudgetMax = useWatch({ control, name: "budgetMaxEuros" });
 
   const defaultValues = {
     label: "Cumpleaños",
@@ -423,39 +522,29 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
           ) : null}
         </div>
 
+        {/* Hidden RHF registrations for budget fields */}
+        <input
+          type="hidden"
+          {...register("budgetMinEuros", {
+            setValueAs: (v) => (v === "" || v === null || v === undefined ? undefined : Number(v)),
+          })}
+        />
+        <input
+          type="hidden"
+          {...register("budgetMaxEuros", {
+            setValueAs: (v) => (v === "" || v === null || v === undefined ? undefined : Number(v)),
+          })}
+        />
+
         {/* Presupuesto */}
-        <div className="grid grid-cols-2 gap-3 max-w-xs">
-          <div className="space-y-1.5">
-            <Label htmlFor="date-budget-min">Presupuesto mín. € (opcional)</Label>
-            <Input
-              id="date-budget-min"
-              type="number"
-              min={0}
-              step={1}
-              {...register("budgetMinEuros", {
-                setValueAs: (v) => (v === "" || v === null ? undefined : Number(v)),
-              })}
-            />
-            {errors.budgetMinEuros ? (
-              <p className="text-xs text-destructive">{errors.budgetMinEuros.message}</p>
-            ) : null}
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="date-budget-max">Presupuesto máx. € (opcional)</Label>
-            <Input
-              id="date-budget-max"
-              type="number"
-              min={0}
-              step={1}
-              {...register("budgetMaxEuros", {
-                setValueAs: (v) => (v === "" || v === null ? undefined : Number(v)),
-              })}
-            />
-            {errors.budgetMaxEuros ? (
-              <p className="text-xs text-destructive">{errors.budgetMaxEuros.message}</p>
-            ) : null}
-          </div>
-        </div>
+        <BudgetRangeSlider
+          minValue={watchedBudgetMin}
+          maxValue={watchedBudgetMax}
+          onMinChange={(v) => setValue("budgetMinEuros", v)}
+          onMaxChange={(v) => setValue("budgetMaxEuros", v)}
+          minError={errors.budgetMinEuros?.message}
+          maxError={errors.budgetMaxEuros?.message}
+        />
 
         <div className="flex gap-2">
           <Button type="submit" size="sm" disabled={isSubmitting}>
