@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
-import { UpcomingDateCard } from "@/components/dashboard/UpcomingDateCard";
+import { DateGroupedList } from "@/components/dashboard/DateGroupedList";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { computeDaysUntilNextOccurrence } from "@/lib/dates";
 
@@ -93,16 +93,7 @@ export default function DashboardPage() {
           </Link>
         </div>
       ) : (
-        <div className="space-y-3">
-          {filtered.map((entry) => (
-            <UpcomingDateCard
-              key={entry.date._id}
-              person={entry.person}
-              date={entry.date}
-              daysUntil={entry.daysUntil}
-            />
-          ))}
-        </div>
+        <DateGroupedList entries={filtered} />
       )}
     </main>
   );

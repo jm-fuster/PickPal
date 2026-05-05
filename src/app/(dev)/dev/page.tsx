@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { UpcomingDateCard } from "@/components/dashboard/UpcomingDateCard";
+import { DateGroupedList } from "@/components/dashboard/DateGroupedList";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { MOCK_UPCOMING } from "@/lib/mock-data";
 
@@ -52,16 +52,7 @@ export default function DevDashboard() {
           </Link>
         </div>
       ) : (
-        <div className="space-y-3">
-          {filtered.map((entry) => (
-            <UpcomingDateCard
-              key={entry.date._id}
-              person={entry.person}
-              date={entry.date}
-              daysUntil={entry.daysUntil}
-            />
-          ))}
-        </div>
+        <DateGroupedList entries={filtered} />
       )}
     </main>
   );
