@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "convex/react";
 import { toast } from "sonner";
+import { Plus } from "lucide-react";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { giftHistorySchema, REACTIONS } from "@/lib/schemas";
@@ -20,7 +22,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+const DEFAULT_VALUES = { giftName: "", occasionLabel: "Cumpleaños", reaction: "loved" as const };
+
 export function GiftHistoryForm({ personId }: { personId: Id<"people"> }) {
+  const [showForm, setShowForm] = useState(false);
   const create = useMutation(api.giftHistory.create);
 
   const {
@@ -31,7 +36,7 @@ export function GiftHistoryForm({ personId }: { personId: Id<"people"> }) {
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(giftHistorySchema),
-    defaultValues: { giftName: "", occasionLabel: "Cumpleaños", reaction: "loved" as const },
+    defaultValues: DEFAULT_VALUES,
   });
 
   const onSubmit = async (values: GiftHistoryFormValues) => {
@@ -45,11 +50,30 @@ export function GiftHistoryForm({ personId }: { personId: Id<"people"> }) {
         notes: values.notes || undefined,
       });
       toast.success("Regalo añadido al historial");
-      reset({ giftName: "", occasionLabel: "Cumpleaños", reaction: "loved", year: undefined, notes: "" });
+      reset({ ...DEFAULT_VALUES, year: undefined, notes: "" });
+      setShowForm(false);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "No se pudo añadir el regalo");
     }
   };
+
+  const handleCancel = () => {
+    reset({ ...DEFAULT_VALUES, year: undefined, notes: "" });
+    setShowForm(false);
+  };
+
+  if (!showForm) {
+    return (
+      <button
+        type="button"
+        onClick={() => setShowForm(true)}
+        className="flex w-full items-center gap-2 rounded-lg border border-dashed border-border/70 p-3 text-sm text-muted-foreground transition-colors hover:border-border hover:text-foreground"
+      >
+        <Plus className="size-4" aria-hidden />
+        Nuevo regalo
+      </button>
+    );
+  }
 
   return (
     <form
@@ -134,9 +158,14 @@ export function GiftHistoryForm({ personId }: { personId: Id<"people"> }) {
         />
       </div>
 
-      <Button type="submit" size="sm" disabled={isSubmitting}>
-        {isSubmitting ? "Guardando…" : "Añadir al historial"}
-      </Button>
+      <div className="flex gap-2">
+        <Button type="submit" size="sm" disabled={isSubmitting}>
+          {isSubmitting ? "Guardando…" : "Añadir al historial"}
+        </Button>
+        <Button type="button" size="sm" variant="ghost" onClick={handleCancel}>
+          Cancelar
+        </Button>
+      </div>
     </form>
   );
 }
