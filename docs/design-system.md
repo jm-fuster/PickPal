@@ -113,9 +113,9 @@ Visible a partir de `lg` (1024px). Implementado en `src/app/(app)/layout.tsx`.
 
 ### Badges
 
-- `secondary`: para tags neutros (intereses, etiquetas de fecha).
-- `default` (terracota): solo para énfasis o urgencia. Ejemplo: badge del NotificationBell con el contador.
-- `outline`: para "+N más" tipo "+3 intereses adicionales".
+- `default` (verde): badges de identidad/relación. Ejemplo: "Amigo/a", "Pareja" en PersonCard.
+- `secondary` (terracota): solo para énfasis o urgencia. Ejemplo: badge del NotificationBell con el contador.
+- `outline`: tags de atributos (intereses, etiquetas de fecha) y "+N más".
 
 ### Páginas — padding y layout
 

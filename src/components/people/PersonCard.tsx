@@ -20,7 +20,7 @@ export function PersonCard({ person }: { person: Doc<"people"> }) {
     <Link href={`/people/${person._id}`} className="block h-full">
       <Card className="relative h-full border-border/60 transition-all hover:bg-muted/40 hover:shadow-md hover:-translate-y-0.5">
         <Badge
-          variant="secondary"
+          variant="default"
           className="absolute top-3 right-3 text-xs z-10"
         >
           {relationshipLabel(person.relationship)}
@@ -47,7 +47,7 @@ export function PersonCard({ person }: { person: Doc<"people"> }) {
               </p>
               <div className="flex flex-wrap gap-1 justify-center">
                 {person.interests.slice(0, 3).map((i) => (
-                  <Badge key={i} variant="secondary" className="text-xs">
+                  <Badge key={i} variant="outline" className="text-xs">
                     {i}
                   </Badge>
                 ))}
