@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Home, Users, Settings } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { SafeNotificationBell } from "@/components/layout/SafeNotificationBell";
@@ -22,9 +23,18 @@ export default function AppLayout({
           </Link>
         </div>
         <nav className="flex flex-col gap-1 p-3 flex-1">
-          <SidebarLink href="/dashboard">Dashboard</SidebarLink>
-          <SidebarLink href="/people">Personas</SidebarLink>
-          <SidebarLink href="/settings">Ajustes</SidebarLink>
+          <SidebarLink href="/dashboard">
+            <Home className="size-4" aria-hidden />
+            Inicio
+          </SidebarLink>
+          <SidebarLink href="/people">
+            <Users className="size-4" aria-hidden />
+            Personas
+          </SidebarLink>
+          <SidebarLink href="/settings">
+            <Settings className="size-4" aria-hidden />
+            Ajustes
+          </SidebarLink>
         </nav>
         <div className="p-4 border-t border-sidebar-border flex items-center gap-2">
           <SafeNotificationBell />
@@ -42,20 +52,23 @@ export default function AppLayout({
             </Link>
             <Link
               href="/dashboard"
-              className="text-sm text-muted-foreground hover:text-foreground"
+              className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1.5"
             >
-              Dashboard
+              <Home className="size-4" aria-hidden />
+              Inicio
             </Link>
             <Link
               href="/people"
-              className="text-sm text-muted-foreground hover:text-foreground"
+              className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1.5"
             >
+              <Users className="size-4" aria-hidden />
               Personas
             </Link>
             <Link
               href="/settings"
-              className="text-sm text-muted-foreground hover:text-foreground"
+              className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1.5"
             >
+              <Settings className="size-4" aria-hidden />
               Ajustes
             </Link>
           </nav>
