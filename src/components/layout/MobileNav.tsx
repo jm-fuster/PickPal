@@ -15,7 +15,7 @@ import { SidebarUserInfo } from "@/components/layout/SidebarUserInfo";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
-  { href: "/dashboard", label: "Inicio", icon: Home },
+  { href: "/dashboard", label: "Agenda", icon: Home },
   { href: "/people", label: "Seres queridos", icon: Users },
   { href: "/settings", label: "Ajustes", icon: Settings },
 ];

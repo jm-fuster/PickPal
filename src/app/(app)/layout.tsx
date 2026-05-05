@@ -27,7 +27,7 @@ export default function AppLayout({
         <nav className="flex flex-col gap-1 p-3 flex-1 overflow-y-auto">
           <SidebarLink href="/dashboard">
             <Home className="size-4" aria-hidden />
-            Inicio
+            Agenda
           </SidebarLink>
           <SidebarLink href="/people">
             <Users className="size-4" aria-hidden />
