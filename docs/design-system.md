@@ -132,6 +132,35 @@ Padding de página responsive en todos los `<main>`: `p-4 sm:p-6 lg:p-8`. No usa
 - Siempre con `border` visible. Nada de inputs invisibles a la Material.
 - Label arriba (`<Label>`), input debajo, error en rojo (`text-destructive`) inmediatamente después con `text-xs`.
 - Espaciado entre campos: `space-y-1.5` dentro de un grupo (label + input + error), `space-y-5` entre grupos.
+- **Selects nativos** (`<select>`): usar `pl-3 pr-7` (no `px-2`). El `pr-7` da espacio suficiente entre el texto y la flecha del navegador, que de otro modo queda pegada al borde.
+
+### Sección Eventos (detalle de persona)
+
+La sección "Eventos" en `/people/[id]` gestiona fechas importantes de esa persona. Terminología: **evento** (no "fecha importante").
+
+**Collapsed / expanded:**
+- Por defecto solo se muestra el botón "Nuevo evento" (borde punteado, `border-dashed`).
+- Al pulsarlo, el formulario se expande en la misma card sin navegación ni dialog.
+- Al guardar o cancelar, el formulario vuelve a colapsar.
+
+**Entrada de fecha — responsive:**
+- **Desktop** (`md+`): tres inputs inline — `Día` (número), `Mes` (select nativo), `Año (opcional)` (número). Rápido de usar con teclado.
+- **Móvil** (`< md`): un botón que abre el `DatePickerDialog` — tres columnas de scroll-snap (día | mes | año opcional) con drag en iOS/Android y mouse drag en Chrome móvil. Overlay de líneas horizontales marca el ítem activo. Implementado en `ImportantDateForm.tsx` como componente local `ScrollColumn` + `DatePickerDialog`.
+
+**Presupuesto:**
+- `BudgetRangeSlider`: slider dual de `@base-ui/react/slider` (0–500 €, paso 5) + dos inputs numéricos directos para valores exactos o >500.
+- Los thumbs del slider usan `bg-primary` (no `bg-background`) para ser visibles en ambos modos.
+- Los `<SliderThumb>` deben ser **hijos de `SliderControl`** (hermanos del `SliderTrack`), no anidados dentro del track. Si están dentro del track, `overflow-hidden` los recorta y no son clicables.
+
+**Edición inline:**
+- Cada evento tiene un botón `PencilLine` que expande `EditImportantDateInline` in situ (no dialog).
+- El formulario de edición reutiliza `BudgetRangeSlider` y el mismo patrón de 3 columnas de fecha.
+- Al guardar o cancelar, la fila vuelve al modo vista.
+
+**Badges de recurrencia:**
+- `Repeat2` + "Anual" — evento recurrente cada año.
+- `CalendarX2` + "Única" — evento de una sola vez.
+- Ambos con `variant="outline"` y `text-muted-foreground`. El verde primary está reservado para acciones.
 
 ### Avatars
 
@@ -158,10 +187,13 @@ Iconos en uso:
 - `Menu` — hamburguesa, abre el `Sheet` de navegación en móvil.
 - `Plus` — crear nueva entidad.
 - `Sparkles` — acciones que invocan IA ("Ideas de regalo").
-- `Pencil` — editar.
+- `Pencil` — editar (botón de cabecera, navegación a página de edición).
+- `PencilLine` — editar inline dentro de una lista (abre formulario en lugar, sin navegar).
 - `Trash2` — eliminar (siempre con `text-destructive`).
 - `X` — cerrar / quitar elemento de una lista.
 - `RefreshCw` — regenerar (avatar picker).
+- `Repeat2` — evento recurrente (anual).
+- `CalendarX2` — evento de fecha única (no recurrente).
 
 **Reglas:**
 - **Botones icon-only** necesitan `aria-label` y `title`. Usar variant `ghost` y size `icon` o `icon-sm`.
