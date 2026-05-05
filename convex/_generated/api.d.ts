@@ -9,9 +9,12 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as giftHistory from "../giftHistory.js";
 import type * as importantDates from "../importantDates.js";
 import type * as people from "../people.js";
+import type * as rateLimit from "../rateLimit.js";
 import type * as recommendationUsage from "../recommendationUsage.js";
+import type * as recommendations from "../recommendations.js";
 import type * as settings from "../settings.js";
 
 import type {
@@ -22,9 +25,12 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  giftHistory: typeof giftHistory;
   importantDates: typeof importantDates;
   people: typeof people;
+  rateLimit: typeof rateLimit;
   recommendationUsage: typeof recommendationUsage;
+  recommendations: typeof recommendations;
   settings: typeof settings;
 }>;
 
