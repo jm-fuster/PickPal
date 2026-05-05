@@ -260,7 +260,7 @@ export default function GiftsPage({
           <DialogHeader>
             <DialogTitle>¿Descartar esta idea?</DialogTitle>
             <DialogDescription>
-              PickPal no volverá a sugerirte <span className="font-medium text-foreground">"{pendingDiscard?.idea.title}"</span> para {person.name}. Siempre puedes deshacerlo justo después con el aviso que aparece.
+              PickPal no volverá a sugerirte <span className="font-medium text-foreground">"{pendingDiscard?.idea.title}"</span> para {person.name}.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
