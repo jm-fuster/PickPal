@@ -13,8 +13,6 @@ export const MOCK_PEOPLE: Doc<"people">[] = [
     relationship: "friend",
     interests: ["One Piece", "Senderismo", "Café"],
     notes: "Le encanta el café de especialidad.",
-    budgetMin: 20,
-    budgetMax: 60,
   },
   {
     _id: id("mock_maria"),
@@ -23,8 +21,6 @@ export const MOCK_PEOPLE: Doc<"people">[] = [
     name: "María López",
     relationship: "partner",
     interests: ["Euphoria", "Tops", "Experiencias", "Fotografía"],
-    budgetMin: 50,
-    budgetMax: 150,
   },
   {
     _id: id("mock_carlos"),
