@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { Home, Users, Settings } from "lucide-react";
-import { UserButton } from "@clerk/nextjs";
 import { SafeNotificationBell } from "@/components/layout/SafeNotificationBell";
 import { SidebarLink } from "@/components/layout/SidebarLink";
+import { SidebarUserInfo } from "@/components/layout/SidebarUserInfo";
+import { UserButton } from "@clerk/nextjs";
 
 export default function AppLayout({
   children,
@@ -13,13 +14,14 @@ export default function AppLayout({
     <div className="flex flex-1">
       {/* Sidebar — lg+ */}
       <aside className="hidden lg:flex flex-col w-60 shrink-0 bg-background text-foreground border-r border-border h-screen sticky top-0">
-        <div className="px-5 py-5 border-b border-border">
+        <div className="px-5 py-5 border-b border-border flex items-center justify-between">
           <Link
             href="/dashboard"
             className="font-semibold text-lg text-foreground"
           >
             PickPal
           </Link>
+          <SafeNotificationBell />
         </div>
         <nav className="flex flex-col gap-1 p-3 flex-1 overflow-y-auto">
           <SidebarLink href="/dashboard">
@@ -35,9 +37,8 @@ export default function AppLayout({
             Ajustes
           </SidebarLink>
         </nav>
-        <div className="p-4 border-t border-border flex items-center gap-2">
-          <SafeNotificationBell />
-          <UserButton />
+        <div className="p-4 border-t border-border">
+          <SidebarUserInfo />
         </div>
       </aside>
 
