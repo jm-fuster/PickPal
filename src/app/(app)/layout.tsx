@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { Home, Users, Settings } from "lucide-react";
+import { UserButton } from "@clerk/nextjs";
 import { SafeNotificationBell } from "@/components/layout/SafeNotificationBell";
 import { SidebarLink } from "@/components/layout/SidebarLink";
 import { SidebarUserInfo } from "@/components/layout/SidebarUserInfo";
-import { UserButton } from "@clerk/nextjs";
+import { MobileNav } from "@/components/layout/MobileNav";
 
 export default function AppLayout({
   children,
@@ -44,33 +45,13 @@ export default function AppLayout({
 
       {/* Mobile header + content */}
       <div className="flex flex-1 flex-col min-w-0">
-        <header className="lg:hidden flex items-center justify-between border-b px-6 py-3">
-          <nav className="flex items-center gap-6">
-            <Link href="/dashboard" className="font-semibold">
+        <header className="lg:hidden flex items-center justify-between border-b px-4 py-3">
+          <div className="flex items-center gap-3">
+            <MobileNav />
+            <Link href="/dashboard" className="font-semibold text-lg">
               PickPal
             </Link>
-            <Link
-              href="/dashboard"
-              className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1.5"
-            >
-              <Home className="size-4" aria-hidden />
-              Inicio
-            </Link>
-            <Link
-              href="/people"
-              className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1.5"
-            >
-              <Users className="size-4" aria-hidden />
-              Personas
-            </Link>
-            <Link
-              href="/settings"
-              className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1.5"
-            >
-              <Settings className="size-4" aria-hidden />
-              Ajustes
-            </Link>
-          </nav>
+          </div>
           <div className="flex items-center gap-3">
             <SafeNotificationBell />
             <UserButton />

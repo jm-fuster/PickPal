@@ -45,7 +45,7 @@ export default function DashboardPage() {
   }, [upcoming, windowDays]);
 
   return (
-    <main className="flex flex-1 flex-col gap-8 p-8">
+    <main className="flex flex-1 flex-col gap-8 p-4 sm:p-6 lg:p-8">
       <div>
         <h1 className="text-4xl font-medium">Dashboard</h1>
         <p className="text-sm text-muted-foreground mt-1">

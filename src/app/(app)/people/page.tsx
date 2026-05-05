@@ -16,7 +16,7 @@ export default function PeoplePage() {
   );
 
   return (
-    <main className="flex flex-1 flex-col gap-8 p-8">
+    <main className="flex flex-1 flex-col gap-8 p-4 sm:p-6 lg:p-8">
       <div className="flex items-end justify-between gap-4">
         <div>
           <h1 className="text-4xl font-medium">Personas</h1>
@@ -31,7 +31,7 @@ export default function PeoplePage() {
       </div>
 
       {!isLoaded || people === undefined ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
@@ -54,7 +54,7 @@ export default function PeoplePage() {
           </Link>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
           {people.map((p) => (
             <PersonCard key={p._id} person={p} />
           ))}

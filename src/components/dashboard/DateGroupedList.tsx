@@ -50,7 +50,7 @@ export function DateGroupedList({ entries }: { entries: Entry[] }) {
               <span className="text-xs text-muted-foreground">{group.badge}</span>
             )}
           </div>
-          <div className="space-y-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
             {group.items.map((entry) => (
               <UpcomingDateCard
                 key={entry.date._id}

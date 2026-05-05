@@ -113,7 +113,7 @@ export default function PersonDetailPage({
       : budgetMin || budgetMax;
 
   return (
-    <main className="flex flex-1 flex-col gap-8 p-8 max-w-4xl">
+    <main className="flex flex-1 flex-col gap-8 p-4 sm:p-6 lg:p-8 w-full max-w-6xl">
       <Link
         href="/people"
         className="text-sm text-muted-foreground hover:text-foreground w-fit"
