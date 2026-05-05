@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Home, Users, Settings } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { SafeNotificationBell } from "@/components/layout/SafeNotificationBell";
 import { SidebarLink } from "@/components/layout/SidebarLink";
 
@@ -13,7 +12,7 @@ export default function AppLayout({
   return (
     <div className="flex flex-1">
       {/* Sidebar — lg+ */}
-      <aside className="hidden lg:flex flex-col w-60 shrink-0 bg-background text-foreground border-r border-border">
+      <aside className="hidden lg:flex flex-col w-60 shrink-0 bg-background text-foreground border-r border-border h-screen sticky top-0">
         <div className="px-5 py-5 border-b border-border">
           <Link
             href="/dashboard"
@@ -38,7 +37,6 @@ export default function AppLayout({
         </nav>
         <div className="p-4 border-t border-border flex items-center gap-2">
           <SafeNotificationBell />
-          <ThemeToggle />
           <UserButton />
         </div>
       </aside>
@@ -74,7 +72,6 @@ export default function AppLayout({
           </nav>
           <div className="flex items-center gap-3">
             <SafeNotificationBell />
-            <ThemeToggle />
             <UserButton />
           </div>
         </header>
