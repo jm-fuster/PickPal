@@ -113,8 +113,8 @@ Visible a partir de `lg` (1024px). Implementado en `src/app/(app)/layout.tsx`.
 
 ### Badges
 
-- `default` (verde): badges de identidad/relación. Ejemplo: "Amigo/a", "Pareja" en PersonCard.
-- `secondary` (terracota): solo para énfasis o urgencia. Ejemplo: badge del NotificationBell con el contador.
+- `default` (verde): solo para acciones y CTAs. No usar en badges informativos.
+- `secondary` (terracota): badges informativos de identidad/relación ("Amigo/a", "Pareja") y énfasis o urgencia (NotificationBell).
 - `outline`: tags de atributos (intereses, etiquetas de fecha) y "+N más".
 
 ### Páginas — padding y layout
