@@ -19,7 +19,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 
 const DEFAULT_VALUES = { giftName: "", occasionLabel: "", reaction: "" };
@@ -133,7 +132,9 @@ export function GiftHistoryForm({ personId }: { personId: Id<"people"> }) {
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Reacción…" />
+                  <span className={!field.value ? "text-muted-foreground" : ""}>
+                    {REACTIONS.find((r) => r.value === field.value)?.label ?? "Reacción…"}
+                  </span>
                 </SelectTrigger>
                 <SelectContent>
                   {REACTIONS.map((r) => (
@@ -270,7 +271,9 @@ export function EditGiftHistoryInline({
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Reacción…" />
+                  <span className={!field.value ? "text-muted-foreground" : ""}>
+                    {REACTIONS.find((r) => r.value === field.value)?.label ?? "Reacción…"}
+                  </span>
                 </SelectTrigger>
                 <SelectContent>
                   {REACTIONS.map((r) => (
