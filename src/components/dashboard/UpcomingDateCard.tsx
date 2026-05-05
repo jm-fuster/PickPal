@@ -61,7 +61,7 @@ export function UpcomingDateCard({
           {(person.interests?.length ?? 0) > 0 && (
             <div className="flex flex-wrap gap-1">
               {person.interests.slice(0, 4).map((i) => (
-                <Badge key={i} variant="secondary" className="text-xs">
+                <Badge key={i} variant="outline" className="text-xs">
                   {i}
                 </Badge>
               ))}
