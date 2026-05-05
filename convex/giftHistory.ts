@@ -74,6 +74,43 @@ export const create = mutation({
   },
 });
 
+export const update = mutation({
+  args: {
+    id: v.id("giftHistory"),
+    giftName: v.string(),
+    occasionLabel: v.string(),
+    year: v.optional(v.number()),
+    reaction: v.union(v.literal("loved"), v.literal("ok"), v.literal("bad")),
+    notes: v.optional(v.string()),
+  },
+  handler: async (ctx, { id, ...fields }) => {
+    const clerkUserId = await requireUser(ctx);
+    const entry = await ctx.db.get(id);
+    if (!entry || entry.clerkUserId !== clerkUserId) {
+      throw new Error("Entrada no encontrada.");
+    }
+
+    const name = fields.giftName.trim();
+    if (name.length === 0) throw new Error("El nombre del regalo es obligatorio.");
+    if (name.length > MAX_GIFT_NAME) throw new Error("Nombre del regalo demasiado largo.");
+
+    const occasion = fields.occasionLabel.trim();
+    if (occasion.length === 0) throw new Error("La ocasión es obligatoria.");
+    if (occasion.length > MAX_OCCASION) throw new Error("Ocasión demasiado larga.");
+
+    if (fields.notes !== undefined && fields.notes.length > MAX_NOTES) {
+      throw new Error("Notas demasiado largas.");
+    }
+    if (fields.year !== undefined) {
+      if (!Number.isInteger(fields.year) || fields.year < MIN_YEAR || fields.year > MAX_YEAR) {
+        throw new Error("Año inválido.");
+      }
+    }
+
+    await ctx.db.patch(id, { ...fields, giftName: name, occasionLabel: occasion });
+  },
+});
+
 export const remove = mutation({
   args: { id: v.id("giftHistory") },
   handler: async (ctx, { id }) => {

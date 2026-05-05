@@ -23,7 +23,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { EditImportantDateInline, ImportantDateForm } from "@/components/people/ImportantDateForm";
-import { GiftHistoryForm } from "@/components/people/GiftHistoryForm";
+import { EditGiftHistoryInline, GiftHistoryForm } from "@/components/people/GiftHistoryForm";
 import { LoadingFallback } from "@/components/layout/LoadingFallback";
 import { RELATIONSHIPS, REACTIONS } from "@/lib/schemas";
 
@@ -71,6 +71,7 @@ export default function PersonDetailPage({
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [editingDate, setEditingDate] = useState<NonNullable<typeof dates>[number] | null>(null);
+  const [editingGift, setEditingGift] = useState<NonNullable<typeof giftHistory>[number] | null>(null);
 
   if (!ready || person === undefined || dates === undefined || giftHistory === undefined) {
     return <LoadingFallback />;
@@ -326,39 +327,56 @@ export default function PersonDetailPage({
               {giftHistory.map((h) => {
                 const reaction = REACTIONS.find((r) => r.value === h.reaction);
                 return (
-                  <li
-                    key={h._id}
-                    className="flex items-center justify-between rounded-lg border border-border/60 bg-background/60 p-3 text-sm"
-                  >
-                    <span className="flex items-center gap-2 min-w-0">
-                      <span className="truncate">
-                        <span className="font-medium">{h.giftName}</span>
-                        <span className="text-muted-foreground">
-                          {" · "}
-                          {h.occasionLabel}
-                          {h.year ? ` ${h.year}` : ""}
-                          {reaction ? ` · ${reaction.label}` : ""}
+                  <li key={h._id}>
+                    {editingGift?._id === h._id ? (
+                      <EditGiftHistoryInline
+                        entry={h}
+                        onClose={() => setEditingGift(null)}
+                      />
+                    ) : (
+                      <div className="flex items-center justify-between rounded-lg border border-border/60 bg-background/60 p-3 text-sm">
+                        <span className="flex items-center gap-2 min-w-0">
+                          <span className="truncate">
+                            <span className="font-medium">{h.giftName}</span>
+                            <span className="text-muted-foreground">
+                              {" · "}
+                              {h.occasionLabel}
+                              {h.year ? ` ${h.year}` : ""}
+                              {reaction ? ` · ${reaction.label}` : ""}
+                            </span>
+                          </span>
                         </span>
-                      </span>
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label="Quitar entrada"
-                      title="Quitar entrada"
-                      onClick={async () => {
-                        try {
-                          await removeHistoryEntry({ id: h._id });
-                          toast.success("Entrada eliminada");
-                        } catch (err) {
-                          toast.error(
-                            err instanceof Error ? err.message : "No se pudo eliminar la entrada",
-                          );
-                        }
-                      }}
-                    >
-                      <X className="size-3.5" aria-hidden />
-                    </Button>
+                        <div className="flex items-center gap-0.5 shrink-0">
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            aria-label="Editar regalo"
+                            title="Editar regalo"
+                            onClick={() => setEditingGift(h)}
+                          >
+                            <PencilLine className="size-3.5" aria-hidden />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            aria-label="Quitar entrada"
+                            title="Quitar entrada"
+                            onClick={async () => {
+                              try {
+                                await removeHistoryEntry({ id: h._id });
+                                toast.success("Entrada eliminada");
+                              } catch (err) {
+                                toast.error(
+                                  err instanceof Error ? err.message : "No se pudo eliminar la entrada",
+                                );
+                              }
+                            }}
+                          >
+                            <X className="size-3.5" aria-hidden />
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </li>
                 );
               })}
