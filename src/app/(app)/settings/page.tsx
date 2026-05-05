@@ -3,11 +3,14 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
+import { useTheme } from "next-themes";
+import { Moon, Sun } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "../../../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { LoadingFallback } from "@/components/layout/LoadingFallback";
 
 export default function SettingsPage() {
@@ -15,8 +18,14 @@ export default function SettingsPage() {
   const ready = isLoaded && isSignedIn;
   const settings = useQuery(api.settings.getMine, ready ? {} : "skip");
   const setMine = useMutation(api.settings.setMine);
+  const { resolvedTheme, setTheme } = useTheme();
 
   const [notifyDays, setNotifyDays] = useState<number | "">("");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
+
+  const isDark = mounted ? resolvedTheme === "dark" : false;
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -58,7 +67,28 @@ export default function SettingsPage() {
         </p>
       </div>
 
-      <section className="space-y-3 rounded-md border p-5">
+      <section className="space-y-3 rounded-xl border p-5">
+        <div className="flex items-center justify-between">
+          <div className="space-y-0.5">
+            <Label htmlFor="theme-toggle">Modo oscuro</Label>
+            <p className="text-xs text-muted-foreground">
+              Cambia entre tema claro y oscuro.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Sun className="size-4 text-muted-foreground" aria-hidden />
+            <Switch
+              id="theme-toggle"
+              checked={isDark}
+              onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
+              suppressHydrationWarning
+            />
+            <Moon className="size-4 text-muted-foreground" aria-hidden />
+          </div>
+        </div>
+      </section>
+
+      <section className="space-y-3 rounded-xl border p-5">
         <div className="space-y-1.5">
           <Label htmlFor="notify-days">Días de aviso</Label>
           <Input
