@@ -1,21 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { DateGroupedList } from "@/components/dashboard/DateGroupedList";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { computeDaysUntil } from "@/lib/dates";
 
-const WINDOWS = [
-  { value: 30, label: "30 días" },
-  { value: 60, label: "60 días" },
-  { value: 90, label: "90 días" },
-] as const;
-
-type WindowDays = (typeof WINDOWS)[number]["value"];
+const WINDOW_DAYS = 120;
 
 export default function DashboardPage() {
   const { isLoaded, isSignedIn } = useAuth();
@@ -25,8 +19,6 @@ export default function DashboardPage() {
     ready ? {} : "skip",
   );
 
-  const [windowDays, setWindowDays] = useState<WindowDays>(30);
-
   const filtered = useMemo(() => {
     if (!upcoming) return [];
     const today = new Date();
@@ -35,30 +27,17 @@ export default function DashboardPage() {
         const daysUntil = computeDaysUntil(date, today);
         return daysUntil === null ? null : { date, person, daysUntil };
       })
-      .filter((e): e is NonNullable<typeof e> => e !== null && e.daysUntil <= windowDays)
+      .filter((e): e is NonNullable<typeof e> => e !== null && e.daysUntil <= WINDOW_DAYS)
       .sort((a, b) => a.daysUntil - b.daysUntil);
-  }, [upcoming, windowDays]);
+  }, [upcoming]);
 
   return (
     <main className="flex flex-1 flex-col gap-8 p-4 sm:p-6 lg:p-8">
       <div>
         <h1 className="text-4xl font-medium">Agenda</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Lo que llega en los próximos {windowDays} días.
+          Lo que llega en los próximos 4 meses.
         </p>
-      </div>
-
-      <div className="flex gap-2">
-        {WINDOWS.map((w) => (
-          <Button
-            key={w.value}
-            size="sm"
-            variant={windowDays === w.value ? "default" : "outline"}
-            onClick={() => setWindowDays(w.value)}
-          >
-            {w.label}
-          </Button>
-        ))}
       </div>
 
       {!ready || upcoming === undefined ? (
@@ -77,8 +56,8 @@ export default function DashboardPage() {
           </div>
           <h2 className="text-2xl font-medium mb-2">Calma por delante</h2>
           <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
-            No hay fechas en los próximos {windowDays} días. Buen momento
-            para añadir a alguien que te falte.
+            No hay fechas en los próximos 4 meses. Buen momento para añadir
+            a alguien que te falte.
           </p>
           <Link
             href="/people"
