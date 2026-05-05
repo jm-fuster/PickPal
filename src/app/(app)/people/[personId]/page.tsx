@@ -22,7 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { EditImportantDateDialog, ImportantDateForm } from "@/components/people/ImportantDateForm";
+import { EditImportantDateInline, ImportantDateForm } from "@/components/people/ImportantDateForm";
 import { GiftHistoryForm } from "@/components/people/GiftHistoryForm";
 import { LoadingFallback } from "@/components/layout/LoadingFallback";
 import { RELATIONSHIPS, REACTIONS } from "@/lib/schemas";
@@ -232,79 +232,77 @@ export default function PersonDetailPage({
             ) : (
               <ul className="space-y-2">
                 {dates.map((d) => (
-                  <li
-                    key={d._id}
-                    className="flex items-center justify-between rounded-lg border border-border/60 bg-background/60 p-3 text-sm"
-                  >
-                    <span className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
-                      <span className="font-medium">{d.label}</span>
-                      {d.recurring === false ? (
-                        <Badge variant="outline" className="gap-1 text-muted-foreground">
-                          <CalendarX2 className="size-3" aria-hidden />
-                          Única
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="gap-1 text-muted-foreground">
-                          <Repeat2 className="size-3" aria-hidden />
-                          Anual
-                        </Badge>
-                      )}
-                      <span className="text-muted-foreground">
-                        {" · "}
-                        {d.day} {MONTHS[d.month - 1]}
-                        {d.year ? ` ${d.year}` : ""}
-                        {(d.budgetMin !== undefined || d.budgetMax !== undefined) && (
-                          <>
+                  <li key={d._id}>
+                    {editingDate?._id === d._id ? (
+                      <EditImportantDateInline
+                        date={d}
+                        onClose={() => setEditingDate(null)}
+                      />
+                    ) : (
+                      <div className="flex items-center justify-between rounded-lg border border-border/60 bg-background/60 p-3 text-sm">
+                        <span className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
+                          <span className="font-medium">{d.label}</span>
+                          {d.recurring === false ? (
+                            <Badge variant="outline" className="gap-1 text-muted-foreground">
+                              <CalendarX2 className="size-3" aria-hidden />
+                              Única
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="gap-1 text-muted-foreground">
+                              <Repeat2 className="size-3" aria-hidden />
+                              Anual
+                            </Badge>
+                          )}
+                          <span className="text-muted-foreground">
                             {" · "}
-                            {d.budgetMin !== undefined && d.budgetMax !== undefined
-                              ? `${(d.budgetMin / 100).toFixed(0)}€ – ${(d.budgetMax / 100).toFixed(0)}€`
-                              : d.budgetMin !== undefined
-                                ? `desde ${(d.budgetMin / 100).toFixed(0)}€`
-                                : `hasta ${(d.budgetMax! / 100).toFixed(0)}€`}
-                          </>
-                        )}
-                      </span>
-                    </span>
-                    <div className="flex items-center gap-0.5 shrink-0">
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        aria-label="Editar fecha"
-                        title="Editar fecha"
-                        onClick={() => setEditingDate(d)}
-                      >
-                        <PencilLine className="size-3.5" aria-hidden />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        aria-label="Quitar fecha"
-                        title="Quitar fecha"
-                        onClick={async () => {
-                          try {
-                            await removeDate({ id: d._id });
-                            toast.success("Fecha eliminada");
-                          } catch (err) {
-                            toast.error(
-                              err instanceof Error ? err.message : "No se pudo eliminar la fecha",
-                            );
-                          }
-                        }}
-                      >
-                        <X className="size-3.5" aria-hidden />
-                      </Button>
-                    </div>
+                            {d.day} {MONTHS[d.month - 1]}
+                            {d.year ? ` ${d.year}` : ""}
+                            {(d.budgetMin !== undefined || d.budgetMax !== undefined) && (
+                              <>
+                                {" · "}
+                                {d.budgetMin !== undefined && d.budgetMax !== undefined
+                                  ? `${(d.budgetMin / 100).toFixed(0)}€ – ${(d.budgetMax / 100).toFixed(0)}€`
+                                  : d.budgetMin !== undefined
+                                    ? `desde ${(d.budgetMin / 100).toFixed(0)}€`
+                                    : `hasta ${(d.budgetMax! / 100).toFixed(0)}€`}
+                              </>
+                            )}
+                          </span>
+                        </span>
+                        <div className="flex items-center gap-0.5 shrink-0">
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            aria-label="Editar fecha"
+                            title="Editar fecha"
+                            onClick={() => setEditingDate(d)}
+                          >
+                            <PencilLine className="size-3.5" aria-hidden />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            aria-label="Quitar fecha"
+                            title="Quitar fecha"
+                            onClick={async () => {
+                              try {
+                                await removeDate({ id: d._id });
+                                toast.success("Fecha eliminada");
+                              } catch (err) {
+                                toast.error(
+                                  err instanceof Error ? err.message : "No se pudo eliminar la fecha",
+                                );
+                              }
+                            }}
+                          >
+                            <X className="size-3.5" aria-hidden />
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </li>
                 ))}
               </ul>
-            )}
-
-            {editingDate && (
-              <EditImportantDateDialog
-                date={editingDate}
-                open={true}
-                onClose={() => setEditingDate(null)}
-              />
             )}
 
             <ImportantDateForm personId={id} />

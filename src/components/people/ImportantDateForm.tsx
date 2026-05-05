@@ -560,7 +560,7 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
   );
 }
 
-// ─── Edit dialog ──────────────────────────────────────────────────────────────
+// ─── Inline edit form ─────────────────────────────────────────────────────────
 
 type DateDoc = {
   _id: Id<"importantDates">;
@@ -573,13 +573,11 @@ type DateDoc = {
   budgetMax?: number;
 };
 
-export function EditImportantDateDialog({
+export function EditImportantDateInline({
   date,
-  open,
   onClose,
 }: {
   date: DateDoc;
-  open: boolean;
   onClose: () => void;
 }) {
   const update = useMutation(api.importantDates.update);
@@ -627,121 +625,109 @@ export function EditImportantDateDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={(o: boolean) => { if (!o) onClose(); }}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Editar fecha</DialogTitle>
-        </DialogHeader>
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="space-y-3 rounded-lg border border-primary/40 bg-background/80 p-3 text-sm"
+    >
+      {/* Etiqueta + fecha en la misma fila */}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+        <div className="space-y-1.5 md:col-span-2">
+          <Label htmlFor="edit-label">Etiqueta</Label>
+          <Input id="edit-label" {...register("label")} />
+          {errors.label && <p className="text-xs text-destructive">{errors.label.message}</p>}
+        </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Etiqueta */}
-          <div className="space-y-1.5">
-            <Label htmlFor="edit-label">Etiqueta</Label>
-            <Input id="edit-label" {...register("label")} />
-            {errors.label && <p className="text-xs text-destructive">{errors.label.message}</p>}
-          </div>
-
-          {/* Fecha — siempre inputs inline en el dialog */}
-          <div className="grid grid-cols-3 gap-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="edit-day">Día</Label>
-              <Input
-                id="edit-day"
-                type="number"
-                min={1}
-                max={31}
-                value={watchedDay ?? ""}
-                onChange={(e) =>
-                  setValue("day", e.target.value ? Number(e.target.value) : 1, { shouldValidate: true })
-                }
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="edit-month">Mes</Label>
-              <select
-                id="edit-month"
-                className="h-8 w-full rounded-md border bg-background px-2 text-sm"
-                value={watchedMonth ?? 1}
-                onChange={(e) =>
-                  setValue("month", Number(e.target.value), { shouldValidate: true })
-                }
-              >
-                {MONTHS.map((m, i) => (
-                  <option key={m} value={i + 1}>{m}</option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="edit-year">Año</Label>
-              <Input
-                id="edit-year"
-                type="number"
-                min={1900}
-                max={2100}
-                placeholder="Opc."
-                value={watchedYear ?? ""}
-                onChange={(e) =>
-                  setValue("year", e.target.value ? Number(e.target.value) : undefined)
-                }
-              />
-            </div>
-            {/* Hidden registrations so RHF validates day/month/year */}
-            <input type="hidden" {...register("day", { valueAsNumber: true })} />
-            <input type="hidden" {...register("month", { valueAsNumber: true })} />
-            <input type="hidden" {...register("year", {
-              setValueAs: (v) => (v === "" || v === null || v === undefined ? undefined : Number(v)),
-            })} />
-            {(errors.day || errors.month || errors.year) && (
-              <p className="text-xs text-destructive col-span-3">
-                {errors.day?.message ?? errors.month?.message ?? errors.year?.message}
-              </p>
-            )}
-          </div>
-
-          {/* Recurrencia */}
-          <div className="space-y-1.5 max-w-[14rem]">
-            <Label htmlFor="edit-recurring">Recurrencia</Label>
+        <div className="space-y-1.5 col-span-2 md:col-span-1">
+          <Label>Fecha</Label>
+          <div className="grid grid-cols-3 gap-1.5">
+            <Input
+              type="number"
+              min={1}
+              max={31}
+              placeholder="Día"
+              value={watchedDay ?? ""}
+              onChange={(e) =>
+                setValue("day", e.target.value ? Number(e.target.value) : 1, { shouldValidate: true })
+              }
+            />
             <select
-              id="edit-recurring"
-              className="h-8 w-full rounded-md border bg-background px-2 text-sm"
-              {...register("recurring", { setValueAs: (v) => v === "true" || v === true })}
+              className="h-8 w-full rounded-md border bg-background px-1.5 text-sm"
+              value={watchedMonth ?? 1}
+              onChange={(e) =>
+                setValue("month", Number(e.target.value), { shouldValidate: true })
+              }
             >
-              <option value="true">Todos los años</option>
-              <option value="false">Fecha única</option>
+              {MONTHS.map((m, i) => (
+                <option key={m} value={i + 1}>{m.slice(0, 3)}</option>
+              ))}
             </select>
-            {watchedRecurring === false && !watchedYear && (
-              <p className="text-xs text-muted-foreground">
-                Indica el año en el campo Año (obligatorio para fechas únicas).
-              </p>
-            )}
+            <Input
+              type="number"
+              min={1900}
+              max={2100}
+              placeholder="Año"
+              value={watchedYear ?? ""}
+              onChange={(e) =>
+                setValue("year", e.target.value ? Number(e.target.value) : undefined)
+              }
+            />
           </div>
-
-          {/* Presupuesto */}
-          <input type="hidden" {...register("budgetMinEuros", {
+          {/* Hidden RHF registrations */}
+          <input type="hidden" {...register("day", { valueAsNumber: true })} />
+          <input type="hidden" {...register("month", { valueAsNumber: true })} />
+          <input type="hidden" {...register("year", {
             setValueAs: (v) => (v === "" || v === null || v === undefined ? undefined : Number(v)),
           })} />
-          <input type="hidden" {...register("budgetMaxEuros", {
-            setValueAs: (v) => (v === "" || v === null || v === undefined ? undefined : Number(v)),
-          })} />
-          <BudgetRangeSlider
-            minValue={watchedBudgetMin}
-            maxValue={watchedBudgetMax}
-            onMinChange={(v) => setValue("budgetMinEuros", v)}
-            onMaxChange={(v) => setValue("budgetMaxEuros", v)}
-            minError={errors.budgetMinEuros?.message}
-            maxError={errors.budgetMaxEuros?.message}
-          />
+          {(errors.day || errors.month || errors.year) && (
+            <p className="text-xs text-destructive">
+              {errors.day?.message ?? errors.month?.message ?? errors.year?.message}
+            </p>
+          )}
+        </div>
+      </div>
 
-          <DialogFooter>
-            <Button type="button" variant="ghost" size="sm" onClick={onClose}>
-              Cancelar
-            </Button>
-            <Button type="submit" size="sm" disabled={isSubmitting}>
-              {isSubmitting ? "Guardando…" : "Guardar cambios"}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+      {/* Recurrencia */}
+      <div className="space-y-1.5 max-w-[14rem]">
+        <Label htmlFor="edit-recurring">Recurrencia</Label>
+        <select
+          id="edit-recurring"
+          className="h-8 w-full rounded-md border bg-background px-2 text-sm"
+          {...register("recurring", { setValueAs: (v) => v === "true" || v === true })}
+        >
+          <option value="true">Todos los años</option>
+          <option value="false">Fecha única</option>
+        </select>
+        {watchedRecurring === false && !watchedYear && (
+          <p className="text-xs text-muted-foreground">
+            Indica el año (obligatorio para fechas únicas).
+          </p>
+        )}
+      </div>
+
+      {/* Presupuesto */}
+      <input type="hidden" {...register("budgetMinEuros", {
+        setValueAs: (v) => (v === "" || v === null || v === undefined ? undefined : Number(v)),
+      })} />
+      <input type="hidden" {...register("budgetMaxEuros", {
+        setValueAs: (v) => (v === "" || v === null || v === undefined ? undefined : Number(v)),
+      })} />
+      <BudgetRangeSlider
+        minValue={watchedBudgetMin}
+        maxValue={watchedBudgetMax}
+        onMinChange={(v) => setValue("budgetMinEuros", v)}
+        onMaxChange={(v) => setValue("budgetMaxEuros", v)}
+        minError={errors.budgetMinEuros?.message}
+        maxError={errors.budgetMaxEuros?.message}
+      />
+
+      <div className="flex gap-2">
+        <Button type="submit" size="sm" disabled={isSubmitting}>
+          {isSubmitting ? "Guardando…" : "Guardar cambios"}
+        </Button>
+        <Button type="button" variant="ghost" size="sm" onClick={onClose}>
+          Cancelar
+        </Button>
+      </div>
+    </form>
   );
 }
