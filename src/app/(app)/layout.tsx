@@ -13,11 +13,11 @@ export default function AppLayout({
   return (
     <div className="flex flex-1">
       {/* Sidebar — lg+ */}
-      <aside className="hidden lg:flex flex-col w-60 shrink-0 bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
-        <div className="px-5 py-5 border-b border-sidebar-border">
+      <aside className="hidden lg:flex flex-col w-60 shrink-0 bg-background text-foreground border-r border-border">
+        <div className="px-5 py-5 border-b border-border">
           <Link
             href="/dashboard"
-            className="font-semibold text-lg text-sidebar-foreground"
+            className="font-semibold text-lg text-foreground"
           >
             PickPal
           </Link>
@@ -36,7 +36,7 @@ export default function AppLayout({
             Ajustes
           </SidebarLink>
         </nav>
-        <div className="p-4 border-t border-sidebar-border flex items-center gap-2">
+        <div className="p-4 border-t border-border flex items-center gap-2">
           <SafeNotificationBell />
           <ThemeToggle />
           <UserButton />
