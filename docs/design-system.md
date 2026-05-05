@@ -94,6 +94,18 @@ Visible a partir de `lg` (1024px). Implementado en `src/app/(app)/layout.tsx`.
 - **Tema**: `defaultTheme="dark"` sin `enableSystem`. El toggle está en `/settings`. No hay ThemeToggle en sidebar ni en el header.
 - En móvil (`< lg`): header compacto con hamburguesa (`MobileNav`) + logo a la izquierda, campana + UserButton a la derecha. La navegación se abre en un `Sheet` lateral (shadcn `sheet.tsx`) desde la izquierda. `MobileNav` es un componente cliente en `src/components/layout/MobileNav.tsx`.
 
+**Secciones de la navegación:**
+
+| Etiqueta | Ruta | Icono |
+|---|---|---|
+| Agenda | `/dashboard` | `CalendarDays` |
+| Seres queridos | `/people` | `Users` |
+| Ajustes | `/settings` | `Settings` |
+
+- "Agenda" en vez de "Inicio" porque la sección muestra fechas próximas, no un dashboard genérico.
+- "Seres queridos" en vez de "Personas" — voz más cálida y coherente con el registro del producto.
+- `CalendarDays` en vez de `Home` — el icono de casita no comunicaba nada sobre fechas.
+
 ### Cards (shadcn `Card`)
 
 - Default: `rounded` heredado del token, `border border-border/60` para que la línea sea sutil, `shadow-sm`.
@@ -162,6 +174,34 @@ La sección "Eventos" en `/people/[id]` gestiona fechas importantes de esa perso
 - `CalendarX2` + "Única" — evento de una sola vez.
 - Ambos con `variant="outline"` y `text-muted-foreground`. El verde primary está reservado para acciones.
 
+### Sección Historial de regalos (detalle de persona)
+
+La sección "Historial de regalos" en `/people/[id]` registra regalos pasados para que la IA pueda aprender qué funciona con esa persona.
+
+**Añadir regalo:**
+- Por defecto se muestra el botón "Añadir regalo" (borde punteado, `border-dashed`), igual que "Añadir evento".
+- Al pulsarlo, el formulario se expande en la misma card sin dialog ni navegación.
+- Al guardar o cancelar, el formulario vuelve a colapsar y los campos se resetean.
+
+**Edición inline:**
+- Cada entrada tiene un botón `PencilLine` (editar) + `X` (eliminar), igual que los eventos.
+- Al pulsar `PencilLine`, la fila se reemplaza por `EditGiftHistoryInline` in situ.
+- Al guardar o cancelar, la fila vuelve al modo vista.
+- Implementado en `src/components/people/GiftHistoryForm.tsx` (`GiftHistoryForm` + `EditGiftHistoryInline`).
+- Mutación Convex: `api.giftHistory.update` (valida ownership, longitudes y año).
+
+**Campo Reacción — `REACTIONS`:**
+- Definido en `src/lib/schemas.ts`. Tres valores: `loved / ok / bad`.
+- Labels en español sin emojis: `Le encantó / Le dio igual / No gustó`.
+- Sin valor por defecto en ninguna de las dos formas — el usuario debe elegir explícitamente.
+- En la lista del historial, la reacción se muestra como texto inline: `Auriculares · Cumpleaños 2024 · Le encantó`.
+
+**Select con valor inicial controlado — fix Radix portal:**
+- El `SelectValue` de Radix UI no puede mostrar el label del item seleccionado hasta que `SelectContent` se ha abierto al menos una vez (los items viven en un portal que no se renderiza en cerrado).
+- En formularios de edición (valor pre-rellenado), esto provoca que el trigger muestre el `value` raw ("loved") en vez del label.
+- Solución: renderizar el label manualmente en el trigger usando `REACTIONS.find(r => r.value === field.value)?.label ?? "Reacción…"` dentro de un `<span>`, sin `SelectValue`. Los items siguen dentro de `SelectContent` para el dropdown.
+- Aplicar este patrón en cualquier Select controlado con valor inicial en un formulario de edición.
+
 ### Avatars
 
 - Tamaño default `size-10`–`size-12` en cards, `size-20`–`size-24` en headers de detalle.
@@ -183,6 +223,7 @@ La sección "Eventos" en `/people/[id]` gestiona fechas importantes de esa perso
 Set único: [`lucide-react`](https://lucide.dev). Stroke 2 (default), tamaño `size-4` (16px) en botones y nav, `size-3.5` en botones `icon-sm`, `size-5` para iconos decorativos en headers.
 
 Iconos en uso:
+- `CalendarDays` — sección Agenda (nav).
 - `Bell` — campanita de notificaciones.
 - `Menu` — hamburguesa, abre el `Sheet` de navegación en móvil.
 - `Plus` — crear nueva entidad.
