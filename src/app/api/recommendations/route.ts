@@ -36,13 +36,13 @@ const buildPrompt = (
     relationship: string;
     interests: string[];
     notes?: string;
-    budgetMin?: number;
-    budgetMax?: number;
     shoeSize?: string;
     clothingSize?: string;
     allergies?: string;
     dislikes?: string;
   },
+  budgetMin: number | undefined,
+  budgetMax: number | undefined,
   occasionLabel: string,
   giftType: GiftType,
   history: Array<{ giftName: string; occasionLabel: string; year?: number; reaction: string }>,
@@ -51,7 +51,7 @@ const buildPrompt = (
   const relationshipLabel =
     RELATIONSHIPS.find((r) => r.value === person.relationship)?.label ??
     person.relationship;
-  const budgetText = formatBudget(person.budgetMin, person.budgetMax);
+  const budgetText = formatBudget(budgetMin, budgetMax);
   const interestsText =
     person.interests.length > 0 ? person.interests.join(", ") : "sin definir";
   const notesText = person.notes?.trim() || "ninguna";
@@ -149,8 +149,9 @@ export async function POST(req: NextRequest) {
   const personId = parsed.data.personId as Id<"people">;
   const { occasionLabel, giftType, excludedTitles } = parsed.data;
 
-  const [person, history] = await Promise.all([
+  const [person, matchingDate, history] = await Promise.all([
     fetchQuery(api.people.getById, { id: personId }, { token }),
+    fetchQuery(api.importantDates.getByPersonAndLabel, { personId, label: occasionLabel }, { token }),
     fetchQuery(api.giftHistory.getByPerson, { personId }, { token }),
   ]);
 
@@ -172,7 +173,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const prompt = buildPrompt(person, occasionLabel, giftType, history, excludedTitles);
+  const prompt = buildPrompt(person, matchingDate?.budgetMin, matchingDate?.budgetMax, occasionLabel, giftType, history, excludedTitles);
 
   try {
     const { object } = await generateObject({

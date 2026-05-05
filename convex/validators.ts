@@ -29,8 +29,6 @@ export function validatePersonInput(input: {
   relationship?: string;
   interests?: string[];
   notes?: string;
-  budgetMin?: number;
-  budgetMax?: number;
   shoeSize?: string;
   clothingSize?: string;
   allergies?: string;
@@ -63,7 +61,6 @@ export function validatePersonInput(input: {
       }
     }
   }
-  validateBudget(input.budgetMin, input.budgetMax);
   if (input.shoeSize !== undefined && input.shoeSize.length > MAX_SIZE) {
     throw new Error("Talla de zapato demasiado larga.");
   }
@@ -86,7 +83,7 @@ export function validatePersonInput(input: {
   }
 }
 
-function validateBudget(min?: number, max?: number) {
+export function validateBudget(min?: number, max?: number) {
   for (const [name, value] of [
     ["budgetMin", min],
     ["budgetMax", max],
@@ -104,6 +101,8 @@ function validateBudget(min?: number, max?: number) {
 export function validateDateInput(input: {
   label?: string;
   year?: number;
+  budgetMin?: number;
+  budgetMax?: number;
 }) {
   if (input.label !== undefined) {
     const trimmed = input.label.trim();
@@ -119,4 +118,5 @@ export function validateDateInput(input: {
       throw new Error("Año inválido.");
     }
   }
+  validateBudget(input.budgetMin, input.budgetMax);
 }

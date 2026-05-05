@@ -162,43 +162,6 @@ export function PersonForm({
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-1.5">
-          <Label htmlFor="budgetMinEuros">Presupuesto mín. (€)</Label>
-          <Input
-            id="budgetMinEuros"
-            type="number"
-            min={0}
-            step={1}
-            {...register("budgetMinEuros", {
-              setValueAs: (v) => (v === "" || v === null ? undefined : Number(v)),
-            })}
-          />
-          {errors.budgetMinEuros ? (
-            <p className="text-xs text-destructive">
-              {errors.budgetMinEuros.message}
-            </p>
-          ) : null}
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="budgetMaxEuros">Presupuesto máx. (€)</Label>
-          <Input
-            id="budgetMaxEuros"
-            type="number"
-            min={0}
-            step={1}
-            {...register("budgetMaxEuros", {
-              setValueAs: (v) => (v === "" || v === null ? undefined : Number(v)),
-            })}
-          />
-          {errors.budgetMaxEuros ? (
-            <p className="text-xs text-destructive">
-              {errors.budgetMaxEuros.message}
-            </p>
-          ) : null}
-        </div>
-      </div>
-
       <div className="space-y-3 rounded-xl border border-dashed border-border/70 bg-background/40 p-4">
         <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
           Datos prácticos (opcional)
@@ -252,7 +215,7 @@ export function PersonForm({
               size="sm"
               variant="ghost"
               onClick={() =>
-                append({ label: "Cumpleaños", month: 1, day: 1, year: undefined })
+                append({ label: "Cumpleaños", month: 1, day: 1, year: undefined, budgetMinEuros: undefined, budgetMaxEuros: undefined })
               }
             >
               <Plus className="size-3.5" />
@@ -269,7 +232,7 @@ export function PersonForm({
           {fields.map((field, idx) => (
             <div
               key={field.id}
-              className="grid grid-cols-2 gap-2 rounded-lg bg-background/60 p-3 md:grid-cols-[1fr_8rem_5rem_6rem_2rem]"
+              className="grid grid-cols-2 gap-2 rounded-lg bg-background/60 p-3 md:grid-cols-[1fr_8rem_5rem_6rem_6rem_6rem_2rem]"
             >
               <div className="space-y-1 md:col-span-1">
                 <Label htmlFor={`dates.${idx}.label`} className="text-xs">
@@ -333,6 +296,38 @@ export function PersonForm({
                   max={2100}
                   placeholder="Opc."
                   {...register(`dates.${idx}.year` as const, {
+                    setValueAs: (v) =>
+                      v === "" || v === null ? undefined : Number(v),
+                  })}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor={`dates.${idx}.budgetMinEuros`} className="text-xs">
+                  Mín €
+                </Label>
+                <Input
+                  id={`dates.${idx}.budgetMinEuros`}
+                  type="number"
+                  min={0}
+                  step={1}
+                  placeholder="Opc."
+                  {...register(`dates.${idx}.budgetMinEuros` as const, {
+                    setValueAs: (v) =>
+                      v === "" || v === null ? undefined : Number(v),
+                  })}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor={`dates.${idx}.budgetMaxEuros`} className="text-xs">
+                  Máx €
+                </Label>
+                <Input
+                  id={`dates.${idx}.budgetMaxEuros`}
+                  type="number"
+                  min={0}
+                  step={1}
+                  placeholder="Opc."
+                  {...register(`dates.${idx}.budgetMaxEuros` as const, {
                     setValueAs: (v) =>
                       v === "" || v === null ? undefined : Number(v),
                   })}

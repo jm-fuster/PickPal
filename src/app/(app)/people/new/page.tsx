@@ -18,28 +18,20 @@ export default function NewPersonPage() {
       relationship: values.relationship,
       interests: values.interests,
       notes: values.notes || undefined,
-      budgetMin:
-        values.budgetMinEuros !== undefined
-          ? Math.round(values.budgetMinEuros * 100)
-          : undefined,
-      budgetMax:
-        values.budgetMaxEuros !== undefined
-          ? Math.round(values.budgetMaxEuros * 100)
-          : undefined,
       avatarUrl: values.avatarUrl || undefined,
     });
 
     if (values.dates.length > 0) {
       const results = await Promise.allSettled(
-        values.dates.map((d) =>
-          createDate({
+        values.dates.map((d) => {
+          const { budgetMinEuros, budgetMaxEuros, ...rest } = d;
+          return createDate({
             personId: id,
-            label: d.label,
-            month: d.month,
-            day: d.day,
-            year: d.year,
-          }),
-        ),
+            ...rest,
+            budgetMin: budgetMinEuros !== undefined ? Math.round(budgetMinEuros * 100) : undefined,
+            budgetMax: budgetMaxEuros !== undefined ? Math.round(budgetMaxEuros * 100) : undefined,
+          });
+        }),
       );
       const failed = results.filter((r) => r.status === "rejected").length;
       if (failed > 0) {

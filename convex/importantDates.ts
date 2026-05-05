@@ -73,12 +73,14 @@ export const create = mutation({
     month: v.number(),
     day: v.number(),
     year: v.optional(v.number()),
+    budgetMin: v.optional(v.number()),
+    budgetMax: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const clerkUserId = await requireUser(ctx);
     await assertOwnsPerson(ctx, args.personId, clerkUserId);
     assertValidDate(args.month, args.day);
-    validateDateInput({ label: args.label, year: args.year });
+    validateDateInput({ label: args.label, year: args.year, budgetMin: args.budgetMin, budgetMax: args.budgetMax });
     await checkAndIncrement(
       ctx,
       clerkUserId,
@@ -96,6 +98,8 @@ export const update = mutation({
     month: v.optional(v.number()),
     day: v.optional(v.number()),
     year: v.optional(v.number()),
+    budgetMin: v.optional(v.number()),
+    budgetMax: v.optional(v.number()),
   },
   handler: async (ctx, { id, ...patch }) => {
     const clerkUserId = await requireUser(ctx);
@@ -111,8 +115,23 @@ export const update = mutation({
     validateDateInput({
       label: patch.label ?? existing.label,
       year: patch.year ?? existing.year,
+      budgetMin: patch.budgetMin ?? existing.budgetMin,
+      budgetMax: patch.budgetMax ?? existing.budgetMax,
     });
     await ctx.db.patch(id, patch);
+  },
+});
+
+export const getByPersonAndLabel = query({
+  args: { personId: v.id("people"), label: v.string() },
+  handler: async (ctx, { personId, label }) => {
+    const clerkUserId = await requireUser(ctx);
+    await assertOwnsPerson(ctx, personId, clerkUserId);
+    const dates = await ctx.db
+      .query("importantDates")
+      .withIndex("by_person", (q) => q.eq("personId", personId))
+      .collect();
+    return dates.find((d) => d.label === label) ?? null;
   },
 });
 

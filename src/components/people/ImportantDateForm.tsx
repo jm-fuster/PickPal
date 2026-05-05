@@ -44,9 +44,15 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
 
   const onSubmit = async (values: ImportantDateFormValues) => {
     try {
-      await create({ personId, ...values });
+      const { budgetMinEuros, budgetMaxEuros, ...rest } = values;
+      await create({
+        personId,
+        ...rest,
+        budgetMin: budgetMinEuros !== undefined ? Math.round(budgetMinEuros * 100) : undefined,
+        budgetMax: budgetMaxEuros !== undefined ? Math.round(budgetMaxEuros * 100) : undefined,
+      });
       toast.success("Fecha añadida");
-      reset({ label: "Cumpleaños", month: 1, day: 1, year: undefined });
+      reset({ label: "Cumpleaños", month: 1, day: 1, year: undefined, budgetMinEuros: undefined, budgetMaxEuros: undefined });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "No se pudo añadir la fecha");
     }
@@ -113,6 +119,39 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
               v === "" || v === null ? undefined : Number(v),
           })}
         />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 max-w-xs">
+        <div className="space-y-1.5">
+          <Label htmlFor="date-budget-min">Presupuesto mín. € (opcional)</Label>
+          <Input
+            id="date-budget-min"
+            type="number"
+            min={0}
+            step={1}
+            {...register("budgetMinEuros", {
+              setValueAs: (v) => (v === "" || v === null ? undefined : Number(v)),
+            })}
+          />
+          {errors.budgetMinEuros ? (
+            <p className="text-xs text-destructive">{errors.budgetMinEuros.message}</p>
+          ) : null}
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="date-budget-max">Presupuesto máx. € (opcional)</Label>
+          <Input
+            id="date-budget-max"
+            type="number"
+            min={0}
+            step={1}
+            {...register("budgetMaxEuros", {
+              setValueAs: (v) => (v === "" || v === null ? undefined : Number(v)),
+            })}
+          />
+          {errors.budgetMaxEuros ? (
+            <p className="text-xs text-destructive">{errors.budgetMaxEuros.message}</p>
+          ) : null}
+        </div>
       </div>
 
       <Button type="submit" size="sm" disabled={isSubmitting}>

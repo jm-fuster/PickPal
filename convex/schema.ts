@@ -8,8 +8,6 @@ export default defineSchema({
     relationship: v.string(),
     interests: v.array(v.string()),
     notes: v.optional(v.string()),
-    budgetMin: v.optional(v.number()),
-    budgetMax: v.optional(v.number()),
     shoeSize: v.optional(v.string()),
     clothingSize: v.optional(v.string()),
     allergies: v.optional(v.string()),
@@ -23,6 +21,8 @@ export default defineSchema({
     month: v.number(),
     day: v.number(),
     year: v.optional(v.number()),
+    budgetMin: v.optional(v.number()),
+    budgetMax: v.optional(v.number()),
   }).index("by_person", ["personId"]),
 
   userSettings: defineTable({

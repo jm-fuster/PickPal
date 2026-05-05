@@ -39,14 +39,6 @@ export default function EditPersonPage({
       relationship: values.relationship,
       interests: values.interests,
       notes: values.notes || undefined,
-      budgetMin:
-        values.budgetMinEuros !== undefined
-          ? Math.round(values.budgetMinEuros * 100)
-          : undefined,
-      budgetMax:
-        values.budgetMaxEuros !== undefined
-          ? Math.round(values.budgetMaxEuros * 100)
-          : undefined,
       shoeSize: values.shoeSize || undefined,
       clothingSize: values.clothingSize || undefined,
       allergies: values.allergies || undefined,
@@ -68,10 +60,6 @@ export default function EditPersonPage({
           relationship: person.relationship,
           interests: person.interests,
           notes: person.notes ?? "",
-          budgetMinEuros:
-            person.budgetMin !== undefined ? person.budgetMin / 100 : undefined,
-          budgetMaxEuros:
-            person.budgetMax !== undefined ? person.budgetMax / 100 : undefined,
           shoeSize: person.shoeSize ?? "",
           clothingSize: person.clothingSize ?? "",
           allergies: person.allergies ?? "",

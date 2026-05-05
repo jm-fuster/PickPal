@@ -42,9 +42,6 @@ const MONTHS = [
   "dic",
 ];
 
-const formatBudget = (cents?: number) =>
-  cents === undefined ? null : `${(cents / 100).toFixed(0)}€`;
-
 export default function PersonDetailPage({
   params,
 }: {
@@ -105,13 +102,6 @@ export default function PersonDetailPage({
     RELATIONSHIPS.find((r) => r.value === person.relationship)?.label ??
     person.relationship;
 
-  const budgetMin = formatBudget(person.budgetMin);
-  const budgetMax = formatBudget(person.budgetMax);
-  const budget =
-    budgetMin && budgetMax
-      ? `${budgetMin} – ${budgetMax}`
-      : budgetMin || budgetMax;
-
   return (
     <main className="flex flex-1 flex-col gap-8 p-4 sm:p-6 lg:p-8 w-full max-w-6xl">
       <Link
@@ -135,12 +125,6 @@ export default function PersonDetailPage({
           <h1 className="text-4xl font-medium leading-tight">{person.name}</h1>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
             <span>{relationshipLabel}</span>
-            {budget ? (
-              <>
-                <span aria-hidden>·</span>
-                <span>{budget}</span>
-              </>
-            ) : null}
           </div>
         </div>
 
@@ -257,6 +241,16 @@ export default function PersonDetailPage({
                         {" · "}
                         {d.day} {MONTHS[d.month - 1]}
                         {d.year ? ` ${d.year}` : ""}
+                        {(d.budgetMin !== undefined || d.budgetMax !== undefined) && (
+                          <>
+                            {" · "}
+                            {d.budgetMin !== undefined && d.budgetMax !== undefined
+                              ? `${(d.budgetMin / 100).toFixed(0)}€ – ${(d.budgetMax / 100).toFixed(0)}€`
+                              : d.budgetMin !== undefined
+                                ? `desde ${(d.budgetMin / 100).toFixed(0)}€`
+                                : `hasta ${(d.budgetMax! / 100).toFixed(0)}€`}
+                          </>
+                        )}
                       </span>
                     </span>
                     <Button

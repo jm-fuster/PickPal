@@ -36,6 +36,16 @@ export const importantDateSchema = z
       .max(2100)
       .optional()
       .or(z.literal(undefined)),
+    budgetMinEuros: z
+      .number({ error: "Debe ser un número" })
+      .min(0)
+      .max(100000)
+      .optional(),
+    budgetMaxEuros: z
+      .number({ error: "Debe ser un número" })
+      .min(0)
+      .max(100000)
+      .optional(),
   })
   .refine(
     (v) => {
@@ -43,6 +53,16 @@ export const importantDateSchema = z
       return v.day <= daysInMonth;
     },
     { message: "Día no válido para ese mes", path: ["day"] },
+  )
+  .refine(
+    (v) =>
+      v.budgetMinEuros === undefined ||
+      v.budgetMaxEuros === undefined ||
+      v.budgetMinEuros <= v.budgetMaxEuros,
+    {
+      message: "El mínimo debe ser menor o igual al máximo",
+      path: ["budgetMaxEuros"],
+    },
   );
 
 export type ImportantDateFormValues = z.infer<typeof importantDateSchema>;
@@ -55,32 +75,12 @@ export const personFormSchema = z
     ),
     interests: z.array(z.string().trim().min(1)).max(20),
     notes: z.string().max(1000).optional(),
-    budgetMinEuros: z
-      .number({ error: "Debe ser un número" })
-      .min(0)
-      .max(100000)
-      .optional(),
-    budgetMaxEuros: z
-      .number({ error: "Debe ser un número" })
-      .min(0)
-      .max(100000)
-      .optional(),
     dates: z.array(importantDateSchema).max(10),
     shoeSize: z.string().max(20).optional(),
     clothingSize: z.string().max(20).optional(),
     allergies: z.string().max(200).optional(),
     dislikes: z.string().max(200).optional(),
     avatarUrl: z.string().url().optional(),
-  })
-  .refine(
-    (v) =>
-      v.budgetMinEuros === undefined ||
-      v.budgetMaxEuros === undefined ||
-      v.budgetMinEuros <= v.budgetMaxEuros,
-    {
-      message: "El mínimo debe ser menor o igual al máximo",
-      path: ["budgetMaxEuros"],
-    },
-  );
+  });
 
 export type PersonFormValues = z.infer<typeof personFormSchema>;
