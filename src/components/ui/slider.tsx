@@ -21,7 +21,7 @@ function SliderControl({ className, ...props }: SliderPrimitive.Control.Props) {
   return (
     <SliderPrimitive.Control
       data-slot="slider-control"
-      className={cn("relative flex w-full items-center", className)}
+      className={cn("relative flex h-4 w-full cursor-pointer touch-none items-center", className)}
       {...props}
     />
   )
@@ -32,7 +32,7 @@ function SliderTrack({ className, ...props }: SliderPrimitive.Track.Props) {
     <SliderPrimitive.Track
       data-slot="slider-track"
       className={cn(
-        "relative h-1.5 w-full grow overflow-hidden rounded-full bg-muted",
+        "relative h-1.5 w-full grow rounded-full bg-muted overflow-hidden",
         className,
       )}
       {...props}

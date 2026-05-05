@@ -75,9 +75,9 @@ function BudgetRangeSlider({
         <SliderControl>
           <SliderTrack>
             <SliderIndicator />
-            <SliderThumb getAriaLabel={() => "Presupuesto mínimo"} />
-            <SliderThumb getAriaLabel={() => "Presupuesto máximo"} />
           </SliderTrack>
+          <SliderThumb getAriaLabel={() => "Presupuesto mínimo"} />
+          <SliderThumb getAriaLabel={() => "Presupuesto máximo"} />
         </SliderControl>
       </SliderRoot>
 
