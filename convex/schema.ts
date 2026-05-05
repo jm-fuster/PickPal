@@ -8,6 +8,8 @@ export default defineSchema({
     relationship: v.string(),
     interests: v.array(v.string()),
     notes: v.optional(v.string()),
+    budgetMin: v.optional(v.number()),
+    budgetMax: v.optional(v.number()),
     shoeSize: v.optional(v.string()),
     clothingSize: v.optional(v.string()),
     allergies: v.optional(v.string()),
@@ -59,6 +61,7 @@ export default defineSchema({
         amazonQuery: v.string(),
       }),
     ),
+    discardedTitles: v.optional(v.array(v.string())),
   })
     .index("by_user_person_occasion_type", [
       "clerkUserId",
