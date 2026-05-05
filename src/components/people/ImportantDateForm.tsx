@@ -329,7 +329,7 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
     formState: { errors, isSubmitting },
   } = useForm<ImportantDateFormValues>({
     resolver: zodResolver(importantDateSchema),
-    defaultValues: { label: "Cumpleaños", month: 1, day: 1, recurring: true },
+    defaultValues: { label: "", month: undefined, day: undefined, recurring: true },
   });
 
   const watchedDay = useWatch({ control, name: "day" });
@@ -341,8 +341,8 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
 
   const defaultValues = {
     label: "",
-    month: 1,
-    day: 1,
+    month: undefined,
+    day: undefined,
     year: undefined,
     recurring: true,
     budgetMinEuros: undefined,
@@ -411,7 +411,7 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
         {/* Etiqueta — full width on both breakpoints */}
         <div className="space-y-1.5">
           <Label htmlFor="date-label">Etiqueta</Label>
-          <Input id="date-label" {...register("label")} />
+          <Input id="date-label" placeholder="Cumpleaños, Aniversario…" {...register("label")} />
           {errors.label ? (
             <p className="text-xs text-destructive">{errors.label.message}</p>
           ) : null}
@@ -454,12 +454,13 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
             <Label htmlFor="date-month-desktop">Mes</Label>
             <select
               id="date-month-desktop"
-              className="h-8 w-full rounded-md border bg-background px-2 text-sm"
-              value={watchedMonth ?? 1}
+              className="h-8 w-full rounded-md border bg-background pl-3 pr-7 text-sm"
+              value={watchedMonth ?? ""}
               onChange={(e) =>
-                setValue("month", Number(e.target.value), { shouldValidate: true })
+                setValue("month", e.target.value ? Number(e.target.value) : (undefined as unknown as number), { shouldValidate: true })
               }
             >
+              <option value="" disabled>Mes</option>
               {MONTHS.map((m, i) => (
                 <option key={m} value={i + 1}>{m}</option>
               ))}
@@ -492,9 +493,11 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
           <button
             type="button"
             onClick={() => setPickerOpen(true)}
-            className="h-8 w-full rounded-md border bg-background px-3 text-sm text-left transition-colors hover:bg-muted/50"
+            className={`h-8 w-full rounded-md border bg-background px-3 text-sm text-left transition-colors hover:bg-muted/50 ${!watchedDay || !watchedMonth ? "text-muted-foreground" : ""}`}
           >
-            {formatDate(watchedDay ?? 1, watchedMonth ?? 1, watchedYear)}
+            {watchedDay && watchedMonth
+              ? formatDate(watchedDay, watchedMonth, watchedYear)
+              : "Selecciona fecha"}
           </button>
           {errors.day || errors.month || errors.year ? (
             <p className="text-xs text-destructive">
@@ -508,7 +511,7 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
           <Label htmlFor="date-recurring">Recurrencia</Label>
           <select
             id="date-recurring"
-            className="h-8 w-full rounded-md border bg-background px-2 text-sm"
+            className="h-8 w-full rounded-md border bg-background pl-3 pr-7 text-sm"
             {...register("recurring", {
               setValueAs: (v) => v === "true" || v === true,
             })}
@@ -690,7 +693,7 @@ export function EditImportantDateInline({
         <Label htmlFor="edit-recurring">Recurrencia</Label>
         <select
           id="edit-recurring"
-          className="h-8 w-full rounded-md border bg-background px-2 text-sm"
+          className="h-8 w-full rounded-md border bg-background pl-3 pr-7 text-sm"
           {...register("recurring", { setValueAs: (v) => v === "true" || v === true })}
         >
           <option value="true">Todos los años</option>
