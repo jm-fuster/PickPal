@@ -9,7 +9,7 @@ export const REACTIONS = [
 export const giftHistorySchema = z.object({
   giftName: z.string().trim().min(1, "El nombre es obligatorio").max(120),
   occasionLabel: z.string().trim().min(1, "La ocasión es obligatoria").max(40),
-  year: z.coerce.number().int().min(1900).max(2100).optional().or(z.literal(undefined)),
+  year: z.coerce.number().int().min(1900).max(2100).optional(),
   reaction: z.enum(["loved", "ok", "bad"] as [string, ...string[]]),
   notes: z.string().max(500).optional(),
 });
