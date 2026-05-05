@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { use, useState } from "react";
-import { Pencil, Sparkles, Trash2, X } from "lucide-react";
+import { CalendarX2, Pencil, Repeat2, Sparkles, Trash2, X } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
 import { useRouter } from "next/navigation";
@@ -235,8 +235,19 @@ export default function PersonDetailPage({
                     key={d._id}
                     className="flex items-center justify-between rounded-lg border border-border/60 bg-background/60 p-3 text-sm"
                   >
-                    <span>
+                    <span className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
                       <span className="font-medium">{d.label}</span>
+                      {d.recurring === false ? (
+                        <Badge variant="outline" className="gap-1 text-muted-foreground">
+                          <CalendarX2 className="size-3" aria-hidden />
+                          Única
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="gap-1 text-muted-foreground">
+                          <Repeat2 className="size-3" aria-hidden />
+                          Anual
+                        </Badge>
+                      )}
                       <span className="text-muted-foreground">
                         {" · "}
                         {d.day} {MONTHS[d.month - 1]}
