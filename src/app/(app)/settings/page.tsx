@@ -59,9 +59,9 @@ export default function SettingsPage() {
   const dirty = settings.notifyDaysBefore !== notifyDays;
 
   return (
-    <main className="flex flex-1 flex-col gap-8 p-8 max-w-xl">
+    <main className="flex flex-1 flex-col gap-8 p-4 sm:p-6 lg:p-8 max-w-xl">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Ajustes</h1>
+        <h1 className="text-4xl font-medium">Ajustes</h1>
         <p className="text-muted-foreground">
           Personaliza cómo se comportan las notificaciones.
         </p>

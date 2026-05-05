@@ -241,11 +241,15 @@ Lista de cosas que sé que faltan o que no han recibido pasada todavía. Se irá
 - [ ] **Footer global**: minimal por ahora. Decidir si crece o se queda así.
 - [ ] **Skeletons consistentes**: todos en `rounded-2xl` y `border-dashed`, pero verificar dimensiones uniformes.
 - [ ] **Mobile < 380px**: sin probar. Hero de landing podría descuadrar.
-- [ ] **Tono de los toasts de error** (sonner): voz por defecto, podría tener un tono propio.
+- [x] ~~Tono de los toasts de error~~ → fallbacks genéricos actualizados: "No se pudo guardar / añadir / eliminar…" en lugar de "Error". Los mensajes del servidor se siguen mostrando cuando están disponibles.
 - [ ] **Estado de loading global / transiciones de página**: actualmente cada página gestiona el suyo. ¿Vale la pena una skeleton global o no?
 - [x] ~~ThemeToggle en sidebar~~ → retirado. El toggle vive solo en `/settings`. Tema fijo: `dark` por defecto.
 - [x] ~~Navegación móvil~~ → hamburguesa + Sheet lateral (`MobileNav`).
 - [x] ~~Grids fijos en desktop~~ → todos los grids son ahora responsive con columnas dinámicas.
+- [x] ~~Footer global~~ → decisión tomada: la landing tiene un footer mínimo de una línea. Las páginas de la app (autenticadas) no tienen footer — no es un sitio web, es una herramienta.
+- [x] ~~Estado de loading global~~ → decisión tomada: cada página gestiona su propio estado. Las páginas de lista usan skeletons inline con `animate-pulse rounded-2xl border-dashed`. Las páginas de detalle/edición usan `LoadingFallback` (tres puntos con stagger de 150ms). No se introduce un skeleton global porque no hay estructura de página compartida que lo justifique.
+- [x] ~~Mobile < 380px (landing)~~ → h1 reducido a `text-4xl` base con escalado `sm:text-5xl md:text-6xl lg:text-7xl`. Feature cards con `grid-cols-1` base. `ThemeToggle` eliminado de la landing (tema dark fijo).
+- [x] ~~MobileNav sin user info~~ → `SidebarUserInfo` añadido al pie del Sheet (mismo patrón que sidebar desktop).
 
 ---
 

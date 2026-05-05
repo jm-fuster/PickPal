@@ -1,17 +1,17 @@
-/**
- * Estado de carga genérico para páginas que mientras esperan a Convex
- * sólo muestran un mensaje. Usar skeletons específicos cuando la
- * estructura de la página lo justifique (ver /dashboard, /people).
- */
 export function LoadingFallback({ label = "Cargando…" }: { label?: string }) {
   return (
     <main className="flex flex-1 items-center justify-center p-8">
-      <div className="flex items-center gap-3 text-sm text-muted-foreground">
-        <span
-          className="size-2 animate-pulse rounded-full bg-muted-foreground/60"
-          aria-hidden
-        />
-        <span>{label}</span>
+      <div className="flex flex-col items-center gap-4 text-muted-foreground">
+        <div className="flex items-center gap-1.5" aria-hidden>
+          {[0, 1, 2].map((i) => (
+            <span
+              key={i}
+              className="size-2 rounded-full bg-muted-foreground/50 animate-pulse"
+              style={{ animationDelay: `${i * 150}ms` }}
+            />
+          ))}
+        </div>
+        <span className="text-sm">{label}</span>
       </div>
     </main>
   );

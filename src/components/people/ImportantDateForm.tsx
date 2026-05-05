@@ -48,7 +48,7 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
       toast.success("Fecha añadida");
       reset({ label: "Cumpleaños", month: 1, day: 1, year: undefined });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Error al añadir");
+      toast.error(err instanceof Error ? err.message : "No se pudo añadir la fecha");
     }
   };
 

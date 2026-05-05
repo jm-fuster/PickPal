@@ -11,6 +11,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { SidebarUserInfo } from "@/components/layout/SidebarUserInfo";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
@@ -35,7 +36,7 @@ export function MobileNav() {
       </Button>
 
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="left" className="w-64 p-0">
+        <SheetContent side="left" className="w-64 p-0 flex flex-col">
           <SheetHeader className="px-5 py-5 border-b border-border">
             <SheetTitle>
               <Link
@@ -48,7 +49,7 @@ export function MobileNav() {
             </SheetTitle>
           </SheetHeader>
 
-          <nav className="flex flex-col gap-1 p-3">
+          <nav className="flex flex-col gap-1 p-3 flex-1">
             {NAV_LINKS.map(({ href, label, icon: Icon }) => (
               <Link
                 key={href}
@@ -66,6 +67,10 @@ export function MobileNav() {
               </Link>
             ))}
           </nav>
+
+          <div className="p-4 border-t border-border">
+            <SidebarUserInfo />
+          </div>
         </SheetContent>
       </Sheet>
     </>

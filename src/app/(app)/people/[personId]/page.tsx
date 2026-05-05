@@ -96,7 +96,7 @@ export default function PersonDetailPage({
       toast.success("Persona eliminada");
       router.push("/people");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Error");
+      toast.error(err instanceof Error ? err.message : "Algo salió mal");
       setDeleting(false);
     }
   };
@@ -270,7 +270,7 @@ export default function PersonDetailPage({
                           toast.success("Fecha eliminada");
                         } catch (err) {
                           toast.error(
-                            err instanceof Error ? err.message : "Error",
+                            err instanceof Error ? err.message : "No se pudo eliminar la fecha",
                           );
                         }
                       }}
@@ -331,7 +331,7 @@ export default function PersonDetailPage({
                           toast.success("Entrada eliminada");
                         } catch (err) {
                           toast.error(
-                            err instanceof Error ? err.message : "Error",
+                            err instanceof Error ? err.message : "No se pudo eliminar la entrada",
                           );
                         }
                       }}

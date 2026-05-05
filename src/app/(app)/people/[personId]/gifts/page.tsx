@@ -67,7 +67,7 @@ export default function GiftsPage({
       const data = (await res.json()) as { ideas: GiftRecommendation[] };
       setIdeas(data.ideas);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Error generando ideas");
+      toast.error(err instanceof Error ? err.message : "No se pudieron generar ideas, inténtalo de nuevo");
     } finally {
       setLoading(false);
     }

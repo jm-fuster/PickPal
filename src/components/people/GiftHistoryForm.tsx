@@ -47,7 +47,7 @@ export function GiftHistoryForm({ personId }: { personId: Id<"people"> }) {
       toast.success("Regalo añadido al historial");
       reset({ giftName: "", occasionLabel: "Cumpleaños", reaction: "loved", year: undefined, notes: "" });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Error al añadir");
+      toast.error(err instanceof Error ? err.message : "No se pudo añadir el regalo");
     }
   };
 

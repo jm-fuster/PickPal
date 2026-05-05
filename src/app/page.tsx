@@ -3,7 +3,6 @@ import { auth } from "@clerk/nextjs/server";
 import { UserButton } from "@clerk/nextjs";
 import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/theme-toggle";
 
 const FEATURES = [
   {
@@ -32,7 +31,6 @@ export default async function Home() {
       <header className="flex items-center justify-between px-6 py-5">
         <span className="text-lg font-medium tracking-tight">PickPal</span>
         <div className="flex items-center gap-3">
-          <ThemeToggle />
           {isSignedIn ? <UserButton /> : null}
         </div>
       </header>
@@ -42,7 +40,7 @@ export default async function Home() {
           <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
             Para las personas que te importan
           </p>
-          <h1 className="text-balance text-5xl font-medium leading-[1.05] sm:text-6xl md:text-7xl">
+          <h1 className="text-balance text-4xl font-medium leading-[1.05] sm:text-5xl md:text-6xl lg:text-7xl">
             No olvides el cumpleaños de quien te hace bien.
           </h1>
           <p className="mx-auto max-w-xl text-lg text-muted-foreground">
@@ -70,7 +68,7 @@ export default async function Home() {
           </div>
         </section>
 
-        <section className="grid w-full max-w-5xl gap-4 sm:grid-cols-3">
+        <section className="grid w-full max-w-5xl gap-4 grid-cols-1 sm:grid-cols-3">
           {FEATURES.map((f) => (
             <Card key={f.title} className="border-border/60 shadow-sm">
               <CardContent className="space-y-3 p-6">

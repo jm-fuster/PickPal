@@ -80,7 +80,7 @@ export function PersonForm({
     try {
       await onSubmit(values);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Error al guardar");
+      toast.error(err instanceof Error ? err.message : "No se pudo guardar");
     } finally {
       setSubmitting(false);
     }
