@@ -194,7 +194,7 @@ export default function PersonDetailPage({
             {person.interests.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {person.interests.map((i) => (
-                  <Badge key={i} variant="secondary">
+                  <Badge key={i} variant="outline">
                     {i}
                   </Badge>
                 ))}
