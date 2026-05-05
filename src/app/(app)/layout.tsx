@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Home, Users, Settings } from "lucide-react";
+import { CalendarDays, Users, Settings } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 import { SafeNotificationBell } from "@/components/layout/SafeNotificationBell";
 import { SidebarLink } from "@/components/layout/SidebarLink";
@@ -26,7 +26,7 @@ export default function AppLayout({
         </div>
         <nav className="flex flex-col gap-1 p-3 flex-1 overflow-y-auto">
           <SidebarLink href="/dashboard">
-            <Home className="size-4" aria-hidden />
+            <CalendarDays className="size-4" aria-hidden />
             Agenda
           </SidebarLink>
           <SidebarLink href="/people">

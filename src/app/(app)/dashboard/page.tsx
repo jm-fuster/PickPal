@@ -42,7 +42,7 @@ export default function DashboardPage() {
   return (
     <main className="flex flex-1 flex-col gap-8 p-4 sm:p-6 lg:p-8">
       <div>
-        <h1 className="text-4xl font-medium">Dashboard</h1>
+        <h1 className="text-4xl font-medium">Agenda</h1>
         <p className="text-sm text-muted-foreground mt-1">
           Lo que llega en los próximos {windowDays} días.
         </p>
