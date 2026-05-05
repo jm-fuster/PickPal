@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { use, useState } from "react";
-import { CalendarX2, Pencil, Repeat2, Sparkles, Trash2, X } from "lucide-react";
+import { CalendarX2, Pencil, PencilLine, Repeat2, Sparkles, Trash2, X } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
 import { useRouter } from "next/navigation";
@@ -22,7 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ImportantDateForm } from "@/components/people/ImportantDateForm";
+import { EditImportantDateDialog, ImportantDateForm } from "@/components/people/ImportantDateForm";
 import { GiftHistoryForm } from "@/components/people/GiftHistoryForm";
 import { LoadingFallback } from "@/components/layout/LoadingFallback";
 import { RELATIONSHIPS, REACTIONS } from "@/lib/schemas";
@@ -70,6 +70,7 @@ export default function PersonDetailPage({
 
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [editingDate, setEditingDate] = useState<NonNullable<typeof dates>[number] | null>(null);
 
   if (!ready || person === undefined || dates === undefined || giftHistory === undefined) {
     return <LoadingFallback />;
@@ -264,27 +265,46 @@ export default function PersonDetailPage({
                         )}
                       </span>
                     </span>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label="Quitar fecha"
-                      title="Quitar fecha"
-                      onClick={async () => {
-                        try {
-                          await removeDate({ id: d._id });
-                          toast.success("Fecha eliminada");
-                        } catch (err) {
-                          toast.error(
-                            err instanceof Error ? err.message : "No se pudo eliminar la fecha",
-                          );
-                        }
-                      }}
-                    >
-                      <X className="size-3.5" aria-hidden />
-                    </Button>
+                    <div className="flex items-center gap-0.5 shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label="Editar fecha"
+                        title="Editar fecha"
+                        onClick={() => setEditingDate(d)}
+                      >
+                        <PencilLine className="size-3.5" aria-hidden />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label="Quitar fecha"
+                        title="Quitar fecha"
+                        onClick={async () => {
+                          try {
+                            await removeDate({ id: d._id });
+                            toast.success("Fecha eliminada");
+                          } catch (err) {
+                            toast.error(
+                              err instanceof Error ? err.message : "No se pudo eliminar la fecha",
+                            );
+                          }
+                        }}
+                      >
+                        <X className="size-3.5" aria-hidden />
+                      </Button>
+                    </div>
                   </li>
                 ))}
               </ul>
+            )}
+
+            {editingDate && (
+              <EditImportantDateDialog
+                date={editingDate}
+                open={true}
+                onClose={() => setEditingDate(null)}
+              />
             )}
 
             <ImportantDateForm personId={id} />

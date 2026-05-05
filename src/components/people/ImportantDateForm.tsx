@@ -26,6 +26,7 @@ import {
   Dialog,
   DialogContent,
   DialogFooter,
+  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
@@ -339,7 +340,7 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
   const watchedBudgetMax = useWatch({ control, name: "budgetMaxEuros" });
 
   const defaultValues = {
-    label: "Cumpleaños",
+    label: "",
     month: 1,
     day: 1,
     year: undefined,
@@ -556,5 +557,191 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
         </div>
       </form>
     </>
+  );
+}
+
+// ─── Edit dialog ──────────────────────────────────────────────────────────────
+
+type DateDoc = {
+  _id: Id<"importantDates">;
+  label: string;
+  month: number;
+  day: number;
+  year?: number;
+  recurring?: boolean;
+  budgetMin?: number;
+  budgetMax?: number;
+};
+
+export function EditImportantDateDialog({
+  date,
+  open,
+  onClose,
+}: {
+  date: DateDoc;
+  open: boolean;
+  onClose: () => void;
+}) {
+  const update = useMutation(api.importantDates.update);
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    control,
+    formState: { errors, isSubmitting },
+  } = useForm<ImportantDateFormValues>({
+    resolver: zodResolver(importantDateSchema),
+    defaultValues: {
+      label: date.label,
+      month: date.month,
+      day: date.day,
+      year: date.year,
+      recurring: date.recurring ?? true,
+      budgetMinEuros: date.budgetMin !== undefined ? date.budgetMin / 100 : undefined,
+      budgetMaxEuros: date.budgetMax !== undefined ? date.budgetMax / 100 : undefined,
+    },
+  });
+
+  const watchedDay = useWatch({ control, name: "day" });
+  const watchedMonth = useWatch({ control, name: "month" });
+  const watchedRecurring = useWatch({ control, name: "recurring" });
+  const watchedYear = useWatch({ control, name: "year" });
+  const watchedBudgetMin = useWatch({ control, name: "budgetMinEuros" });
+  const watchedBudgetMax = useWatch({ control, name: "budgetMaxEuros" });
+
+  const onSubmit = async (values: ImportantDateFormValues) => {
+    try {
+      const { budgetMinEuros, budgetMaxEuros, ...rest } = values;
+      await update({
+        id: date._id,
+        ...rest,
+        budgetMin: budgetMinEuros !== undefined ? Math.round(budgetMinEuros * 100) : undefined,
+        budgetMax: budgetMaxEuros !== undefined ? Math.round(budgetMaxEuros * 100) : undefined,
+      });
+      toast.success("Fecha actualizada");
+      onClose();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "No se pudo actualizar la fecha");
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(o: boolean) => { if (!o) onClose(); }}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Editar fecha</DialogTitle>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {/* Etiqueta */}
+          <div className="space-y-1.5">
+            <Label htmlFor="edit-label">Etiqueta</Label>
+            <Input id="edit-label" {...register("label")} />
+            {errors.label && <p className="text-xs text-destructive">{errors.label.message}</p>}
+          </div>
+
+          {/* Fecha — siempre inputs inline en el dialog */}
+          <div className="grid grid-cols-3 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-day">Día</Label>
+              <Input
+                id="edit-day"
+                type="number"
+                min={1}
+                max={31}
+                value={watchedDay ?? ""}
+                onChange={(e) =>
+                  setValue("day", e.target.value ? Number(e.target.value) : 1, { shouldValidate: true })
+                }
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-month">Mes</Label>
+              <select
+                id="edit-month"
+                className="h-8 w-full rounded-md border bg-background px-2 text-sm"
+                value={watchedMonth ?? 1}
+                onChange={(e) =>
+                  setValue("month", Number(e.target.value), { shouldValidate: true })
+                }
+              >
+                {MONTHS.map((m, i) => (
+                  <option key={m} value={i + 1}>{m}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-year">Año</Label>
+              <Input
+                id="edit-year"
+                type="number"
+                min={1900}
+                max={2100}
+                placeholder="Opc."
+                value={watchedYear ?? ""}
+                onChange={(e) =>
+                  setValue("year", e.target.value ? Number(e.target.value) : undefined)
+                }
+              />
+            </div>
+            {/* Hidden registrations so RHF validates day/month/year */}
+            <input type="hidden" {...register("day", { valueAsNumber: true })} />
+            <input type="hidden" {...register("month", { valueAsNumber: true })} />
+            <input type="hidden" {...register("year", {
+              setValueAs: (v) => (v === "" || v === null || v === undefined ? undefined : Number(v)),
+            })} />
+            {(errors.day || errors.month || errors.year) && (
+              <p className="text-xs text-destructive col-span-3">
+                {errors.day?.message ?? errors.month?.message ?? errors.year?.message}
+              </p>
+            )}
+          </div>
+
+          {/* Recurrencia */}
+          <div className="space-y-1.5 max-w-[14rem]">
+            <Label htmlFor="edit-recurring">Recurrencia</Label>
+            <select
+              id="edit-recurring"
+              className="h-8 w-full rounded-md border bg-background px-2 text-sm"
+              {...register("recurring", { setValueAs: (v) => v === "true" || v === true })}
+            >
+              <option value="true">Todos los años</option>
+              <option value="false">Fecha única</option>
+            </select>
+            {watchedRecurring === false && !watchedYear && (
+              <p className="text-xs text-muted-foreground">
+                Indica el año en el campo Año (obligatorio para fechas únicas).
+              </p>
+            )}
+          </div>
+
+          {/* Presupuesto */}
+          <input type="hidden" {...register("budgetMinEuros", {
+            setValueAs: (v) => (v === "" || v === null || v === undefined ? undefined : Number(v)),
+          })} />
+          <input type="hidden" {...register("budgetMaxEuros", {
+            setValueAs: (v) => (v === "" || v === null || v === undefined ? undefined : Number(v)),
+          })} />
+          <BudgetRangeSlider
+            minValue={watchedBudgetMin}
+            maxValue={watchedBudgetMax}
+            onMinChange={(v) => setValue("budgetMinEuros", v)}
+            onMaxChange={(v) => setValue("budgetMaxEuros", v)}
+            minError={errors.budgetMinEuros?.message}
+            maxError={errors.budgetMaxEuros?.message}
+          />
+
+          <DialogFooter>
+            <Button type="button" variant="ghost" size="sm" onClick={onClose}>
+              Cancelar
+            </Button>
+            <Button type="submit" size="sm" disabled={isSubmitting}>
+              {isSubmitting ? "Guardando…" : "Guardar cambios"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
