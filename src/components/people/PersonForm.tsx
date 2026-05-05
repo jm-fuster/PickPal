@@ -254,7 +254,7 @@ export function PersonForm({
                 </Label>
                 <select
                   id={`dates.${idx}.month`}
-                  className="h-9 w-full rounded-md border bg-background px-2 text-sm"
+                  className="h-9 w-full rounded-md border bg-background pl-3 pr-7 text-sm"
                   {...register(`dates.${idx}.month` as const, {
                     valueAsNumber: true,
                   })}
@@ -291,7 +291,7 @@ export function PersonForm({
                 </Label>
                 <select
                   id={`dates.${idx}.recurring`}
-                  className="h-9 w-full rounded-md border bg-background px-2 text-sm"
+                  className="h-9 w-full rounded-md border bg-background pl-3 pr-7 text-sm"
                   {...register(`dates.${idx}.recurring` as const, {
                     setValueAs: (v) => v === "true" || v === true,
                   })}
