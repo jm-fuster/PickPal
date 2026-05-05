@@ -84,7 +84,7 @@ export default function DashboardPage() {
             href="/people"
             className={buttonVariants({ variant: "outline" })}
           >
-            Ver personas
+            Ver seres queridos
           </Link>
         </div>
       ) : (

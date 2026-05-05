@@ -19,7 +19,7 @@ export default function PeoplePage() {
     <main className="flex flex-1 flex-col gap-8 p-4 sm:p-6 lg:p-8">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-medium">Personas</h1>
+          <h1 className="text-4xl font-medium">Seres queridos</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Quienes te importan, en una sola libreta.
           </p>

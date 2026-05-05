@@ -109,7 +109,7 @@ export default function PersonDetailPage({
         href="/people"
         className="text-sm text-muted-foreground hover:text-foreground w-fit"
       >
-        ← Personas
+        ← Seres queridos
       </Link>
 
       <header className="flex flex-col gap-6 sm:flex-row sm:items-center">

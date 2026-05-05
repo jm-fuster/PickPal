@@ -31,7 +31,7 @@ export default function AppLayout({
           </SidebarLink>
           <SidebarLink href="/people">
             <Users className="size-4" aria-hidden />
-            Personas
+            Seres queridos
           </SidebarLink>
           <SidebarLink href="/settings">
             <Settings className="size-4" aria-hidden />
