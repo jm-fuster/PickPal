@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { NotificationBell } from "@/components/layout/NotificationBell";
+import { SafeNotificationBell } from "@/components/layout/SafeNotificationBell";
 import { SidebarLink } from "@/components/layout/SidebarLink";
 
 export default function AppLayout({
@@ -27,7 +27,7 @@ export default function AppLayout({
           <SidebarLink href="/settings">Ajustes</SidebarLink>
         </nav>
         <div className="p-4 border-t border-sidebar-border flex items-center gap-2">
-          <NotificationBell />
+          <SafeNotificationBell />
           <ThemeToggle />
           <UserButton />
         </div>
@@ -60,7 +60,7 @@ export default function AppLayout({
             </Link>
           </nav>
           <div className="flex items-center gap-3">
-            <NotificationBell />
+            <SafeNotificationBell />
             <ThemeToggle />
             <UserButton />
           </div>
