@@ -6,7 +6,8 @@ import { useMutation } from "convex/react";
 import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
-import { giftHistorySchema, type GiftHistoryFormValues, REACTIONS } from "@/lib/schemas";
+import { giftHistorySchema, REACTIONS } from "@/lib/schemas";
+import type { GiftHistoryFormValues } from "@/lib/schemas";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,9 +29,9 @@ export function GiftHistoryForm({ personId }: { personId: Id<"people"> }) {
     reset,
     control,
     formState: { errors, isSubmitting },
-  } = useForm<GiftHistoryFormValues>({
+  } = useForm({
     resolver: zodResolver(giftHistorySchema),
-    defaultValues: { giftName: "", occasionLabel: "Cumpleaños", reaction: "loved" },
+    defaultValues: { giftName: "", occasionLabel: "Cumpleaños", reaction: "loved" as const },
   });
 
   const onSubmit = async (values: GiftHistoryFormValues) => {
