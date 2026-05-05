@@ -358,11 +358,11 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
         budgetMin: budgetMinEuros !== undefined ? Math.round(budgetMinEuros * 100) : undefined,
         budgetMax: budgetMaxEuros !== undefined ? Math.round(budgetMaxEuros * 100) : undefined,
       });
-      toast.success("Fecha añadida");
+      toast.success("Evento añadido");
       reset(defaultValues);
       setShowForm(false);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "No se pudo añadir la fecha");
+      toast.error(err instanceof Error ? err.message : "No se pudo añadir el evento");
     }
   };
 
@@ -379,7 +379,7 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
         className="flex w-full items-center gap-2 rounded-lg border border-dashed border-border/70 p-3 text-sm text-muted-foreground transition-colors hover:border-border hover:text-foreground"
       >
         <Plus className="size-4" aria-hidden />
-        Nueva fecha
+        Nuevo evento
       </button>
     );
   }
@@ -405,8 +405,8 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
         className="space-y-3 rounded-xl border border-dashed border-border/70 bg-background/40 p-4"
       >
         <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-          Añadir fecha
-        </p>
+          Añadir evento
+</p>
 
         {/* Etiqueta — full width on both breakpoints */}
         <div className="space-y-1.5">
@@ -552,7 +552,7 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
 
         <div className="flex gap-2">
           <Button type="submit" size="sm" disabled={isSubmitting}>
-            {isSubmitting ? "Guardando…" : "Añadir fecha"}
+            {isSubmitting ? "Guardando…" : "Añadir evento"}
           </Button>
           <Button type="button" variant="ghost" size="sm" onClick={handleCancel}>
             Cancelar
@@ -620,10 +620,10 @@ export function EditImportantDateInline({
         budgetMin: budgetMinEuros !== undefined ? Math.round(budgetMinEuros * 100) : undefined,
         budgetMax: budgetMaxEuros !== undefined ? Math.round(budgetMaxEuros * 100) : undefined,
       });
-      toast.success("Fecha actualizada");
+      toast.success("Evento actualizado");
       onClose();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "No se pudo actualizar la fecha");
+      toast.error(err instanceof Error ? err.message : "No se pudo actualizar el evento");
     }
   };
 

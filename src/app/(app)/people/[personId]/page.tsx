@@ -163,7 +163,7 @@ export default function PersonDetailPage({
           <DialogHeader>
             <DialogTitle>¿Eliminar a {person.name}?</DialogTitle>
             <DialogDescription>
-              Se borrarán también todas sus fechas importantes. Esta acción no
+              Se borrarán también todos sus eventos. Esta acción no
               se puede deshacer.
             </DialogDescription>
           </DialogHeader>
@@ -222,12 +222,12 @@ export default function PersonDetailPage({
         <Card className="border-border/60 shadow-sm">
           <CardContent className="space-y-4 p-5">
             <h2 className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-              Fechas importantes
+              Eventos
             </h2>
 
             {dates.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                Aún no hay fechas guardadas. Añade la primera abajo.
+                Aún no hay eventos guardados. Añade el primero abajo.
               </p>
             ) : (
               <ul className="space-y-2">
@@ -273,8 +273,8 @@ export default function PersonDetailPage({
                           <Button
                             variant="ghost"
                             size="icon-sm"
-                            aria-label="Editar fecha"
-                            title="Editar fecha"
+                            aria-label="Editar evento"
+                            title="Editar evento"
                             onClick={() => setEditingDate(d)}
                           >
                             <PencilLine className="size-3.5" aria-hidden />
@@ -282,15 +282,15 @@ export default function PersonDetailPage({
                           <Button
                             variant="ghost"
                             size="icon-sm"
-                            aria-label="Quitar fecha"
-                            title="Quitar fecha"
+                            aria-label="Quitar evento"
+                            title="Quitar evento"
                             onClick={async () => {
                               try {
                                 await removeDate({ id: d._id });
-                                toast.success("Fecha eliminada");
+                                toast.success("Evento eliminado");
                               } catch (err) {
                                 toast.error(
-                                  err instanceof Error ? err.message : "No se pudo eliminar la fecha",
+                                  err instanceof Error ? err.message : "No se pudo eliminar el evento",
                                 );
                               }
                             }}
