@@ -6,12 +6,15 @@ import { google } from "@ai-sdk/google";
 import { z } from "zod";
 import { api } from "../../../../convex/_generated/api";
 import type { Id } from "../../../../convex/_generated/dataModel";
-import { giftRecommendationsSchema } from "@/lib/gifts";
-import { RELATIONSHIPS } from "@/lib/schemas";
+import { giftRecommendationsSchema, GIFT_TYPES, type GiftType } from "@/lib/gifts";
+import { RELATIONSHIPS, REACTIONS } from "@/lib/schemas";
+
+const GIFT_TYPE_VALUES = GIFT_TYPES.map((t) => t.value) as [GiftType, ...GiftType[]];
 
 const requestSchema = z.object({
   personId: z.string().min(1),
   occasionLabel: z.string().min(1).max(40),
+  giftType: z.enum(GIFT_TYPE_VALUES).default("fisica"),
 });
 
 const formatBudget = (budgetMin?: number, budgetMax?: number) => {
@@ -21,6 +24,87 @@ const formatBudget = (budgetMin?: number, budgetMax?: number) => {
   if (min !== undefined) return `desde ${min}€`;
   if (max !== undefined) return `hasta ${max}€`;
   return "sin límite definido";
+};
+
+const reactionLabel = (r: string) =>
+  REACTIONS.find((x) => x.value === r)?.label ?? r;
+
+const buildPrompt = (
+  person: {
+    name: string;
+    relationship: string;
+    interests: string[];
+    notes?: string;
+    budgetMin?: number;
+    budgetMax?: number;
+    shoeSize?: string;
+    clothingSize?: string;
+    allergies?: string;
+    dislikes?: string;
+  },
+  occasionLabel: string,
+  giftType: GiftType,
+  history: Array<{ giftName: string; occasionLabel: string; year?: number; reaction: string }>,
+) => {
+  const relationshipLabel =
+    RELATIONSHIPS.find((r) => r.value === person.relationship)?.label ??
+    person.relationship;
+  const budgetText = formatBudget(person.budgetMin, person.budgetMax);
+  const interestsText =
+    person.interests.length > 0 ? person.interests.join(", ") : "sin definir";
+  const notesText = person.notes?.trim() || "ninguna";
+
+  const practicalLines = [
+    person.shoeSize ? `- Talla de zapato: ${person.shoeSize}` : "",
+    person.clothingSize ? `- Talla de ropa: ${person.clothingSize}` : "",
+    person.allergies ? `- Alergias / restricciones: ${person.allergies}` : "",
+    person.dislikes ? `- Cosas que no le gustan: ${person.dislikes}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  const historyLines =
+    history.length > 0
+      ? `\nHistorial de regalos anteriores (para no repetir y afinar las sugerencias):\n${history
+          .slice(0, 10)
+          .map(
+            (h) =>
+              `- "${h.giftName}" (${h.occasionLabel}${h.year ? ` ${h.year}` : ""}): ${reactionLabel(h.reaction)}`,
+          )
+          .join("\n")}\nEvita sugerir regalos similares a los marcados negativamente.`
+      : "";
+
+  const typeRules: Record<GiftType, string> = {
+    fisica: `- Todas las ideas deben ser productos físicos comprables en Amazon.es.
+- "amazonQuery" debe ser una búsqueda específica de 3-6 palabras útil para encontrar el producto en Amazon.es.`,
+    experiencia: `- Todas las ideas deben ser experiencias (cenas, talleres, escapadas, conciertos, actividades…). No productos físicos.
+- "amazonQuery" debe ser una búsqueda de 3-6 palabras para encontrar esa experiencia en Google (ej. "cata de vinos Madrid", "taller cerámica Barcelona").`,
+    "tiempo-juntos": `- Todas las ideas deben ser planes gratuitos o caseros: actividades para hacer juntos, recetas, rutas, vales artesanales, etc.
+- "amazonQuery" debe ser una frase descriptiva de 3-5 palabras para buscar inspiración en Google (ej. "ruta senderismo fácil", "receta cena especial").
+- Los precios deben ser bajos o cero (experiencias sin coste o materiales mínimos).`,
+    sorprendeme: `- Mezcla libremente productos físicos, experiencias y planes juntos. Varía el tipo entre las 6 ideas.
+- Para productos: "amazonQuery" útil para Amazon.es. Para experiencias/planes: "amazonQuery" útil para buscar en Google.`,
+  };
+
+  return `Genera EXACTAMENTE 6 ideas de regalo para la siguiente persona.
+
+Persona:
+- Nombre: ${person.name}
+- Relación con quien regala: ${relationshipLabel}
+- Intereses: ${interestsText}
+- Notas: ${notesText}
+- Presupuesto: ${budgetText}
+- Ocasión: ${occasionLabel}
+${practicalLines ? practicalLines + "\n" : ""}${historyLines}
+
+Reglas:
+${typeRules[giftType]}
+- Los precios deben respetar el presupuesto indicado cuando sea posible.
+- Varía las categorías (no todas del mismo tipo).
+- "description" en español, máximo 2 frases, explicando por qué encaja con esta persona.
+- "category" en español, una o dos palabras (ej: "Tecnología", "Hogar", "Libros", "Experiencia").
+- "priceMinEuros" y "priceMaxEuros" en euros, valores enteros razonables.
+- Responde en español.`;
 };
 
 export async function POST(req: NextRequest) {
@@ -56,13 +140,13 @@ export async function POST(req: NextRequest) {
   }
 
   const personId = parsed.data.personId as Id<"people">;
-  const occasionLabel = parsed.data.occasionLabel;
+  const { occasionLabel, giftType } = parsed.data;
 
-  const person = await fetchQuery(
-    api.people.getById,
-    { id: personId },
-    { token },
-  );
+  const [person, history] = await Promise.all([
+    fetchQuery(api.people.getById, { id: personId }, { token }),
+    fetchQuery(api.giftHistory.getByPerson, { personId }, { token }),
+  ]);
+
   if (!person) {
     return NextResponse.json(
       { error: "Persona no encontrada" },
@@ -71,7 +155,6 @@ export async function POST(req: NextRequest) {
   }
 
   // Rate limit: 10 recomendaciones por usuario y día (UTC).
-  // Protege la cuota gratuita de Gemini frente a abuso.
   try {
     await fetchMutation(api.recommendationUsage.consume, {}, { token });
   } catch (err) {
@@ -82,33 +165,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const relationshipLabel =
-    RELATIONSHIPS.find((r) => r.value === person.relationship)?.label ??
-    person.relationship;
-  const budgetText = formatBudget(person.budgetMin, person.budgetMax);
-  const interestsText =
-    person.interests.length > 0 ? person.interests.join(", ") : "sin definir";
-  const notesText = person.notes?.trim() || "ninguna";
-
-  const prompt = `Genera EXACTAMENTE 6 ideas de regalo para la siguiente persona.
-
-Persona:
-- Nombre: ${person.name}
-- Relación con quien regala: ${relationshipLabel}
-- Intereses: ${interestsText}
-- Notas: ${notesText}
-- Presupuesto: ${budgetText}
-- Ocasión: ${occasionLabel}
-
-Reglas:
-- Todas las ideas deben ser comprables en Amazon.es.
-- Los precios deben respetar el presupuesto indicado cuando sea posible.
-- Varía las categorías (no todos del mismo tipo).
-- "amazonQuery" debe ser una búsqueda específica de 3-6 palabras útil para encontrar el producto en Amazon.
-- "description" en español, máximo 2 frases, explicando por qué encaja con esta persona.
-- "category" en español, palabra o dos (ej: "Tecnología", "Hogar", "Libros").
-- "priceMinEuros" y "priceMaxEuros" en euros, valores enteros razonables.
-- Responde en español.`;
+  const prompt = buildPrompt(person, occasionLabel, giftType, history);
 
   try {
     const { object } = await generateObject({
@@ -119,7 +176,7 @@ Reglas:
 
     await fetchMutation(
       api.recommendations.upsert,
-      { personId, occasionLabel, ideas: object.ideas },
+      { personId, occasionLabel, giftType, ideas: object.ideas },
       { token },
     );
 

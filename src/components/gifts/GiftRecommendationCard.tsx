@@ -3,22 +3,36 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { generateAmazonUrl } from "@/lib/amazon";
-import type { GiftRecommendation } from "@/lib/gifts";
+import type { GiftRecommendation, GiftType } from "@/lib/gifts";
 
 const formatRange = (min: number, max: number) =>
   min === max
     ? `${Math.round(min)}€`
     : `${Math.round(min)}–${Math.round(max)}€`;
 
+const generateGoogleUrl = (query: string) =>
+  `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+
 interface GiftRecommendationCardProps {
   idea: GiftRecommendation;
   index?: number;
+  giftType?: GiftType;
 }
 
 export function GiftRecommendationCard({
   idea,
   index = 0,
+  giftType = "fisica",
 }: GiftRecommendationCardProps) {
+  const isPhysical = giftType === "fisica";
+  const isSurprise = giftType === "sorprendeme";
+
+  const linkHref = isPhysical
+    ? generateAmazonUrl(idea.amazonQuery)
+    : generateGoogleUrl(idea.amazonQuery);
+
+  const linkLabel = isPhysical ? "Amazon" : isSurprise ? "Buscar" : giftType === "tiempo-juntos" ? "Ideas" : "Buscar";
+
   return (
     <Card
       className="flex flex-col h-full border-border/60 shadow-sm transition-shadow hover:shadow-md animate-in fade-in slide-in-from-bottom-2 duration-500 fill-mode-both"
@@ -48,15 +62,17 @@ export function GiftRecommendationCard({
               {formatRange(idea.priceMinEuros, idea.priceMaxEuros)}
             </div>
           </div>
-          <a
-            href={generateAmazonUrl(idea.amazonQuery)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={buttonVariants({ size: "sm" })}
-          >
-            Amazon
-            <ExternalLink className="size-3.5" aria-hidden />
-          </a>
+          {idea.amazonQuery ? (
+            <a
+              href={linkHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={buttonVariants({ size: "sm" })}
+            >
+              {linkLabel}
+              <ExternalLink className="size-3.5" aria-hidden />
+            </a>
+          ) : null}
         </div>
       </CardContent>
     </Card>

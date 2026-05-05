@@ -37,6 +37,10 @@ export const create = mutation({
     notes: v.optional(v.string()),
     budgetMin: v.optional(v.number()),
     budgetMax: v.optional(v.number()),
+    shoeSize: v.optional(v.string()),
+    clothingSize: v.optional(v.string()),
+    allergies: v.optional(v.string()),
+    dislikes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const clerkUserId = await requireUser(ctx);
@@ -60,6 +64,10 @@ export const update = mutation({
     notes: v.optional(v.string()),
     budgetMin: v.optional(v.number()),
     budgetMax: v.optional(v.number()),
+    shoeSize: v.optional(v.string()),
+    clothingSize: v.optional(v.string()),
+    allergies: v.optional(v.string()),
+    dislikes: v.optional(v.string()),
   },
   handler: async (ctx, { id, ...patch }) => {
     const clerkUserId = await requireUser(ctx);
@@ -75,6 +83,10 @@ export const update = mutation({
       notes: merged.notes,
       budgetMin: merged.budgetMin,
       budgetMax: merged.budgetMax,
+      shoeSize: merged.shoeSize,
+      clothingSize: merged.clothingSize,
+      allergies: merged.allergies,
+      dislikes: merged.dislikes,
     });
     await ctx.db.patch(id, patch);
   },
@@ -95,6 +107,23 @@ export const remove = mutation({
     for (const d of dates) {
       await ctx.db.delete(d._id);
     }
+
+    const history = await ctx.db
+      .query("giftHistory")
+      .withIndex("by_person", (q) => q.eq("personId", id))
+      .collect();
+    for (const h of history) {
+      await ctx.db.delete(h._id);
+    }
+
+    const recs = await ctx.db
+      .query("recommendations")
+      .withIndex("by_person", (q) => q.eq("personId", id))
+      .collect();
+    for (const r of recs) {
+      await ctx.db.delete(r._id);
+    }
+
     await ctx.db.delete(id);
   },
 });

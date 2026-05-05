@@ -11,6 +11,8 @@ const MAX_RELATIONSHIP = 32;
 const MAX_BUDGET_CENTS = 100_000 * 100;
 const MIN_YEAR = 1900;
 const MAX_YEAR = 2100;
+const MAX_SIZE = 20;
+const MAX_QUIRK = 200;
 
 const ALLOWED_RELATIONSHIPS = [
   "friend",
@@ -27,6 +29,10 @@ export function validatePersonInput(input: {
   notes?: string;
   budgetMin?: number;
   budgetMax?: number;
+  shoeSize?: string;
+  clothingSize?: string;
+  allergies?: string;
+  dislikes?: string;
 }) {
   if (input.name !== undefined) {
     const trimmed = input.name.trim();
@@ -55,6 +61,18 @@ export function validatePersonInput(input: {
     }
   }
   validateBudget(input.budgetMin, input.budgetMax);
+  if (input.shoeSize !== undefined && input.shoeSize.length > MAX_SIZE) {
+    throw new Error("Talla de zapato demasiado larga.");
+  }
+  if (input.clothingSize !== undefined && input.clothingSize.length > MAX_SIZE) {
+    throw new Error("Talla de ropa demasiado larga.");
+  }
+  if (input.allergies !== undefined && input.allergies.length > MAX_QUIRK) {
+    throw new Error("Campo alergias demasiado largo.");
+  }
+  if (input.dislikes !== undefined && input.dislikes.length > MAX_QUIRK) {
+    throw new Error("Campo no le gusta demasiado largo.");
+  }
 }
 
 function validateBudget(min?: number, max?: number) {

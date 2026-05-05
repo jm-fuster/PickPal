@@ -47,6 +47,10 @@ export default function EditPersonPage({
         values.budgetMaxEuros !== undefined
           ? Math.round(values.budgetMaxEuros * 100)
           : undefined,
+      shoeSize: values.shoeSize || undefined,
+      clothingSize: values.clothingSize || undefined,
+      allergies: values.allergies || undefined,
+      dislikes: values.dislikes || undefined,
     });
     toast.success("Persona actualizada");
     router.push(`/people/${id}`);
@@ -67,6 +71,10 @@ export default function EditPersonPage({
             person.budgetMin !== undefined ? person.budgetMin / 100 : undefined,
           budgetMaxEuros:
             person.budgetMax !== undefined ? person.budgetMax / 100 : undefined,
+          shoeSize: person.shoeSize ?? "",
+          clothingSize: person.clothingSize ?? "",
+          allergies: person.allergies ?? "",
+          dislikes: person.dislikes ?? "",
         }}
         onSubmit={onSubmit}
         submitLabel="Guardar cambios"

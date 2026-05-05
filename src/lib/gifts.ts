@@ -1,5 +1,14 @@
 import { z } from "zod";
 
+export const GIFT_TYPES = [
+  { value: "fisica", label: "Producto físico", emoji: "📦" },
+  { value: "experiencia", label: "Experiencia", emoji: "🎭" },
+  { value: "tiempo-juntos", label: "Tiempo juntos", emoji: "🫂" },
+  { value: "sorprendeme", label: "Sorpréndeme", emoji: "✨" },
+] as const;
+
+export type GiftType = (typeof GIFT_TYPES)[number]["value"];
+
 export const giftRecommendationSchema = z.object({
   title: z.string().min(1).max(80),
   description: z.string().min(1).max(280),

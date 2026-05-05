@@ -1,5 +1,21 @@
 import { z } from "zod";
 
+export const REACTIONS = [
+  { value: "loved", label: "Le encantó", emoji: "❤️" },
+  { value: "ok", label: "Ni fu ni fa", emoji: "👍" },
+  { value: "bad", label: "Lo devolvió / No gustó", emoji: "😞" },
+] as const;
+
+export const giftHistorySchema = z.object({
+  giftName: z.string().trim().min(1, "El nombre es obligatorio").max(120),
+  occasionLabel: z.string().trim().min(1, "La ocasión es obligatoria").max(40),
+  year: z.coerce.number().int().min(1900).max(2100).optional().or(z.literal(undefined)),
+  reaction: z.enum(["loved", "ok", "bad"] as [string, ...string[]]),
+  notes: z.string().max(500).optional(),
+});
+
+export type GiftHistoryFormValues = z.infer<typeof giftHistorySchema>;
+
 export const RELATIONSHIPS = [
   { value: "friend", label: "Amigo/a" },
   { value: "family", label: "Familia" },
@@ -50,6 +66,10 @@ export const personFormSchema = z
       .max(100000)
       .optional(),
     dates: z.array(importantDateSchema).max(10),
+    shoeSize: z.string().max(20).optional(),
+    clothingSize: z.string().max(20).optional(),
+    allergies: z.string().max(200).optional(),
+    dislikes: z.string().max(200).optional(),
   })
   .refine(
     (v) =>

@@ -15,8 +15,9 @@ export const getByPersonOccasion = query({
   args: {
     personId: v.id("people"),
     occasionLabel: v.string(),
+    giftType: v.string(),
   },
-  handler: async (ctx, { personId, occasionLabel }) => {
+  handler: async (ctx, { personId, occasionLabel, giftType }) => {
     const clerkUserId = await requireUser(ctx);
 
     const person = await ctx.db.get(personId);
@@ -24,11 +25,12 @@ export const getByPersonOccasion = query({
 
     return ctx.db
       .query("recommendations")
-      .withIndex("by_user_person_occasion", (q) =>
+      .withIndex("by_user_person_occasion_type", (q) =>
         q
           .eq("clerkUserId", clerkUserId)
           .eq("personId", personId)
-          .eq("occasionLabel", occasionLabel),
+          .eq("occasionLabel", occasionLabel)
+          .eq("giftType", giftType),
       )
       .unique();
   },
@@ -38,9 +40,10 @@ export const upsert = mutation({
   args: {
     personId: v.id("people"),
     occasionLabel: v.string(),
+    giftType: v.string(),
     ideas: v.array(ideaValidator),
   },
-  handler: async (ctx, { personId, occasionLabel, ideas }) => {
+  handler: async (ctx, { personId, occasionLabel, giftType, ideas }) => {
     const clerkUserId = await requireUser(ctx);
 
     const person = await ctx.db.get(personId);
@@ -50,11 +53,12 @@ export const upsert = mutation({
 
     const existing = await ctx.db
       .query("recommendations")
-      .withIndex("by_user_person_occasion", (q) =>
+      .withIndex("by_user_person_occasion_type", (q) =>
         q
           .eq("clerkUserId", clerkUserId)
           .eq("personId", personId)
-          .eq("occasionLabel", occasionLabel),
+          .eq("occasionLabel", occasionLabel)
+          .eq("giftType", giftType),
       )
       .unique();
 
@@ -65,6 +69,7 @@ export const upsert = mutation({
         clerkUserId,
         personId,
         occasionLabel,
+        giftType,
         ideas,
       });
     }

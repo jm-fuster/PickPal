@@ -10,6 +10,10 @@ export default defineSchema({
     notes: v.optional(v.string()),
     budgetMin: v.optional(v.number()),
     budgetMax: v.optional(v.number()),
+    shoeSize: v.optional(v.string()),
+    clothingSize: v.optional(v.string()),
+    allergies: v.optional(v.string()),
+    dislikes: v.optional(v.string()),
   }).index("by_user", ["clerkUserId"]),
 
   importantDates: defineTable({
@@ -42,6 +46,7 @@ export default defineSchema({
     clerkUserId: v.string(),
     personId: v.id("people"),
     occasionLabel: v.string(),
+    giftType: v.string(),
     ideas: v.array(
       v.object({
         title: v.string(),
@@ -53,6 +58,25 @@ export default defineSchema({
       }),
     ),
   })
-    .index("by_user_person_occasion", ["clerkUserId", "personId", "occasionLabel"])
+    .index("by_user_person_occasion_type", [
+      "clerkUserId",
+      "personId",
+      "occasionLabel",
+      "giftType",
+    ])
     .index("by_person", ["personId"]),
+
+  giftHistory: defineTable({
+    clerkUserId: v.string(),
+    personId: v.id("people"),
+    giftName: v.string(),
+    occasionLabel: v.string(),
+    year: v.optional(v.number()),
+    reaction: v.union(
+      v.literal("loved"),
+      v.literal("ok"),
+      v.literal("bad"),
+    ),
+    notes: v.optional(v.string()),
+  }).index("by_person", ["personId"]),
 });

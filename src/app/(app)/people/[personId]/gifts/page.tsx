@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { GiftRecommendationCard } from "@/components/gifts/GiftRecommendationCard";
 import { LoadingFallback } from "@/components/layout/LoadingFallback";
-import type { GiftRecommendation } from "@/lib/gifts";
+import { GIFT_TYPES, type GiftType, type GiftRecommendation } from "@/lib/gifts";
 
 export default function GiftsPage({
   params,
@@ -28,12 +28,13 @@ export default function GiftsPage({
   const person = useQuery(api.people.getById, ready ? { id } : "skip");
 
   const [occasion, setOccasion] = useState("Cumpleaños");
+  const [giftType, setGiftType] = useState<GiftType>("fisica");
   const [ideas, setIdeas] = useState<GiftRecommendation[] | null>(null);
   const [loading, setLoading] = useState(false);
 
   const cached = useQuery(
     api.recommendations.getByPersonOccasion,
-    ready ? { personId: id, occasionLabel: occasion } : "skip",
+    ready ? { personId: id, occasionLabel: occasion, giftType } : "skip",
   );
 
   if (!ready || person === undefined) {
@@ -57,7 +58,7 @@ export default function GiftsPage({
       const res = await fetch("/api/recommendations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ personId: id, occasionLabel: occasion }),
+        body: JSON.stringify({ personId: id, occasionLabel: occasion, giftType }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -92,7 +93,7 @@ export default function GiftsPage({
         </p>
       </div>
 
-      <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-5">
+      <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-5 space-y-4">
         <div className="flex flex-wrap items-end gap-3">
           <div className="flex-1 min-w-[200px] space-y-1.5">
             <Label htmlFor="occasion">¿Para qué ocasión?</Label>
@@ -119,9 +120,32 @@ export default function GiftsPage({
             {loading ? "Generando…" : hasCached ? "Regenerar" : "Generar 6 ideas"}
           </Button>
         </div>
+
+        <div className="flex flex-wrap gap-2">
+          {GIFT_TYPES.map((t) => (
+            <button
+              key={t.value}
+              type="button"
+              onClick={() => {
+                setGiftType(t.value);
+                setIdeas(null);
+              }}
+              className={[
+                "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
+                giftType === t.value
+                  ? "bg-primary text-primary-foreground"
+                  : "border border-border/60 bg-background/60 text-muted-foreground hover:text-foreground",
+              ].join(" ")}
+            >
+              <span aria-hidden>{t.emoji}</span>
+              {t.label}
+            </button>
+          ))}
+        </div>
+
         {hasCached && !loading && (
-          <p className="mt-2 text-xs text-muted-foreground">
-            Tienes ideas guardadas para esta ocasión. Regenerar consume cuota diaria.
+          <p className="text-xs text-muted-foreground">
+            Tienes ideas guardadas para esta combinación. Regenerar consume cuota diaria.
           </p>
         )}
       </div>
@@ -138,7 +162,7 @@ export default function GiftsPage({
       ) : showIdeas ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {showIdeas.map((idea, i) => (
-            <GiftRecommendationCard key={i} idea={idea} index={i} />
+            <GiftRecommendationCard key={i} idea={idea} index={i} giftType={giftType} />
           ))}
         </div>
       ) : (
@@ -149,8 +173,7 @@ export default function GiftsPage({
           <h2 className="text-2xl font-medium mb-2">A medida para {person.name}</h2>
           <p className="text-sm text-muted-foreground max-w-md mx-auto">
             La IA combinará intereses, notas y presupuesto que has guardado
-            con la ocasión que elijas para sugerir seis ideas concretas con
-            enlace a Amazon.
+            con la ocasión y el tipo de regalo que elijas para sugerir seis ideas concretas.
           </p>
         </div>
       )}

@@ -181,6 +181,48 @@ export function PersonForm({
         </div>
       </div>
 
+      <div className="space-y-3 rounded-xl border border-dashed border-border/70 bg-background/40 p-4">
+        <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+          Datos prácticos (opcional)
+        </p>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="shoeSize">Talla de zapato</Label>
+            <Input
+              id="shoeSize"
+              placeholder="EU 42, 38…"
+              {...register("shoeSize")}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="clothingSize">Talla de ropa</Label>
+            <Input
+              id="clothingSize"
+              placeholder="M, L, 38…"
+              {...register("clothingSize")}
+            />
+          </div>
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="allergies">Alergias o restricciones</Label>
+          <Textarea
+            id="allergies"
+            rows={2}
+            placeholder="Frutos secos, gluten, látex…"
+            {...register("allergies")}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="dislikes">Cosas que no le gustan</Label>
+          <Textarea
+            id="dislikes"
+            rows={2}
+            placeholder="Color amarillo, perfumes fuertes, libros de autoayuda…"
+            {...register("dislikes")}
+          />
+        </div>
+      </div>
+
       {includeDates ? (
         <div className="space-y-3 rounded-xl border border-dashed border-border/70 bg-background/40 p-4">
           <div className="flex items-center justify-between">

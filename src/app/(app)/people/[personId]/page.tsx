@@ -23,8 +23,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ImportantDateForm } from "@/components/people/ImportantDateForm";
+import { GiftHistoryForm } from "@/components/people/GiftHistoryForm";
 import { LoadingFallback } from "@/components/layout/LoadingFallback";
-import { RELATIONSHIPS } from "@/lib/schemas";
+import { RELATIONSHIPS, REACTIONS } from "@/lib/schemas";
 
 const MONTHS = [
   "ene",
@@ -61,13 +62,19 @@ export default function PersonDetailPage({
     ready ? { personId: id } : "skip",
   );
 
+  const giftHistory = useQuery(
+    api.giftHistory.getByPerson,
+    ready ? { personId: id } : "skip",
+  );
+
   const removePerson = useMutation(api.people.remove);
   const removeDate = useMutation(api.importantDates.remove);
+  const removeHistoryEntry = useMutation(api.giftHistory.remove);
 
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  if (!ready || person === undefined || dates === undefined) {
+  if (!ready || person === undefined || dates === undefined || giftHistory === undefined) {
     return <LoadingFallback />;
   }
 
@@ -276,6 +283,67 @@ export default function PersonDetailPage({
           </CardContent>
         </Card>
       </div>
+
+      <Card className="border-border/60 shadow-sm">
+        <CardContent className="space-y-4 p-5">
+          <h2 className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            Historial de regalos
+          </h2>
+
+          {giftHistory.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Aún no hay regalos registrados. Añade el primero para que la IA
+              aprenda qué funciona y qué no.
+            </p>
+          ) : (
+            <ul className="space-y-2">
+              {giftHistory.map((h) => {
+                const reaction = REACTIONS.find((r) => r.value === h.reaction);
+                return (
+                  <li
+                    key={h._id}
+                    className="flex items-center justify-between rounded-lg border border-border/60 bg-background/60 p-3 text-sm"
+                  >
+                    <span className="flex items-center gap-2 min-w-0">
+                      <span aria-hidden className="text-base shrink-0">
+                        {reaction?.emoji}
+                      </span>
+                      <span className="truncate">
+                        <span className="font-medium">{h.giftName}</span>
+                        <span className="text-muted-foreground">
+                          {" · "}
+                          {h.occasionLabel}
+                          {h.year ? ` ${h.year}` : ""}
+                        </span>
+                      </span>
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label="Quitar entrada"
+                      title="Quitar entrada"
+                      onClick={async () => {
+                        try {
+                          await removeHistoryEntry({ id: h._id });
+                          toast.success("Entrada eliminada");
+                        } catch (err) {
+                          toast.error(
+                            err instanceof Error ? err.message : "Error",
+                          );
+                        }
+                      }}
+                    >
+                      <X className="size-3.5" aria-hidden />
+                    </Button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+
+          <GiftHistoryForm personId={id} />
+        </CardContent>
+      </Card>
     </main>
   );
 }
