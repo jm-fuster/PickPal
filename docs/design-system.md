@@ -103,7 +103,7 @@ Visible a partir de `lg` (1024px). Implementado en `src/app/(app)/layout.tsx`.
 - **Hover · cards con acción interna** (la card no es link, pero contiene botón): `transition-shadow hover:shadow-md`. Sin translate ni cambio de fondo. Ejemplo: `GiftRecommendationCard`.
 - **Cards estáticas** (sin acción): solo `shadow-sm`, sin hover. Ejemplo: feature cards de la landing.
 - **Card de urgencia** (UpcomingDateCard cuando `daysUntil <= 7`): `border-primary/60 shadow-sm bg-primary/5`. El tinte rosado del primary llama la atención sin chillar.
-- **Cards generadas por IA** (GiftRecommendationCard): un `<Sparkles>` discreto en `text-primary/80 size-4` antes del título marca la procedencia. Footer separado por `border-t border-border/50` con badge de categoría + precio prominente (`text-lg font-medium`) a la izquierda y CTA a la derecha. Stagger animation `animate-in fade-in slide-in-from-bottom-2 duration-500` con `animationDelay: index * 60ms` para que aparezcan en cascada. Botón de descarte `<X size-3.5>` posicionado `absolute top-3 right-3`, `text-muted-foreground hover:text-foreground`, sin fondo ni borde — icono solo. La card necesita `relative` para contenerlo.
+- **Cards generadas por IA** (GiftRecommendationCard): un `<Sparkles>` discreto en `text-primary/80 size-4` antes del título marca la procedencia. Footer separado por `border-t border-border/50` con badge de categoría + precio prominente (`text-lg font-medium`) a la izquierda y CTA a la derecha. Stagger animation `animate-in fade-in slide-in-from-bottom-2 duration-500` con `animationDelay: index * 60ms` para que aparezcan en cascada.
 
 ### Buttons
 
@@ -139,23 +139,6 @@ Padding de página responsive en todos los `<main>`: `p-4 sm:p-6 lg:p-8`. No usa
 - En headers grandes, añadir `ring-1 ring-border` para definir el contorno sin que pese.
 - Si no hay foto, fallback con iniciales (2 letras max, mayúsculas).
 - **Avatar picker**: integrado en `PersonForm`. Usa la API de [DiceBear](https://api.dicebear.com/9.x/) con el estilo `big-ears-neutral`. Genera 12 opciones a partir del nombre de la persona como seed. "Regenerar" avanza el offset en +12. La URL seleccionada se guarda en `person.avatarUrl` (opcional). El componente vive en `src/components/people/AvatarPicker.tsx`. Validación server-side: solo se aceptan URLs que empiecen por `https://api.dicebear.com/`.
-
-### Patrón de descarte con aviso único
-
-Usado en `GiftRecommendationCard` / página de ideas de regalo. Aplicar cuando una acción tiene consecuencias persistentes pero reversibles a corto plazo.
-
-**Flujo:**
-
-1. **Primera vez**: al pulsar X se abre un `Dialog` de confirmación con el nombre del elemento afectado y una frase explicando la consecuencia ("PickPal no volverá a sugerirte esto para [persona]"). Botones `outline` "Cancelar" + `destructive` "Descartar". El flag de "ya visto" se guarda en `localStorage` (clave `pickpal_discard_warned`).
-2. **Veces siguientes**: sin dialog — la acción se ejecuta directamente y aparece un toast con botón "Deshacer" (sonner `action`). El "Deshacer" es el único punto de reversión; si el toast expira, el descarte es permanente.
-3. **Estado residual**: una línea de texto `text-xs text-muted-foreground text-center` debajo del grid muestra el conteo de descartes activos con un enlace `underline` para limpiarlos antes de regenerar. Solo visible cuando hay ≥1 descarte.
-
-**Reglas de copy:**
-- Dialog: titular `¿Descartar esta idea?`, cuerpo con el nombre del elemento en `font-medium text-foreground` entre comillas. Terminar con "Siempre puedes deshacerlo justo después."
-- Toast: "Idea descartada" + acción "Deshacer".
-- Enlace de limpieza: "N ideas descartadas · Permitir de nuevo al regenerar".
-
-**Cuándo no usar este patrón:** en eliminaciones globales (borrar una persona) ya hay un dialog de confirmación sin posibilidad de deshacer — eso es correcto porque la acción es irreversible. El patrón de aviso único + undo toast es solo para acciones con reversión a corto plazo.
 
 ### Animaciones
 

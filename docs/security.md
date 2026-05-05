@@ -55,8 +55,6 @@ Los validators viven en [`convex/validators.ts`](../convex/validators.ts) y espe
 
 Por qué importa: sin esto un usuario autenticado puede insertar `notes` de 100 MB, presupuestos negativos, o 10.000 intereses. Aparte de coste de almacenamiento, los campos de texto se concatenan al prompt de Gemini → amplifica prompt injection.
 
-**Caso especial — arrays que van al prompt**: `excludedTitles` en `/api/recommendations` se incluye literalmente en el prompt de Gemini. Validado con `z.array(z.string().max(80)).max(50)` para acotar el tamaño total del bloque inyectado. Aplicar el mismo criterio a cualquier campo libre que acabe en un prompt LLM.
-
 ### 4. Rate limit en mutations que crean recursos
 
 Helper genérico en [`convex/rateLimit.ts`](../convex/rateLimit.ts):

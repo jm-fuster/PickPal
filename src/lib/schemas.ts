@@ -36,7 +36,7 @@ export const importantDateSchema = z
       .max(2100)
       .optional()
       .or(z.literal(undefined)),
-    recurring: z.boolean().default(true),
+    recurring: z.boolean().optional(),
     budgetMinEuros: z
       .number({ error: "Debe ser un número" })
       .min(0)

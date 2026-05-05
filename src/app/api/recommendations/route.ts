@@ -15,7 +15,6 @@ const requestSchema = z.object({
   personId: z.string().min(1),
   occasionLabel: z.string().min(1).max(40),
   giftType: z.enum(GIFT_TYPE_VALUES).default("fisica"),
-  excludedTitles: z.array(z.string().max(80)).max(50).optional(),
 });
 
 const formatBudget = (budgetMin?: number, budgetMax?: number) => {
@@ -46,7 +45,6 @@ const buildPrompt = (
   occasionLabel: string,
   giftType: GiftType,
   history: Array<{ giftName: string; occasionLabel: string; year?: number; reaction: string }>,
-  excludedTitles?: string[],
 ) => {
   const relationshipLabel =
     RELATIONSHIPS.find((r) => r.value === person.relationship)?.label ??
@@ -88,11 +86,6 @@ const buildPrompt = (
 - Para productos: "amazonQuery" útil para Amazon.es. Para experiencias/planes: "amazonQuery" útil para buscar en Google.`,
   };
 
-  const excludedLines =
-    excludedTitles && excludedTitles.length > 0
-      ? `\nIdeas ya descartadas por el usuario (no las repitas ni sugieras conceptos muy similares):\n${excludedTitles.map((t) => `- ${t}`).join("\n")}`
-      : "";
-
   return `Genera EXACTAMENTE 6 ideas de regalo para la siguiente persona.
 
 Persona:
@@ -102,7 +95,7 @@ Persona:
 - Notas: ${notesText}
 - Presupuesto: ${budgetText}
 - Ocasión: ${occasionLabel}
-${practicalLines ? practicalLines + "\n" : ""}${historyLines}${excludedLines}
+${practicalLines ? practicalLines + "\n" : ""}${historyLines}
 
 Reglas:
 ${typeRules[giftType]}
@@ -147,7 +140,7 @@ export async function POST(req: NextRequest) {
   }
 
   const personId = parsed.data.personId as Id<"people">;
-  const { occasionLabel, giftType, excludedTitles } = parsed.data;
+  const { occasionLabel, giftType } = parsed.data;
 
   const [person, matchingDate, history] = await Promise.all([
     fetchQuery(api.people.getById, { id: personId }, { token }),
@@ -173,7 +166,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const prompt = buildPrompt(person, matchingDate?.budgetMin, matchingDate?.budgetMax, occasionLabel, giftType, history, excludedTitles);
+  const prompt = buildPrompt(person, matchingDate?.budgetMin, matchingDate?.budgetMax, occasionLabel, giftType, history);
 
   try {
     const { object } = await generateObject({

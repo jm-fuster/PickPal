@@ -1,22 +1,19 @@
 "use client";
 
-import { use, useRef, useState } from "react";
+import { use, useState } from "react";
 import Link from "next/link";
 import { Sparkles, RefreshCw } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
-import { useMutation, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
 import { toast } from "sonner";
 import { api } from "../../../../../../convex/_generated/api";
 import type { Id } from "../../../../../../convex/_generated/dataModel";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { GiftRecommendationCard } from "@/components/gifts/GiftRecommendationCard";
 import { LoadingFallback } from "@/components/layout/LoadingFallback";
 import { GIFT_TYPES, type GiftType, type GiftRecommendation } from "@/lib/gifts";
-
-const DISCARD_WARNED_KEY = "pickpal_discard_warned";
 
 export default function GiftsPage({
   params,
@@ -34,13 +31,6 @@ export default function GiftsPage({
   const [giftType, setGiftType] = useState<GiftType>("fisica");
   const [ideas, setIdeas] = useState<GiftRecommendation[] | null>(null);
   const [loading, setLoading] = useState(false);
-
-  const removeIdea = useMutation(api.recommendations.removeIdea);
-  const restoreIdea = useMutation(api.recommendations.restoreIdea);
-  const clearDiscarded = useMutation(api.recommendations.clearDiscarded);
-
-  const lastDiscarded = useRef<{ idea: GiftRecommendation; index: number } | null>(null);
-  const [pendingDiscard, setPendingDiscard] = useState<{ idea: GiftRecommendation; index: number } | null>(null);
 
   const cached = useQuery(
     api.recommendations.getByPersonOccasion,
@@ -68,12 +58,7 @@ export default function GiftsPage({
       const res = await fetch("/api/recommendations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          personId: id,
-          occasionLabel: occasion,
-          giftType,
-          excludedTitles: cached?.discardedTitles ?? [],
-        }),
+        body: JSON.stringify({ personId: id, occasionLabel: occasion, giftType }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -88,47 +73,8 @@ export default function GiftsPage({
     }
   };
 
-  const executeDiscard = (idea: GiftRecommendation, index: number) => {
-    lastDiscarded.current = { idea, index };
-
-    const base = ideas ?? (cached?.ideas as GiftRecommendation[] ?? []);
-    setIdeas(base.filter((_, i) => i !== index));
-
-    removeIdea({ personId: id, occasionLabel: occasion, giftType, ideaIndex: index })
-      .catch(() => toast.error("No se pudo descartar la idea, inténtalo de nuevo"));
-
-    toast("Idea descartada", {
-      action: {
-        label: "Deshacer",
-        onClick: () => {
-          const saved = lastDiscarded.current;
-          if (!saved) return;
-          setIdeas((prev) => {
-            const arr = [...(prev ?? [])];
-            arr.splice(saved.index, 0, saved.idea);
-            return arr;
-          });
-          restoreIdea({ personId: id, occasionLabel: occasion, giftType, idea: saved.idea })
-            .catch(() => toast.error("No se pudo restaurar la idea, inténtalo de nuevo"));
-          lastDiscarded.current = null;
-        },
-      },
-    });
-  };
-
-  const handleDiscard = (index: number) => {
-    const base = ideas ?? (cached?.ideas as GiftRecommendation[] ?? []);
-    const idea = base[index];
-    if (localStorage.getItem(DISCARD_WARNED_KEY)) {
-      executeDiscard(idea, index);
-    } else {
-      setPendingDiscard({ idea, index });
-    }
-  };
-
   const hasCached = cached !== undefined && cached !== null;
   const showIdeas = ideas ?? (hasCached ? (cached!.ideas as GiftRecommendation[]) : null);
-  const discardedCount = cached?.discardedTitles?.length ?? 0;
 
   return (
     <main className="flex flex-1 flex-col gap-8 p-8 max-w-6xl">
@@ -213,37 +159,13 @@ export default function GiftsPage({
             />
           ))}
         </div>
-      ) : showIdeas && showIdeas.length > 0 ? (
+      ) : showIdeas ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {showIdeas.map((idea, i) => (
-            <GiftRecommendationCard
-              key={idea.title}
-              idea={idea}
-              index={i}
-              giftType={giftType}
-              onDiscard={() => handleDiscard(i)}
-            />
+            <GiftRecommendationCard key={i} idea={idea} index={i} giftType={giftType} />
           ))}
         </div>
-      ) : null}
-
-      {!loading && discardedCount > 0 && (
-        <p className="text-xs text-muted-foreground text-center">
-          {discardedCount} {discardedCount === 1 ? "idea descartada" : "ideas descartadas"} · {" "}
-          <button
-            type="button"
-            className="underline underline-offset-2 hover:text-foreground transition-colors"
-            onClick={() => {
-              clearDiscarded({ personId: id, occasionLabel: occasion, giftType })
-                .catch(() => toast.error("No se pudo limpiar el historial, inténtalo de nuevo"));
-            }}
-          >
-            Permitir de nuevo al regenerar
-          </button>
-        </p>
-      )}
-
-      {!loading && !showIdeas?.length && (
+      ) : (
         <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-14 text-center">
           <div className="text-4xl mb-3" aria-hidden>
             ✨
@@ -255,32 +177,6 @@ export default function GiftsPage({
           </p>
         </div>
       )}
-      <Dialog open={!!pendingDiscard} onOpenChange={(open) => { if (!open) setPendingDiscard(null); }}>
-        <DialogContent showCloseButton={false}>
-          <DialogHeader>
-            <DialogTitle>¿Descartar esta idea?</DialogTitle>
-            <DialogDescription>
-              PickPal no volverá a sugerirte <span className="font-medium text-foreground">"{pendingDiscard?.idea.title}"</span> para {person.name}.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setPendingDiscard(null)}>
-              Cancelar
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={() => {
-                if (!pendingDiscard) return;
-                localStorage.setItem(DISCARD_WARNED_KEY, "1");
-                executeDiscard(pendingDiscard.idea, pendingDiscard.index);
-                setPendingDiscard(null);
-              }}
-            >
-              Descartar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </main>
   );
 }
