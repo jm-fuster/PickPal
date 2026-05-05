@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "convex/react";
@@ -12,8 +12,8 @@ import {
   type ImportantDateFormValues,
 } from "@/lib/schemas";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
@@ -27,60 +27,103 @@ const MONTHS = [
   "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
 ];
-
 const MONTHS_SHORT = [
   "ene", "feb", "mar", "abr", "may", "jun",
   "jul", "ago", "sep", "oct", "nov", "dic",
 ];
 
+const YEAR_START = 1900;
+const YEAR_END = 2100;
+const YEARS = Array.from({ length: YEAR_END - YEAR_START + 1 }, (_, i) =>
+  String(YEAR_START + i),
+);
+const DAYS = Array.from({ length: 31 }, (_, i) => String(i + 1));
+
 const ITEM_H = 48;
 
 function formatDate(day: number, month: number, year?: number) {
-  const monthName = MONTHS[month - 1]?.toLowerCase() ?? "";
-  return year
-    ? `${day} de ${monthName} de ${year}`
-    : `${day} de ${monthName}`;
+  const m = MONTHS[month - 1]?.toLowerCase() ?? "";
+  return year ? `${day} de ${m} de ${year}` : `${day} de ${m}`;
 }
 
 // ─── Scroll column ────────────────────────────────────────────────────────────
 
 interface ScrollColumnProps {
   items: string[];
-  value: number; // 0-based index
+  initialIndex: number;
   onChange: (index: number) => void;
 }
 
-function ScrollColumn({ items, value, onChange }: ScrollColumnProps) {
+function ScrollColumn({ items, initialIndex, onChange }: ScrollColumnProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const dragging = useRef(false);
+  const dragStartY = useRef(0);
+  const dragStartTop = useRef(0);
+  const snapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Scroll to initial position on mount (runs once)
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    el.scrollTo({ top: value * ITEM_H, behavior: "instant" });
-  }, [value]);
+    ref.current?.scrollTo({ top: initialIndex * ITEM_H, behavior: "instant" });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const handleScroll = useCallback(() => {
+  function currentIndex() {
+    const el = ref.current;
+    if (!el) return initialIndex;
+    return Math.max(0, Math.min(items.length - 1, Math.round(el.scrollTop / ITEM_H)));
+  }
+
+  function snapToNearest() {
     const el = ref.current;
     if (!el) return;
-    const idx = Math.round(el.scrollTop / ITEM_H);
-    onChange(Math.max(0, Math.min(items.length - 1, idx)));
-  }, [items.length, onChange]);
+    const idx = currentIndex();
+    el.scrollTo({ top: idx * ITEM_H, behavior: "smooth" });
+    onChange(idx);
+  }
+
+  function handleScroll() {
+    if (dragging.current) return;
+    onChange(currentIndex());
+    if (snapTimer.current) clearTimeout(snapTimer.current);
+    snapTimer.current = setTimeout(snapToNearest, 120);
+  }
+
+  function handleMouseDown(e: React.MouseEvent) {
+    e.preventDefault();
+    dragging.current = true;
+    dragStartY.current = e.clientY;
+    dragStartTop.current = ref.current?.scrollTop ?? 0;
+  }
+
+  function handleMouseMove(e: React.MouseEvent) {
+    if (!dragging.current || !ref.current) return;
+    ref.current.scrollTop = dragStartTop.current + (dragStartY.current - e.clientY);
+    onChange(currentIndex());
+  }
+
+  function handleMouseUp() {
+    if (!dragging.current) return;
+    dragging.current = false;
+    snapToNearest();
+  }
 
   return (
     <div className="relative flex-1 h-36 overflow-hidden">
-      {/* Scrollable list */}
       <div
         ref={ref}
-        className="h-full overflow-y-scroll snap-y snap-mandatory"
+        className="h-full overflow-y-scroll cursor-grab active:cursor-grabbing select-none"
         style={{ scrollbarWidth: "none" } as React.CSSProperties}
         onScroll={handleScroll}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
       >
-        {/* py-12 = 48px = one item height, so first/last items can center */}
         <div className="py-12">
           {items.map((item, i) => (
             <div
               key={i}
-              className="h-12 flex items-center justify-center snap-center text-lg select-none"
+              className="h-12 flex items-center justify-center text-lg select-none"
             >
               {item}
             </div>
@@ -88,7 +131,7 @@ function ScrollColumn({ items, value, onChange }: ScrollColumnProps) {
         </div>
       </div>
 
-      {/* Decorative overlay: center-item lines + fade edges */}
+      {/* Center-item guide lines + fade edges */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute inset-x-0 top-12 h-px bg-border" />
         <div className="absolute inset-x-0 bottom-12 h-px bg-border" />
@@ -110,20 +153,13 @@ interface DatePickerDialogProps {
   onClose: () => void;
 }
 
-function DatePickerDialog({
-  open,
-  day,
-  month,
-  year,
-  onChange,
-  onClose,
-}: DatePickerDialogProps) {
+function DatePickerDialog({ open, day, month, year, onChange, onClose }: DatePickerDialogProps) {
   const [tmpDay, setTmpDay] = useState(day);
   const [tmpMonth, setTmpMonth] = useState(month);
   const [includeYear, setIncludeYear] = useState(year !== undefined);
   const [tmpYear, setTmpYear] = useState(year ?? new Date().getFullYear());
 
-  // Sync when the dialog opens
+  // Reset temp state each time the dialog opens
   useEffect(() => {
     if (open) {
       setTmpDay(day);
@@ -133,31 +169,42 @@ function DatePickerDialog({
     }
   }, [open, day, month, year]);
 
-  const days = Array.from({ length: 31 }, (_, i) => String(i + 1));
-
-  const handleAccept = () => {
+  function handleAccept() {
     onChange(tmpDay, tmpMonth, includeYear ? tmpYear : undefined);
     onClose();
-  };
+  }
+
+  // Key forces ScrollColumn to remount (and re-init scroll) when dialog opens
+  const openKey = open ? "open" : "closed";
 
   return (
     <Dialog open={open} onOpenChange={(o: boolean) => { if (!o) onClose(); }}>
-      <DialogContent showCloseButton={false} className="max-w-xs">
+      <DialogContent showCloseButton={false}>
         <DialogTitle className="text-2xl font-light text-center tracking-tight">
           {formatDate(tmpDay, tmpMonth, includeYear ? tmpYear : undefined)}
         </DialogTitle>
 
-        <div className="flex gap-2">
+        <div className="flex gap-1">
           <ScrollColumn
-            items={days}
-            value={tmpDay - 1}
+            key={`day-${openKey}`}
+            items={DAYS}
+            initialIndex={tmpDay - 1}
             onChange={(i) => setTmpDay(i + 1)}
           />
           <ScrollColumn
+            key={`month-${openKey}`}
             items={MONTHS_SHORT}
-            value={tmpMonth - 1}
+            initialIndex={tmpMonth - 1}
             onChange={(i) => setTmpMonth(i + 1)}
           />
+          {includeYear && (
+            <ScrollColumn
+              key={`year-${openKey}`}
+              items={YEARS}
+              initialIndex={tmpYear - YEAR_START}
+              onChange={(i) => setTmpYear(i + YEAR_START)}
+            />
+          )}
         </div>
 
         <div className="flex items-center gap-3">
@@ -172,16 +219,6 @@ function DatePickerDialog({
           >
             Incluir año
           </label>
-          {includeYear && (
-            <Input
-              type="number"
-              min={1900}
-              max={2100}
-              value={tmpYear}
-              onChange={(e) => setTmpYear(Number(e.target.value))}
-              className="w-24 h-8 ml-auto"
-            />
-          )}
         </div>
 
         <DialogFooter>
@@ -237,22 +274,14 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
       await create({
         personId,
         ...rest,
-        budgetMin:
-          budgetMinEuros !== undefined
-            ? Math.round(budgetMinEuros * 100)
-            : undefined,
-        budgetMax:
-          budgetMaxEuros !== undefined
-            ? Math.round(budgetMaxEuros * 100)
-            : undefined,
+        budgetMin: budgetMinEuros !== undefined ? Math.round(budgetMinEuros * 100) : undefined,
+        budgetMax: budgetMaxEuros !== undefined ? Math.round(budgetMaxEuros * 100) : undefined,
       });
       toast.success("Fecha añadida");
       reset(defaultValues);
       setShowForm(false);
     } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "No se pudo añadir la fecha",
-      );
+      toast.error(err instanceof Error ? err.message : "No se pudo añadir la fecha");
     }
   };
 
@@ -284,13 +313,11 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
         onChange={(d, m, y) => {
           setValue("day", d, { shouldValidate: true });
           setValue("month", m, { shouldValidate: true });
-          // year intentionally not validated immediately — let submit validate
           setValue("year", y as number | undefined);
         }}
         onClose={() => setPickerOpen(false)}
       />
 
-      {/* Hidden inputs so RHF tracks day/month/year even without visible inputs */}
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="space-y-3 rounded-xl border border-dashed border-border/70 bg-background/40 p-4"
@@ -317,7 +344,7 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
             >
               {formatDate(watchedDay ?? 1, watchedMonth ?? 1, watchedYear)}
             </button>
-            {/* Hidden RHF-controlled inputs for day / month / year */}
+            {/* Hidden RHF fields */}
             <input type="hidden" {...register("day", { valueAsNumber: true })} />
             <input type="hidden" {...register("month", { valueAsNumber: true })} />
             <input
@@ -350,50 +377,40 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
           </select>
           {watchedRecurring === false && !watchedYear ? (
             <p className="text-xs text-muted-foreground">
-              Selecciona el año en el selector de fecha.
+              Activa &ldquo;Incluir año&rdquo; en el selector de fecha.
             </p>
           ) : null}
         </div>
 
         <div className="grid grid-cols-2 gap-3 max-w-xs">
           <div className="space-y-1.5">
-            <Label htmlFor="date-budget-min">
-              Presupuesto mín. € (opcional)
-            </Label>
+            <Label htmlFor="date-budget-min">Presupuesto mín. € (opcional)</Label>
             <Input
               id="date-budget-min"
               type="number"
               min={0}
               step={1}
               {...register("budgetMinEuros", {
-                setValueAs: (v) =>
-                  v === "" || v === null ? undefined : Number(v),
+                setValueAs: (v) => (v === "" || v === null ? undefined : Number(v)),
               })}
             />
             {errors.budgetMinEuros ? (
-              <p className="text-xs text-destructive">
-                {errors.budgetMinEuros.message}
-              </p>
+              <p className="text-xs text-destructive">{errors.budgetMinEuros.message}</p>
             ) : null}
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="date-budget-max">
-              Presupuesto máx. € (opcional)
-            </Label>
+            <Label htmlFor="date-budget-max">Presupuesto máx. € (opcional)</Label>
             <Input
               id="date-budget-max"
               type="number"
               min={0}
               step={1}
               {...register("budgetMaxEuros", {
-                setValueAs: (v) =>
-                  v === "" || v === null ? undefined : Number(v),
+                setValueAs: (v) => (v === "" || v === null ? undefined : Number(v)),
               })}
             />
             {errors.budgetMaxEuros ? (
-              <p className="text-xs text-destructive">
-                {errors.budgetMaxEuros.message}
-              </p>
+              <p className="text-xs text-destructive">{errors.budgetMaxEuros.message}</p>
             ) : null}
           </div>
         </div>
@@ -402,12 +419,7 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
           <Button type="submit" size="sm" disabled={isSubmitting}>
             {isSubmitting ? "Guardando…" : "Añadir fecha"}
           </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={handleCancel}
-          >
+          <Button type="button" variant="ghost" size="sm" onClick={handleCancel}>
             Cancelar
           </Button>
         </div>
