@@ -22,7 +22,7 @@ export default function AppLayout({
             PickPal
           </Link>
         </div>
-        <nav className="flex flex-col gap-1 p-3 flex-1">
+        <nav className="flex flex-col gap-1 p-3 flex-1 overflow-y-auto">
           <SidebarLink href="/dashboard">
             <Home className="size-4" aria-hidden />
             Inicio

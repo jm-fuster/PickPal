@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { buttonVariants } from "@/components/ui/button";
 import { RELATIONSHIPS } from "@/lib/schemas";
 import type { Doc } from "../../../convex/_generated/dataModel";
 
@@ -58,17 +57,6 @@ export function PersonCard({ person }: { person: Doc<"people"> }) {
             </div>
           ) : null}
 
-          <div className="mt-auto pt-2 w-full">
-            <span
-              className={buttonVariants({
-                variant: "outline",
-                size: "sm",
-                className: "w-full pointer-events-none",
-              })}
-            >
-              Ver perfil
-            </span>
-          </div>
         </CardContent>
       </Card>
     </Link>
