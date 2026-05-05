@@ -36,6 +36,44 @@ export const getByPersonOccasion = query({
   },
 });
 
+export const removeIdea = mutation({
+  args: {
+    personId: v.id("people"),
+    occasionLabel: v.string(),
+    giftType: v.string(),
+    ideaIndex: v.number(),
+  },
+  handler: async (ctx, { personId, occasionLabel, giftType, ideaIndex }) => {
+    const clerkUserId = await requireUser(ctx);
+
+    const person = await ctx.db.get(personId);
+    if (!person || person.clerkUserId !== clerkUserId) {
+      throw new Error("Persona no encontrada.");
+    }
+
+    const existing = await ctx.db
+      .query("recommendations")
+      .withIndex("by_user_person_occasion_type", (q) =>
+        q
+          .eq("clerkUserId", clerkUserId)
+          .eq("personId", personId)
+          .eq("occasionLabel", occasionLabel)
+          .eq("giftType", giftType),
+      )
+      .unique();
+
+    if (!existing) return;
+
+    if (ideaIndex < 0 || ideaIndex >= existing.ideas.length) {
+      throw new Error("Índice de idea fuera de rango.");
+    }
+
+    await ctx.db.patch(existing._id, {
+      ideas: existing.ideas.filter((_, i) => i !== ideaIndex),
+    });
+  },
+});
+
 export const upsert = mutation({
   args: {
     personId: v.id("people"),

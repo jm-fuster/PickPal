@@ -4,7 +4,7 @@ import { use, useState } from "react";
 import Link from "next/link";
 import { Sparkles, RefreshCw } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
 import { api } from "../../../../../../convex/_generated/api";
 import type { Id } from "../../../../../../convex/_generated/dataModel";
@@ -31,6 +31,8 @@ export default function GiftsPage({
   const [giftType, setGiftType] = useState<GiftType>("fisica");
   const [ideas, setIdeas] = useState<GiftRecommendation[] | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const removeIdea = useMutation(api.recommendations.removeIdea);
 
   const cached = useQuery(
     api.recommendations.getByPersonOccasion,
@@ -71,6 +73,15 @@ export default function GiftsPage({
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDiscard = (index: number) => {
+    setIdeas((prev) => {
+      const base = prev ?? (cached?.ideas as GiftRecommendation[] ?? []);
+      return base.filter((_, i) => i !== index);
+    });
+    removeIdea({ personId: id, occasionLabel: occasion, giftType, ideaIndex: index })
+      .catch(() => toast.error("No se pudo descartar la idea, inténtalo de nuevo"));
   };
 
   const hasCached = cached !== undefined && cached !== null;
@@ -159,10 +170,16 @@ export default function GiftsPage({
             />
           ))}
         </div>
-      ) : showIdeas ? (
+      ) : showIdeas && showIdeas.length > 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {showIdeas.map((idea, i) => (
-            <GiftRecommendationCard key={i} idea={idea} index={i} giftType={giftType} />
+            <GiftRecommendationCard
+              key={idea.title}
+              idea={idea}
+              index={i}
+              giftType={giftType}
+              onDiscard={() => handleDiscard(i)}
+            />
           ))}
         </div>
       ) : (
