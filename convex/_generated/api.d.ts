@@ -16,6 +16,7 @@ import type * as rateLimit from "../rateLimit.js";
 import type * as recommendationUsage from "../recommendationUsage.js";
 import type * as recommendations from "../recommendations.js";
 import type * as settings from "../settings.js";
+import type * as validators from "../validators.js";
 
 import type {
   ApiFromModules,
@@ -32,6 +33,7 @@ declare const fullApi: ApiFromModules<{
   recommendationUsage: typeof recommendationUsage;
   recommendations: typeof recommendations;
   settings: typeof settings;
+  validators: typeof validators;
 }>;
 
 /**
