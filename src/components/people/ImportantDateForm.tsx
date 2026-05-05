@@ -629,61 +629,60 @@ export function EditImportantDateInline({
       onSubmit={handleSubmit(onSubmit)}
       className="space-y-3 rounded-lg border border-primary/40 bg-background/80 p-3 text-sm"
     >
-      {/* Etiqueta + fecha en la misma fila */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-        <div className="space-y-1.5 md:col-span-2">
-          <Label htmlFor="edit-label">Etiqueta</Label>
-          <Input id="edit-label" {...register("label")} />
-          {errors.label && <p className="text-xs text-destructive">{errors.label.message}</p>}
-        </div>
+      {/* Etiqueta */}
+      <div className="space-y-1.5">
+        <Label htmlFor="edit-label">Etiqueta</Label>
+        <Input id="edit-label" {...register("label")} />
+        {errors.label && <p className="text-xs text-destructive">{errors.label.message}</p>}
+      </div>
 
-        <div className="space-y-1.5 col-span-2 md:col-span-1">
-          <Label>Fecha</Label>
-          <div className="grid grid-cols-3 gap-1.5">
-            <Input
-              type="number"
-              min={1}
-              max={31}
-              placeholder="Día"
-              value={watchedDay ?? ""}
-              onChange={(e) =>
-                setValue("day", e.target.value ? Number(e.target.value) : 1, { shouldValidate: true })
-              }
-            />
-            <select
-              className="h-8 w-full rounded-md border bg-background px-1.5 text-sm"
-              value={watchedMonth ?? 1}
-              onChange={(e) =>
-                setValue("month", Number(e.target.value), { shouldValidate: true })
-              }
-            >
-              {MONTHS.map((m, i) => (
-                <option key={m} value={i + 1}>{m.slice(0, 3)}</option>
-              ))}
-            </select>
-            <Input
-              type="number"
-              min={1900}
-              max={2100}
-              placeholder="Año"
-              value={watchedYear ?? ""}
-              onChange={(e) =>
-                setValue("year", e.target.value ? Number(e.target.value) : undefined)
-              }
-            />
-          </div>
-          {/* Hidden RHF registrations */}
-          <input type="hidden" {...register("day", { valueAsNumber: true })} />
-          <input type="hidden" {...register("month", { valueAsNumber: true })} />
-          <input type="hidden" {...register("year", {
-            setValueAs: (v) => (v === "" || v === null || v === undefined ? undefined : Number(v)),
-          })} />
-          {(errors.day || errors.month || errors.year) && (
-            <p className="text-xs text-destructive">
-              {errors.day?.message ?? errors.month?.message ?? errors.year?.message}
-            </p>
-          )}
+      {/* Fecha — fila propia con 3 columnas */}
+      <div className="space-y-1.5">
+        <Label>Fecha</Label>
+        <div className="grid grid-cols-3 gap-2">
+          <Input
+            type="number"
+            min={1}
+            max={31}
+            placeholder="Día"
+            value={watchedDay ?? ""}
+            onChange={(e) =>
+              setValue("day", e.target.value ? Number(e.target.value) : 1, { shouldValidate: true })
+            }
+          />
+          <select
+            className="h-8 w-full rounded-md border bg-background pl-2 pr-7 text-sm"
+            value={watchedMonth ?? 1}
+            onChange={(e) =>
+              setValue("month", Number(e.target.value), { shouldValidate: true })
+            }
+          >
+            {MONTHS.map((m, i) => (
+              <option key={m} value={i + 1}>{m}</option>
+            ))}
+          </select>
+          <Input
+            type="number"
+            min={1900}
+            max={2100}
+            placeholder="Año (opc.)"
+            value={watchedYear ?? ""}
+            onChange={(e) =>
+              setValue("year", e.target.value ? Number(e.target.value) : undefined)
+            }
+          />
         </div>
+        {/* Hidden RHF registrations */}
+        <input type="hidden" {...register("day", { valueAsNumber: true })} />
+        <input type="hidden" {...register("month", { valueAsNumber: true })} />
+        <input type="hidden" {...register("year", {
+          setValueAs: (v) => (v === "" || v === null || v === undefined ? undefined : Number(v)),
+        })} />
+        {(errors.day || errors.month || errors.year) && (
+          <p className="text-xs text-destructive">
+            {errors.day?.message ?? errors.month?.message ?? errors.year?.message}
+          </p>
+        )}
       </div>
 
       {/* Recurrencia */}
