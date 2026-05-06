@@ -27,6 +27,9 @@ export const metadata: Metadata = {
   title: "PickPal",
   description:
     "Recuerda fechas importantes y recibe ideas de regalo personalizadas con IA.",
+  icons: {
+    icon: "/logo-mark.svg",
+  },
 };
 
 export default function RootLayout({

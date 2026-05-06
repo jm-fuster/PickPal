@@ -5,6 +5,7 @@ import { SafeNotificationBell } from "@/components/layout/SafeNotificationBell";
 import { SidebarLink } from "@/components/layout/SidebarLink";
 import { SidebarUserInfo } from "@/components/layout/SidebarUserInfo";
 import { MobileNav } from "@/components/layout/MobileNav";
+import { LogoMark } from "@/components/ui/LogoMark";
 
 export default function AppLayout({
   children,
@@ -18,8 +19,9 @@ export default function AppLayout({
         <div className="px-5 py-5 border-b border-border flex items-center justify-between">
           <Link
             href="/dashboard"
-            className="font-semibold text-lg text-foreground"
+            className="font-semibold text-lg text-foreground flex items-center gap-2"
           >
+            <LogoMark className="size-7" />
             PickPal
           </Link>
           <SafeNotificationBell />
@@ -48,7 +50,8 @@ export default function AppLayout({
         <header className="lg:hidden flex items-center justify-between border-b px-4 py-3">
           <div className="flex items-center gap-3">
             <MobileNav />
-            <Link href="/dashboard" className="font-semibold text-lg">
+            <Link href="/dashboard" className="font-semibold text-lg flex items-center gap-2">
+              <LogoMark className="size-6" />
               PickPal
             </Link>
           </div>

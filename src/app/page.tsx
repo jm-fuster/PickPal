@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { UserButton } from "@clerk/nextjs";
 import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
+import { LogoMark } from "@/components/ui/LogoMark";
 
 const FEATURES = [
   {
@@ -29,7 +30,10 @@ export default async function Home() {
   return (
     <div className="flex flex-1 flex-col">
       <header className="flex items-center justify-between px-6 py-5">
-        <span className="text-lg font-medium tracking-tight">PickPal</span>
+        <span className="text-lg font-medium tracking-tight flex items-center gap-2">
+          <LogoMark className="size-7" />
+          PickPal
+        </span>
         <div className="flex items-center gap-3">
           {isSignedIn ? <UserButton /> : null}
         </div>
