@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Sparkles, RefreshCw } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
@@ -20,8 +20,6 @@ import {
 import { GiftRecommendationCard } from "@/components/gifts/GiftRecommendationCard";
 import { LoadingFallback } from "@/components/layout/LoadingFallback";
 import { GIFT_TYPES, type GiftType, type GiftRecommendation } from "@/lib/gifts";
-
-const DISCARD_DELAY = 4000;
 
 const formatBudget = (min?: number, max?: number) => {
   const toEur = (v: number) => Math.round(v / 100);
@@ -51,8 +49,19 @@ export default function GiftsPage({
 
   const removeIdea = useMutation(api.recommendations.removeIdea);
   const pendingDiscards = useRef<
-    Map<string, { idea: GiftRecommendation; insertAt: number; timeoutId: ReturnType<typeof setTimeout> }>
+    Map<string, { idea: GiftRecommendation; insertAt: number; args: Parameters<typeof removeIdea>[0] }>
   >(new Map());
+
+  // Commit any un-undone discards when leaving the page
+  useEffect(() => {
+    return () => {
+      pendingDiscards.current.forEach(({ args }) => {
+        removeIdea(args).catch(() => {});
+      });
+      pendingDiscards.current.clear();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const cached = useQuery(
     api.recommendations.getByPersonOccasion,
@@ -99,24 +108,19 @@ export default function GiftsPage({
   const showIdeas = ideas ?? (hasCached ? (cached!.ideas as GiftRecommendation[]) : null);
 
   const handleDiscard = (idea: GiftRecommendation, displayIndex: number) => {
-    // Remove from local state immediately
     setIdeas((prev) => (prev ?? showIdeas ?? []).filter((_, i) => i !== displayIndex));
 
-    const timeoutId = setTimeout(() => {
-      pendingDiscards.current.delete(idea.title);
-      removeIdea({ personId: id, occasionLabel: occasion, giftType, ideaTitle: idea.title }).catch(() => {});
-    }, DISCARD_DELAY);
-
-    pendingDiscards.current.set(idea.title, { idea, insertAt: displayIndex, timeoutId });
+    const args = { personId: id, occasionLabel: occasion, giftType, ideaTitle: idea.title };
+    pendingDiscards.current.set(idea.title, { idea, insertAt: displayIndex, args });
 
     toast("Esta idea no se volverá a mostrar", {
-      duration: DISCARD_DELAY,
+      duration: Infinity,
       action: {
         label: "Deshacer",
         onClick: () => {
+          // Delete before toast auto-dismisses so onDismiss skips the commit
           const pending = pendingDiscards.current.get(idea.title);
           if (!pending) return;
-          clearTimeout(pending.timeoutId);
           pendingDiscards.current.delete(idea.title);
           setIdeas((prev) => {
             const current = prev ?? [];
@@ -125,6 +129,11 @@ export default function GiftsPage({
             return next;
           });
         },
+      },
+      onDismiss: () => {
+        if (!pendingDiscards.current.has(idea.title)) return;
+        pendingDiscards.current.delete(idea.title);
+        removeIdea(args).catch(() => {});
       },
     });
   };
