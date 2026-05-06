@@ -3,16 +3,32 @@
 ## Flujo completo
 
 ```
-Usuario → click "Generar ideas"
-  → POST /api/recommendations { personId, occasionLabel, giftType }
-  → Busca persona en Convex (intereses, notas, tallas, alergias, dislikes)
-  → Busca la fecha importante que coincide con occasionLabel (presupuesto por ocasión)
-  → Busca historial de regalos anteriores (para no repetir)
-  → Llama a Gemini 2.5 Flash via AI SDK con generateObject
-  → Persiste las 6 ideas en Convex (tabla recommendations, upsert)
-  → Devuelve 6 recomendaciones validadas por Zod
-  → Cada tarjeta muestra título, descripción, precio, categoría y botón Amazon/Google
+Usuario → selecciona un evento del perfil (Select)
+  → elige tipo de regalo (chips)
+  → click "Generar 6 ideas"
+    → POST /api/recommendations { personId, occasionLabel, giftType }
+    → Busca persona en Convex (intereses, notas, tallas, alergias, dislikes)
+    → Busca la importantDate cuyo label == occasionLabel (presupuesto)
+    → Busca historial de regalos anteriores (para no repetir)
+    → Llama a Gemini 2.5 Flash vía AI SDK con generateObject
+    → Persiste las 6 ideas en Convex (tabla recommendations, upsert)
+    → Devuelve 6 recomendaciones validadas por Zod
+    → Cada tarjeta muestra título, descripción, precio, categoría y botón Amazon/Google
 ```
+
+---
+
+## Selección de evento (ocasión)
+
+La pantalla muestra un `<Select>` con los eventos (`importantDates`) guardados en el perfil de esa persona. Solo se puede elegir entre ellos — no hay campo de texto libre.
+
+- El presupuesto de la fecha seleccionada se aplica automáticamente al prompt (ver sección siguiente).
+- El `<Select>` muestra el presupuesto junto al label cuando la fecha lo tiene definido: `Cumpleaños · 50–100€`.
+- Si la persona no tiene ningún evento, la opción aparece deshabilitada: "Sin eventos guardados".
+- El botón "Generar" queda deshabilitado hasta que se elige un evento.
+- Al cambiar de evento, las ideas en pantalla se limpian (`ideas = null`) para que no queden ideas de una ocasión mezcladas con otra.
+
+---
 
 ## Presupuesto por ocasión
 
@@ -20,8 +36,87 @@ El presupuesto (`budgetMin` / `budgetMax`) se asocia a cada **fecha importante**
 
 - Almacenado en **céntimos** de euro en Convex (`budgetMin`, `budgetMax` en `importantDates`).
 - Convertido a euros en los formularios (`value * 100` al guardar, `value / 100` al cargar).
-- Al generar recomendaciones, la ruta `/api/recommendations` busca la `importantDate` cuyo `label` coincide con `occasionLabel` mediante `api.importantDates.getByPersonAndLabel`. Si no hay fecha con ese label (o la fecha no tiene presupuesto), se pasa `undefined` y el prompt dice "sin límite definido".
+- Al generar recomendaciones, `/api/recommendations` busca la `importantDate` cuyo `label` coincide con `occasionLabel` mediante `api.importantDates.getByPersonAndLabel`. Si la fecha no tiene presupuesto, se pasa `undefined` y el prompt dice "sin límite definido".
 - El campo `budgetMin`/`budgetMax` en la tabla `people` se mantiene como **legacy opcional** para no romper documentos existentes en producción, pero ya no se usa en ningún flujo activo.
+
+---
+
+## Tipos de regalo (chips)
+
+Cuatro opciones mutuamente excluyentes definidas en `src/lib/gifts.ts`:
+
+| Valor | Label | Comportamiento del prompt |
+|---|---|---|
+| `fisica` | Producto físico | Solo productos comprables en Amazon.es. `amazonQuery` para Amazon. |
+| `experiencia` | Experiencia | Cenas, talleres, escapadas, conciertos. `amazonQuery` para Google. |
+| `tiempo-juntos` | Tiempo juntos | Planes gratuitos o caseros. Precios bajos o cero. |
+| `sorprendeme` | Sorpréndeme | Mezcla libre de los tres tipos anteriores. |
+
+Cambiar el tipo limpia las ideas en pantalla (`ideas = null`).
+
+---
+
+## Estado de carga (skeletons)
+
+Mientras la petición a Gemini está en curso (`loading === true`):
+- El botón muestra "Generando…" y queda deshabilitado.
+- Se muestran 6 tarjetas placeholder con `animate-pulse` y fondo `bg-muted/40` para indicar actividad.
+- Al llegar la respuesta, las tarjetas reales aparecen con animación escalonada (`animationDelay: index * 60ms`).
+
+---
+
+## Caché de ideas
+
+Las ideas generadas se persisten en Convex (`tabla recommendations`) indexadas por `(clerkUserId, personId, occasionLabel, giftType)`. Esto permite:
+
+- Mostrar las últimas ideas al volver a la pantalla sin consumir cuota.
+- El botón cambia a "Regenerar" (con icono `RefreshCw`) cuando existen ideas cacheadas para la combinación seleccionada.
+- Un aviso informa al usuario de que regenerar consume cuota diaria.
+- Las ideas locales (state React) tienen prioridad sobre las cacheadas: `showIdeas = ideas ?? cached?.ideas`.
+
+---
+
+## Límite de uso (rate limit)
+
+10 generaciones por usuario por día (UTC), gestionadas por `api.recommendationUsage.consume`. Si se supera el límite, la API devuelve `429` y se muestra un toast de error.
+
+---
+
+## Descartar ideas (botón X)
+
+Cada tarjeta tiene un botón X en la esquina superior derecha.
+
+### UX de descarte
+
+1. Al pulsar X, la tarjeta desaparece inmediatamente de la pantalla (optimistic update en el state local).
+2. Aparece un **toast permanente** (sin temporizador de auto-cierre) con el mensaje "Esta idea no se volverá a mostrar" y un botón "Deshacer".
+3. La idea **no se elimina de Convex todavía** — queda en una cola de pendientes (`pendingDiscards` ref).
+
+### Cuándo se hace efectivo el descarte en Convex
+
+| Acción del usuario | Resultado |
+|---|---|
+| Cierra el toast manualmente (X del toast) | `removeIdea` se llama en `onDismiss` |
+| Navega fuera de la pantalla | El `useEffect` de cleanup llama `removeIdea` por cada pendiente |
+| Pulsa "Deshacer" | Se borra la entrada del mapa de pendientes; la idea vuelve a su posición original; `removeIdea` **no** se llama |
+
+### Por qué el descarte usa título (no índice)
+
+La mutación `removeIdea` busca la idea por `ideaTitle`, no por posición en el array. Esto evita que descartes múltiples rápidos desajusten los índices entre el estado local y el array de Convex.
+
+```typescript
+// convex/recommendations.ts
+await ctx.db.patch(existing._id, {
+  ideas: existing.ideas.filter((idea) => idea.title !== ideaTitle),
+  discardedTitles: [...(existing.discardedTitles ?? []), ideaTitle],
+});
+```
+
+### Campo `discardedTitles`
+
+Los títulos descartados se acumulan en `recommendations.discardedTitles` (array de strings). El propósito es que al regenerar, el prompt pueda excluirlos — **esta parte aún no está implementada en `buildPrompt`**, es una mejora pendiente.
+
+---
 
 ## Implementación (`/api/recommendations/route.ts`)
 
@@ -53,6 +148,8 @@ await fetchMutation(api.recommendations.upsert,
 
 `generateObject` valida la respuesta contra el schema Zod automáticamente.
 
+---
+
 ## Diseño del prompt (`buildPrompt`)
 
 ```
@@ -73,7 +170,7 @@ Reglas:
 - Responde en español.
 ```
 
-El presupuesto viene de `matchingDate?.budgetMin/Max` (convertido de céntimos a euros con `formatBudget`). Si la fecha no tiene presupuesto, el prompt dice "sin límite definido".
+---
 
 ## URLs de Amazon (`src/lib/amazon.ts`)
 
@@ -87,12 +184,39 @@ export function generateAmazonUrl(query: string): string {
 - El modelo genera queries específicas para maximizar la relevancia de los resultados.
 - Futuro: añadir parámetro `tag` de Amazon Associates para monetización.
 
+---
+
+## Archivos clave
+
+| Archivo | Rol |
+|---|---|
+| [`src/app/(app)/people/[personId]/gifts/page.tsx`](../src/app/%28app%29/people/%5BpersonId%5D/gifts/page.tsx) | Página principal: selector de evento, tipo, generación, descarte con toast+undo |
+| [`src/components/gifts/GiftRecommendationCard.tsx`](../src/components/gifts/GiftRecommendationCard.tsx) | Tarjeta de idea: título, descripción, precio, categoría, botón de búsqueda, botón X |
+| [`src/app/api/recommendations/route.ts`](../src/app/api/recommendations/route.ts) | API route: fetches Convex, llama a Gemini, persiste resultado |
+| [`convex/recommendations.ts`](../convex/recommendations.ts) | `getByPersonOccasion`, `upsert`, `removeIdea` |
+| [`convex/recommendationUsage.ts`](../convex/recommendationUsage.ts) | Rate limit: 10 generaciones/usuario/día |
+| [`src/lib/gifts.ts`](../src/lib/gifts.ts) | Tipos `GiftType`, `GiftRecommendation`, schema Zod, constante `GIFT_TYPES` |
+| [`src/lib/amazon.ts`](../src/lib/amazon.ts) | Generador de URLs de búsqueda en Amazon.es |
+
+---
+
+## Mejoras pendientes
+
+- **Excluir `discardedTitles` en `buildPrompt`**: el campo ya se persiste, pero el prompt todavía no los inyecta para evitar que la IA repita ideas descartadas al regenerar.
+- **Afiliación Amazon**: añadir `tag` al `generateAmazonUrl` cuando haya cuenta de Associates.
+- **Recordatorios escalonados**: no relacionado con IA, pero la estructura de `importantDates` ya lo soporta.
+
+---
+
 ## Verificación manual
 
 - [ ] Crear persona con intereses y **añadir una fecha con presupuesto definido**
-- [ ] Ir a `/people/[id]/gifts`, seleccionar esa ocasión, hacer click en "Generar ideas"
-- [ ] El prompt incluye el presupuesto de la fecha (verificar en logs del servidor)
+- [ ] Ir a `/people/[id]/gifts`, el `<Select>` muestra los eventos con presupuesto
+- [ ] Seleccionar evento → botón "Generar" se activa
+- [ ] Click en "Generar" → aparecen 6 skeletons con fondo visible mientras carga
 - [ ] Aparecen 6 tarjetas con título, descripción, precio, categoría y botón de búsqueda
-- [ ] Generar de nuevo (con ideas descartadas) produce sugerencias distintas
-- [ ] Persona con fecha sin presupuesto → el prompt dice "sin límite definido", precios variados
-- [ ] Persona sin intereses definidos → la IA igualmente devuelve 6 resultados genéricos
+- [ ] Volver a la pantalla sin regenerar → las ideas cacheadas aparecen y el botón dice "Regenerar"
+- [ ] Pulsar X en una tarjeta → desaparece, toast permanente con "Deshacer"
+- [ ] Pulsar "Deshacer" → la tarjeta vuelve a su posición
+- [ ] Cerrar el toast manualmente → la idea se elimina de Convex (verificar en dashboard de Convex)
+- [ ] Navegar fuera de la pantalla con toasts abiertos → las ideas pendientes se eliminan de Convex al desmontar
