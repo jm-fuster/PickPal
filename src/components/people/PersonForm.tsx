@@ -77,10 +77,7 @@ function AddEventForm({
   const watchedYear = useWatch({ control, name: "year" });
 
   return (
-    <form
-      onSubmit={handleSubmit(onAdd)}
-      className="space-y-3 rounded-lg bg-background/60 p-3"
-    >
+    <div className="space-y-3 rounded-lg bg-background/60 p-3">
       {/* Etiqueta */}
       <div className="space-y-1.5">
         <Label htmlFor="ae-label" className="text-xs">Etiqueta</Label>
@@ -172,12 +169,12 @@ function AddEventForm({
       />
 
       <div className="flex gap-2">
-        <Button type="submit" size="sm">Añadir evento</Button>
+        <Button type="button" size="sm" onClick={handleSubmit(onAdd)}>Añadir evento</Button>
         <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
           Cancelar
         </Button>
       </div>
-    </form>
+    </div>
   );
 }
 
