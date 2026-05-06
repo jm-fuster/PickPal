@@ -158,7 +158,7 @@ function PersonDetailContent({
               save({ relationship: v });
             }}
           >
-            <SelectTrigger className="w-fit border-0 border-b-2 border-transparent focus:border-primary/40 bg-transparent h-auto py-0.5 pl-0 text-sm text-muted-foreground">
+            <SelectTrigger className="w-fit">
               <span>{RELATIONSHIPS.find((r) => r.value === headerRelationship)?.label ?? headerRelationship}</span>
             </SelectTrigger>
             <SelectContent>
