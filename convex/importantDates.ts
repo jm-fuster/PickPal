@@ -32,7 +32,8 @@ export const getByPerson = query({
   args: { personId: v.id("people") },
   handler: async (ctx, { personId }) => {
     const clerkUserId = await requireUser(ctx);
-    await assertOwnsPerson(ctx, personId, clerkUserId);
+    const person = await ctx.db.get(personId);
+    if (!person || person.clerkUserId !== clerkUserId) return [];
     return await ctx.db
       .query("importantDates")
       .withIndex("by_person", (q) => q.eq("personId", personId))
