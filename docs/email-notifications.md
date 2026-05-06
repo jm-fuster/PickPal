@@ -1,0 +1,196 @@
+# Notificaciones por correo
+
+Documento vivo. Captura cómo funciona el envío automático de emails de recordatorio de fechas importantes y todas sus implicaciones operativas. Cuando una decisión cambie, se actualiza este archivo en el mismo commit que toca el código.
+
+---
+
+## Qué hace
+
+Un cron diario de Convex revisa los `userSettings` de todos los usuarios. Para cada usuario que tenga las notificaciones por correo activadas, busca las `importantDates` cuya próxima ocurrencia sea **exactamente** `emailNotifyDaysBefore` días desde hoy (UTC) y le envía **un único email agrupado** con esos eventos. Cada ocurrencia (par `(importantDateId, occurrenceYear)`) se marca como enviada en una tabla aparte para no duplicar.
+
+La activación y la antelación son configurables desde `/settings`.
+
+---
+
+## Modelo mental
+
+| Concepto | Significado |
+|---|---|
+| `userSettings.notifyDaysBefore` | **Ventana visual** de la app (campanita y dashboard). "Muéstrame todo lo que ocurra en los próximos 30 días". |
+| `userSettings.emailNotifyDaysBefore` | **Gatillo puntual** del email. "Avísame por correo cuando falten exactamente 7 días para un evento". |
+| `userSettings.emailNotificationsEnabled` | Toggle on/off. **Opt-in**: por defecto `false`. |
+| `userSettings.email` | Copia local del email del usuario (vino del JWT de Clerk al guardar ajustes). El cron lo lee de aquí, sin volver a pedírselo a Clerk. |
+| `emailNotifications` (tabla) | Registro de envíos para deduplicar. Una fila = una ocurrencia notificada. |
+
+**Por qué dos campos de "días"** y no uno solo: la ventana de la campanita es ancha por diseño (muestra muchos eventos por adelantado, scroll cómodo). El email es push y solo dispara una vez por evento. Si compartieran valor, un usuario con `notifyDaysBefore = 60` recibiría correos 60 días antes, lo cual es ruido.
+
+---
+
+## Flujo end-to-end
+
+```
+[cron diario 08:00 UTC]
+        │
+        ▼
+internal.emails.runDailyEmailNotifications  (action)
+        │
+        ├─► internal.notifications.findEventsNeedingEmail  (query)
+        │     ├─ recorre userSettings con emailNotificationsEnabled=true
+        │     ├─ para cada user, calcula daysUntil de cada importantDate
+        │     ├─ filtra por daysUntil === emailNotifyDaysBefore
+        │     └─ descarta los ya presentes en emailNotifications(date, year)
+        │
+        ├─► internal.emails.sendBatchedReminderEmail  (action, una por usuario)
+        │     └─ POST https://api.resend.com/emails
+        │
+        └─► internal.notifications.markEmailsSent  (mutation, si el envío OK)
+              └─ inserta filas en emailNotifications
+```
+
+Si el envío a un usuario falla (Resend devuelve 4xx/5xx, red caída, etc.), el orquestador **no** marca ese envío como hecho y continúa con el siguiente usuario. Como la ocurrencia sigue sin estar marcada, el cron del día siguiente lo vuelve a intentar — pero ese día ya `daysUntil` será `emailNotifyDaysBefore - 1`, así que el filtro no matcheará y se pierde el aviso. Asumido conscientemente: simplificar > reintentar (una recuperación robusta requeriría una tabla de "pendientes").
+
+---
+
+## Archivos
+
+| Archivo | Rol |
+|---|---|
+| [`convex/schema.ts`](../convex/schema.ts) | Campos nuevos en `userSettings` y tabla `emailNotifications` con sus índices. |
+| [`convex/settings.ts`](../convex/settings.ts) | `getMine` devuelve los nuevos campos + email del JWT. `setMine` valida y los persiste. Si se activa el toggle sin email en JWT, lanza error. |
+| [`convex/notifications.ts`](../convex/notifications.ts) | Cálculo de próxima ocurrencia (recurrente / no recurrente), matching contra antelación, dedup vs. `emailNotifications`. |
+| [`convex/emails.ts`](../convex/emails.ts) | Llama a Resend (vía `fetch`, sin SDK) y orquesta el cron diario. Construye HTML inline en español. |
+| [`convex/crons.ts`](../convex/crons.ts) | `crons.cron("0 8 * * *", ...)` — diario a las 08:00 UTC. |
+| [`src/app/(app)/settings/page.tsx`](../src/app/%28app%29/settings/page.tsx) | UI: toggle + input de antelación + email destino visible. |
+
+---
+
+## Cálculo de próxima ocurrencia
+
+Misma lógica que `importantDates.getUpcoming`, replicada en [`convex/notifications.ts`](../convex/notifications.ts):
+
+- **No recurrente** (`recurring === false`): si tiene `year` y aún no ha pasado, `daysUntil` desde hoy. Si no hay `year` o ya pasó → la fecha no entra al cálculo.
+- **Recurrente** (default): se prueba con el aniversario de este año. Si ya pasó, salta al del año siguiente. `occurrenceYear` es el año real de la ocurrencia (clave para deduplicar).
+
+El cálculo se hace **siempre en UTC** (`Date.UTC(...)`) para que el cron, que corre en horario UTC, no se desfase por DST.
+
+---
+
+## Variables de entorno
+
+Viven en el **deployment de Convex**, no en Next.js, porque solo las consume el backend.
+
+```bash
+npx convex env set RESEND_API_KEY re_xxxxxxxxxxxxx
+npx convex env set EMAIL_FROM "PickPal <onboarding@resend.dev>"   # opcional
+```
+
+Para el deployment de producción se añade `--prod` a cada comando.
+
+| Variable | Obligatoria | Default | Notas |
+|---|---|---|---|
+| `RESEND_API_KEY` | **sí** | — | API key de Resend. Sin ella, `sendBatchedReminderEmail` lanza error. |
+| `EMAIL_FROM` | no | `PickPal <onboarding@resend.dev>` | Remitente. El sandbox de Resend solo manda al email de la cuenta dueña. Para enviar a cualquiera hay que verificar dominio en Resend. |
+
+---
+
+## Requisitos en Clerk
+
+El JWT template `convex` debe incluir el claim `email`. Sin él:
+
+- `setMine` lanza `"No encontramos tu email..."` cuando se activa el toggle.
+- El cron no puede determinar el destinatario del usuario.
+
+Configuración en Clerk Dashboard → Configure → JWT Templates → convex:
+
+```json
+{
+  "email": "{{user.primary_email_address}}",
+  "email_verified": "{{user.email_verified}}"
+}
+```
+
+> Si más adelante se quiere exigir solo emails verificados, el filtro se haría en `setMine` leyendo `identity.emailVerified`.
+
+---
+
+## Cadencia y modelo de envíos
+
+- **Una ejecución diaria** del cron a las **08:00 UTC** (10:00 verano / 09:00 invierno en España peninsular). Hora elegida para que el correo llegue en horario de mañana sin invadir madrugadas.
+- **Un email por usuario** que tenga eventos disparando ese día. Si un usuario tiene 3 cumples a 7 días vista, recibe 1 correo con los 3, no 3 correos.
+- **Sin reintentos automáticos** (ver "Flujo end-to-end").
+- **Sin recordatorios escalonados** (no se envía a 30/7/1 días para el mismo evento). Si el usuario quiere recibir varios, tendría que cambiar la antelación varias veces, lo cual no es práctico → futura mejora opcional: aceptar `emailNotifyDaysBefore` como array.
+
+---
+
+## Seguridad
+
+Resumen — el detalle vive en [`docs/security.md`](security.md).
+
+- Funciones de envío y query de eventos son **`internal*`** — nunca expuestas en `api.*`. Solo el cron las puede invocar.
+- El email destino se lee del JWT de Clerk en `setMine`. **Nunca** se acepta como argumento del cliente; eso permitiría a un usuario malicioso enviar correos a cuentas ajenas con plantilla de PickPal.
+- `emailNotifications` lleva `clerkUserId` en todas sus filas. Cualquier query futura sobre la tabla debe filtrar por usuario (`by_user`) — no exponer índices que crucen usuarios.
+- El cron corre 1 vez/día y la dedup `(importantDateId, occurrenceYear)` impide duplicados, así que no necesita rate limit. Si en algún momento se añade un endpoint manual "enviar email de prueba", aplicar `checkAndIncrement` con bucket `email_test` (sugerido: 5/día).
+- `RESEND_API_KEY` es secret server-only; vive en el entorno de Convex, **no** en `NEXT_PUBLIC_*`.
+
+---
+
+## Privacidad
+
+- El email del usuario se almacena en `userSettings.email` por dos razones: (1) evitar que el cron tenga que llamar a la API de Clerk en cada ejecución, (2) tener un valor estable aunque cambie el JWT.
+- Si el usuario desactiva el toggle, el campo `email` **se conserva** (no se borra en `setMine`). Esto permite reactivar sin volver a forzar Save desde un cliente con JWT fresco. Si en el futuro hay tema de RGPD que exija borrarlo, hay que añadir lógica explícita.
+- El cuerpo del email contiene nombres de personas y etiquetas de eventos del usuario — son datos del propio usuario y van a su email, no se filtran a terceros. Resend almacena los emails enviados durante un tiempo en su panel; revisar [política de Resend](https://resend.com/legal/privacy-policy) si la app crece.
+
+---
+
+## Costes y límites
+
+- **Resend free tier**: 3.000 emails/mes, 100/día. Con un usuario y la mayoría de eventos siendo cumpleaños anuales, el consumo real es bajísimo (≤ N personas × 1 email/año por persona).
+- **Cron de Convex**: incluido en el plan free. Una ejecución/día.
+- **Crecimiento**: el límite duro lo marca Resend. Con 100 usuarios y 5 eventos/usuario, sigue cabiendo holgadamente. Si se acerca, paso lógico es plan de pago de Resend o cambiar a Postmark/SES.
+
+---
+
+## Operativa
+
+### Probar manualmente sin esperar al cron
+
+```bash
+# en el deployment dev
+npx convex run emails:runDailyEmailNotifications
+
+# o en prod
+npx convex run emails:runDailyEmailNotifications --prod
+```
+
+### Logs
+
+```bash
+npx convex logs           # dev
+npx convex logs --prod    # prod
+```
+
+El orquestador imprime al final un resumen `[emails] Cron diario: X usuario(s) notificados, Y fallo(s).` y un `console.error` por cada usuario que falló.
+
+### Inspeccionar qué eventos disparan hoy
+
+```bash
+npx convex run notifications:findEventsNeedingEmail
+```
+
+Devuelve la lista que el orquestador tomaría como entrada, **sin enviar** nada. Útil para depurar por qué no llega un correo (¿falta el toggle? ¿falta email en JWT? ¿la fecha no matchea la antelación? ¿ya estaba en `emailNotifications`?).
+
+### Forzar un reenvío
+
+Si por alguna razón hay que reenviar un aviso ya marcado como enviado, hay que borrar la fila correspondiente de `emailNotifications` desde el dashboard de Convex (Tables → emailNotifications → eliminar fila por `(importantDateId, occurrenceYear)`) y luego relanzar `emails:runDailyEmailNotifications`.
+
+---
+
+## Limitaciones conocidas y decisiones "ahora no"
+
+- **Sin reintentos**: ver "Flujo end-to-end".
+- **Sin recordatorios escalonados** (30/7/1): mejora opcional. La estructura está lista para soportar `emailNotifyDaysBefore: number[]` cambiando solo el matching y la UI.
+- **Sin email de prueba** desde Ajustes: cuando lo haya, requiere bucket de rate limit.
+- **Sin localización**: el correo va siempre en español, igual que el resto de la app.
+- **Sin opciones por evento**: el toggle es global. No se puede silenciar el recordatorio de una persona o evento concreto.
+- **Sin verificación de email**: si el JWT trae `email_verified=false`, hoy no se rechaza. Aceptable mientras Clerk no permita registros sin verificar; revisar si cambia.
+- **Sandbox de Resend**: hasta verificar dominio, los correos solo llegan al email de la cuenta dueña en Resend. Documentado, asumido para uso personal.

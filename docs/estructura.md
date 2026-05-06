@@ -6,6 +6,10 @@ pickpal/
 │   ├── schema.ts                               # definición de tablas
 │   ├── people.ts                               # queries y mutations de personas
 │   ├── importantDates.ts                       # queries y mutations de fechas
+│   ├── settings.ts                             # userSettings (aviso UI + email)
+│   ├── notifications.ts                        # internal: events que disparan email hoy
+│   ├── emails.ts                               # internal: envío vía Resend + cron orchestrator
+│   ├── crons.ts                                # cron diario 08:00 UTC para emails
 │   └── _generated/                             # auto-generado por Convex CLI
 │
 ├── src/
@@ -76,6 +80,23 @@ export default defineSchema({
     day: v.number(),                   // 1–31
     year: v.optional(v.number()),      // null = recurrente cada año
   }).index("by_person", ["personId"]),
+
+  userSettings: defineTable({
+    clerkUserId: v.string(),
+    notifyDaysBefore: v.number(),                    // ventana visual (campanita / dashboard)
+    emailNotificationsEnabled: v.optional(v.boolean()),
+    emailNotifyDaysBefore: v.optional(v.number()),   // gatillo del correo
+    email: v.optional(v.string()),                   // copia local del email Clerk
+  }).index("by_user", ["clerkUserId"]),
+
+  emailNotifications: defineTable({
+    clerkUserId: v.string(),
+    importantDateId: v.id("importantDates"),
+    occurrenceYear: v.number(),                      // dedup por año concreto del evento
+    sentAt: v.number(),
+  })
+    .index("by_date_year", ["importantDateId", "occurrenceYear"])
+    .index("by_user", ["clerkUserId"]),
 })
 ```
 
@@ -84,3 +105,5 @@ export default defineSchema({
 - Las fechas almacenan solo `month + day` para gestionar la recurrencia anual sin cálculos complejos.
 - `year` es opcional: cuando está presente indica un evento puntual (ej: graduación 2025); cuando es `null`, la fecha se repite cada año.
 - Budget en céntimos (enteros) para evitar problemas con decimales en cálculos.
+- `userSettings` lleva dos "días de aviso" separados: `notifyDaysBefore` para la ventana visual y `emailNotifyDaysBefore` para el gatillo del email. Razonamiento detallado en [`docs/email-notifications.md`](email-notifications.md).
+- `emailNotifications` deduplica por `(importantDateId, occurrenceYear)` para no enviar el mismo aniversario dos veces el mismo año.
