@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { use, useEffect, useState } from "react";
+import { use, useState } from "react";
 import {
   CalendarX2, Camera, PencilLine, Repeat2, Sparkles, Trash2, X,
 } from "lucide-react";
@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { api } from "../../../../../convex/_generated/api";
 import type { Id } from "../../../../../convex/_generated/dataModel";
+import type { FunctionReturnType } from "convex/server";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -41,9 +42,9 @@ const MONTHS = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov
 
 // ─── Inner component — person is guaranteed loaded ────────────────────────────
 
-type Person = NonNullable<Awaited<ReturnType<typeof api.people.getById>>>;
-type Dates = NonNullable<Awaited<ReturnType<typeof api.importantDates.getByPerson>>>;
-type GiftHistory = NonNullable<Awaited<ReturnType<typeof api.giftHistory.getByPerson>>>;
+type Person = NonNullable<FunctionReturnType<typeof api.people.getById>>;
+type Dates = NonNullable<FunctionReturnType<typeof api.importantDates.getByPerson>>;
+type GiftHistory = NonNullable<FunctionReturnType<typeof api.giftHistory.getByPerson>>;
 
 function PersonDetailContent({
   person,
@@ -61,89 +62,36 @@ function PersonDetailContent({
   const removeDate = useMutation(api.importantDates.remove);
   const removeHistoryEntry = useMutation(api.giftHistory.remove);
 
-  // ── Header ──
+  // ── Local state (mirrors DB, kept in sync on every autosave) ──
   const [headerName, setHeaderName] = useState(person.name);
   const [headerRelationship, setHeaderRelationship] = useState(person.relationship);
   const [headerAvatar, setHeaderAvatar] = useState<string | undefined>(person.avatarUrl);
   const [avatarDialogOpen, setAvatarDialogOpen] = useState(false);
-  const [headerSaving, setHeaderSaving] = useState(false);
-  const headerDirty =
-    headerName.trim() !== person.name ||
-    headerRelationship !== person.relationship ||
-    headerAvatar !== person.avatarUrl;
-
-  // ── Interests + Notes ──
   const [localInterests, setLocalInterests] = useState<string[]>(person.interests);
   const [localNotes, setLocalNotes] = useState(person.notes ?? "");
-  const [interestsSaving, setInterestsSaving] = useState(false);
-  const interestsDirty =
-    JSON.stringify(localInterests) !== JSON.stringify(person.interests) ||
-    localNotes !== (person.notes ?? "");
-
-  // ── Practical data ──
   const [localShoeSize, setLocalShoeSize] = useState(person.shoeSize ?? "");
   const [localClothingSize, setLocalClothingSize] = useState(person.clothingSize ?? "");
   const [localAllergies, setLocalAllergies] = useState(person.allergies ?? "");
   const [localDislikes, setLocalDislikes] = useState(person.dislikes ?? "");
-  const [practicalSaving, setPracticalSaving] = useState(false);
-  const practicalDirty =
-    localShoeSize !== (person.shoeSize ?? "") ||
-    localClothingSize !== (person.clothingSize ?? "") ||
-    localAllergies !== (person.allergies ?? "") ||
-    localDislikes !== (person.dislikes ?? "");
 
-  // ── Delete / inline edit / nav guard ──
+  // ── Delete / inline edit ──
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [editingDate, setEditingDate] = useState<Dates[number] | null>(null);
   const [editingGift, setEditingGift] = useState<GiftHistory[number] | null>(null);
-  const [pendingNav, setPendingNav] = useState<string | null>(null);
-  const anyDirty = headerDirty || interestsDirty || practicalDirty;
 
-  useEffect(() => {
-    if (!anyDirty) return;
-    const handler = (e: BeforeUnloadEvent) => { e.preventDefault(); };
-    window.addEventListener("beforeunload", handler);
-    return () => window.removeEventListener("beforeunload", handler);
-  }, [anyDirty]);
-
-  const navigateSafe = (href: string) => {
-    if (anyDirty) { setPendingNav(href); } else { router.push(href); }
+  // ── Shared save (silent on success, toast on error) ──
+  type SaveFields = {
+    name?: string; relationship?: string; interests?: string[];
+    notes?: string; shoeSize?: string; clothingSize?: string;
+    allergies?: string; dislikes?: string; avatarUrl?: string;
   };
-
-  // ── Save handlers ──
-  const saveHeader = async () => {
-    if (!headerName.trim()) { toast.error("El nombre no puede estar vacío"); return; }
-    setHeaderSaving(true);
+  const save = async (fields: SaveFields) => {
     try {
-      await updatePerson({ id, name: headerName.trim(), relationship: headerRelationship, avatarUrl: headerAvatar });
-      toast.success("Cambios guardados");
-    } catch { toast.error("No se pudo guardar"); }
-    finally { setHeaderSaving(false); }
-  };
-
-  const saveInterests = async () => {
-    setInterestsSaving(true);
-    try {
-      await updatePerson({ id, interests: localInterests, notes: localNotes || undefined });
-      toast.success("Cambios guardados");
-    } catch { toast.error("No se pudo guardar"); }
-    finally { setInterestsSaving(false); }
-  };
-
-  const savePractical = async () => {
-    setPracticalSaving(true);
-    try {
-      await updatePerson({
-        id,
-        shoeSize: localShoeSize || undefined,
-        clothingSize: localClothingSize || undefined,
-        allergies: localAllergies || undefined,
-        dislikes: localDislikes || undefined,
-      });
-      toast.success("Cambios guardados");
-    } catch { toast.error("No se pudo guardar"); }
-    finally { setPracticalSaving(false); }
+      await updatePerson({ id, ...fields });
+    } catch {
+      toast.error("No se pudo guardar");
+    }
   };
 
   const handleDelete = async () => {
@@ -155,18 +103,14 @@ function PersonDetailContent({
     } catch { toast.error("Algo salió mal"); setDeleting(false); }
   };
 
-  const relationshipLabel =
-    RELATIONSHIPS.find((r) => r.value === person.relationship)?.label ?? person.relationship;
-
   return (
     <main className="flex flex-1 flex-col gap-8 p-4 sm:p-6 lg:p-8 w-full max-w-6xl">
-      <button
-        type="button"
-        onClick={() => navigateSafe("/people")}
+      <Link
+        href="/people"
         className="text-sm text-muted-foreground hover:text-foreground w-fit"
       >
         ← Seres queridos
-      </button>
+      </Link>
 
       {/* ── Header ── */}
       <header className="flex flex-col gap-6 sm:flex-row sm:items-start">
@@ -189,16 +133,24 @@ function PersonDetailContent({
         </div>
 
         <div className="flex-1 space-y-2 min-w-0">
-          {/* Name input styled as heading */}
+          {/* Name — autosave on blur / Enter */}
           <input
             value={headerName}
             onChange={(e) => setHeaderName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && saveHeader()}
+            onBlur={() => { if (headerName.trim()) save({ name: headerName.trim() }); }}
+            onKeyDown={(e) => { if (e.key === "Enter" && headerName.trim()) { (e.target as HTMLInputElement).blur(); } }}
             className="w-full text-4xl font-medium bg-transparent border-0 border-b-2 border-transparent outline-none focus:border-primary/40 transition-colors leading-tight"
             aria-label="Nombre"
           />
-          {/* Relationship select */}
-          <Select value={headerRelationship} onValueChange={setHeaderRelationship}>
+          {/* Relationship — autosave on change */}
+          <Select
+            value={headerRelationship}
+            onValueChange={(v) => {
+              if (!v) return;
+              setHeaderRelationship(v);
+              save({ relationship: v });
+            }}
+          >
             <SelectTrigger className="w-fit border-0 border-b-2 border-transparent focus:border-primary/40 bg-transparent h-auto py-0.5 pl-0 text-sm text-muted-foreground">
               <span>{RELATIONSHIPS.find((r) => r.value === headerRelationship)?.label ?? headerRelationship}</span>
             </SelectTrigger>
@@ -215,11 +167,6 @@ function PersonDetailContent({
             <Sparkles className="size-4" aria-hidden />
             Ideas de regalo
           </Link>
-          {headerDirty && (
-            <Button size="sm" onClick={saveHeader} disabled={headerSaving}>
-              {headerSaving ? "Guardando…" : "Guardar"}
-            </Button>
-          )}
           <Button
             variant="ghost"
             size="icon"
@@ -232,7 +179,7 @@ function PersonDetailContent({
         </div>
       </header>
 
-      {/* Avatar picker dialog */}
+      {/* Avatar picker dialog — autosave on select */}
       <Dialog open={avatarDialogOpen} onOpenChange={setAvatarDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -242,29 +189,14 @@ function PersonDetailContent({
             value={headerAvatar}
             onChange={(url) => {
               setHeaderAvatar(url);
-              if (url) setAvatarDialogOpen(false);
+              if (url) {
+                save({ avatarUrl: url });
+                setAvatarDialogOpen(false);
+              }
             }}
           />
           <DialogFooter>
             <DialogClose render={<Button variant="outline">Cerrar</Button>} />
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Unsaved changes nav guard */}
-      <Dialog open={pendingNav !== null} onOpenChange={(o) => !o && setPendingNav(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Cambios sin guardar</DialogTitle>
-            <DialogDescription>
-              Tienes cambios sin guardar. Si sales ahora se perderán.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setPendingNav(null)}>Quedarme</Button>
-            <Button variant="destructive" onClick={() => { router.push(pendingNav!); setPendingNav(null); }}>
-              Salir sin guardar
-            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -291,24 +223,26 @@ function PersonDetailContent({
         {/* ── Interests + Notes card ── */}
         <Card className="border-border/60 shadow-sm">
           <CardContent className="space-y-4 p-5">
-            <div className="flex items-center justify-between">
-              <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                Intereses
-              </h2>
-              {interestsDirty && (
-                <Button size="sm" onClick={saveInterests} disabled={interestsSaving}>
-                  {interestsSaving ? "Guardando…" : "Guardar"}
-                </Button>
-              )}
-            </div>
-            <InterestTagInput value={localInterests} onChange={setLocalInterests} />
+            <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+              Intereses
+            </h2>
+            {/* Interests — autosave on each tag change */}
+            <InterestTagInput
+              value={localInterests}
+              onChange={(tags) => {
+                setLocalInterests(tags);
+                save({ interests: tags });
+              }}
+            />
 
             <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground pt-2">
               Notas
             </h2>
+            {/* Notes — autosave on blur */}
             <Textarea
               value={localNotes}
               onChange={(e) => setLocalNotes(e.target.value)}
+              onBlur={() => save({ notes: localNotes || undefined })}
               rows={4}
               placeholder="Restricciones, preferencias, contexto…"
             />
@@ -383,36 +317,55 @@ function PersonDetailContent({
       {/* ── Practical data card ── */}
       <Card className="border-border/60 shadow-sm">
         <CardContent className="space-y-4 p-5">
-          <div className="flex items-center justify-between">
-            <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-              Datos prácticos
-            </h2>
-            {practicalDirty && (
-              <Button size="sm" onClick={savePractical} disabled={practicalSaving}>
-                {practicalSaving ? "Guardando…" : "Guardar"}
-              </Button>
-            )}
-          </div>
+          <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            Datos prácticos
+          </h2>
           <p className="text-xs text-muted-foreground">
             Tallas y restricciones que ayudan a la IA a sugerir regalos que realmente se pueden usar.
           </p>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label htmlFor="shoeSize">Talla de zapato</Label>
-              <Input id="shoeSize" placeholder="EU 42, 38…" value={localShoeSize} onChange={(e) => setLocalShoeSize(e.target.value)} />
+              <Input
+                id="shoeSize"
+                placeholder="EU 42, 38…"
+                value={localShoeSize}
+                onChange={(e) => setLocalShoeSize(e.target.value)}
+                onBlur={() => save({ shoeSize: localShoeSize || undefined })}
+              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="clothingSize">Talla de ropa</Label>
-              <Input id="clothingSize" placeholder="M, L, 38…" value={localClothingSize} onChange={(e) => setLocalClothingSize(e.target.value)} />
+              <Input
+                id="clothingSize"
+                placeholder="M, L, 38…"
+                value={localClothingSize}
+                onChange={(e) => setLocalClothingSize(e.target.value)}
+                onBlur={() => save({ clothingSize: localClothingSize || undefined })}
+              />
             </div>
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="allergies">Alergias o restricciones</Label>
-            <Textarea id="allergies" rows={2} placeholder="Frutos secos, gluten, látex…" value={localAllergies} onChange={(e) => setLocalAllergies(e.target.value)} />
+            <Textarea
+              id="allergies"
+              rows={2}
+              placeholder="Frutos secos, gluten, látex…"
+              value={localAllergies}
+              onChange={(e) => setLocalAllergies(e.target.value)}
+              onBlur={() => save({ allergies: localAllergies || undefined })}
+            />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="dislikes">Cosas que no le gustan</Label>
-            <Textarea id="dislikes" rows={2} placeholder="Color amarillo, perfumes fuertes…" value={localDislikes} onChange={(e) => setLocalDislikes(e.target.value)} />
+            <Textarea
+              id="dislikes"
+              rows={2}
+              placeholder="Color amarillo, perfumes fuertes…"
+              value={localDislikes}
+              onChange={(e) => setLocalDislikes(e.target.value)}
+              onBlur={() => save({ dislikes: localDislikes || undefined })}
+            />
           </div>
         </CardContent>
       </Card>
