@@ -201,6 +201,9 @@ function EventsSection({
       <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
         Eventos (opcional)
       </p>
+      <p className="text-xs text-muted-foreground">
+        Añade cumpleaños, aniversarios u otras fechas clave para recibir un aviso con tiempo y no pillarte por sorpresa.
+      </p>
 
       {/* List of added events */}
       {fields.map((field, idx) => (
@@ -372,6 +375,9 @@ export function PersonForm({
           <div className="space-y-3 rounded-xl border border-dashed border-border/70 bg-background/40 p-4">
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
               Datos prácticos (opcional)
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Cuanto más sepamos, mejores sugerencias de regalo recibirás. Las tallas y restricciones evitan regalos que no se pueden usar.
             </p>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
