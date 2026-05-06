@@ -70,6 +70,7 @@ Cargadas en [`src/app/layout.tsx`](../src/app/layout.tsx) y expuestas como varia
 - **Letter spacing en headings**: `-0.015em` aplicado en base layer. No añadir `tracking-tight` adicional encima.
 - **Body**: tamaños `text-sm` o `text-base`, `leading-relaxed` cuando hay párrafo de varias líneas.
 - **Eyebrows / labels**: sans, `text-xs uppercase tracking-[0.2em] text-muted-foreground`. Ejemplo en el hero de la landing.
+- **Eyebrows dentro de `<h2>`**: añadir `font-sans` explícito (`className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground"`). Sin él, el base layer aplica Fraunces serif a todo `h2` y los headers de sección quedan en serif, visualmente distintos a los mismos labels en `<p>` dentro de formularios.
 
 ### Cuándo NO usar serif
 
@@ -137,7 +138,20 @@ Padding de página responsive en todos los `<main>`: `p-4 sm:p-6 lg:p-8`. No usa
 
 **Detalle de persona** (`/people/[id]`): `max-w-6xl w-full`. Suficiente para no desbordar en monitores muy anchos, pero sin el desperdicio de `max-w-4xl`.
 
-**Formularios** (`PersonForm`): `max-w-xl`. Los formularios sí tienen techo para no estirar los inputs hasta el infinito.
+**Formularios** (`PersonForm`): sin `max-w` propio — se adapta al contenedor padre. En la página de creación (`/people/new`) el contenedor ya tiene `max-w-4xl`.
+
+**PersonForm — layout dos columnas en desktop:**
+- A partir de `lg`: `grid grid-cols-2 items-start gap-6`.
+- Columna izquierda: avatar, nombre, relación, intereses, notas.
+- Columna derecha: card "Datos prácticos" (talla zapato, talla ropa, alergias, no le gusta) + `EventsSection` (si `includeDates` es `true`).
+- Cada bloque semántico usa `space-y-5` entre grupos y `space-y-1.5` label–input–error.
+
+**PersonForm — sección Eventos (al crear):**
+- `EventsSection` lista los eventos añadidos en memoria (antes de guardar la persona) y ofrece un botón dashed "Añadir evento".
+- Al pulsar, aparece `AddEventForm` inline (misma card, sin dialog ni navegación).
+- `AddEventForm` usa `<div>`, NO `<form>` — evita anidamiento de `<form>` HTML prohibido. El botón "Añadir evento" es `type="button"` con `onClick={handleSubmit(onAdd)}`.
+- Al confirmar, el evento se añade al array local con `useFieldArray.append` y el subformulario desaparece. El usuario puede añadir varios antes de guardar la persona.
+- `BudgetRangeSlider` es un componente compartido (`src/components/people/BudgetRangeSlider.tsx`) usado en `AddEventForm`, `ImportantDateForm` y `EditImportantDateInline`.
 
 ### Inputs / Forms
 
@@ -207,7 +221,35 @@ La sección "Historial de regalos" en `/people/[id]` registra regalos pasados pa
 - Tamaño default `size-10`–`size-12` en cards, `size-20`–`size-24` en headers de detalle.
 - En headers grandes, añadir `ring-1 ring-border` para definir el contorno sin que pese.
 - Si no hay foto, fallback con iniciales (2 letras max, mayúsculas).
-- **Avatar picker**: integrado en `PersonForm`. Usa la API de [DiceBear](https://api.dicebear.com/9.x/) con el estilo `big-ears-neutral`. Genera 12 opciones a partir del nombre de la persona como seed. "Regenerar" avanza el offset en +12. La URL seleccionada se guarda en `person.avatarUrl` (opcional). El componente vive en `src/components/people/AvatarPicker.tsx`. Validación server-side: solo se aceptan URLs que empiecen por `https://api.dicebear.com/`.
+- **Avatar picker**: integrado en `PersonForm` y en el encabezado de perfil. Usa la API de [DiceBear](https://api.dicebear.com/9.x/) con el estilo `big-ears-neutral`. Genera 12 opciones con seed fijo `"avatar"` (NO el nombre de la persona — si se usara el nombre, las opciones regenerarían en cada keystroke al escribir el nombre). "Regenerar" avanza el offset en +12. La URL seleccionada se guarda en `person.avatarUrl` (opcional). El componente vive en `src/components/people/AvatarPicker.tsx`. Validación server-side: solo se aceptan URLs que empiecen por `https://api.dicebear.com/`.
+- **Avatar en perfil**: el avatar del encabezado tiene un overlay de cámara (`Camera` icon) visible en hover. Al pulsarlo se abre un `Dialog` con `AvatarPicker`. Al seleccionar un avatar el dialog se cierra y el cambio queda pendiente de guardar (dirty flag de la sección header).
+
+### Edición inline (perfil de persona)
+
+`/people/[id]` no tiene página de edición separada. `/people/[id]/edit` redirige a `/people/[id]`. Toda la edición ocurre inline en el perfil, dividida en tres secciones independientes:
+
+| Sección | Campos | Mutación |
+|---|---|---|
+| Header | nombre, relación, avatarUrl | `api.people.update` con esos tres campos |
+| Intereses + Notas | interests, notes | `api.people.update` con esos dos campos |
+| Datos prácticos | shoeSize, clothingSize, allergies, dislikes | `api.people.update` con esos cuatro campos |
+
+**Dirty tracking:**
+- Cada sección tiene su propio estado local (`useState`) inicializado con el valor de la DB.
+- Se calcula un `xyzDirty` comparando el estado local con `person.xyz` (el valor de la DB).
+- El botón "Guardar" de la sección aparece solo cuando `xyzDirty === true` y usa `variant="default"` (verde primary, prominente).
+- Guardar una sección no afecta al estado local de las otras — las tres son independientes.
+
+**Guardar parcial:** `api.people.update` acepta todos los campos como opcionales y hace merge en el servidor, así que cada sección solo envía sus propios campos sin sobrescribir los demás.
+
+**Guarda de cambios sin guardar:**
+- `anyDirty = headerDirty || interestsDirty || practicalDirty`.
+- `useEffect` registra `beforeunload` cuando `anyDirty` (aviso del navegador al cerrar pestaña).
+- El botón "Atrás" y cualquier enlace de navegación usan `navigateSafe(href)` en vez de `<Link>`: si `anyDirty`, guarda `href` en `pendingNav` en vez de navegar.
+- Un `Dialog` (shadcn) aparece cuando `pendingNav !== null`, con dos opciones: "Quedarme" (cancela) y "Salir sin guardar" (navega al `pendingNav` y limpia el estado).
+
+**Tipografía en secciones inline:**
+- Los labels de sección (eyebrows) usan `<p>` o `<h2>` según el contexto — en ambos casos añadir `font-sans` explícito para anular el base layer serif. Ver regla en Tipografía.
 
 ### Animaciones
 
@@ -265,6 +307,7 @@ Patrón consolidado. Vivo en [`src/app/(app)/people/page.tsx`](../src/app/(app)/
 - Emoji decorativo (📓 ☕ ✨) **solo aquí y en cards de feature de la landing**. Nunca en navegación, headers, badges.
 - Título h2 en serif (heredado del base layer), **frase con voz**, no etiqueta funcional. "Una libreta en blanco" sí; "Sin datos" no.
 - Container: `rounded-2xl border-dashed`. Punteado refuerza "este sitio está esperando algo".
+- **El CTA debe ir al destino más directo**: el empty state del dashboard lleva a `/people/new` ("Añadir ser querido"), no a `/people`. El usuario ya sabe que necesita crear una persona — no hay que darle un paso intermedio.
 
 ---
 
@@ -309,7 +352,7 @@ Lista de cosas que sé que faltan o que no han recibido pasada todavía. Se irá
 
 - [x] ~~Hover de cards interactivas~~ → resuelto, ver Componentes · Cards.
 - [x] ~~Iconografía~~ → resuelto: lucide-react adoptado, ver Componentes · Iconografía.
-- [x] ~~Página `/people/[id]` (detalle)~~ → primera pasada de jerarquía: header limpio con back-link, acciones secundarias como icon-only, info y fechas en dos cards a dos columnas en desktop.
+- [x] ~~Página `/people/[id]` (detalle)~~ → edición inline por secciones (header / intereses+notas / datos prácticos). Sin página `/people/[id]/edit` (redirige al perfil). Guard de cambios sin guardar con `beforeunload` + dialog. Ver "Edición inline (perfil de persona)".
 - [x] ~~Página `/people/[id]/gifts`~~ → resuelto: `<Sparkles>` en titulo de card, footer separado con border-t y precio prominente, stagger animation, empty state con copy "A medida para X", input de ocasión en card border-dashed.
 - [ ] **Footer global**: minimal por ahora. Decidir si crece o se queda así.
 - [ ] **Skeletons consistentes**: todos en `rounded-2xl` y `border-dashed`, pero verificar dimensiones uniformes.
