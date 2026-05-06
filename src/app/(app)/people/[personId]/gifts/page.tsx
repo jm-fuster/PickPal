@@ -2,7 +2,7 @@
 
 import { use, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Sparkles, RefreshCw } from "lucide-react";
+import { Sparkles, RefreshCw, ShoppingBag, Ticket, Heart, Shuffle } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
 import { useQuery, useMutation } from "convex/react";
 import { toast } from "sonner";
@@ -207,6 +207,7 @@ export default function GiftsPage({
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {GIFT_TYPES.map((t) => {
               const selected = giftType === t.value;
+              const Icon = { ShoppingBag, Ticket, Heart, Shuffle }[t.icon];
               return (
                 <button
                   key={t.value}
@@ -216,13 +217,13 @@ export default function GiftsPage({
                     setIdeas(null);
                   }}
                   className={[
-                    "flex flex-col items-start gap-0.5 rounded-xl px-3 py-2.5 text-left text-sm transition-colors",
+                    "flex flex-col items-start gap-1 rounded-xl px-3 py-2.5 text-left text-sm transition-colors",
                     selected
                       ? "bg-muted border border-border text-foreground"
                       : "border border-border/50 text-muted-foreground hover:border-border hover:text-foreground",
                   ].join(" ")}
                 >
-                  <span className="text-base" aria-hidden>{t.emoji}</span>
+                  <Icon className="size-4" aria-hidden />
                   <span className="font-medium leading-tight">{t.label}</span>
                   <span className="text-xs text-muted-foreground leading-tight">{t.description}</span>
                 </button>

@@ -1,10 +1,10 @@
 import { z } from "zod";
 
 export const GIFT_TYPES = [
-  { value: "fisica", label: "Producto físico", emoji: "📦", description: "Algo que comprar y envolver" },
-  { value: "experiencia", label: "Experiencia", emoji: "🎭", description: "Cena, taller, escapada…" },
-  { value: "tiempo-juntos", label: "Tiempo juntos", emoji: "🫂", description: "Planes sin coste o caseros" },
-  { value: "sorprendeme", label: "Sorpréndeme", emoji: "✨", description: "Mezcla de los tres tipos" },
+  { value: "fisica", label: "Producto físico", icon: "ShoppingBag", description: "Algo que comprar y envolver" },
+  { value: "experiencia", label: "Experiencia", icon: "Ticket", description: "Cena, taller, escapada…" },
+  { value: "tiempo-juntos", label: "Tiempo juntos", icon: "Heart", description: "Planes sin coste o caseros" },
+  { value: "sorprendeme", label: "Sorpréndeme", icon: "Shuffle", description: "Mezcla de los tres tipos" },
 ] as const;
 
 export type GiftType = (typeof GIFT_TYPES)[number]["value"];
