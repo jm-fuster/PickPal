@@ -31,7 +31,19 @@ export default defineSchema({
   userSettings: defineTable({
     clerkUserId: v.string(),
     notifyDaysBefore: v.number(),
+    emailNotificationsEnabled: v.optional(v.boolean()),
+    emailNotifyDaysBefore: v.optional(v.number()),
+    email: v.optional(v.string()),
   }).index("by_user", ["clerkUserId"]),
+
+  emailNotifications: defineTable({
+    clerkUserId: v.string(),
+    importantDateId: v.id("importantDates"),
+    occurrenceYear: v.number(),
+    sentAt: v.number(),
+  })
+    .index("by_date_year", ["importantDateId", "occurrenceYear"])
+    .index("by_user", ["clerkUserId"]),
 
   recommendationUsage: defineTable({
     clerkUserId: v.string(),

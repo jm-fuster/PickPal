@@ -21,9 +21,14 @@ export default function SettingsPage() {
   const { resolvedTheme, setTheme } = useTheme();
 
   const [notifyDays, setNotifyDays] = useState<number | "">("");
+  const [emailEnabled, setEmailEnabled] = useState(false);
+  const [emailDays, setEmailDays] = useState<number | "">("");
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
 
   const isDark = mounted ? resolvedTheme === "dark" : false;
   const [saving, setSaving] = useState(false);
@@ -32,8 +37,12 @@ export default function SettingsPage() {
     // Sincroniza el form con el valor cargado desde Convex la primera vez
     // que llega; nuevas escrituras no necesitan reset porque el cliente ya
     // tiene el valor optimista tras la mutation.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (settings) setNotifyDays(settings.notifyDaysBefore);
+    if (settings) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setNotifyDays(settings.notifyDaysBefore);
+      setEmailEnabled(settings.emailNotificationsEnabled);
+      setEmailDays(settings.emailNotifyDaysBefore);
+    }
   }, [settings]);
 
   if (!ready || settings === undefined) {
@@ -45,9 +54,24 @@ export default function SettingsPage() {
       toast.error("Introduce un número entero de días.");
       return;
     }
+    if (emailEnabled && (emailDays === "" || !Number.isInteger(emailDays))) {
+      toast.error("Introduce los días de antelación del correo.");
+      return;
+    }
+    if (emailEnabled && !settings.email) {
+      toast.error(
+        "No encontramos tu email. Verifícalo en tu cuenta para activar las notificaciones.",
+      );
+      return;
+    }
     setSaving(true);
     try {
-      await setMine({ notifyDaysBefore: notifyDays });
+      await setMine({
+        notifyDaysBefore: notifyDays,
+        emailNotificationsEnabled: emailEnabled,
+        emailNotifyDaysBefore:
+          emailDays === "" ? undefined : (emailDays as number),
+      });
       toast.success("Ajustes guardados");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error al guardar");
@@ -56,7 +80,10 @@ export default function SettingsPage() {
     }
   };
 
-  const dirty = settings.notifyDaysBefore !== notifyDays;
+  const dirty =
+    settings.notifyDaysBefore !== notifyDays ||
+    settings.emailNotificationsEnabled !== emailEnabled ||
+    settings.emailNotifyDaysBefore !== emailDays;
 
   return (
     <main className="flex flex-1 flex-col gap-8 p-4 sm:p-6 lg:p-8 max-w-xl">
@@ -88,7 +115,7 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      <section className="space-y-3 rounded-xl border p-5">
+      <section className="space-y-4 rounded-xl border p-5">
         <div className="space-y-1.5">
           <Label htmlFor="notify-days">Días de aviso</Label>
           <Input
@@ -109,6 +136,62 @@ export default function SettingsPage() {
             las fechas que ocurran dentro de este número de días.
           </p>
         </div>
+
+        <div className="border-t pt-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label htmlFor="email-toggle">Notificaciones por correo</Label>
+              <p className="text-xs text-muted-foreground">
+                Recibe un email cuando se acerquen tus eventos importantes.
+              </p>
+            </div>
+            <Switch
+              id="email-toggle"
+              checked={emailEnabled}
+              onCheckedChange={setEmailEnabled}
+            />
+          </div>
+
+          {emailEnabled && (
+            <div className="space-y-3 pt-1">
+              {settings.email ? (
+                <p className="text-xs text-muted-foreground">
+                  Los avisos llegarán a{" "}
+                  <span className="font-medium text-foreground">
+                    {settings.email}
+                  </span>
+                  .
+                </p>
+              ) : (
+                <p className="text-xs text-destructive">
+                  No encontramos tu email. Verifícalo en tu cuenta para activar
+                  las notificaciones.
+                </p>
+              )}
+              <div className="space-y-1.5">
+                <Label htmlFor="email-days">Días de antelación del correo</Label>
+                <Input
+                  id="email-days"
+                  type="number"
+                  min={1}
+                  max={365}
+                  value={emailDays}
+                  onChange={(e) =>
+                    setEmailDays(
+                      e.target.value === "" ? "" : Number(e.target.value),
+                    )
+                  }
+                  className="max-w-[140px]"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Te enviaremos un correo el día que falten exactamente este
+                  número de días para cada evento.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+
         <Button onClick={onSave} disabled={saving || !dirty}>
           {saving ? "Guardando…" : "Guardar"}
         </Button>

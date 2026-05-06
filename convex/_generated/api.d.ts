@@ -9,8 +9,11 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as crons from "../crons.js";
+import type * as emails from "../emails.js";
 import type * as giftHistory from "../giftHistory.js";
 import type * as importantDates from "../importantDates.js";
+import type * as notifications from "../notifications.js";
 import type * as people from "../people.js";
 import type * as rateLimit from "../rateLimit.js";
 import type * as recommendationUsage from "../recommendationUsage.js";
@@ -26,8 +29,11 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  crons: typeof crons;
+  emails: typeof emails;
   giftHistory: typeof giftHistory;
   importantDates: typeof importantDates;
+  notifications: typeof notifications;
   people: typeof people;
   rateLimit: typeof rateLimit;
   recommendationUsage: typeof recommendationUsage;

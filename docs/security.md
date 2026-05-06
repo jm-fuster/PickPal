@@ -72,6 +72,8 @@ Buckets actuales: `create_person` (50/día), `create_date` (100/día), `recommen
 
 No hace falta en `update`/`remove` (no son superficie de abuso de almacenamiento).
 
+**Notificaciones por correo**: el cron `internal.emails.runDailyEmailNotifications` corre 1 vez/día y la dedup por `(importantDateId, occurrenceYear)` impide repetir envíos para una misma ocurrencia, así que no necesita rate limit. Si más adelante se añade un endpoint manual tipo "enviar email de prueba", aplicar `checkAndIncrement` con bucket `email_test` (p.ej. 5/día). El email destino se lee de `ctx.auth.getUserIdentity().email` (claim del JWT de Clerk) — **nunca** se acepta como argumento del cliente. Las funciones de envío (`internal.emails.*`, `internal.notifications.*`) son `internal*` y no se exponen en `api.*`.
+
 ### 5. Endpoints API: validar token, validar body, sanitizar errores
 
 Plantilla mental para `src/app/api/**/route.ts`:
@@ -104,7 +106,7 @@ try {
 ### 7. Variables de entorno
 
 - `NEXT_PUBLIC_*` se inyecta en el bundle cliente. **Nunca** poner secrets ahí.
-- Secrets server-only: `CLERK_SECRET_KEY`, `GOOGLE_GENERATIVE_AI_API_KEY`, `CONVEX_DEPLOYMENT`.
+- Secrets server-only: `CLERK_SECRET_KEY`, `GOOGLE_GENERATIVE_AI_API_KEY`, `CONVEX_DEPLOYMENT`, `RESEND_API_KEY`. `RESEND_API_KEY` y `EMAIL_FROM` viven en el entorno de **Convex** (`npx convex env set ...`), no en Next.js, porque solo los consume el cron del backend.
 - Nuevo secret → añádelo a `.env.example` como placeholder vacío y documenta dónde se obtiene.
 
 ---
