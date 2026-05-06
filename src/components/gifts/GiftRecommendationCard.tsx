@@ -1,4 +1,4 @@
-import { ExternalLink, Sparkles } from "lucide-react";
+import { ExternalLink, Sparkles, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
@@ -17,12 +17,14 @@ interface GiftRecommendationCardProps {
   idea: GiftRecommendation;
   index?: number;
   giftType?: GiftType;
+  onDiscard?: () => void;
 }
 
 export function GiftRecommendationCard({
   idea,
   index = 0,
   giftType = "fisica",
+  onDiscard,
 }: GiftRecommendationCardProps) {
   const isPhysical = giftType === "fisica";
   const isSurprise = giftType === "sorprendeme";
@@ -35,9 +37,19 @@ export function GiftRecommendationCard({
 
   return (
     <Card
-      className="flex flex-col h-full border-border/60 shadow-sm transition-shadow hover:shadow-md animate-in fade-in slide-in-from-bottom-2 duration-500 fill-mode-both"
+      className="relative flex flex-col h-full border-border/60 shadow-sm transition-shadow hover:shadow-md animate-in fade-in slide-in-from-bottom-2 duration-500 fill-mode-both"
       style={{ animationDelay: `${index * 60}ms` }}
     >
+      {onDiscard && (
+        <button
+          type="button"
+          onClick={onDiscard}
+          aria-label="Descartar idea"
+          className="absolute top-2 right-2 z-10 rounded-full p-1 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+        >
+          <X className="size-3.5" aria-hidden />
+        </button>
+      )}
       <CardContent className="flex flex-1 flex-col gap-4 p-5">
         <div className="flex items-start gap-3">
           <Sparkles

@@ -4,7 +4,7 @@ import { use, useState } from "react";
 import Link from "next/link";
 import { Sparkles, RefreshCw } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { toast } from "sonner";
 import { api } from "../../../../../../convex/_generated/api";
 import type { Id } from "../../../../../../convex/_generated/dataModel";
@@ -26,11 +26,14 @@ export default function GiftsPage({
   const ready = isLoaded && isSignedIn;
 
   const person = useQuery(api.people.getById, ready ? { id } : "skip");
+  const events = useQuery(api.importantDates.getByPerson, ready ? { personId: id } : "skip");
 
   const [occasion, setOccasion] = useState("Cumpleaños");
   const [giftType, setGiftType] = useState<GiftType>("fisica");
   const [ideas, setIdeas] = useState<GiftRecommendation[] | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const removeIdea = useMutation(api.recommendations.removeIdea);
 
   const cached = useQuery(
     api.recommendations.getByPersonOccasion,
@@ -76,6 +79,26 @@ export default function GiftsPage({
   const hasCached = cached !== undefined && cached !== null;
   const showIdeas = ideas ?? (hasCached ? (cached!.ideas as GiftRecommendation[]) : null);
 
+  const handleDiscard = async (index: number) => {
+    if (showIdeas) {
+      const next = showIdeas.filter((_, i) => i !== index);
+      setIdeas(next);
+    }
+    try {
+      await removeIdea({ personId: id, occasionLabel: occasion, giftType, ideaIndex: index });
+    } catch {
+      // silent — local state already updated
+    }
+  };
+
+  const formatEventBudget = (min?: number, max?: number) => {
+    const toEur = (v: number) => Math.round(v / 100);
+    if (min !== undefined && max !== undefined) return `${toEur(min)}–${toEur(max)}€`;
+    if (min !== undefined) return `desde ${toEur(min)}€`;
+    if (max !== undefined) return `hasta ${toEur(max)}€`;
+    return null;
+  };
+
   return (
     <main className="flex flex-1 flex-col gap-8 p-8 max-w-6xl">
       <div className="space-y-2">
@@ -94,6 +117,40 @@ export default function GiftsPage({
       </div>
 
       <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-5 space-y-4">
+        {events && events.length > 0 && (
+          <div className="space-y-1.5">
+            <p className="text-xs text-muted-foreground font-medium">Eventos guardados</p>
+            <div className="flex flex-wrap gap-2">
+              {events.map((ev) => {
+                const budget = formatEventBudget(ev.budgetMin, ev.budgetMax);
+                const isSelected = occasion === ev.label;
+                return (
+                  <button
+                    key={ev._id}
+                    type="button"
+                    onClick={() => {
+                      setOccasion(ev.label);
+                      setIdeas(null);
+                    }}
+                    className={[
+                      "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
+                      isSelected
+                        ? "bg-primary text-primary-foreground"
+                        : "border border-border/60 bg-background/60 text-muted-foreground hover:text-foreground",
+                    ].join(" ")}
+                  >
+                    {ev.label}
+                    {budget && (
+                      <span className={isSelected ? "opacity-80" : "opacity-60"}>
+                        · {budget}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
         <div className="flex flex-wrap items-end gap-3">
           <div className="flex-1 min-w-[200px] space-y-1.5">
             <Label htmlFor="occasion">¿Para qué ocasión?</Label>
@@ -155,14 +212,20 @@ export default function GiftsPage({
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="h-52 rounded-2xl border border-dashed border-border/60 animate-pulse"
+              className="h-52 rounded-2xl border border-dashed border-border/60 bg-muted/40 animate-pulse"
             />
           ))}
         </div>
       ) : showIdeas ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {showIdeas.map((idea, i) => (
-            <GiftRecommendationCard key={i} idea={idea} index={i} giftType={giftType} />
+            <GiftRecommendationCard
+              key={idea.title}
+              idea={idea}
+              index={i}
+              giftType={giftType}
+              onDiscard={() => handleDiscard(i)}
+            />
           ))}
         </div>
       ) : (
