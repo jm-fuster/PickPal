@@ -25,21 +25,12 @@ import {
 import { EditImportantDateInline, ImportantDateForm } from "@/components/people/ImportantDateForm";
 import { EditGiftHistoryInline, GiftHistoryForm } from "@/components/people/GiftHistoryForm";
 import { LoadingFallback } from "@/components/layout/LoadingFallback";
-import { RELATIONSHIPS, REACTIONS } from "@/lib/schemas";
+import { PersonForm } from "@/components/people/PersonForm";
+import { RELATIONSHIPS, REACTIONS, type PersonFormValues } from "@/lib/schemas";
 
 const MONTHS = [
-  "ene",
-  "feb",
-  "mar",
-  "abr",
-  "may",
-  "jun",
-  "jul",
-  "ago",
-  "sep",
-  "oct",
-  "nov",
-  "dic",
+  "ene", "feb", "mar", "abr", "may", "jun",
+  "jul", "ago", "sep", "oct", "nov", "dic",
 ];
 
 export default function PersonDetailPage({
@@ -54,20 +45,15 @@ export default function PersonDetailPage({
   const ready = isLoaded && isSignedIn;
 
   const person = useQuery(api.people.getById, ready ? { id } : "skip");
-  const dates = useQuery(
-    api.importantDates.getByPerson,
-    ready ? { personId: id } : "skip",
-  );
-
-  const giftHistory = useQuery(
-    api.giftHistory.getByPerson,
-    ready ? { personId: id } : "skip",
-  );
+  const dates = useQuery(api.importantDates.getByPerson, ready ? { personId: id } : "skip");
+  const giftHistory = useQuery(api.giftHistory.getByPerson, ready ? { personId: id } : "skip");
 
   const removePerson = useMutation(api.people.remove);
+  const updatePerson = useMutation(api.people.update);
   const removeDate = useMutation(api.importantDates.remove);
   const removeHistoryEntry = useMutation(api.giftHistory.remove);
 
+  const [isEditing, setIsEditing] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [editingDate, setEditingDate] = useState<NonNullable<typeof dates>[number] | null>(null);
@@ -100,9 +86,25 @@ export default function PersonDetailPage({
     }
   };
 
+  const handleUpdate = async (values: PersonFormValues) => {
+    await updatePerson({
+      id,
+      name: values.name,
+      relationship: values.relationship,
+      interests: values.interests,
+      notes: values.notes || undefined,
+      shoeSize: values.shoeSize || undefined,
+      clothingSize: values.clothingSize || undefined,
+      allergies: values.allergies || undefined,
+      dislikes: values.dislikes || undefined,
+      avatarUrl: values.avatarUrl || undefined,
+    });
+    toast.success("Cambios guardados");
+    setIsEditing(false);
+  };
+
   const relationshipLabel =
-    RELATIONSHIPS.find((r) => r.value === person.relationship)?.label ??
-    person.relationship;
+    RELATIONSHIPS.find((r) => r.value === person.relationship)?.label ?? person.relationship;
 
   return (
     <main className="flex flex-1 flex-col gap-8 p-4 sm:p-6 lg:p-8 w-full max-w-6xl">
@@ -113,59 +115,80 @@ export default function PersonDetailPage({
         ← Seres queridos
       </Link>
 
-      <header className="flex flex-col gap-6 sm:flex-row sm:items-center">
-        <Avatar className="size-24 ring-1 ring-border">
-          {person.avatarUrl ? (
-            <AvatarImage src={person.avatarUrl} alt={person.name} />
-          ) : null}
-          <AvatarFallback className="text-xl">
-            {person.name.slice(0, 2).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
+      {isEditing ? (
+        // ── Edit mode ──────────────────────────────────────────────────────────
+        <>
+          <h1 className="text-3xl font-medium">Editar {person.name}</h1>
+          <PersonForm
+            defaultValues={{
+              name: person.name,
+              relationship: person.relationship,
+              interests: person.interests,
+              notes: person.notes ?? "",
+              shoeSize: person.shoeSize ?? "",
+              clothingSize: person.clothingSize ?? "",
+              allergies: person.allergies ?? "",
+              dislikes: person.dislikes ?? "",
+              avatarUrl: person.avatarUrl ?? undefined,
+            }}
+            onSubmit={handleUpdate}
+            submitLabel="Guardar cambios"
+            onCancel={() => setIsEditing(false)}
+          />
+        </>
+      ) : (
+        // ── Read mode ──────────────────────────────────────────────────────────
+        <header className="flex flex-col gap-6 sm:flex-row sm:items-center">
+          <Avatar className="size-24 ring-1 ring-border">
+            {person.avatarUrl ? (
+              <AvatarImage src={person.avatarUrl} alt={person.name} />
+            ) : null}
+            <AvatarFallback className="text-xl">
+              {person.name.slice(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
 
-        <div className="flex-1 space-y-1.5">
-          <h1 className="text-4xl font-medium leading-tight">{person.name}</h1>
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
-            <span>{relationshipLabel}</span>
+          <div className="flex-1 space-y-1.5">
+            <h1 className="text-4xl font-medium leading-tight">{person.name}</h1>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+              <span>{relationshipLabel}</span>
+            </div>
           </div>
-        </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <Link
-            href={`/people/${person._id}/gifts`}
-            className={buttonVariants()}
-          >
-            <Sparkles className="size-4" aria-hidden />
-            Ideas de regalo
-          </Link>
-          <Link
-            href={`/people/${person._id}/edit`}
-            className={buttonVariants({ variant: "ghost", size: "icon" })}
-            aria-label="Editar"
-            title="Editar"
-          >
-            <Pencil className="size-4" aria-hidden />
-          </Link>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setConfirmDeleteOpen(true)}
-            aria-label="Eliminar"
-            title="Eliminar"
-            className="text-destructive hover:text-destructive"
-          >
-            <Trash2 className="size-4" aria-hidden />
-          </Button>
-        </div>
-      </header>
+          <div className="flex flex-wrap items-center gap-2">
+            <Link href={`/people/${person._id}/gifts`} className={buttonVariants()}>
+              <Sparkles className="size-4" aria-hidden />
+              Ideas de regalo
+            </Link>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsEditing(true)}
+              aria-label="Editar"
+              title="Editar"
+            >
+              <Pencil className="size-4" aria-hidden />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setConfirmDeleteOpen(true)}
+              aria-label="Eliminar"
+              title="Eliminar"
+              className="text-destructive hover:text-destructive"
+            >
+              <Trash2 className="size-4" aria-hidden />
+            </Button>
+          </div>
+        </header>
+      )}
 
       <Dialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>¿Eliminar a {person.name}?</DialogTitle>
             <DialogDescription>
-              Se borrarán también todos sus eventos. Esta acción no
-              se puede deshacer.
+              Se borrarán también todos sus eventos. Esta acción no se puede deshacer.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -176,11 +199,7 @@ export default function PersonDetailPage({
                 </Button>
               }
             />
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={deleting}
-            >
+            <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
               {deleting ? "Eliminando…" : "Eliminar"}
             </Button>
           </DialogFooter>
@@ -196,14 +215,20 @@ export default function PersonDetailPage({
             {person.interests.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {person.interests.map((i) => (
-                  <Badge key={i} variant="outline">
-                    {i}
-                  </Badge>
+                  <Badge key={i} variant="outline">{i}</Badge>
                 ))}
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">
-                Aún no has anotado intereses. Edita la persona para añadirlos.
+                Aún no has anotado intereses.{" "}
+                {!isEditing && (
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="underline underline-offset-2 hover:text-foreground transition-colors"
+                  >
+                    Editar para añadirlos.
+                  </button>
+                )}
               </p>
             )}
 
@@ -212,9 +237,7 @@ export default function PersonDetailPage({
                 <h2 className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground pt-2">
                   Notas
                 </h2>
-                <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                  {person.notes}
-                </p>
+                <p className="text-sm leading-relaxed whitespace-pre-wrap">{person.notes}</p>
               </>
             ) : null}
           </CardContent>
@@ -235,10 +258,7 @@ export default function PersonDetailPage({
                 {dates.map((d) => (
                   <li key={d._id}>
                     {editingDate?._id === d._id ? (
-                      <EditImportantDateInline
-                        date={d}
-                        onClose={() => setEditingDate(null)}
-                      />
+                      <EditImportantDateInline date={d} onClose={() => setEditingDate(null)} />
                     ) : (
                       <div className="flex items-center justify-between rounded-lg border border-border/60 bg-background/60 p-3 text-sm">
                         <span className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
@@ -290,9 +310,7 @@ export default function PersonDetailPage({
                                 await removeDate({ id: d._id });
                                 toast.success("Evento eliminado");
                               } catch (err) {
-                                toast.error(
-                                  err instanceof Error ? err.message : "No se pudo eliminar el evento",
-                                );
+                                toast.error(err instanceof Error ? err.message : "No se pudo eliminar el evento");
                               }
                             }}
                           >
@@ -319,8 +337,7 @@ export default function PersonDetailPage({
 
           {giftHistory.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Aún no hay regalos registrados. Añade el primero para que la IA
-              aprenda qué funciona y qué no.
+              Aún no hay regalos registrados. Añade el primero para que la IA aprenda qué funciona y qué no.
             </p>
           ) : (
             <ul className="space-y-2">
@@ -329,10 +346,7 @@ export default function PersonDetailPage({
                 return (
                   <li key={h._id}>
                     {editingGift?._id === h._id ? (
-                      <EditGiftHistoryInline
-                        entry={h}
-                        onClose={() => setEditingGift(null)}
-                      />
+                      <EditGiftHistoryInline entry={h} onClose={() => setEditingGift(null)} />
                     ) : (
                       <div className="flex items-center justify-between rounded-lg border border-border/60 bg-background/60 p-3 text-sm">
                         <span className="flex items-center gap-2 min-w-0">
@@ -366,9 +380,7 @@ export default function PersonDetailPage({
                                 await removeHistoryEntry({ id: h._id });
                                 toast.success("Entrada eliminada");
                               } catch (err) {
-                                toast.error(
-                                  err instanceof Error ? err.message : "No se pudo eliminar la entrada",
-                                );
+                                toast.error(err instanceof Error ? err.message : "No se pudo eliminar la entrada");
                               }
                             }}
                           >

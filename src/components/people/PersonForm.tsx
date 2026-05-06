@@ -253,6 +253,7 @@ interface PersonFormProps {
   onSubmit: (values: PersonFormValues) => Promise<void>;
   submitLabel: string;
   includeDates?: boolean;
+  onCancel?: () => void;
 }
 
 export function PersonForm({
@@ -260,6 +261,7 @@ export function PersonForm({
   onSubmit,
   submitLabel,
   includeDates = false,
+  onCancel,
 }: PersonFormProps) {
   const [submitting, setSubmitting] = useState(false);
 
@@ -410,9 +412,16 @@ export function PersonForm({
         </div>
       </div>
 
-      <Button type="submit" disabled={submitting}>
-        {submitting ? "Guardando…" : submitLabel}
-      </Button>
+      <div className="flex gap-3">
+        <Button type="submit" disabled={submitting}>
+          {submitting ? "Guardando…" : submitLabel}
+        </Button>
+        {onCancel ? (
+          <Button type="button" variant="ghost" onClick={onCancel} disabled={submitting}>
+            Cancelar
+          </Button>
+        ) : null}
+      </div>
     </form>
   );
 }
