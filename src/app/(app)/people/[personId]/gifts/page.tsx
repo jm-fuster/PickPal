@@ -156,8 +156,9 @@ export default function GiftsPage({
         </p>
       </div>
 
-      <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-5 space-y-4">
-        <div className="flex flex-wrap items-end gap-3">
+      <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-5 space-y-5">
+        {/* Top row: occasion select + generate button */}
+        <div className="flex items-end justify-between gap-3">
           <div className="space-y-1.5">
             <Label>¿Para qué ocasión?</Label>
             <Select
@@ -200,26 +201,34 @@ export default function GiftsPage({
           </Button>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          {GIFT_TYPES.map((t) => (
-            <button
-              key={t.value}
-              type="button"
-              onClick={() => {
-                setGiftType(t.value);
-                setIdeas(null);
-              }}
-              className={[
-                "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
-                giftType === t.value
-                  ? "bg-primary text-primary-foreground"
-                  : "border border-border/60 bg-background/60 text-muted-foreground hover:text-foreground",
-              ].join(" ")}
-            >
-              <span aria-hidden>{t.emoji}</span>
-              {t.label}
-            </button>
-          ))}
+        {/* Gift type selector */}
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-muted-foreground">Tipo de regalo</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {GIFT_TYPES.map((t) => {
+              const selected = giftType === t.value;
+              return (
+                <button
+                  key={t.value}
+                  type="button"
+                  onClick={() => {
+                    setGiftType(t.value);
+                    setIdeas(null);
+                  }}
+                  className={[
+                    "flex flex-col items-start gap-0.5 rounded-xl px-3 py-2.5 text-left text-sm transition-colors",
+                    selected
+                      ? "bg-muted border border-border text-foreground"
+                      : "border border-border/50 text-muted-foreground hover:border-border hover:text-foreground",
+                  ].join(" ")}
+                >
+                  <span className="text-base" aria-hidden>{t.emoji}</span>
+                  <span className="font-medium leading-tight">{t.label}</span>
+                  <span className="text-xs text-muted-foreground leading-tight">{t.description}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {hasCached && !loading && (
