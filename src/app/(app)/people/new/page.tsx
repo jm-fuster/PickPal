@@ -54,6 +54,7 @@ export default function NewPersonPage() {
         onSubmit={onSubmit}
         submitLabel="Crear persona"
         includeDates
+        onCancel={() => router.push("/people")}
       />
     </main>
   );
