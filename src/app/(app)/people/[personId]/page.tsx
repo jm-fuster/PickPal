@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { use, useState } from "react";
+import { use, useEffect, useState } from "react";
 import {
   CalendarX2, Camera, PencilLine, Repeat2, Sparkles, Trash2, X,
 } from "lucide-react";
@@ -92,11 +92,24 @@ function PersonDetailContent({
     localAllergies !== (person.allergies ?? "") ||
     localDislikes !== (person.dislikes ?? "");
 
-  // ── Delete / inline edit ──
+  // ── Delete / inline edit / nav guard ──
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [editingDate, setEditingDate] = useState<Dates[number] | null>(null);
   const [editingGift, setEditingGift] = useState<GiftHistory[number] | null>(null);
+  const [pendingNav, setPendingNav] = useState<string | null>(null);
+  const anyDirty = headerDirty || interestsDirty || practicalDirty;
+
+  useEffect(() => {
+    if (!anyDirty) return;
+    const handler = (e: BeforeUnloadEvent) => { e.preventDefault(); };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [anyDirty]);
+
+  const navigateSafe = (href: string) => {
+    if (anyDirty) { setPendingNav(href); } else { router.push(href); }
+  };
 
   // ── Save handlers ──
   const saveHeader = async () => {
@@ -147,9 +160,13 @@ function PersonDetailContent({
 
   return (
     <main className="flex flex-1 flex-col gap-8 p-4 sm:p-6 lg:p-8 w-full max-w-6xl">
-      <Link href="/people" className="text-sm text-muted-foreground hover:text-foreground w-fit">
+      <button
+        type="button"
+        onClick={() => navigateSafe("/people")}
+        className="text-sm text-muted-foreground hover:text-foreground w-fit"
+      >
         ← Seres queridos
-      </Link>
+      </button>
 
       {/* ── Header ── */}
       <header className="flex flex-col gap-6 sm:flex-row sm:items-start">
@@ -234,6 +251,24 @@ function PersonDetailContent({
         </DialogContent>
       </Dialog>
 
+      {/* Unsaved changes nav guard */}
+      <Dialog open={pendingNav !== null} onOpenChange={(o) => !o && setPendingNav(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Cambios sin guardar</DialogTitle>
+            <DialogDescription>
+              Tienes cambios sin guardar. Si sales ahora se perderán.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPendingNav(null)}>Quedarme</Button>
+            <Button variant="destructive" onClick={() => { router.push(pendingNav!); setPendingNav(null); }}>
+              Salir sin guardar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Delete dialog */}
       <Dialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
         <DialogContent>
@@ -257,18 +292,18 @@ function PersonDetailContent({
         <Card className="border-border/60 shadow-sm">
           <CardContent className="space-y-4 p-5">
             <div className="flex items-center justify-between">
-              <h2 className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+              <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
                 Intereses
               </h2>
               {interestsDirty && (
-                <Button size="sm" variant="outline" onClick={saveInterests} disabled={interestsSaving}>
+                <Button size="sm" onClick={saveInterests} disabled={interestsSaving}>
                   {interestsSaving ? "Guardando…" : "Guardar"}
                 </Button>
               )}
             </div>
             <InterestTagInput value={localInterests} onChange={setLocalInterests} />
 
-            <h2 className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground pt-2">
+            <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground pt-2">
               Notas
             </h2>
             <Textarea
@@ -283,7 +318,7 @@ function PersonDetailContent({
         {/* ── Events card ── */}
         <Card className="border-border/60 shadow-sm">
           <CardContent className="space-y-4 p-5">
-            <h2 className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
               Eventos
             </h2>
             {dates.length === 0 ? (
@@ -349,11 +384,11 @@ function PersonDetailContent({
       <Card className="border-border/60 shadow-sm">
         <CardContent className="space-y-4 p-5">
           <div className="flex items-center justify-between">
-            <h2 className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
               Datos prácticos
             </h2>
             {practicalDirty && (
-              <Button size="sm" variant="outline" onClick={savePractical} disabled={practicalSaving}>
+              <Button size="sm" onClick={savePractical} disabled={practicalSaving}>
                 {practicalSaving ? "Guardando…" : "Guardar"}
               </Button>
             )}
@@ -385,7 +420,7 @@ function PersonDetailContent({
       {/* ── Gift history card ── */}
       <Card className="border-border/60 shadow-sm">
         <CardContent className="space-y-4 p-5">
-          <h2 className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+          <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
             Historial de regalos
           </h2>
           {giftHistory.length === 0 ? (
