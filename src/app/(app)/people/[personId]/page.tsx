@@ -74,6 +74,10 @@ function PersonDetailContent({
   const [localAllergies, setLocalAllergies] = useState(person.allergies ?? "");
   const [localDislikes, setLocalDislikes] = useState(person.dislikes ?? "");
 
+  // ── Saved indicator ──
+  const [savedRecently, setSavedRecently] = useState(false);
+  const savedTimerRef = { current: undefined as ReturnType<typeof setTimeout> | undefined };
+
   // ── Delete / inline edit ──
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -89,6 +93,9 @@ function PersonDetailContent({
   const save = async (fields: SaveFields) => {
     try {
       await updatePerson({ id, ...fields });
+      clearTimeout(savedTimerRef.current);
+      setSavedRecently(true);
+      savedTimerRef.current = setTimeout(() => setSavedRecently(false), 2000);
     } catch {
       toast.error("No se pudo guardar");
     }
@@ -160,6 +167,12 @@ function PersonDetailContent({
               ))}
             </SelectContent>
           </Select>
+          <span
+            aria-live="polite"
+            className={`text-xs text-muted-foreground transition-opacity duration-500 ${savedRecently ? "opacity-100" : "opacity-0"}`}
+          >
+            ✓ Guardado
+          </span>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 shrink-0">
