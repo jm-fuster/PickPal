@@ -2,7 +2,7 @@
 
 import { use, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Sparkles, RefreshCw, ShoppingBag, Ticket, Heart, Shuffle } from "lucide-react";
+import { Sparkles, RefreshCw, ShoppingBag, Ticket, Heart, Shuffle, ArrowLeft } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
 import { useQuery, useMutation } from "convex/react";
 import { toast } from "sonner";
@@ -144,9 +144,10 @@ export default function GiftsPage({
       <div className="space-y-2">
         <Link
           href={`/people/${id}`}
-          className="text-sm text-muted-foreground hover:text-foreground w-fit"
+          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground w-fit"
         >
-          ← {person.name}
+          <ArrowLeft className="size-3.5" aria-hidden />
+          {person.name}
         </Link>
         <h1 className="text-4xl font-medium leading-tight">
           Ideas de regalo
