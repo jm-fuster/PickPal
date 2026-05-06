@@ -7,16 +7,16 @@ import {
   useFieldArray,
   useWatch,
   type Control,
-  type UseFormRegister,
   type UseFormSetValue,
-  type FieldErrors,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Plus, Trash2 } from "lucide-react";
 import {
   personFormSchema,
+  importantDateSchema,
   type PersonFormValues,
+  type ImportantDateFormValues,
   RELATIONSHIPS,
 } from "@/lib/schemas";
 import { Button } from "@/components/ui/button";
@@ -38,140 +38,215 @@ const MONTHS = [
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
 ];
 
-// Sub-component so we can use useWatch per date row
-function DateRow({
-  idx,
-  control,
-  register,
-  setValue,
-  errors,
-  onRemove,
+function formatEventDate(day: number, month: number, year?: number) {
+  const m = MONTHS[month - 1]?.toLowerCase() ?? "";
+  return year ? `${day} de ${m} de ${year}` : `${day} de ${m}`;
+}
+
+// ─── Inline add-event form ────────────────────────────────────────────────────
+
+function AddEventForm({
+  onAdd,
+  onCancel,
 }: {
-  idx: number;
-  control: Control<PersonFormValues>;
-  register: UseFormRegister<PersonFormValues>;
-  setValue: UseFormSetValue<PersonFormValues>;
-  errors: FieldErrors<PersonFormValues>;
-  onRemove: () => void;
+  onAdd: (values: ImportantDateFormValues) => void;
+  onCancel: () => void;
 }) {
-  const budgetMin = useWatch({ control, name: `dates.${idx}.budgetMinEuros` });
-  const budgetMax = useWatch({ control, name: `dates.${idx}.budgetMaxEuros` });
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    control,
+    formState: { errors },
+  } = useForm<ImportantDateFormValues>({
+    resolver: zodResolver(importantDateSchema),
+    defaultValues: {
+      label: "",
+      month: undefined as unknown as number,
+      day: undefined as unknown as number,
+      year: undefined,
+      recurring: true,
+      budgetMinEuros: undefined,
+      budgetMaxEuros: undefined,
+    },
+  });
+
+  const watchedBudgetMin = useWatch({ control, name: "budgetMinEuros" });
+  const watchedBudgetMax = useWatch({ control, name: "budgetMaxEuros" });
+  const watchedRecurring = useWatch({ control, name: "recurring" });
+  const watchedYear = useWatch({ control, name: "year" });
 
   return (
-    <div className="space-y-3 rounded-lg bg-background/60 p-3">
-      {/* Etiqueta + delete */}
-      <div className="flex items-end gap-2">
-        <div className="flex-1 space-y-1.5">
-          <Label htmlFor={`dates.${idx}.label`} className="text-xs">
-            Etiqueta
-          </Label>
-          <Input
-            id={`dates.${idx}.label`}
-            placeholder="Cumpleaños, Aniversario…"
-            {...register(`dates.${idx}.label` as const)}
-          />
-          {errors.dates?.[idx]?.label ? (
-            <p className="text-xs text-destructive">
-              {errors.dates[idx]?.label?.message}
-            </p>
-          ) : null}
-        </div>
-        <Button
-          type="button"
-          size="icon"
-          variant="ghost"
-          onClick={onRemove}
-          aria-label="Quitar fecha"
-        >
-          <Trash2 className="size-4" />
-        </Button>
+    <form
+      onSubmit={handleSubmit(onAdd)}
+      className="space-y-3 rounded-lg bg-background/60 p-3"
+    >
+      {/* Etiqueta */}
+      <div className="space-y-1.5">
+        <Label htmlFor="ae-label" className="text-xs">Etiqueta</Label>
+        <Input id="ae-label" placeholder="Cumpleaños, Aniversario…" {...register("label")} />
+        {errors.label ? (
+          <p className="text-xs text-destructive">{errors.label.message}</p>
+        ) : null}
       </div>
 
       {/* Día / Mes / Año */}
       <div className="grid grid-cols-3 gap-3">
         <div className="space-y-1.5">
-          <Label htmlFor={`dates.${idx}.day`} className="text-xs">
-            Día
-          </Label>
+          <Label htmlFor="ae-day" className="text-xs">Día</Label>
           <Input
-            id={`dates.${idx}.day`}
+            id="ae-day"
             type="number"
             min={1}
             max={31}
             placeholder="Día"
-            {...register(`dates.${idx}.day` as const, { valueAsNumber: true })}
+            {...register("day", { valueAsNumber: true })}
           />
-          {errors.dates?.[idx]?.day ? (
-            <p className="text-xs text-destructive">
-              {errors.dates[idx]?.day?.message}
-            </p>
+          {errors.day ? (
+            <p className="text-xs text-destructive">{errors.day.message}</p>
           ) : null}
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor={`dates.${idx}.month`} className="text-xs">
-            Mes
-          </Label>
+          <Label htmlFor="ae-month" className="text-xs">Mes</Label>
           <select
-            id={`dates.${idx}.month`}
+            id="ae-month"
             className="h-8 w-full rounded-md border bg-background pl-3 pr-7 text-sm"
-            {...register(`dates.${idx}.month` as const, { valueAsNumber: true })}
+            defaultValue=""
+            {...register("month", { valueAsNumber: true })}
           >
+            <option value="" disabled>Mes</option>
             {MONTHS.map((m, i) => (
               <option key={m} value={i + 1}>{m}</option>
             ))}
           </select>
+          {errors.month ? (
+            <p className="text-xs text-destructive">{errors.month.message}</p>
+          ) : null}
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor={`dates.${idx}.year`} className="text-xs">
-            Año (opc.)
-          </Label>
+          <Label htmlFor="ae-year" className="text-xs">Año (opc.)</Label>
           <Input
-            id={`dates.${idx}.year`}
+            id="ae-year"
             type="number"
             min={1900}
             max={2100}
             placeholder="Año"
-            {...register(`dates.${idx}.year` as const, {
+            {...register("year", {
               setValueAs: (v) => (v === "" || v === null ? undefined : Number(v)),
             })}
           />
-          {errors.dates?.[idx]?.year ? (
-            <p className="text-xs text-destructive">
-              {errors.dates[idx]?.year?.message}
-            </p>
+          {errors.year ? (
+            <p className="text-xs text-destructive">{errors.year.message}</p>
           ) : null}
         </div>
       </div>
 
       {/* Recurrencia */}
       <div className="space-y-1.5 max-w-[14rem]">
-        <Label htmlFor={`dates.${idx}.recurring`} className="text-xs">
-          Recurrencia
-        </Label>
+        <Label htmlFor="ae-recurring" className="text-xs">Recurrencia</Label>
         <select
-          id={`dates.${idx}.recurring`}
+          id="ae-recurring"
           className="h-8 w-full rounded-md border bg-background pl-3 pr-7 text-sm"
-          {...register(`dates.${idx}.recurring` as const, {
+          {...register("recurring", {
             setValueAs: (v) => v === "true" || v === true,
           })}
         >
           <option value="true">Todos los años</option>
           <option value="false">Fecha única</option>
         </select>
+        {watchedRecurring === false && !watchedYear ? (
+          <p className="text-xs text-muted-foreground">
+            Indica el año (obligatorio para fechas únicas).
+          </p>
+        ) : null}
       </div>
 
       {/* Presupuesto */}
       <BudgetRangeSlider
-        minValue={budgetMin}
-        maxValue={budgetMax}
-        onMinChange={(v) => setValue(`dates.${idx}.budgetMinEuros`, v)}
-        onMaxChange={(v) => setValue(`dates.${idx}.budgetMaxEuros`, v)}
-        minError={errors.dates?.[idx]?.budgetMinEuros?.message}
-        maxError={errors.dates?.[idx]?.budgetMaxEuros?.message}
+        minValue={watchedBudgetMin}
+        maxValue={watchedBudgetMax}
+        onMinChange={(v) => setValue("budgetMinEuros", v)}
+        onMaxChange={(v) => setValue("budgetMaxEuros", v)}
+        minError={errors.budgetMinEuros?.message}
+        maxError={errors.budgetMaxEuros?.message}
       />
+
+      <div className="flex gap-2">
+        <Button type="submit" size="sm">Añadir evento</Button>
+        <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
+          Cancelar
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+// ─── Events section ───────────────────────────────────────────────────────────
+
+function EventsSection({
+  control,
+}: {
+  control: Control<PersonFormValues>;
+}) {
+  const [showAddForm, setShowAddForm] = useState(false);
+  const { fields, append, remove } = useFieldArray({ control, name: "dates" });
+
+  const handleAdd = (values: ImportantDateFormValues) => {
+    append(values);
+    setShowAddForm(false);
+  };
+
+  return (
+    <div className="space-y-3 rounded-xl border border-dashed border-border/70 bg-background/40 p-4">
+      <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+        Eventos (opcional)
+      </p>
+
+      {/* List of added events */}
+      {fields.map((field, idx) => (
+        <div
+          key={field.id}
+          className="flex items-center justify-between rounded-lg bg-background/60 px-3 py-2 text-sm"
+        >
+          <div>
+            <span className="font-medium">{field.label}</span>
+            <span className="ml-2 text-muted-foreground">
+              {formatEventDate(field.day, field.month, field.year)}
+            </span>
+          </div>
+          <Button
+            type="button"
+            size="icon"
+            variant="ghost"
+            onClick={() => remove(idx)}
+            aria-label="Quitar evento"
+          >
+            <Trash2 className="size-4" />
+          </Button>
+        </div>
+      ))}
+
+      {/* Add form or button */}
+      {showAddForm ? (
+        <AddEventForm
+          onAdd={handleAdd}
+          onCancel={() => setShowAddForm(false)}
+        />
+      ) : (
+        <button
+          type="button"
+          onClick={() => setShowAddForm(true)}
+          className="flex w-full items-center gap-2 rounded-lg border border-dashed border-border/70 p-3 text-sm text-muted-foreground transition-colors hover:border-border hover:text-foreground"
+        >
+          <Plus className="size-4" aria-hidden />
+          Añadir evento
+        </button>
+      )}
     </div>
   );
 }
+
+// ─── Main form ────────────────────────────────────────────────────────────────
 
 interface PersonFormProps {
   defaultValues?: Partial<PersonFormValues>;
@@ -192,7 +267,6 @@ export function PersonForm({
     register,
     handleSubmit,
     control,
-    setValue,
     formState: { errors },
   } = useForm<PersonFormValues>({
     resolver: zodResolver(personFormSchema),
@@ -206,8 +280,6 @@ export function PersonForm({
       ...defaultValues,
     },
   });
-
-  const { fields, append, remove } = useFieldArray({ control, name: "dates" });
 
   const submit = async (values: PersonFormValues) => {
     setSubmitting(true);
@@ -228,10 +300,7 @@ export function PersonForm({
           name="avatarUrl"
           control={control}
           render={({ field }) => (
-            <AvatarPicker
-              value={field.value}
-              onChange={field.onChange}
-            />
+            <AvatarPicker value={field.value} onChange={field.onChange} />
           )}
         />
       </div>
@@ -328,52 +397,7 @@ export function PersonForm({
         </div>
       </div>
 
-      {includeDates ? (
-        <div className="space-y-3 rounded-xl border border-dashed border-border/70 bg-background/40 p-4">
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-              Fechas importantes (opcional)
-            </p>
-            <Button
-              type="button"
-              size="sm"
-              variant="ghost"
-              onClick={() =>
-                append({
-                  label: "Cumpleaños",
-                  month: 1,
-                  day: 1,
-                  year: undefined,
-                  recurring: true,
-                  budgetMinEuros: undefined,
-                  budgetMaxEuros: undefined,
-                })
-              }
-            >
-              <Plus className="size-3.5" />
-              Añadir fecha
-            </Button>
-          </div>
-
-          {fields.length === 0 ? (
-            <p className="text-xs text-muted-foreground">
-              Cumpleaños, aniversarios… las podrás recordar antes de tiempo.
-            </p>
-          ) : null}
-
-          {fields.map((field, idx) => (
-            <DateRow
-              key={field.id}
-              idx={idx}
-              control={control}
-              register={register}
-              setValue={setValue}
-              errors={errors}
-              onRemove={() => remove(idx)}
-            />
-          ))}
-        </div>
-      ) : null}
+      {includeDates ? <EventsSection control={control} /> : null}
 
       <Button type="submit" disabled={submitting}>
         {submitting ? "Guardando…" : submitLabel}
