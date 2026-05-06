@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { use, useState } from "react";
 import {
-  CalendarX2, Camera, PencilLine, Repeat2, Sparkles, Trash2, X,
+  CalendarX2, Camera, Check, PencilLine, Repeat2, Sparkles, Trash2, X,
 } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
@@ -167,12 +167,6 @@ function PersonDetailContent({
               ))}
             </SelectContent>
           </Select>
-          <span
-            aria-live="polite"
-            className={`text-xs text-muted-foreground transition-opacity duration-500 ${savedRecently ? "opacity-100" : "opacity-0"}`}
-          >
-            ✓ Guardado
-          </span>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 shrink-0">
@@ -382,6 +376,17 @@ function PersonDetailContent({
           </div>
         </CardContent>
       </Card>
+
+      {/* ── Autosave indicator (fixed, always visible) ── */}
+      <div
+        aria-live="polite"
+        className={`fixed bottom-6 right-6 z-50 flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground shadow-md transition-all duration-300 ${
+          savedRecently ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"
+        }`}
+      >
+        <Check className="size-3" aria-hidden />
+        Guardado
+      </div>
 
       {/* ── Gift history card ── */}
       <Card className="border-border/60 shadow-sm">
