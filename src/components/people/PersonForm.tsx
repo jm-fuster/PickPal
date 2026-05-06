@@ -293,111 +293,119 @@ export function PersonForm({
   };
 
   return (
-    <form onSubmit={handleSubmit(submit)} className="space-y-5 max-w-xl">
-      <div className="space-y-1.5">
-        <Label>Avatar</Label>
-        <Controller
-          name="avatarUrl"
-          control={control}
-          render={({ field }) => (
-            <AvatarPicker value={field.value} onChange={field.onChange} />
-          )}
-        />
-      </div>
-
-      <div className="space-y-1.5">
-        <Label htmlFor="name">Nombre</Label>
-        <Input id="name" {...register("name")} />
-        {errors.name ? (
-          <p className="text-xs text-destructive">{errors.name.message}</p>
-        ) : null}
-      </div>
-
-      <div className="space-y-1.5">
-        <Label>Relación</Label>
-        <Controller
-          name="relationship"
-          control={control}
-          render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger className="w-full">
-                <span>
-                  {RELATIONSHIPS.find((r) => r.value === field.value)?.label ?? "Selecciona relación"}
-                </span>
-              </SelectTrigger>
-              <SelectContent>
-                {RELATIONSHIPS.map((r) => (
-                  <SelectItem key={r.value} value={r.value}>
-                    {r.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        />
-      </div>
-
-      <div className="space-y-1.5">
-        <Label>Intereses</Label>
-        <Controller
-          name="interests"
-          control={control}
-          render={({ field }) => (
-            <InterestTagInput value={field.value} onChange={field.onChange} />
-          )}
-        />
-        {errors.interests ? (
-          <p className="text-xs text-destructive">
-            {errors.interests.message as string}
-          </p>
-        ) : null}
-      </div>
-
-      <div className="space-y-1.5">
-        <Label htmlFor="notes">Notas</Label>
-        <Textarea
-          id="notes"
-          rows={4}
-          placeholder="Restricciones, preferencias, contexto…"
-          {...register("notes")}
-        />
-      </div>
-
-      <div className="space-y-3 rounded-xl border border-dashed border-border/70 bg-background/40 p-4">
-        <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-          Datos prácticos (opcional)
-        </p>
-        <div className="grid grid-cols-2 gap-4">
+    <form onSubmit={handleSubmit(submit)} className="space-y-6">
+      <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+        {/* ── Left column: identity ── */}
+        <div className="space-y-5">
           <div className="space-y-1.5">
-            <Label htmlFor="shoeSize">Talla de zapato</Label>
-            <Input id="shoeSize" placeholder="EU 42, 38…" {...register("shoeSize")} />
+            <Label>Avatar</Label>
+            <Controller
+              name="avatarUrl"
+              control={control}
+              render={({ field }) => (
+                <AvatarPicker value={field.value} onChange={field.onChange} />
+              )}
+            />
           </div>
+
           <div className="space-y-1.5">
-            <Label htmlFor="clothingSize">Talla de ropa</Label>
-            <Input id="clothingSize" placeholder="M, L, 38…" {...register("clothingSize")} />
+            <Label htmlFor="name">Nombre</Label>
+            <Input id="name" {...register("name")} />
+            {errors.name ? (
+              <p className="text-xs text-destructive">{errors.name.message}</p>
+            ) : null}
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>Relación</Label>
+            <Controller
+              name="relationship"
+              control={control}
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className="w-full">
+                    <span>
+                      {RELATIONSHIPS.find((r) => r.value === field.value)?.label ?? "Selecciona relación"}
+                    </span>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {RELATIONSHIPS.map((r) => (
+                      <SelectItem key={r.value} value={r.value}>
+                        {r.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>Intereses</Label>
+            <Controller
+              name="interests"
+              control={control}
+              render={({ field }) => (
+                <InterestTagInput value={field.value} onChange={field.onChange} />
+              )}
+            />
+            {errors.interests ? (
+              <p className="text-xs text-destructive">
+                {errors.interests.message as string}
+              </p>
+            ) : null}
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="notes">Notas</Label>
+            <Textarea
+              id="notes"
+              rows={4}
+              placeholder="Restricciones, preferencias, contexto…"
+              {...register("notes")}
+            />
           </div>
         </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="allergies">Alergias o restricciones</Label>
-          <Textarea
-            id="allergies"
-            rows={2}
-            placeholder="Frutos secos, gluten, látex…"
-            {...register("allergies")}
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="dislikes">Cosas que no le gustan</Label>
-          <Textarea
-            id="dislikes"
-            rows={2}
-            placeholder="Color amarillo, perfumes fuertes, libros de autoayuda…"
-            {...register("dislikes")}
-          />
+
+        {/* ── Right column: practical info + events ── */}
+        <div className="space-y-5">
+          <div className="space-y-3 rounded-xl border border-dashed border-border/70 bg-background/40 p-4">
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+              Datos prácticos (opcional)
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="shoeSize">Talla de zapato</Label>
+                <Input id="shoeSize" placeholder="EU 42, 38…" {...register("shoeSize")} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="clothingSize">Talla de ropa</Label>
+                <Input id="clothingSize" placeholder="M, L, 38…" {...register("clothingSize")} />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="allergies">Alergias o restricciones</Label>
+              <Textarea
+                id="allergies"
+                rows={2}
+                placeholder="Frutos secos, gluten, látex…"
+                {...register("allergies")}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="dislikes">Cosas que no le gustan</Label>
+              <Textarea
+                id="dislikes"
+                rows={2}
+                placeholder="Color amarillo, perfumes fuertes, libros de autoayuda…"
+                {...register("dislikes")}
+              />
+            </div>
+          </div>
+
+          {includeDates ? <EventsSection control={control} /> : null}
         </div>
       </div>
-
-      {includeDates ? <EventsSection control={control} /> : null}
 
       <Button type="submit" disabled={submitting}>
         {submitting ? "Guardando…" : submitLabel}
