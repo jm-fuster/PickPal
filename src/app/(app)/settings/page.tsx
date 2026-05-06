@@ -20,7 +20,6 @@ export default function SettingsPage() {
   const setMine = useMutation(api.settings.setMine);
   const { resolvedTheme, setTheme } = useTheme();
 
-  const [notifyDays, setNotifyDays] = useState<number | "">("");
   const [emailEnabled, setEmailEnabled] = useState(false);
   const [emailDays, setEmailDays] = useState<number | "">("");
   const [mounted, setMounted] = useState(false);
@@ -39,7 +38,6 @@ export default function SettingsPage() {
     // tiene el valor optimista tras la mutation.
     if (settings) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setNotifyDays(settings.notifyDaysBefore);
       setEmailEnabled(settings.emailNotificationsEnabled);
       setEmailDays(settings.emailNotifyDaysBefore);
     }
@@ -50,10 +48,6 @@ export default function SettingsPage() {
   }
 
   const onSave = async () => {
-    if (notifyDays === "" || !Number.isInteger(notifyDays)) {
-      toast.error("Introduce un número entero de días.");
-      return;
-    }
     if (emailEnabled && (emailDays === "" || !Number.isInteger(emailDays))) {
       toast.error("Introduce los días de antelación del correo.");
       return;
@@ -67,7 +61,7 @@ export default function SettingsPage() {
     setSaving(true);
     try {
       await setMine({
-        notifyDaysBefore: notifyDays,
+        notifyDaysBefore: settings.notifyDaysBefore,
         emailNotificationsEnabled: emailEnabled,
         emailNotifyDaysBefore:
           emailDays === "" ? undefined : (emailDays as number),
@@ -81,7 +75,6 @@ export default function SettingsPage() {
   };
 
   const dirty =
-    settings.notifyDaysBefore !== notifyDays ||
     settings.emailNotificationsEnabled !== emailEnabled ||
     settings.emailNotifyDaysBefore !== emailDays;
 
@@ -116,28 +109,7 @@ export default function SettingsPage() {
       </section>
 
       <section className="space-y-4 rounded-xl border p-5">
-        <div className="space-y-1.5">
-          <Label htmlFor="notify-days">Días de aviso</Label>
-          <Input
-            id="notify-days"
-            type="number"
-            min={1}
-            max={365}
-            value={notifyDays}
-            onChange={(e) =>
-              setNotifyDays(
-                e.target.value === "" ? "" : Number(e.target.value),
-              )
-            }
-            className="max-w-[140px]"
-          />
-          <p className="text-xs text-muted-foreground">
-            La campanita en la cabecera y el contador del dashboard mostrarán
-            las fechas que ocurran dentro de este número de días.
-          </p>
-        </div>
-
-        <div className="border-t pt-4 space-y-3">
+        <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="email-toggle">Notificaciones por correo</Label>
