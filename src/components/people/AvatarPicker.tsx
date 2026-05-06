@@ -13,15 +13,14 @@ function buildUrl(seed: string): string {
 }
 
 interface AvatarPickerProps {
-  name: string;
   value: string | undefined;
   onChange: (url: string | undefined) => void;
 }
 
-export function AvatarPicker({ name, value, onChange }: AvatarPickerProps) {
+export function AvatarPicker({ value, onChange }: AvatarPickerProps) {
   const [shuffleOffset, setShuffleOffset] = useState(0);
 
-  const effectiveSeed = name.trim() || "avatar";
+  const effectiveSeed = "avatar";
   const options = Array.from({ length: GRID_COUNT }, (_, i) =>
     buildUrl(`${effectiveSeed}${shuffleOffset + i}`),
   );

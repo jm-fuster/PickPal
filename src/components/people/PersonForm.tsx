@@ -1,7 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { useForm, Controller, useFieldArray, useWatch } from "react-hook-form";
+import {
+  useForm,
+  Controller,
+  useFieldArray,
+  useWatch,
+  type Control,
+  type UseFormRegister,
+  type UseFormSetValue,
+  type FieldErrors,
+} from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Plus, Trash2 } from "lucide-react";
@@ -22,21 +31,147 @@ import {
 } from "@/components/ui/select";
 import { InterestTagInput } from "./InterestTagInput";
 import { AvatarPicker } from "./AvatarPicker";
+import { BudgetRangeSlider } from "./BudgetRangeSlider";
 
 const MONTHS = [
-  "Enero",
-  "Febrero",
-  "Marzo",
-  "Abril",
-  "Mayo",
-  "Junio",
-  "Julio",
-  "Agosto",
-  "Septiembre",
-  "Octubre",
-  "Noviembre",
-  "Diciembre",
+  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
 ];
+
+// Sub-component so we can use useWatch per date row
+function DateRow({
+  idx,
+  control,
+  register,
+  setValue,
+  errors,
+  onRemove,
+}: {
+  idx: number;
+  control: Control<PersonFormValues>;
+  register: UseFormRegister<PersonFormValues>;
+  setValue: UseFormSetValue<PersonFormValues>;
+  errors: FieldErrors<PersonFormValues>;
+  onRemove: () => void;
+}) {
+  const budgetMin = useWatch({ control, name: `dates.${idx}.budgetMinEuros` });
+  const budgetMax = useWatch({ control, name: `dates.${idx}.budgetMaxEuros` });
+
+  return (
+    <div className="space-y-3 rounded-lg bg-background/60 p-3">
+      {/* Etiqueta + delete */}
+      <div className="flex items-end gap-2">
+        <div className="flex-1 space-y-1.5">
+          <Label htmlFor={`dates.${idx}.label`} className="text-xs">
+            Etiqueta
+          </Label>
+          <Input
+            id={`dates.${idx}.label`}
+            placeholder="Cumpleaños, Aniversario…"
+            {...register(`dates.${idx}.label` as const)}
+          />
+          {errors.dates?.[idx]?.label ? (
+            <p className="text-xs text-destructive">
+              {errors.dates[idx]?.label?.message}
+            </p>
+          ) : null}
+        </div>
+        <Button
+          type="button"
+          size="icon"
+          variant="ghost"
+          onClick={onRemove}
+          aria-label="Quitar fecha"
+        >
+          <Trash2 className="size-4" />
+        </Button>
+      </div>
+
+      {/* Día / Mes / Año */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="space-y-1.5">
+          <Label htmlFor={`dates.${idx}.day`} className="text-xs">
+            Día
+          </Label>
+          <Input
+            id={`dates.${idx}.day`}
+            type="number"
+            min={1}
+            max={31}
+            placeholder="Día"
+            {...register(`dates.${idx}.day` as const, { valueAsNumber: true })}
+          />
+          {errors.dates?.[idx]?.day ? (
+            <p className="text-xs text-destructive">
+              {errors.dates[idx]?.day?.message}
+            </p>
+          ) : null}
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor={`dates.${idx}.month`} className="text-xs">
+            Mes
+          </Label>
+          <select
+            id={`dates.${idx}.month`}
+            className="h-8 w-full rounded-md border bg-background pl-3 pr-7 text-sm"
+            {...register(`dates.${idx}.month` as const, { valueAsNumber: true })}
+          >
+            {MONTHS.map((m, i) => (
+              <option key={m} value={i + 1}>{m}</option>
+            ))}
+          </select>
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor={`dates.${idx}.year`} className="text-xs">
+            Año (opc.)
+          </Label>
+          <Input
+            id={`dates.${idx}.year`}
+            type="number"
+            min={1900}
+            max={2100}
+            placeholder="Año"
+            {...register(`dates.${idx}.year` as const, {
+              setValueAs: (v) => (v === "" || v === null ? undefined : Number(v)),
+            })}
+          />
+          {errors.dates?.[idx]?.year ? (
+            <p className="text-xs text-destructive">
+              {errors.dates[idx]?.year?.message}
+            </p>
+          ) : null}
+        </div>
+      </div>
+
+      {/* Recurrencia */}
+      <div className="space-y-1.5 max-w-[14rem]">
+        <Label htmlFor={`dates.${idx}.recurring`} className="text-xs">
+          Recurrencia
+        </Label>
+        <select
+          id={`dates.${idx}.recurring`}
+          className="h-8 w-full rounded-md border bg-background pl-3 pr-7 text-sm"
+          {...register(`dates.${idx}.recurring` as const, {
+            setValueAs: (v) => v === "true" || v === true,
+          })}
+        >
+          <option value="true">Todos los años</option>
+          <option value="false">Fecha única</option>
+        </select>
+      </div>
+
+      {/* Presupuesto */}
+      <BudgetRangeSlider
+        minValue={budgetMin}
+        maxValue={budgetMax}
+        onMinChange={(v) => setValue(`dates.${idx}.budgetMinEuros`, v)}
+        onMaxChange={(v) => setValue(`dates.${idx}.budgetMaxEuros`, v)}
+        minError={errors.dates?.[idx]?.budgetMinEuros?.message}
+        maxError={errors.dates?.[idx]?.budgetMaxEuros?.message}
+      />
+    </div>
+  );
+}
 
 interface PersonFormProps {
   defaultValues?: Partial<PersonFormValues>;
@@ -57,6 +192,7 @@ export function PersonForm({
     register,
     handleSubmit,
     control,
+    setValue,
     formState: { errors },
   } = useForm<PersonFormValues>({
     resolver: zodResolver(personFormSchema),
@@ -72,7 +208,6 @@ export function PersonForm({
   });
 
   const { fields, append, remove } = useFieldArray({ control, name: "dates" });
-  const watchedName = useWatch({ control, name: "name" });
 
   const submit = async (values: PersonFormValues) => {
     setSubmitting(true);
@@ -94,7 +229,6 @@ export function PersonForm({
           control={control}
           render={({ field }) => (
             <AvatarPicker
-              name={watchedName}
               value={field.value}
               onChange={field.onChange}
             />
@@ -140,10 +274,7 @@ export function PersonForm({
           name="interests"
           control={control}
           render={({ field }) => (
-            <InterestTagInput
-              value={field.value}
-              onChange={field.onChange}
-            />
+            <InterestTagInput value={field.value} onChange={field.onChange} />
           )}
         />
         {errors.interests ? (
@@ -170,19 +301,11 @@ export function PersonForm({
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <Label htmlFor="shoeSize">Talla de zapato</Label>
-            <Input
-              id="shoeSize"
-              placeholder="EU 42, 38…"
-              {...register("shoeSize")}
-            />
+            <Input id="shoeSize" placeholder="EU 42, 38…" {...register("shoeSize")} />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="clothingSize">Talla de ropa</Label>
-            <Input
-              id="clothingSize"
-              placeholder="M, L, 38…"
-              {...register("clothingSize")}
-            />
+            <Input id="clothingSize" placeholder="M, L, 38…" {...register("clothingSize")} />
           </div>
         </div>
         <div className="space-y-1.5">
@@ -216,7 +339,15 @@ export function PersonForm({
               size="sm"
               variant="ghost"
               onClick={() =>
-                append({ label: "Cumpleaños", month: 1, day: 1, year: undefined, recurring: true, budgetMinEuros: undefined, budgetMaxEuros: undefined })
+                append({
+                  label: "Cumpleaños",
+                  month: 1,
+                  day: 1,
+                  year: undefined,
+                  recurring: true,
+                  budgetMinEuros: undefined,
+                  budgetMaxEuros: undefined,
+                })
               }
             >
               <Plus className="size-3.5" />
@@ -231,154 +362,15 @@ export function PersonForm({
           ) : null}
 
           {fields.map((field, idx) => (
-            <div
+            <DateRow
               key={field.id}
-              className="space-y-3 rounded-lg bg-background/60 p-3"
-            >
-              {/* Etiqueta + delete */}
-              <div className="flex items-end gap-2">
-                <div className="flex-1 space-y-1.5">
-                  <Label htmlFor={`dates.${idx}.label`} className="text-xs">
-                    Etiqueta
-                  </Label>
-                  <Input
-                    id={`dates.${idx}.label`}
-                    placeholder="Cumpleaños, Aniversario…"
-                    {...register(`dates.${idx}.label` as const)}
-                  />
-                  {errors.dates?.[idx]?.label ? (
-                    <p className="text-xs text-destructive">
-                      {errors.dates[idx]?.label?.message}
-                    </p>
-                  ) : null}
-                </div>
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => remove(idx)}
-                  aria-label="Quitar fecha"
-                >
-                  <Trash2 className="size-4" />
-                </Button>
-              </div>
-
-              {/* Día / Mes / Año */}
-              <div className="grid grid-cols-3 gap-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor={`dates.${idx}.day`} className="text-xs">
-                    Día
-                  </Label>
-                  <Input
-                    id={`dates.${idx}.day`}
-                    type="number"
-                    min={1}
-                    max={31}
-                    placeholder="Día"
-                    {...register(`dates.${idx}.day` as const, {
-                      valueAsNumber: true,
-                    })}
-                  />
-                  {errors.dates?.[idx]?.day ? (
-                    <p className="text-xs text-destructive">
-                      {errors.dates[idx]?.day?.message}
-                    </p>
-                  ) : null}
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor={`dates.${idx}.month`} className="text-xs">
-                    Mes
-                  </Label>
-                  <select
-                    id={`dates.${idx}.month`}
-                    className="h-8 w-full rounded-md border bg-background pl-3 pr-7 text-sm"
-                    {...register(`dates.${idx}.month` as const, {
-                      valueAsNumber: true,
-                    })}
-                  >
-                    {MONTHS.map((m, i) => (
-                      <option key={m} value={i + 1}>
-                        {m}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor={`dates.${idx}.year`} className="text-xs">
-                    Año (opc.)
-                  </Label>
-                  <Input
-                    id={`dates.${idx}.year`}
-                    type="number"
-                    min={1900}
-                    max={2100}
-                    placeholder="Año"
-                    {...register(`dates.${idx}.year` as const, {
-                      setValueAs: (v) =>
-                        v === "" || v === null ? undefined : Number(v),
-                    })}
-                  />
-                  {errors.dates?.[idx]?.year ? (
-                    <p className="text-xs text-destructive">
-                      {errors.dates[idx]?.year?.message}
-                    </p>
-                  ) : null}
-                </div>
-              </div>
-
-              {/* Recurrencia */}
-              <div className="space-y-1.5 max-w-[14rem]">
-                <Label htmlFor={`dates.${idx}.recurring`} className="text-xs">
-                  Recurrencia
-                </Label>
-                <select
-                  id={`dates.${idx}.recurring`}
-                  className="h-8 w-full rounded-md border bg-background pl-3 pr-7 text-sm"
-                  {...register(`dates.${idx}.recurring` as const, {
-                    setValueAs: (v) => v === "true" || v === true,
-                  })}
-                >
-                  <option value="true">Todos los años</option>
-                  <option value="false">Fecha única</option>
-                </select>
-              </div>
-
-              {/* Presupuesto */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor={`dates.${idx}.budgetMinEuros`} className="text-xs">
-                    Presupuesto mín. €
-                  </Label>
-                  <Input
-                    id={`dates.${idx}.budgetMinEuros`}
-                    type="number"
-                    min={0}
-                    step={1}
-                    placeholder="Opcional"
-                    {...register(`dates.${idx}.budgetMinEuros` as const, {
-                      setValueAs: (v) =>
-                        v === "" || v === null ? undefined : Number(v),
-                    })}
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor={`dates.${idx}.budgetMaxEuros`} className="text-xs">
-                    Presupuesto máx. €
-                  </Label>
-                  <Input
-                    id={`dates.${idx}.budgetMaxEuros`}
-                    type="number"
-                    min={0}
-                    step={1}
-                    placeholder="Opcional"
-                    {...register(`dates.${idx}.budgetMaxEuros` as const, {
-                      setValueAs: (v) =>
-                        v === "" || v === null ? undefined : Number(v),
-                    })}
-                  />
-                </div>
-              </div>
-            </div>
+              idx={idx}
+              control={control}
+              register={register}
+              setValue={setValue}
+              errors={errors}
+              onRemove={() => remove(idx)}
+            />
           ))}
         </div>
       ) : null}
