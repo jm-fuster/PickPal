@@ -57,6 +57,7 @@ function nextOccurrence(
 
 export type EventToNotify = {
   dateId: Id<"importantDates">;
+  personId: Id<"people">;
   occurrenceYear: number;
   label: string;
   personName: string;
@@ -115,6 +116,7 @@ export const findEventsNeedingEmail = internalQuery({
 
           events.push({
             dateId: date._id,
+            personId: person._id,
             occurrenceYear: next.occurrenceYear,
             label: date.label,
             personName: person.name,

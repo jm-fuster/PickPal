@@ -5,6 +5,7 @@ import type { UserToNotify, EventToNotify } from "./notifications";
 
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
 const DEFAULT_FROM = "PickPal <onboarding@resend.dev>";
+const APP_BASE_URL = "https://pickpal-app.vercel.app";
 
 function escapeHtml(s: string): string {
   return s
@@ -15,16 +16,20 @@ function escapeHtml(s: string): string {
     .replace(/'/g, "&#39;");
 }
 
-function formatEventLine(e: EventToNotify): string {
+function formatEventCard(e: EventToNotify): string {
   const dd = String(e.day).padStart(2, "0");
   const mm = String(e.month).padStart(2, "0");
-  const days =
+  const daysText =
     e.daysUntil === 0
-      ? "hoy"
+      ? '<span style="color:#D97757;font-weight:600;">hoy</span>'
       : e.daysUntil === 1
-        ? "mañana"
-        : `en ${e.daysUntil} días`;
-  return `<li><strong>${escapeHtml(e.personName)}</strong> — ${escapeHtml(e.label)} (${dd}/${mm}) · ${days}</li>`;
+        ? '<span style="color:#D97757;font-weight:600;">mañana</span>'
+        : `<span style="color:#D97757;font-weight:600;">en ${e.daysUntil} días</span>`;
+  return `
+    <div style="background:#ffffff;border:1px solid #E0D5C5;border-radius:10px;padding:16px 20px;margin-bottom:12px;">
+      <div style="font-size:15px;font-weight:600;color:#3D2E1E;">${escapeHtml(e.personName)}</div>
+      <div style="font-size:13px;color:#9A8A75;margin-top:4px;">${escapeHtml(e.label)} · ${dd}/${mm} · ${daysText}</div>
+    </div>`;
 }
 
 function buildSubject(events: EventToNotify[]): string {
@@ -41,21 +46,76 @@ function buildSubject(events: EventToNotify[]): string {
   return `PickPal · ${events.length} eventos próximos`;
 }
 
+function buildCta(events: EventToNotify[]): string {
+  const href =
+    events.length === 1
+      ? `${APP_BASE_URL}/people/${events[0].personId}`
+      : `${APP_BASE_URL}/people`;
+  const label =
+    events.length === 1
+      ? `Generar ideas de regalo para ${escapeHtml(events[0].personName)}`
+      : "Ver mis eventos próximos";
+  return `
+    <div style="text-align:center;margin:28px 0 8px;">
+      <a href="${href}"
+         style="display:inline-block;background:#2D4033;color:#FBF7EE;text-decoration:none;font-size:14px;font-weight:600;padding:12px 28px;border-radius:8px;letter-spacing:0.01em;">
+        ${label}
+      </a>
+    </div>`;
+}
+
 function buildHtml(events: EventToNotify[]): string {
-  const items = events.map(formatEventLine).join("");
+  const cards = events.map(formatEventCard).join("");
   const intro =
     events.length === 1
       ? "Tienes un evento próximo:"
       : "Tienes varios eventos próximos:";
+  const cta = buildCta(events);
+
   return `<!doctype html>
 <html lang="es">
-  <body style="font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color: #111; line-height: 1.5;">
-    <p>${intro}</p>
-    <ul>${items}</ul>
-    <p style="color:#666; font-size: 13px; margin-top: 24px;">
-      Recibes este aviso porque activaste las notificaciones por correo en tus ajustes de PickPal.
-    </p>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+</head>
+<body style="margin:0;padding:0;background:#f0ebe2;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0ebe2;padding:32px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:#2D4033;border-radius:12px 12px 0 0;padding:28px 32px 24px;">
+              <div style="font-size:22px;font-weight:700;color:#FBF7EE;letter-spacing:-0.01em;">PickPal</div>
+              <div style="font-size:13px;color:#a8c0a0;margin-top:4px;">Recordatorio de evento</div>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="background:#FBF7EE;padding:28px 32px 8px;border-left:1px solid #E0D5C5;border-right:1px solid #E0D5C5;">
+              <p style="margin:0 0 20px;font-size:15px;color:#3D2E1E;">${intro}</p>
+              ${cards}
+              ${cta}
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background:#FBF7EE;border-radius:0 0 12px 12px;border:1px solid #E0D5C5;border-top:none;padding:16px 32px 24px;">
+              <p style="margin:0;font-size:12px;color:#9A8A75;line-height:1.6;">
+                Recibes este aviso porque activaste las notificaciones por correo en tus
+                <a href="${APP_BASE_URL}/settings" style="color:#9A8A75;">ajustes de PickPal</a>.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
 </html>`;
 }
 
@@ -65,6 +125,7 @@ export const sendBatchedReminderEmail = internalAction({
     events: v.array(
       v.object({
         dateId: v.id("importantDates"),
+        personId: v.id("people"),
         occurrenceYear: v.number(),
         label: v.string(),
         personName: v.string(),
