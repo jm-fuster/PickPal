@@ -19,7 +19,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import { InterestTagInput } from "./InterestTagInput";
 import { AvatarPicker } from "./AvatarPicker";
@@ -118,8 +117,10 @@ export function PersonForm({
           control={control}
           render={({ field }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger>
-                <SelectValue />
+              <SelectTrigger className="w-full">
+                <span>
+                  {RELATIONSHIPS.find((r) => r.value === field.value)?.label ?? "Selecciona relación"}
+                </span>
               </SelectTrigger>
               <SelectContent>
                 {RELATIONSHIPS.map((r) => (
@@ -232,128 +233,25 @@ export function PersonForm({
           {fields.map((field, idx) => (
             <div
               key={field.id}
-              className="grid grid-cols-2 gap-2 rounded-lg bg-background/60 p-3 md:grid-cols-[1fr_8rem_5rem_8rem_6rem_6rem_6rem_2rem]"
+              className="space-y-3 rounded-lg bg-background/60 p-3"
             >
-              <div className="space-y-1 md:col-span-1">
-                <Label htmlFor={`dates.${idx}.label`} className="text-xs">
-                  Etiqueta
-                </Label>
-                <Input
-                  id={`dates.${idx}.label`}
-                  {...register(`dates.${idx}.label` as const)}
-                />
-                {errors.dates?.[idx]?.label ? (
-                  <p className="text-xs text-destructive">
-                    {errors.dates[idx]?.label?.message}
-                  </p>
-                ) : null}
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor={`dates.${idx}.month`} className="text-xs">
-                  Mes
-                </Label>
-                <select
-                  id={`dates.${idx}.month`}
-                  className="h-9 w-full rounded-md border bg-background pl-3 pr-7 text-sm"
-                  {...register(`dates.${idx}.month` as const, {
-                    valueAsNumber: true,
-                  })}
-                >
-                  {MONTHS.map((m, i) => (
-                    <option key={m} value={i + 1}>
-                      {m}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor={`dates.${idx}.day`} className="text-xs">
-                  Día
-                </Label>
-                <Input
-                  id={`dates.${idx}.day`}
-                  type="number"
-                  min={1}
-                  max={31}
-                  {...register(`dates.${idx}.day` as const, {
-                    valueAsNumber: true,
-                  })}
-                />
-                {errors.dates?.[idx]?.day ? (
-                  <p className="text-xs text-destructive">
-                    {errors.dates[idx]?.day?.message}
-                  </p>
-                ) : null}
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor={`dates.${idx}.recurring`} className="text-xs">
-                  Recurrencia
-                </Label>
-                <select
-                  id={`dates.${idx}.recurring`}
-                  className="h-9 w-full rounded-md border bg-background pl-3 pr-7 text-sm"
-                  {...register(`dates.${idx}.recurring` as const, {
-                    setValueAs: (v) => v === "true" || v === true,
-                  })}
-                >
-                  <option value="true">Todos los años</option>
-                  <option value="false">Fecha única</option>
-                </select>
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor={`dates.${idx}.year`} className="text-xs">
-                  Año
-                </Label>
-                <Input
-                  id={`dates.${idx}.year`}
-                  type="number"
-                  min={1900}
-                  max={2100}
-                  placeholder="Opc."
-                  {...register(`dates.${idx}.year` as const, {
-                    setValueAs: (v) =>
-                      v === "" || v === null ? undefined : Number(v),
-                  })}
-                />
-                {errors.dates?.[idx]?.year ? (
-                  <p className="text-xs text-destructive">
-                    {errors.dates[idx]?.year?.message}
-                  </p>
-                ) : null}
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor={`dates.${idx}.budgetMinEuros`} className="text-xs">
-                  Mín €
-                </Label>
-                <Input
-                  id={`dates.${idx}.budgetMinEuros`}
-                  type="number"
-                  min={0}
-                  step={1}
-                  placeholder="Opc."
-                  {...register(`dates.${idx}.budgetMinEuros` as const, {
-                    setValueAs: (v) =>
-                      v === "" || v === null ? undefined : Number(v),
-                  })}
-                />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor={`dates.${idx}.budgetMaxEuros`} className="text-xs">
-                  Máx €
-                </Label>
-                <Input
-                  id={`dates.${idx}.budgetMaxEuros`}
-                  type="number"
-                  min={0}
-                  step={1}
-                  placeholder="Opc."
-                  {...register(`dates.${idx}.budgetMaxEuros` as const, {
-                    setValueAs: (v) =>
-                      v === "" || v === null ? undefined : Number(v),
-                  })}
-                />
-              </div>
-              <div className="flex items-end justify-end">
+              {/* Etiqueta + delete */}
+              <div className="flex items-end gap-2">
+                <div className="flex-1 space-y-1.5">
+                  <Label htmlFor={`dates.${idx}.label`} className="text-xs">
+                    Etiqueta
+                  </Label>
+                  <Input
+                    id={`dates.${idx}.label`}
+                    placeholder="Cumpleaños, Aniversario…"
+                    {...register(`dates.${idx}.label` as const)}
+                  />
+                  {errors.dates?.[idx]?.label ? (
+                    <p className="text-xs text-destructive">
+                      {errors.dates[idx]?.label?.message}
+                    </p>
+                  ) : null}
+                </div>
                 <Button
                   type="button"
                   size="icon"
@@ -363,6 +261,122 @@ export function PersonForm({
                 >
                   <Trash2 className="size-4" />
                 </Button>
+              </div>
+
+              {/* Día / Mes / Año */}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor={`dates.${idx}.day`} className="text-xs">
+                    Día
+                  </Label>
+                  <Input
+                    id={`dates.${idx}.day`}
+                    type="number"
+                    min={1}
+                    max={31}
+                    placeholder="Día"
+                    {...register(`dates.${idx}.day` as const, {
+                      valueAsNumber: true,
+                    })}
+                  />
+                  {errors.dates?.[idx]?.day ? (
+                    <p className="text-xs text-destructive">
+                      {errors.dates[idx]?.day?.message}
+                    </p>
+                  ) : null}
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor={`dates.${idx}.month`} className="text-xs">
+                    Mes
+                  </Label>
+                  <select
+                    id={`dates.${idx}.month`}
+                    className="h-8 w-full rounded-md border bg-background pl-3 pr-7 text-sm"
+                    {...register(`dates.${idx}.month` as const, {
+                      valueAsNumber: true,
+                    })}
+                  >
+                    {MONTHS.map((m, i) => (
+                      <option key={m} value={i + 1}>
+                        {m}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor={`dates.${idx}.year`} className="text-xs">
+                    Año (opc.)
+                  </Label>
+                  <Input
+                    id={`dates.${idx}.year`}
+                    type="number"
+                    min={1900}
+                    max={2100}
+                    placeholder="Año"
+                    {...register(`dates.${idx}.year` as const, {
+                      setValueAs: (v) =>
+                        v === "" || v === null ? undefined : Number(v),
+                    })}
+                  />
+                  {errors.dates?.[idx]?.year ? (
+                    <p className="text-xs text-destructive">
+                      {errors.dates[idx]?.year?.message}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+
+              {/* Recurrencia */}
+              <div className="space-y-1.5 max-w-[14rem]">
+                <Label htmlFor={`dates.${idx}.recurring`} className="text-xs">
+                  Recurrencia
+                </Label>
+                <select
+                  id={`dates.${idx}.recurring`}
+                  className="h-8 w-full rounded-md border bg-background pl-3 pr-7 text-sm"
+                  {...register(`dates.${idx}.recurring` as const, {
+                    setValueAs: (v) => v === "true" || v === true,
+                  })}
+                >
+                  <option value="true">Todos los años</option>
+                  <option value="false">Fecha única</option>
+                </select>
+              </div>
+
+              {/* Presupuesto */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor={`dates.${idx}.budgetMinEuros`} className="text-xs">
+                    Presupuesto mín. €
+                  </Label>
+                  <Input
+                    id={`dates.${idx}.budgetMinEuros`}
+                    type="number"
+                    min={0}
+                    step={1}
+                    placeholder="Opcional"
+                    {...register(`dates.${idx}.budgetMinEuros` as const, {
+                      setValueAs: (v) =>
+                        v === "" || v === null ? undefined : Number(v),
+                    })}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor={`dates.${idx}.budgetMaxEuros`} className="text-xs">
+                    Presupuesto máx. €
+                  </Label>
+                  <Input
+                    id={`dates.${idx}.budgetMaxEuros`}
+                    type="number"
+                    min={0}
+                    step={1}
+                    placeholder="Opcional"
+                    {...register(`dates.${idx}.budgetMaxEuros` as const, {
+                      setValueAs: (v) =>
+                        v === "" || v === null ? undefined : Number(v),
+                    })}
+                  />
+                </div>
               </div>
             </div>
           ))}

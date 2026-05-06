@@ -60,10 +60,10 @@ export default function DashboardPage() {
             a alguien que te falte.
           </p>
           <Link
-            href="/people"
+            href="/people/new"
             className={buttonVariants({ variant: "outline" })}
           >
-            Ver seres queridos
+            Añadir ser querido
           </Link>
         </div>
       ) : (
