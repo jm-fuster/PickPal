@@ -93,7 +93,8 @@ export default function GiftsPage({
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error ?? `Error ${res.status}`);
+        const detail = data.detail ? ` (${data.detail})` : "";
+        throw new Error((data.error ?? `Error ${res.status}`) + detail);
       }
       const data = (await res.json()) as { ideas: GiftRecommendation[] };
       setIdeas(data.ideas);

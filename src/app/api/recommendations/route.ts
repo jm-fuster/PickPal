@@ -183,9 +183,13 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(object);
   } catch (err) {
-    console.error("[recommendations] gemini:", err);
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("[recommendations] gemini:", message, err);
     return NextResponse.json(
-      { error: "Error generando recomendaciones." },
+      {
+        error: "Error generando recomendaciones.",
+        ...(process.env.NODE_ENV !== "production" && { detail: message }),
+      },
       { status: 500 },
     );
   }
