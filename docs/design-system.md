@@ -158,7 +158,7 @@ Padding de página responsive en todos los `<main>`: `p-4 sm:p-6 lg:p-8`. No usa
 - Siempre con `border` visible. Nada de inputs invisibles a la Material.
 - Label arriba (`<Label>`), input debajo, error en rojo (`text-destructive`) inmediatamente después con `text-xs`.
 - Espaciado entre campos: `space-y-1.5` dentro de un grupo (label + input + error), `space-y-5` entre grupos.
-- **Selects nativos** (`<select>`): usar `pl-3 pr-7` (no `px-2`). El `pr-7` da espacio suficiente entre el texto y la flecha del navegador, que de otro modo queda pegada al borde.
+- **Selects**: usar siempre el componente shadcn `Select` (`SelectTrigger` + `SelectContent` + `SelectItem`). **Nunca `<select>` nativo** — el aspecto del navegador rompe la consistencia visual con el resto de la UI. En selects controlados con valor inicial, renderizar el label manualmente dentro del `SelectTrigger` con `<span>` (ver patrón en "Select con valor inicial controlado").
 
 ### Sección Eventos (detalle de persona)
 
@@ -170,7 +170,7 @@ La sección "Eventos" en `/people/[id]` gestiona fechas importantes de esa perso
 - Al guardar o cancelar, el formulario vuelve a colapsar.
 
 **Entrada de fecha — responsive:**
-- **Desktop** (`md+`): tres inputs inline — `Día` (número), `Mes` (select nativo), `Año (opcional)` (número). Rápido de usar con teclado.
+- **Desktop** (`md+`): tres inputs inline — `Día` (número), `Mes` (shadcn `Select`), `Año (opcional)` (número). Rápido de usar con teclado.
 - **Móvil** (`< md`): un botón que abre el `DatePickerDialog` — tres columnas de scroll-snap (día | mes | año opcional) con drag en iOS/Android y mouse drag en Chrome móvil. Overlay de líneas horizontales marca el ítem activo. Implementado en `ImportantDateForm.tsx` como componente local `ScrollColumn` + `DatePickerDialog`.
 
 **Presupuesto:**
@@ -222,31 +222,36 @@ La sección "Historial de regalos" en `/people/[id]` registra regalos pasados pa
 - En headers grandes, añadir `ring-1 ring-border` para definir el contorno sin que pese.
 - Si no hay foto, fallback con iniciales (2 letras max, mayúsculas).
 - **Avatar picker**: integrado en `PersonForm` y en el encabezado de perfil. Usa la API de [DiceBear](https://api.dicebear.com/9.x/) con el estilo `big-ears-neutral`. Genera 12 opciones con seed fijo `"avatar"` (NO el nombre de la persona — si se usara el nombre, las opciones regenerarían en cada keystroke al escribir el nombre). "Regenerar" avanza el offset en +12. La URL seleccionada se guarda en `person.avatarUrl` (opcional). El componente vive en `src/components/people/AvatarPicker.tsx`. Validación server-side: solo se aceptan URLs que empiecen por `https://api.dicebear.com/`.
-- **Avatar en perfil**: el avatar del encabezado tiene un overlay de cámara (`Camera` icon) visible en hover. Al pulsarlo se abre un `Dialog` con `AvatarPicker`. Al seleccionar un avatar el dialog se cierra y el cambio queda pendiente de guardar (dirty flag de la sección header).
+- **Avatar en perfil**: el avatar del encabezado tiene un overlay de cámara (`Camera` icon) visible en hover. Al pulsarlo se abre un `Dialog` con `AvatarPicker`. Al seleccionar un avatar el dialog se cierra y el cambio se guarda automáticamente (autosave inmediato al elegir).
 
 ### Edición inline (perfil de persona)
 
 `/people/[id]` no tiene página de edición separada. `/people/[id]/edit` redirige a `/people/[id]`. Toda la edición ocurre inline en el perfil, dividida en tres secciones independientes:
 
-| Sección | Campos | Mutación |
+| Sección | Campos | Cuándo guarda |
 |---|---|---|
-| Header | nombre, relación, avatarUrl | `api.people.update` con esos tres campos |
-| Intereses + Notas | interests, notes | `api.people.update` con esos dos campos |
-| Datos prácticos | shoeSize, clothingSize, allergies, dislikes | `api.people.update` con esos cuatro campos |
+| Header — nombre | name | `onBlur` del input (o Enter) |
+| Header — relación | relationship | `onValueChange` del Select (inmediato) |
+| Header — avatar | avatarUrl | Al elegir en el Dialog (inmediato) |
+| Intereses | interests | `onChange` del tag input (cada add/remove) |
+| Notas | notes | `onBlur` del textarea |
+| Datos prácticos | shoeSize, clothingSize, allergies, dislikes | `onBlur` de cada campo |
 
-**Dirty tracking:**
-- Cada sección tiene su propio estado local (`useState`) inicializado con el valor de la DB.
-- Se calcula un `xyzDirty` comparando el estado local con `person.xyz` (el valor de la DB).
-- El botón "Guardar" de la sección aparece solo cuando `xyzDirty === true` y usa `variant="default"` (verde primary, prominente).
-- Guardar una sección no afecta al estado local de las otras — las tres son independientes.
+**Autosave — principios:**
+- No hay botones "Guardar" ni dirty flags. El usuario edita y el cambio se persiste en cuanto sale del campo.
+- La función `save(fields)` llama a `api.people.update({ id, ...fields })` — como la mutación acepta campos opcionales y hace merge en servidor, cada campo puede guardarse de forma independiente sin sobrescribir los demás.
+- Errores: solo se muestra toast de error (`toast.error`). No hay toast de éxito para no generar ruido en cada blur.
 
-**Guardar parcial:** `api.people.update` acepta todos los campos como opcionales y hace merge en el servidor, así que cada sección solo envía sus propios campos sin sobrescribir los demás.
+**Indicador visual "✓ Guardado":**
+- Un pill fijo (`position: fixed; bottom: 1.5rem; right: 1.5rem`) con fondo `bg-primary` y `text-primary-foreground` aparece tras cada guardado exitoso.
+- Desaparece automáticamente a los 2 segundos con fade + slide (`transition-all duration-300`).
+- Si el usuario edita varios campos rápido, el timer se reinicia para que el pill no parpadee.
+- `aria-live="polite"` para lectores de pantalla.
+- Implementado con `useState(false)` + `setTimeout` + `clearTimeout` — sin librería externa.
 
-**Guarda de cambios sin guardar:**
-- `anyDirty = headerDirty || interestsDirty || practicalDirty`.
-- `useEffect` registra `beforeunload` cuando `anyDirty` (aviso del navegador al cerrar pestaña).
-- El botón "Atrás" y cualquier enlace de navegación usan `navigateSafe(href)` en vez de `<Link>`: si `anyDirty`, guarda `href` en `pendingNav` en vez de navegar.
-- Un `Dialog` (shadcn) aparece cuando `pendingNav !== null`, con dos opciones: "Quedarme" (cancela) y "Salir sin guardar" (navega al `pendingNav` y limpia el estado).
+**Guardar parcial:** `api.people.update` acepta todos los campos como opcionales y hace merge en el servidor. Cada `save(fields)` solo pasa los campos de su sección.
+
+**Sin guard de navegación:** al ser autosave no hay "cambios sin guardar" — se puede navegar libremente. No usar `beforeunload` ni `pendingNav` en pantallas con autosave.
 
 **Tipografía en secciones inline:**
 - Los labels de sección (eyebrows) usan `<p>` o `<h2>` según el contexto — en ambos casos añadir `font-sans` explícito para anular el base layer serif. Ver regla en Tipografía.
@@ -277,6 +282,7 @@ Iconos en uso:
 - `RefreshCw` — regenerar (avatar picker).
 - `Repeat2` — evento recurrente (anual).
 - `CalendarX2` — evento de fecha única (no recurrente).
+- `Check` — indicador de guardado exitoso (pill fijo en perfil de persona).
 
 **Reglas:**
 - **Botones icon-only** necesitan `aria-label` y `title`. Usar variant `ghost` y size `icon` o `icon-sm`.
@@ -343,6 +349,8 @@ Cosas que se han probado o considerado y NO funcionan. Si vuelven a tentar, leer
 - **Sombras fuertes** (`shadow-lg`+): material design vibe, choque inmediato con la calidez. Máximo `shadow-md` y solo en hover si se justifica.
 - **Borde de color en cards** (ej. `border-primary` decorativo): se sentía corporativo. Mantener bordes en `border-border` o variantes con alpha.
 - **`font-bold` en headings de serif sin razón**: peso 700 en Fraunces a tamaños medianos parece "newspaper" anticuado. Preferir 500–600 salvo en hero gigante.
+- **Dirty tracking + botón "Guardar" en edición inline de perfil**: introduce fricción innecesaria (el usuario tiene que recordar guardar) y complejidad de estado (dirty flags, beforeunload, nav guard). Si la mutation es barata y los campos no son críticos, usar autosave en blur/change. El "✓ Guardado" fijo da el feedback suficiente.
+- **`<select>` nativo en formularios**: aspecto inconsistente entre navegadores, no respeta los tokens de color/radio del sistema de diseño. Siempre usar el componente shadcn `Select`.
 
 ---
 
