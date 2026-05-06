@@ -29,6 +29,7 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
+
 import { InterestTagInput } from "./InterestTagInput";
 import { AvatarPicker } from "./AvatarPicker";
 import { BudgetRangeSlider } from "./BudgetRangeSlider";
@@ -75,6 +76,7 @@ function AddEventForm({
   const watchedBudgetMax = useWatch({ control, name: "budgetMaxEuros" });
   const watchedRecurring = useWatch({ control, name: "recurring" });
   const watchedYear = useWatch({ control, name: "year" });
+  const watchedMonth = useWatch({ control, name: "month" });
 
   return (
     <div className="space-y-3 rounded-lg bg-background/60 p-3">
@@ -104,18 +106,20 @@ function AddEventForm({
           ) : null}
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="ae-month" className="text-xs">Mes</Label>
-          <select
-            id="ae-month"
-            className="h-8 w-full rounded-md border bg-background pl-3 pr-7 text-sm"
-            defaultValue=""
-            {...register("month", { valueAsNumber: true })}
+          <Label className="text-xs">Mes</Label>
+          <Select
+            value={watchedMonth ? String(watchedMonth) : ""}
+            onValueChange={(v) => { if (v) setValue("month", Number(v)); }}
           >
-            <option value="" disabled>Mes</option>
-            {MONTHS.map((m, i) => (
-              <option key={m} value={i + 1}>{m}</option>
-            ))}
-          </select>
+            <SelectTrigger className="w-full">
+              <span>{watchedMonth ? MONTHS[watchedMonth - 1] : "Mes"}</span>
+            </SelectTrigger>
+            <SelectContent>
+              {MONTHS.map((m, i) => (
+                <SelectItem key={m} value={String(i + 1)}>{m}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           {errors.month ? (
             <p className="text-xs text-destructive">{errors.month.message}</p>
           ) : null}
@@ -140,17 +144,19 @@ function AddEventForm({
 
       {/* Recurrencia */}
       <div className="space-y-1.5 max-w-[14rem]">
-        <Label htmlFor="ae-recurring" className="text-xs">Recurrencia</Label>
-        <select
-          id="ae-recurring"
-          className="h-8 w-full rounded-md border bg-background pl-3 pr-7 text-sm"
-          {...register("recurring", {
-            setValueAs: (v) => v === "true" || v === true,
-          })}
+        <Label className="text-xs">Recurrencia</Label>
+        <Select
+          value={watchedRecurring === false ? "false" : "true"}
+          onValueChange={(v) => { if (v) setValue("recurring", v === "true"); }}
         >
-          <option value="true">Todos los años</option>
-          <option value="false">Fecha única</option>
-        </select>
+          <SelectTrigger className="w-full">
+            <span>{watchedRecurring === false ? "Fecha única" : "Todos los años"}</span>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="true">Todos los años</SelectItem>
+            <SelectItem value="false">Fecha única</SelectItem>
+          </SelectContent>
+        </Select>
         {watchedRecurring === false && !watchedYear ? (
           <p className="text-xs text-muted-foreground">
             Indica el año (obligatorio para fechas únicas).

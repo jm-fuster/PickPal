@@ -23,6 +23,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger,
+} from "@/components/ui/select";
 import { BudgetRangeSlider } from "./BudgetRangeSlider";
 
 const MONTHS = [
@@ -356,19 +359,21 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="date-month-desktop">Mes</Label>
-            <select
-              id="date-month-desktop"
-              className="h-8 w-full rounded-md border bg-background pl-3 pr-7 text-sm"
-              value={watchedMonth ?? ""}
-              onChange={(e) =>
-                setValue("month", e.target.value ? Number(e.target.value) : (undefined as unknown as number), { shouldValidate: true })
-              }
+            <Select
+              value={watchedMonth ? String(watchedMonth) : ""}
+              onValueChange={(v) => {
+                if (v) setValue("month", Number(v), { shouldValidate: true });
+              }}
             >
-              <option value="" disabled>Mes</option>
-              {MONTHS.map((m, i) => (
-                <option key={m} value={i + 1}>{m}</option>
-              ))}
-            </select>
+              <SelectTrigger id="date-month-desktop" className="w-full">
+                <span>{watchedMonth ? MONTHS[watchedMonth - 1] : "Mes"}</span>
+              </SelectTrigger>
+              <SelectContent>
+                {MONTHS.map((m, i) => (
+                  <SelectItem key={m} value={String(i + 1)}>{m}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="date-year-desktop">Año (opcional)</Label>
@@ -412,17 +417,19 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
 
         {/* Recurrencia */}
         <div className="space-y-1.5 max-w-[14rem]">
-          <Label htmlFor="date-recurring">Recurrencia</Label>
-          <select
-            id="date-recurring"
-            className="h-8 w-full rounded-md border bg-background pl-3 pr-7 text-sm"
-            {...register("recurring", {
-              setValueAs: (v) => v === "true" || v === true,
-            })}
+          <Label>Recurrencia</Label>
+          <Select
+            value={watchedRecurring === false ? "false" : "true"}
+            onValueChange={(v) => { if (v) setValue("recurring", v === "true"); }}
           >
-            <option value="true">Todos los años</option>
-            <option value="false">Fecha única</option>
-          </select>
+            <SelectTrigger className="w-full">
+              <span>{watchedRecurring === false ? "Fecha única" : "Todos los años"}</span>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="true">Todos los años</SelectItem>
+              <SelectItem value="false">Fecha única</SelectItem>
+            </SelectContent>
+          </Select>
           {watchedRecurring === false && !watchedYear ? (
             <p className="text-xs text-muted-foreground">
               Indica el año en el campo Año (obligatorio para fechas únicas).
@@ -557,17 +564,19 @@ export function EditImportantDateInline({
               setValue("day", e.target.value ? Number(e.target.value) : 1, { shouldValidate: true })
             }
           />
-          <select
-            className="h-8 w-full rounded-md border bg-background pl-2 pr-7 text-sm"
-            value={watchedMonth ?? 1}
-            onChange={(e) =>
-              setValue("month", Number(e.target.value), { shouldValidate: true })
-            }
+          <Select
+            value={String(watchedMonth ?? 1)}
+            onValueChange={(v) => { if (v) setValue("month", Number(v), { shouldValidate: true }); }}
           >
-            {MONTHS.map((m, i) => (
-              <option key={m} value={i + 1}>{m}</option>
-            ))}
-          </select>
+            <SelectTrigger className="w-full">
+              <span>{MONTHS[(watchedMonth ?? 1) - 1]}</span>
+            </SelectTrigger>
+            <SelectContent>
+              {MONTHS.map((m, i) => (
+                <SelectItem key={m} value={String(i + 1)}>{m}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Input
             type="number"
             min={1900}
@@ -594,15 +603,19 @@ export function EditImportantDateInline({
 
       {/* Recurrencia */}
       <div className="space-y-1.5 max-w-[14rem]">
-        <Label htmlFor="edit-recurring">Recurrencia</Label>
-        <select
-          id="edit-recurring"
-          className="h-8 w-full rounded-md border bg-background pl-3 pr-7 text-sm"
-          {...register("recurring", { setValueAs: (v) => v === "true" || v === true })}
+        <Label>Recurrencia</Label>
+        <Select
+          value={watchedRecurring === false ? "false" : "true"}
+          onValueChange={(v) => { if (v) setValue("recurring", v === "true"); }}
         >
-          <option value="true">Todos los años</option>
-          <option value="false">Fecha única</option>
-        </select>
+          <SelectTrigger className="w-full">
+            <span>{watchedRecurring === false ? "Fecha única" : "Todos los años"}</span>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="true">Todos los años</SelectItem>
+            <SelectItem value="false">Fecha única</SelectItem>
+          </SelectContent>
+        </Select>
         {watchedRecurring === false && !watchedYear && (
           <p className="text-xs text-muted-foreground">
             Indica el año (obligatorio para fechas únicas).
