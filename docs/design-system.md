@@ -131,7 +131,7 @@ Visible a partir de `lg` (1024px). Implementado en `src/app/(app)/layout.tsx`.
 - El `<aside>` usa `h-screen sticky top-0` para que el pie quede siempre visible sin que el contenido principal lo desplace.
 - **Header del sidebar**: `<LogoMark size-7>` + texto "PickPal" (link) a la izquierda + `SafeNotificationBell` a la derecha. `flex items-center justify-between`.
 - **Pie del sidebar**: `SidebarUserInfo` — `UserButton` de Clerk + email del usuario truncado (`text-xs text-muted-foreground`).
-- **Tema**: `defaultTheme="dark"` sin `enableSystem`. El toggle está en `/settings`. No hay ThemeToggle en sidebar ni en el header.
+- **Tema**: `defaultTheme="light"` sin `enableSystem`. El toggle está en `/settings`. No hay ThemeToggle en sidebar ni en el header. Los usuarios existentes conservan su preferencia guardada en `localStorage`.
 - En móvil (`< lg`): header compacto con hamburguesa (`MobileNav`) + logo a la izquierda, campana + UserButton a la derecha. La navegación se abre en un `Sheet` lateral (shadcn `sheet.tsx`) desde la izquierda. `MobileNav` es un componente cliente en `src/components/layout/MobileNav.tsx`.
 
 **Secciones de la navegación:**

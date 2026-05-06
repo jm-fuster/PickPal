@@ -18,7 +18,7 @@ La activación y la antelación son configurables desde `/settings`.
 |---|---|
 | `userSettings.notifyDaysBefore` | **Ventana visual** de la app (campanita y dashboard). "Muéstrame todo lo que ocurra en los próximos 30 días". |
 | `userSettings.emailNotifyDaysBefore` | **Gatillo puntual** del email. "Avísame por correo cuando falten exactamente 7 días para un evento". |
-| `userSettings.emailNotificationsEnabled` | Toggle on/off. **Opt-in**: por defecto `false`. |
+| `userSettings.emailNotificationsEnabled` | Toggle on/off. **Activo por defecto** para nuevos usuarios (si Clerk provee email). |
 | `userSettings.email` | Copia local del email del usuario (vino del JWT de Clerk al guardar ajustes). El cron lo lee de aquí, sin volver a pedírselo a Clerk. |
 | `emailNotifications` (tabla) | Registro de envíos para deduplicar. Una fila = una ocurrencia notificada. |
 
@@ -51,12 +51,28 @@ Si el envío a un usuario falla (Resend devuelve 4xx/5xx, red caída, etc.), el 
 
 ---
 
+## Defaults para nuevos usuarios
+
+Al entrar por primera vez a la app (cualquier ruta autenticada), el componente `UserInitializer` llama a `settings.ensureDefaults`. Esta mutación crea la fila de `userSettings` si no existe, con:
+
+| Campo | Valor por defecto | Condición |
+|---|---|---|
+| `emailNotificationsEnabled` | `true` | Solo si Clerk provee email. Si no hay email, queda `false`. |
+| `emailNotifyDaysBefore` | `14` | Siempre |
+| `notifyDaysBefore` | `30` | Siempre (ventana visual de campanita) |
+| `email` | Del JWT de Clerk | Si está disponible |
+
+`ensureDefaults` es idempotente: si la fila ya existe, no hace nada. Los usuarios que ya han guardado ajustes manualmente no se ven afectados.
+
+---
+
 ## Archivos
 
 | Archivo | Rol |
 |---|---|
 | [`convex/schema.ts`](../convex/schema.ts) | Campos nuevos en `userSettings` y tabla `emailNotifications` con sus índices. |
-| [`convex/settings.ts`](../convex/settings.ts) | `getMine` devuelve los nuevos campos + email del JWT. `setMine` valida y los persiste. Si se activa el toggle sin email en JWT, lanza error. |
+| [`convex/settings.ts`](../convex/settings.ts) | `getMine` devuelve los nuevos campos + email del JWT. `setMine` valida y los persiste. `ensureDefaults` inicializa la fila al primer acceso. Si se activa el toggle sin email en JWT, lanza error. |
+| [`src/components/layout/UserInitializer.tsx`](../src/components/layout/UserInitializer.tsx) | Componente cliente (renderizado en el app layout). Llama a `ensureDefaults` al montar, una vez por sesión autenticada. |
 | [`convex/notifications.ts`](../convex/notifications.ts) | Cálculo de próxima ocurrencia (recurrente / no recurrente), matching contra antelación, dedup vs. `emailNotifications`. Exporta el tipo `EventToNotify` (incluye `personId` para el CTA del email). |
 | [`convex/emails.ts`](../convex/emails.ts) | Llama a Resend (vía `fetch`, sin SDK) y orquesta el cron diario. Construye HTML inline en español con diseño visual propio (ver sección "Plantilla de email"). |
 | [`convex/crons.ts`](../convex/crons.ts) | `crons.cron("0 8 * * *", ...)` — diario a las 08:00 UTC. |
