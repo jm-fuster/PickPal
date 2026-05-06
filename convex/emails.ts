@@ -105,8 +105,9 @@ function buildHtml(events: EventToNotify[]): string {
           <tr>
             <td style="background:#FBF7EE;border-radius:0 0 12px 12px;border:1px solid #E0D5C5;border-top:none;padding:16px 32px 24px;">
               <p style="margin:0;font-size:12px;color:#9A8A75;line-height:1.6;">
-                Recibes este aviso porque activaste las notificaciones por correo en tus
-                <a href="${APP_BASE_URL}/settings" style="color:#9A8A75;">ajustes de PickPal</a>.
+                Si no quieres seguir recibiendo estos recordatorios, desactívalos en tus
+                <a href="${APP_BASE_URL}/settings" style="color:#9A8A75;text-decoration:underline;">ajustes</a>
+                de PickPal.
               </p>
             </td>
           </tr>
