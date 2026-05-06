@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useRef, useState } from "react";
 import Link from "next/link";
 import { Sparkles, RefreshCw } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
@@ -9,11 +9,27 @@ import { toast } from "sonner";
 import { api } from "../../../../../../convex/_generated/api";
 import type { Id } from "../../../../../../convex/_generated/dataModel";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { GiftRecommendationCard } from "@/components/gifts/GiftRecommendationCard";
 import { LoadingFallback } from "@/components/layout/LoadingFallback";
 import { GIFT_TYPES, type GiftType, type GiftRecommendation } from "@/lib/gifts";
+
+const DISCARD_DELAY = 4000;
+
+const formatBudget = (min?: number, max?: number) => {
+  const toEur = (v: number) => Math.round(v / 100);
+  if (min !== undefined && max !== undefined) return ` · ${toEur(min)}–${toEur(max)}€`;
+  if (min !== undefined) return ` · desde ${toEur(min)}€`;
+  if (max !== undefined) return ` · hasta ${toEur(max)}€`;
+  return "";
+};
 
 export default function GiftsPage({
   params,
@@ -28,16 +44,19 @@ export default function GiftsPage({
   const person = useQuery(api.people.getById, ready ? { id } : "skip");
   const events = useQuery(api.importantDates.getByPerson, ready ? { personId: id } : "skip");
 
-  const [occasion, setOccasion] = useState("Cumpleaños");
+  const [occasion, setOccasion] = useState("");
   const [giftType, setGiftType] = useState<GiftType>("fisica");
   const [ideas, setIdeas] = useState<GiftRecommendation[] | null>(null);
   const [loading, setLoading] = useState(false);
 
   const removeIdea = useMutation(api.recommendations.removeIdea);
+  const pendingDiscards = useRef<
+    Map<string, { idea: GiftRecommendation; insertAt: number; timeoutId: ReturnType<typeof setTimeout> }>
+  >(new Map());
 
   const cached = useQuery(
     api.recommendations.getByPersonOccasion,
-    ready ? { personId: id, occasionLabel: occasion, giftType } : "skip",
+    ready && occasion ? { personId: id, occasionLabel: occasion, giftType } : "skip",
   );
 
   if (!ready || person === undefined) {
@@ -79,24 +98,35 @@ export default function GiftsPage({
   const hasCached = cached !== undefined && cached !== null;
   const showIdeas = ideas ?? (hasCached ? (cached!.ideas as GiftRecommendation[]) : null);
 
-  const handleDiscard = async (index: number) => {
-    if (showIdeas) {
-      const next = showIdeas.filter((_, i) => i !== index);
-      setIdeas(next);
-    }
-    try {
-      await removeIdea({ personId: id, occasionLabel: occasion, giftType, ideaIndex: index });
-    } catch {
-      // silent — local state already updated
-    }
-  };
+  const handleDiscard = (idea: GiftRecommendation, displayIndex: number) => {
+    // Remove from local state immediately
+    setIdeas((prev) => (prev ?? showIdeas ?? []).filter((_, i) => i !== displayIndex));
 
-  const formatEventBudget = (min?: number, max?: number) => {
-    const toEur = (v: number) => Math.round(v / 100);
-    if (min !== undefined && max !== undefined) return `${toEur(min)}–${toEur(max)}€`;
-    if (min !== undefined) return `desde ${toEur(min)}€`;
-    if (max !== undefined) return `hasta ${toEur(max)}€`;
-    return null;
+    const timeoutId = setTimeout(() => {
+      pendingDiscards.current.delete(idea.title);
+      removeIdea({ personId: id, occasionLabel: occasion, giftType, ideaTitle: idea.title }).catch(() => {});
+    }, DISCARD_DELAY);
+
+    pendingDiscards.current.set(idea.title, { idea, insertAt: displayIndex, timeoutId });
+
+    toast("Esta idea no se volverá a mostrar", {
+      duration: DISCARD_DELAY,
+      action: {
+        label: "Deshacer",
+        onClick: () => {
+          const pending = pendingDiscards.current.get(idea.title);
+          if (!pending) return;
+          clearTimeout(pending.timeoutId);
+          pendingDiscards.current.delete(idea.title);
+          setIdeas((prev) => {
+            const current = prev ?? [];
+            const next = [...current];
+            next.splice(pending.insertAt, 0, pending.idea);
+            return next;
+          });
+        },
+      },
+    });
   };
 
   return (
@@ -117,57 +147,39 @@ export default function GiftsPage({
       </div>
 
       <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-5 space-y-4">
-        {events && events.length > 0 && (
-          <div className="space-y-1.5">
-            <p className="text-xs text-muted-foreground font-medium">Eventos guardados</p>
-            <div className="flex flex-wrap gap-2">
-              {events.map((ev) => {
-                const budget = formatEventBudget(ev.budgetMin, ev.budgetMax);
-                const isSelected = occasion === ev.label;
-                return (
-                  <button
-                    key={ev._id}
-                    type="button"
-                    onClick={() => {
-                      setOccasion(ev.label);
-                      setIdeas(null);
-                    }}
-                    className={[
-                      "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
-                      isSelected
-                        ? "bg-primary text-primary-foreground"
-                        : "border border-border/60 bg-background/60 text-muted-foreground hover:text-foreground",
-                    ].join(" ")}
-                  >
-                    {ev.label}
-                    {budget && (
-                      <span className={isSelected ? "opacity-80" : "opacity-60"}>
-                        · {budget}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
         <div className="flex flex-wrap items-end gap-3">
-          <div className="flex-1 min-w-[200px] space-y-1.5">
-            <Label htmlFor="occasion">¿Para qué ocasión?</Label>
-            <Input
-              id="occasion"
+          <div className="space-y-1.5">
+            <Label>¿Para qué ocasión?</Label>
+            <Select
               value={occasion}
-              onChange={(e) => {
-                setOccasion(e.target.value);
+              onValueChange={(v) => {
+                if (!v) return;
+                setOccasion(v);
                 setIdeas(null);
               }}
-              placeholder="Cumpleaños, aniversario, Navidad…"
-            />
+            >
+              <SelectTrigger className="w-56">
+                <SelectValue placeholder="Elige un evento" />
+              </SelectTrigger>
+              <SelectContent>
+                {events && events.length > 0 ? (
+                  events.map((ev) => (
+                    <SelectItem key={ev._id} value={ev.label}>
+                      {ev.label}{formatBudget(ev.budgetMin, ev.budgetMax)}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="__none__" disabled>
+                    Sin eventos guardados
+                  </SelectItem>
+                )}
+              </SelectContent>
+            </Select>
           </div>
           <Button
             size="lg"
             onClick={generate}
-            disabled={loading || !occasion.trim()}
+            disabled={loading || !occasion}
           >
             {hasCached ? (
               <RefreshCw className="size-4" aria-hidden />
@@ -224,7 +236,7 @@ export default function GiftsPage({
               idea={idea}
               index={i}
               giftType={giftType}
-              onDiscard={() => handleDiscard(i)}
+              onDiscard={() => handleDiscard(idea, i)}
             />
           ))}
         </div>
@@ -235,8 +247,9 @@ export default function GiftsPage({
           </div>
           <h2 className="text-2xl font-medium mb-2">A medida para {person.name}</h2>
           <p className="text-sm text-muted-foreground max-w-md mx-auto">
-            La IA combinará intereses, notas y presupuesto que has guardado
-            con la ocasión y el tipo de regalo que elijas para sugerir seis ideas concretas.
+            {events && events.length === 0
+              ? "Añade un evento en el perfil para poder generar ideas con el presupuesto correcto."
+              : "La IA combinará intereses, notas y presupuesto que has guardado con la ocasión y el tipo de regalo que elijas para sugerir seis ideas concretas."}
           </p>
         </div>
       )}
