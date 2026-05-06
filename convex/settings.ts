@@ -3,7 +3,8 @@ import { mutation, query } from "./_generated/server";
 import { requireUser } from "./auth";
 
 export const DEFAULT_NOTIFY_DAYS_BEFORE = 30;
-export const DEFAULT_EMAIL_NOTIFY_DAYS_BEFORE = 7;
+export const DEFAULT_EMAIL_NOTIFY_DAYS_BEFORE = 14;
+export const DEFAULT_EMAIL_NOTIFICATIONS_ENABLED = true;
 
 export const getMine = query({
   args: {},
@@ -16,11 +17,38 @@ export const getMine = query({
       .unique();
     return {
       notifyDaysBefore: existing?.notifyDaysBefore ?? DEFAULT_NOTIFY_DAYS_BEFORE,
-      emailNotificationsEnabled: existing?.emailNotificationsEnabled ?? false,
+      emailNotificationsEnabled:
+        existing?.emailNotificationsEnabled ?? DEFAULT_EMAIL_NOTIFICATIONS_ENABLED,
       emailNotifyDaysBefore:
         existing?.emailNotifyDaysBefore ?? DEFAULT_EMAIL_NOTIFY_DAYS_BEFORE,
       email: existing?.email ?? identity?.email ?? null,
     };
+  },
+});
+
+// Crea el documento de ajustes con los valores por defecto si aún no existe.
+// Se llama automáticamente al entrar a la app por primera vez.
+export const ensureDefaults = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const clerkUserId = await requireUser(ctx);
+    const existing = await ctx.db
+      .query("userSettings")
+      .withIndex("by_user", (q) => q.eq("clerkUserId", clerkUserId))
+      .unique();
+
+    if (existing) return;
+
+    const identity = await ctx.auth.getUserIdentity();
+    const email = identity?.email ?? null;
+
+    await ctx.db.insert("userSettings", {
+      clerkUserId,
+      notifyDaysBefore: DEFAULT_NOTIFY_DAYS_BEFORE,
+      emailNotificationsEnabled: email !== null,
+      emailNotifyDaysBefore: DEFAULT_EMAIL_NOTIFY_DAYS_BEFORE,
+      ...(email !== null ? { email } : {}),
+    });
   },
 });
 

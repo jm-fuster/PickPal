@@ -6,6 +6,7 @@ import { SidebarLink } from "@/components/layout/SidebarLink";
 import { SidebarUserInfo } from "@/components/layout/SidebarUserInfo";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { LogoMark } from "@/components/ui/LogoMark";
+import { UserInitializer } from "@/components/layout/UserInitializer";
 
 export default function AppLayout({
   children,
@@ -14,6 +15,7 @@ export default function AppLayout({
 }) {
   return (
     <div className="flex flex-1">
+      <UserInitializer />
       {/* Sidebar — lg+ */}
       <aside className="hidden lg:flex flex-col w-60 shrink-0 bg-background text-foreground border-r border-border h-screen sticky top-0">
         <div className="px-5 py-5 border-b border-border flex items-center justify-between">
