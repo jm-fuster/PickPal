@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { use, useState } from "react";
 import {
-  CalendarX2, Camera, Check, PencilLine, Repeat2, Sparkles, Trash2, X,
+  ArrowLeft, CalendarX2, Camera, Check, PencilLine, Repeat2, Sparkles, Trash2, X,
 } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
@@ -114,9 +114,10 @@ function PersonDetailContent({
     <main className="flex flex-1 flex-col gap-8 p-4 sm:p-6 lg:p-8 w-full max-w-6xl">
       <Link
         href="/people"
-        className="text-sm text-muted-foreground hover:text-foreground w-fit"
+        className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground w-fit"
       >
-        ← Seres queridos
+        <ArrowLeft className="size-3.5" aria-hidden />
+        Seres queridos
       </Link>
 
       {/* ── Header ── */}
