@@ -366,6 +366,12 @@ Persona gramatical: **tú** (singular, cercano). Nunca "nosotros" corporativo.
 
 ---
 
+## Email transaccional
+
+El email de recordatorio de eventos traduce los tokens del design system a hex para compatibilidad con clientes de correo. La paleta, la estructura y las reglas del botón CTA están documentadas en [`docs/email-notifications.md`](email-notifications.md#plantilla-de-email). Si los tokens de color cambian, actualizar también las constantes hex de `convex/emails.ts`.
+
+---
+
 ## Anti-patrones
 
 Cosas que se han probado o considerado y NO funcionan. Si vuelven a tentar, leer aquí primero.

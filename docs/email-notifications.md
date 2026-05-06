@@ -57,10 +57,63 @@ Si el envío a un usuario falla (Resend devuelve 4xx/5xx, red caída, etc.), el 
 |---|---|
 | [`convex/schema.ts`](../convex/schema.ts) | Campos nuevos en `userSettings` y tabla `emailNotifications` con sus índices. |
 | [`convex/settings.ts`](../convex/settings.ts) | `getMine` devuelve los nuevos campos + email del JWT. `setMine` valida y los persiste. Si se activa el toggle sin email en JWT, lanza error. |
-| [`convex/notifications.ts`](../convex/notifications.ts) | Cálculo de próxima ocurrencia (recurrente / no recurrente), matching contra antelación, dedup vs. `emailNotifications`. |
-| [`convex/emails.ts`](../convex/emails.ts) | Llama a Resend (vía `fetch`, sin SDK) y orquesta el cron diario. Construye HTML inline en español. |
+| [`convex/notifications.ts`](../convex/notifications.ts) | Cálculo de próxima ocurrencia (recurrente / no recurrente), matching contra antelación, dedup vs. `emailNotifications`. Exporta el tipo `EventToNotify` (incluye `personId` para el CTA del email). |
+| [`convex/emails.ts`](../convex/emails.ts) | Llama a Resend (vía `fetch`, sin SDK) y orquesta el cron diario. Construye HTML inline en español con diseño visual propio (ver sección "Plantilla de email"). |
 | [`convex/crons.ts`](../convex/crons.ts) | `crons.cron("0 8 * * *", ...)` — diario a las 08:00 UTC. |
 | [`src/app/(app)/settings/page.tsx`](../src/app/%28app%29/settings/page.tsx) | UI: toggle + input de antelación + email destino visible. |
+
+---
+
+## Plantilla de email
+
+El HTML se genera en `convex/emails.ts` (`buildHtml()`). No usa React Email ni ninguna librería externa — es una cadena de template literal con tabla HTML para compatibilidad con clientes de correo.
+
+### Estructura visual
+
+```
+┌─────────────────────────────────────────┐
+│  Header verde (#2D4033)                 │
+│  "PickPal"  ·  "Recordatorio de evento" │
+├─────────────────────────────────────────┤
+│  Fondo crema (#FBF7EE)                  │
+│  "Tienes un evento próximo:"            │
+│  ┌─ card por evento ─────────────────┐  │
+│  │  Nombre (negrita) · Etiqueta      │  │
+│  │  dd/mm · "en X días" (terracota)  │  │
+│  └───────────────────────────────────┘  │
+│  [ Botón CTA ]                          │
+├─────────────────────────────────────────┤
+│  Footer crema · texto opt-out           │
+└─────────────────────────────────────────┘
+```
+
+### Paleta
+
+Los tokens del design system se traducen a hex porque los clientes de correo no soportan CSS variables ni `oklch`.
+
+| Token app | Hex en email | Uso |
+|---|---|---|
+| `--primary` | `#2D4033` | Fondo header, fondo botón CTA |
+| `--background` | `#FBF7EE` | Fondo body y footer |
+| `--secondary` | `#D97757` | Texto del countdown ("en X días") |
+| `--foreground` | `#3D2E1E` | Texto principal del body |
+| `--border` | `#E0D5C5` | Borde de cards y secciones |
+| muted | `#9A8A75` | Texto secundario, footer |
+
+### Botón CTA
+
+- **1 evento** → `"Generar ideas de regalo para {personName}"` → `https://pickpal-app.vercel.app/people/{personId}`
+- **N eventos** → `"Ver mis eventos próximos"` → `https://pickpal-app.vercel.app/people`
+
+El `personId` viene del tipo `EventToNotify` (campo añadido en `convex/notifications.ts`). El loop sobre personas ya tenía el ID disponible; solo había que propagarlo.
+
+La URL base está hardcodeada como constante `APP_BASE_URL = "https://pickpal-app.vercel.app"` en `emails.ts`. Si el dominio cambia, actualizar ahí.
+
+### Footer
+
+> Si no quieres seguir recibiendo estos recordatorios, desactívalos en tus [ajustes](https://pickpal-app.vercel.app/settings) de PickPal.
+
+"ajustes" enlaza a `/settings`. Texto en minúsculas deliberadamente — registro conversacional.
 
 ---
 
@@ -154,13 +207,36 @@ Resumen — el detalle vive en [`docs/security.md`](security.md).
 
 ### Probar manualmente sin esperar al cron
 
+**Opción A — disparo real del cron** (requiere que haya eventos con `daysUntil === emailNotifyDaysBefore` hoy):
+
 ```bash
-# en el deployment dev
+# dev
 npx convex run emails:runDailyEmailNotifications
 
-# o en prod
+# prod
 npx convex run emails:runDailyEmailNotifications --prod
 ```
+
+**Opción B — email de prueba visual** (envía a cualquier email con datos reales del usuario, sin condición de días):
+
+Crear temporalmente `convex/emailTest.ts` con una action pública que llame a `internal.emails.sendBatchedReminderEmail` usando IDs reales consultados desde la base de datos. Ejemplo mínimo:
+
+```ts
+export const sendTestReminderEmail = action({
+  args: { to: v.optional(v.string()) },
+  handler: async (ctx, { to }) => {
+    // consultar un usuario + persona + fecha reales del deployment
+    // llamar a internal.emails.sendBatchedReminderEmail con esos datos
+  },
+});
+```
+
+```bash
+npx convex dev --once
+npx convex run emailTest:sendTestReminderEmail
+```
+
+**Importante**: borrar `emailTest.ts` tras la prueba. No commitear — es scaffolding temporal. Los IDs del dev deployment no existen en prod (la pantalla de error al pulsar el CTA en el email de prueba es esperada y no es un bug).
 
 ### Logs
 
@@ -189,7 +265,7 @@ Si por alguna razón hay que reenviar un aviso ya marcado como enviado, hay que 
 
 - **Sin reintentos**: ver "Flujo end-to-end".
 - **Sin recordatorios escalonados** (30/7/1): mejora opcional. La estructura está lista para soportar `emailNotifyDaysBefore: number[]` cambiando solo el matching y la UI.
-- **Sin email de prueba** desde Ajustes: cuando lo haya, requiere bucket de rate limit.
+- **Sin email de prueba desde Ajustes**: cuando lo haya, requiere bucket de rate limit. De momento, ver "Opción B" en la sección de operativa.
 - **Sin localización**: el correo va siempre en español, igual que el resto de la app.
 - **Sin opciones por evento**: el toggle es global. No se puede silenciar el recordatorio de una persona o evento concreto.
 - **Sin verificación de email**: si el JWT trae `email_verified=false`, hoy no se rechaza. Aceptable mientras Clerk no permita registros sin verificar; revisar si cambia.
