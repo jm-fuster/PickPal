@@ -15,6 +15,45 @@ La calidez es diferenciación: casi todo el SaaS B2C parece enterprise. Si el us
 
 ---
 
+## Logo y marca
+
+El logo-mark de PickPal son dos figuras entrelazadas que forman las letras "PP". Archivo fuente: [`public/logo-mark.svg`](../public/logo-mark.svg).
+
+### Colores del logo
+
+| Path | Color | Token equivalente |
+|---|---|---|
+| Figura izquierda (p) + cabeza izquierda | `currentColor` | hereda `--foreground` / `--sidebar-foreground` del contexto |
+| Figura derecha (P) + cabeza derecha | `#F1704B` | ~`--secondary` (terracota) |
+
+Los paths del verde oscuro usan `fill="currentColor"` en el componente React, no un color fijo. Esto permite que el logo se adapte automáticamente: sobre fondo oscuro (sidebar, dark mode) hereda el color crema del texto; sobre fondo claro hereda el marrón cálido del texto. El coral se queda fijo porque es el acento de marca.
+
+### Componente
+
+```tsx
+import { LogoMark } from "@/components/ui/LogoMark";
+<LogoMark className="size-7" />
+```
+
+Acepta `className` para controlar tamaño. Incluye `aria-hidden` — el contexto de texto adjunto ya nombra la marca.
+
+### Dónde aparece
+
+| Ubicación | Tamaño | Archivo |
+|---|---|---|
+| Sidebar desktop | `size-7` | `src/app/(app)/layout.tsx` |
+| Header móvil | `size-6` | `src/app/(app)/layout.tsx` |
+| Auth layout (sign-in / sign-up) | `size-7` | `src/app/(auth)/layout.tsx` |
+| Landing page header | `size-7` | `src/app/page.tsx` |
+| Favicon (SVG) | — | `public/logo-mark.svg` → metadata en `src/app/layout.tsx` |
+
+### Pendiente de logo
+
+- **Email**: los clientes de correo no soportan SVG. Necesita un PNG alojado en URL pública para poder meterlo en el header de `convex/emails.ts`. Diferido hasta tener deploy o CDN.
+- **Apple Touch Icon**: `apple-icon.png` 180×180 para iOS. Añadir a `public/` y registrar en `metadata.icons.apple`.
+
+---
+
 ## Tokens
 
 Definidos en [`src/app/globals.css`](../src/app/globals.css). Todos los colores en `oklch` para mantener consistencia perceptual entre claro y oscuro.
@@ -90,7 +129,7 @@ Visible a partir de `lg` (1024px). Implementado en `src/app/(app)/layout.tsx`.
 - Links inactivos: `text-sidebar-foreground/70 hover:bg-sidebar-accent`.
 - El componente `SidebarLink` usa `usePathname()` y compara con `startsWith` para resaltar rutas anidadas.
 - El `<aside>` usa `h-screen sticky top-0` para que el pie quede siempre visible sin que el contenido principal lo desplace.
-- **Header del sidebar**: `PickPal` (link) a la izquierda + `SafeNotificationBell` a la derecha. `flex items-center justify-between`.
+- **Header del sidebar**: `<LogoMark size-7>` + texto "PickPal" (link) a la izquierda + `SafeNotificationBell` a la derecha. `flex items-center justify-between`.
 - **Pie del sidebar**: `SidebarUserInfo` — `UserButton` de Clerk + email del usuario truncado (`text-xs text-muted-foreground`).
 - **Tema**: `defaultTheme="dark"` sin `enableSystem`. El toggle está en `/settings`. No hay ThemeToggle en sidebar ni en el header.
 - En móvil (`< lg`): header compacto con hamburguesa (`MobileNav`) + logo a la izquierda, campana + UserButton a la derecha. La navegación se abre en un `Sheet` lateral (shadcn `sheet.tsx`) desde la izquierda. `MobileNav` es un componente cliente en `src/components/layout/MobileNav.tsx`.
