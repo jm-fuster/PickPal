@@ -216,6 +216,26 @@ La sección "Historial de regalos" en `/people/[id]` registra regalos pasados pa
 - Solución: renderizar el label manualmente en el trigger usando `REACTIONS.find(r => r.value === field.value)?.label ?? "Reacción…"` dentro de un `<span>`, sin `SelectValue`. Los items siguen dentro de `SelectContent` para el dropdown.
 - Aplicar este patrón en cualquier Select controlado con valor inicial en un formulario de edición.
 
+### Enlace de retroceso (back link)
+
+Patrón para "volver a la sección anterior", visible en la parte superior de páginas de detalle o subpáginas.
+
+```tsx
+<Link
+  href="/people"
+  className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground w-fit"
+>
+  <ArrowLeft className="size-3.5" aria-hidden />
+  Seres queridos
+</Link>
+```
+
+**Reglas:**
+- Icono `ArrowLeft` de lucide-react, `size-3.5`. Sin texto alternativo propio (`aria-hidden`) — el texto del link ya es descriptivo.
+- Color `text-muted-foreground` en reposo, `hover:text-foreground`. No usar `text-primary`.
+- `w-fit` para que el área de hover no se extienda a todo el ancho.
+- El texto es el nombre de la sección destino, no "Volver" — aporta contexto de a dónde se va.
+
 ### Avatars
 
 - Tamaño default `size-10`–`size-12` en cards, `size-20`–`size-24` en headers de detalle.
@@ -283,11 +303,17 @@ Iconos en uso:
 - `Repeat2` — evento recurrente (anual).
 - `CalendarX2` — evento de fecha única (no recurrente).
 - `Check` — indicador de guardado exitoso (pill fijo en perfil de persona).
+- `ArrowLeft` — enlace de retroceso ("← Seres queridos", "← [nombre]"). Siempre `size-3.5`.
+- `ShoppingBag` — tipo de regalo "Producto físico".
+- `Ticket` — tipo de regalo "Experiencia".
+- `Heart` — tipo de regalo "Tiempo juntos".
+- `Shuffle` — tipo de regalo "Sorpréndeme".
 
 **Reglas:**
 - **Botones icon-only** necesitan `aria-label` y `title`. Usar variant `ghost` y size `icon` o `icon-sm`.
 - **Botones con icono + texto**: el icono va antes del texto, separado por el gap nativo del botón. No añadir `mr-2`.
 - **No mezclar sets**: no usar Heroicons / Phosphor / SVG inline. Si lucide no tiene un icono concreto, abrir issue en pendientes antes de meter algo ad-hoc.
+- **No usar emojis en botones, chips ni tarjetas de acción**: los emojis son solo para empty states y feature cards de marketing. En su lugar usar el icono de lucide más cercano.
 - **Iconos decorativos**: `aria-hidden`. Solo los que aportan información llevan label.
 
 ---
@@ -345,7 +371,7 @@ Persona gramatical: **tú** (singular, cercano). Nunca "nosotros" corporativo.
 Cosas que se han probado o considerado y NO funcionan. Si vuelven a tentar, leer aquí primero.
 
 - **Gradients en superficies grandes**: rompen la sensación de papel del fondo crema. Los CTAs y headers son planos.
-- **Emojis decorativos en navegación o botones de acción**: rompen el registro adulto. Los emojis son solo para empty states y feature cards de marketing.
+- **Emojis en navegación, botones o tarjetas de acción**: rompen el registro adulto. Los emojis son solo para empty states y feature cards de marketing. Sustituir siempre por el icono de lucide más cercano.
 - **Sombras fuertes** (`shadow-lg`+): material design vibe, choque inmediato con la calidez. Máximo `shadow-md` y solo en hover si se justifica.
 - **Borde de color en cards** (ej. `border-primary` decorativo): se sentía corporativo. Mantener bordes en `border-border` o variantes con alpha.
 - **`font-bold` en headings de serif sin razón**: peso 700 en Fraunces a tamaños medianos parece "newspaper" anticuado. Preferir 500–600 salvo en hero gigante.
@@ -361,7 +387,7 @@ Lista de cosas que sé que faltan o que no han recibido pasada todavía. Se irá
 - [x] ~~Hover de cards interactivas~~ → resuelto, ver Componentes · Cards.
 - [x] ~~Iconografía~~ → resuelto: lucide-react adoptado, ver Componentes · Iconografía.
 - [x] ~~Página `/people/[id]` (detalle)~~ → edición inline por secciones (header / intereses+notas / datos prácticos). Sin página `/people/[id]/edit` (redirige al perfil). Guard de cambios sin guardar con `beforeunload` + dialog. Ver "Edición inline (perfil de persona)".
-- [x] ~~Página `/people/[id]/gifts`~~ → resuelto: `<Sparkles>` en titulo de card, footer separado con border-t y precio prominente, stagger animation, empty state con copy "A medida para X", input de ocasión en card border-dashed.
+- [x] ~~Página `/people/[id]/gifts`~~ → resuelto: panel de configuración con Select de evento (solo eventos del perfil, presupuesto automático), tarjetas de tipo con iconos lucide y descripción, botón "Generar" top-right del panel, skeletons visibles (`bg-muted/40 animate-pulse`), tarjetas con stagger animation, botón X con toast permanente + deshacer, back link con `ArrowLeft`.
 - [ ] **Footer global**: minimal por ahora. Decidir si crece o se queda así.
 - [ ] **Skeletons consistentes**: todos en `rounded-2xl` y `border-dashed`, pero verificar dimensiones uniformes.
 - [ ] **Mobile < 380px**: sin probar. Hero de landing podría descuadrar.

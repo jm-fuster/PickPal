@@ -4,7 +4,7 @@
 
 ```
 Usuario → selecciona un evento del perfil (Select)
-  → elige tipo de regalo (chips)
+  → elige tipo de regalo (tarjeta de tipo)
   → click "Generar 6 ideas"
     → POST /api/recommendations { personId, occasionLabel, giftType }
     → Busca persona en Convex (intereses, notas, tallas, alergias, dislikes)
@@ -41,18 +41,18 @@ El presupuesto (`budgetMin` / `budgetMax`) se asocia a cada **fecha importante**
 
 ---
 
-## Tipos de regalo (chips)
+## Tipos de regalo
 
 Cuatro opciones mutuamente excluyentes definidas en `src/lib/gifts.ts`:
 
-| Valor | Label | Comportamiento del prompt |
-|---|---|---|
-| `fisica` | Producto físico | Solo productos comprables en Amazon.es. `amazonQuery` para Amazon. |
-| `experiencia` | Experiencia | Cenas, talleres, escapadas, conciertos. `amazonQuery` para Google. |
-| `tiempo-juntos` | Tiempo juntos | Planes gratuitos o caseros. Precios bajos o cero. |
-| `sorprendeme` | Sorpréndeme | Mezcla libre de los tres tipos anteriores. |
+| Valor | Icono (lucide) | Label | Descripción visible | Comportamiento del prompt |
+|---|---|---|---|---|
+| `fisica` | `ShoppingBag` | Producto físico | Algo que comprar y envolver | Solo productos comprables en Amazon.es. `amazonQuery` para Amazon. |
+| `experiencia` | `Ticket` | Experiencia | Cena, taller, escapada… | Cenas, talleres, escapadas, conciertos. `amazonQuery` para Google. |
+| `tiempo-juntos` | `Heart` | Tiempo juntos | Planes sin coste o caseros | Planes gratuitos o caseros. Precios bajos o cero. |
+| `sorprendeme` | `Shuffle` | Sorpréndeme | Mezcla de los tres tipos | Mezcla libre de los tres tipos anteriores. |
 
-Cambiar el tipo limpia las ideas en pantalla (`ideas = null`).
+Se muestran como tarjetas en grid 2×2 (4×1 en `sm+`) con icono, nombre y descripción corta. Sin emojis — se usan iconos de lucide-react para coherencia con el resto de la UI. Cambiar el tipo limpia las ideas en pantalla (`ideas = null`).
 
 ---
 
