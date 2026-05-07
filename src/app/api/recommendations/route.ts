@@ -170,7 +170,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const { object } = await generateObject({
-      model: google("gemini-2.5-flash"),
+      model: google("gemini-2.0-flash"),
       schema: giftRecommendationsSchema,
       prompt,
     });
@@ -185,12 +185,25 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error("[recommendations] gemini:", message, err);
+    // AI_RetryError wraps the real cause in lastError
+    const statusCode =
+      err != null && typeof err === "object"
+        ? (err as Record<string, unknown>).statusCode ??
+          (
+            (err as Record<string, unknown>).lastError as
+              | Record<string, unknown>
+              | undefined
+          )?.statusCode
+        : undefined;
+    const isOverloaded = statusCode === 503;
     return NextResponse.json(
       {
-        error: "Error generando recomendaciones.",
+        error: isOverloaded
+          ? "El servicio de IA está saturado ahora mismo, inténtalo en unos minutos."
+          : "Error generando recomendaciones.",
         ...(process.env.NODE_ENV !== "production" && { detail: message }),
       },
-      { status: 500 },
+      { status: isOverloaded ? 503 : 500 },
     );
   }
 }
