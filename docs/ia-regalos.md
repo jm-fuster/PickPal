@@ -13,7 +13,8 @@ Usuario → selecciona un evento del perfil (Select)
     → Llama a Gemini 2.5 Flash vía AI SDK con generateObject
     → Persiste las 9 ideas en Convex (tabla recommendations, upsert)
     → Devuelve 9 recomendaciones validadas por Zod
-    → Cada tarjeta muestra título, badge de categoría, descripción, precio y chips de tienda
+    → Cada tarjeta muestra título, badges de intereses, descripción, precio y chips de tienda
+    → Si se accede con ?occasion=LABEL, el selector de ocasión se pre-selecciona automáticamente
 ```
 
 ---
@@ -175,8 +176,24 @@ Persona:
 
 Reglas:
 [según giftType: física / experiencia / tiempo-juntos / sorprendeme]
+- Los precios deben respetar el presupuesto indicado cuando sea posible.
+- "description" en español, máximo 2 frases, explicando por qué encaja con esta persona.
+- "category" array JSON de 1-3 intereses concretos del perfil (ej: ["Senderismo","Fotografía"]).
 - Responde en español.
 ```
+
+---
+
+## Pre-selección de ocasión por query param
+
+La página `/people/[personId]/gifts` acepta `?occasion=LABEL` en la URL. Si está presente, el selector de ocasión se inicializa con ese valor sin que el usuario tenga que buscarlo.
+
+**Puntos de entrada que usan este param:**
+- `UpcomingDateCard` (agenda/dashboard): el botón "Ver regalos" incluye `?occasion={date.label}`.
+- `NotificationBell` (popover): cada fila incluye `?occasion={date.label}`.
+- Email de recordatorio (CTA único): el enlace apunta a `/people/{personId}/gifts?occasion={label}`.
+
+**Implementación:** `useSearchParams()` en el cliente lee el param en el montaje; si coincide con algún evento del perfil, se llama `setOccasion` con ese valor. Si el label no existe en la lista de eventos (evento eliminado tras envío del email), el selector queda vacío y el usuario elige manualmente.
 
 ---
 

@@ -81,7 +81,7 @@ export function UpcomingDateCard({
         </div>
 
         <Link
-          href={`/people/${person._id}/gifts`}
+          href={`/people/${person._id}/gifts?occasion=${encodeURIComponent(date.label)}`}
           className={buttonVariants({ size: "sm", className: "shrink-0" })}
         >
           Ver regalos

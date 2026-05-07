@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Sparkles, RefreshCw, ShoppingBag, Ticket, Heart, Shuffle, ArrowLeft } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
@@ -48,7 +49,10 @@ export default function GiftsPage({
       ? sanitizeFavoriteStores(settings.favoriteStores)
       : [...ALL_STORES];
 
-  const [occasion, setOccasion] = useState("");
+  const searchParams = useSearchParams();
+  const [occasion, setOccasion] = useState(
+    () => searchParams.get("occasion") ?? "",
+  );
   const [giftType, setGiftType] = useState<GiftType>("fisica");
   const [ideas, setIdeas] = useState<GiftRecommendation[] | null>(null);
   const [loading, setLoading] = useState(false);
