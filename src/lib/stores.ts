@@ -1,8 +1,12 @@
 export const STORE_IDS = [
   "amazon",
+  "elcorteingles",
   "aliexpress",
   "miravia",
-  "elcorteingles",
+  "fnac",
+  "decathlon",
+  "ikea",
+  "pccomponentes",
 ] as const;
 
 export type StoreId = (typeof STORE_IDS)[number];
@@ -11,9 +15,13 @@ export const ALL_STORES: readonly StoreId[] = STORE_IDS;
 
 export const STORE_LABELS: Record<StoreId, string> = {
   amazon: "Amazon",
+  elcorteingles: "El Corte Inglés",
   aliexpress: "AliExpress",
   miravia: "Miravia",
-  elcorteingles: "El Corte Inglés",
+  fnac: "Fnac",
+  decathlon: "Decathlon",
+  ikea: "IKEA",
+  pccomponentes: "PcComponentes",
 };
 
 export function generateStoreSearchUrl(store: StoreId, query: string): string {
@@ -21,12 +29,20 @@ export function generateStoreSearchUrl(store: StoreId, query: string): string {
   switch (store) {
     case "amazon":
       return `https://www.amazon.es/s?k=${q}`;
+    case "elcorteingles":
+      return `https://www.elcorteingles.es/search/?s=${q}`;
     case "aliexpress":
       return `https://es.aliexpress.com/w/wholesale-${q}.html`;
     case "miravia":
       return `https://www.miravia.es/search?q=${q}`;
-    case "elcorteingles":
-      return `https://www.elcorteingles.es/search/?s=${q}`;
+    case "fnac":
+      return `https://www.fnac.es/SearchResult/ResultList.aspx?Search=${q}`;
+    case "decathlon":
+      return `https://www.decathlon.es/es/search?q=${q}`;
+    case "ikea":
+      return `https://www.ikea.com/es/es/search/?q=${q}`;
+    case "pccomponentes":
+      return `https://www.pccomponentes.com/search/?query=${q}`;
   }
 }
 

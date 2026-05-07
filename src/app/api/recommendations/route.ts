@@ -75,13 +75,18 @@ const buildPrompt = (
           .join("\n")}\nEvita sugerir regalos similares a los marcados negativamente.`
       : "";
 
-  const storesGuide = `- "suggestedStores": array de 1-4 elementos indicando en qué tiendas online tiene sentido buscar este producto concreto. Valores válidos: "amazon", "aliexpress", "miravia", "elcorteingles".
-  Criterios por tienda:
-  - "amazon": catálogo amplísimo. Tech, libros, productos genéricos, marcas internacionales, envío rápido. Inclúyelo casi siempre, salvo cuando el producto sea claramente artesanal o muy local.
-  - "aliexpress": gadgets baratos, accesorios sin marca, productos chinos. Inclúyelo si la idea funciona con producto barato o con tiempo de espera largo. Excluye productos delicados, gourmet español, moda media-alta o regalos donde la calidad importa.
-  - "miravia": marketplace asiático tipo Aliexpress pero algo más curado, también moda y belleza. Mismo criterio que Aliexpress.
-  - "elcorteingles": gran almacén español. Gourmet, vinos, moda media-alta, hogar, perfumería, juguetes, electrodomésticos, regalos premium nacionales. Inclúyelo cuando la marca o calidad importan o cuando es un producto muy "español".
-  Incluye SIEMPRE al menos una tienda generalista ("amazon" o "elcorteingles"), excepto si el producto es claramente nicho (ej: cuadro pintado a mano, artesanía local, productos hechos a medida) — en ese caso indica solo las que realmente encajen.`;
+  const storesGuide = `- "suggestedStores": array de 1-8 elementos indicando en qué tiendas online tiene sentido buscar este producto concreto. Valores válidos: "amazon", "elcorteingles", "aliexpress", "miravia", "fnac", "decathlon", "ikea", "pccomponentes".
+  Criterios por tienda — incluye solo las que realmente encajen, no copies todas:
+  - "amazon": generalista. Tech, libros, productos de marca internacional, envío rápido. Inclúyela en la mayoría de productos físicos salvo nichos muy claros.
+  - "elcorteingles": gran almacén español. Gourmet, vinos, moda media-alta, perfumería, juguetes, electrodomésticos, regalos premium nacionales. Útil cuando la marca o la calidad importan, o cuando el producto es muy "español".
+  - "aliexpress": gadgets baratos, accesorios sin marca, productos chinos genéricos. Útil para precio bajo + espera larga aceptable. Excluye gourmet español, moda media-alta, calidad relevante, artesanía.
+  - "miravia": marketplace asiático/europeo más curado que AliExpress, con énfasis en moda y belleza. Mismo criterio general que AliExpress.
+  - "fnac": cultura y ocio. Libros, ebooks, vinilos, juguetes educativos, papelería, gaming, fotografía, smart home medio. Excluye moda, deporte específico, bricolaje, hogar grande, gourmet.
+  - "decathlon": deporte y outdoor. Ropa deportiva, equipamiento (running, ciclismo, montaña, fitness, natación, fútbol), camping, mochilas técnicas. Inclúyela SOLO si la idea es claramente deportiva/outdoor.
+  - "ikea": hogar, muebles, decoración, textil hogar, vajilla, iluminación, organización, plantas. Útil para regalos de mudanza o parejas que estrenan piso. Excluye tech, moda, deporte, libros.
+  - "pccomponentes": tech especializada — componentes PC, periféricos, gaming, monitores, sillas gaming, smart home, móviles/portátiles. Inclúyela junto a Amazon cuando la idea es claramente tech serio.
+  Incluye SIEMPRE al menos una tienda generalista ("amazon" o "elcorteingles"), excepto si el producto es claramente nicho (artesanal, gourmet local, hecho a medida) — en ese caso indica solo las que realmente encajen.
+  Para productos muy específicos (deporte → "decathlon"; muebles → "ikea"; tech serio → "pccomponentes" + "amazon"; libros → "fnac" + "amazon"), incluye la tienda especialista junto a la generalista para dar al usuario más opciones de calidad-precio.`;
 
   const typeRules: Record<GiftType, string> = {
     fisica: `- Todas las ideas deben ser productos físicos comprables online.

@@ -171,7 +171,7 @@ Visible a partir de `lg` (1024px). Implementado en `src/app/(app)/layout.tsx`.
 
 ### Chips de tienda (multi-tienda en `GiftRecommendationCard`)
 
-Las tarjetas de regalo físico muestran 1-4 chips, uno por tienda relevante (Amazon, AliExpress, Miravia, El Corte Inglés). Reglas:
+Las tarjetas de regalo físico muestran 1–N chips, uno por tienda relevante. La lista actual de tiendas soportadas (`STORE_IDS` en `src/lib/stores.ts`) son 8: Amazon, El Corte Inglés, AliExpress, Miravia, Fnac, Decathlon, IKEA, PcComponentes. En la práctica la IA filtra a 1–3 chips por idea según `suggestedStores`, así que el grupo pocas veces es masivo. Reglas:
 
 - **Estilo**: `<a className={buttonVariants({ size: "sm", variant: "outline" })}>` con icono `ExternalLink` (size-3) detrás del texto. Siempre `target="_blank"` + `rel="noopener noreferrer"` (evita reverse tabnabbing).
 - **Layout**: `flex flex-wrap gap-1.5` — los chips hacen wrap a 2 líneas en móvil cuando los 4 no caben.

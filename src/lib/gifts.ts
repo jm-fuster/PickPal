@@ -19,8 +19,14 @@ export const giftRecommendationSchema = z.object({
   amazonQuery: z.string().min(1).max(120),
   // Tiendas en las que tiene sentido buscar este producto. Opcional para
   // mantener compatibilidad con ideas cacheadas pre-v2; el prompt actual
-  // pide a la IA que lo incluya siempre para regalos físicos.
-  suggestedStores: z.array(z.enum(STORE_IDS)).min(1).max(4).optional(),
+  // pide a la IA que lo incluya siempre para regalos físicos. El cap es
+  // `STORE_IDS.length` (no menor) para que la IA pueda devolver todas las
+  // tiendas en productos genéricos sin que falle el schema.
+  suggestedStores: z
+    .array(z.enum(STORE_IDS))
+    .min(1)
+    .max(STORE_IDS.length)
+    .optional(),
 });
 
 export const giftRecommendationsSchema = z.object({

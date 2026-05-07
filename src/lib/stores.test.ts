@@ -34,6 +34,30 @@ describe("generateStoreSearchUrl", () => {
     );
   });
 
+  it("genera URL de búsqueda en Fnac", () => {
+    expect(generateStoreSearchUrl("fnac", "libro de cocina")).toBe(
+      "https://www.fnac.es/SearchResult/ResultList.aspx?Search=libro%20de%20cocina",
+    );
+  });
+
+  it("genera URL de búsqueda en Decathlon", () => {
+    expect(generateStoreSearchUrl("decathlon", "zapatillas running")).toBe(
+      "https://www.decathlon.es/es/search?q=zapatillas%20running",
+    );
+  });
+
+  it("genera URL de búsqueda en IKEA", () => {
+    expect(generateStoreSearchUrl("ikea", "mesa escritorio")).toBe(
+      "https://www.ikea.com/es/es/search/?q=mesa%20escritorio",
+    );
+  });
+
+  it("genera URL de búsqueda en PcComponentes", () => {
+    expect(generateStoreSearchUrl("pccomponentes", "teclado mecanico")).toBe(
+      "https://www.pccomponentes.com/search/?query=teclado%20mecanico",
+    );
+  });
+
   it("escapa caracteres especiales", () => {
     expect(generateStoreSearchUrl("amazon", "café & té")).toBe(
       "https://www.amazon.es/s?k=caf%C3%A9%20%26%20t%C3%A9",
@@ -71,14 +95,16 @@ describe("sanitizeFavoriteStores", () => {
   });
 
   it("elimina duplicados manteniendo orden canónico", () => {
+    // Orden canónico de STORE_IDS: amazon, elcorteingles, aliexpress, miravia,
+    // fnac, decathlon, ikea, pccomponentes.
     expect(
       sanitizeFavoriteStores([
-        "elcorteingles",
-        "amazon",
-        "amazon",
         "miravia",
+        "amazon",
+        "amazon",
+        "elcorteingles",
       ]),
-    ).toEqual(["amazon", "miravia", "elcorteingles"]);
+    ).toEqual(["amazon", "elcorteingles", "miravia"]);
   });
 
   it("devuelve array vacío si no hay tiendas válidas", () => {
@@ -155,8 +181,8 @@ describe("pickEffectiveStores", () => {
       ["elcorteingles", "amazon", "miravia"],
       ["miravia", "amazon"],
     );
-    // ALL_STORES order: amazon, aliexpress, miravia, elcorteingles
-    // favoriteStores debería venir ya en orden canónico desde sanitizeFavoriteStores
+    // Preserva el orden de favoriteStores tal como llega; la página llama a
+    // sanitizeFavoriteStores antes para asegurar orden canónico de STORE_IDS.
     expect(result.stores).toEqual(["amazon", "miravia"]);
   });
 });

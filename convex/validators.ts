@@ -23,20 +23,24 @@ const MAX_IDEA_CATEGORY = 40;
 const MAX_IDEA_QUERY = 120;
 const MAX_IDEA_PRICE_EUROS = 100_000;
 const IDEAS_PER_GENERATION = 6;
-const MAX_SUGGESTED_STORES = 4;
-
 // Lista de tiendas soportadas. Fuente de verdad para validación server-side
 // tanto en `validateRecommendationIdeas` como en `setMine` (favoritas).
-// Espejada en `src/lib/stores.ts` (cliente) — si añades una nueva tienda,
-// actualiza ambos sitios.
+// Espejada en `STORE_IDS` de `src/lib/stores.ts` (cliente) — si añades una
+// nueva tienda, actualiza ambos sitios.
 export const ALLOWED_STORES = [
   "amazon",
+  "elcorteingles",
   "aliexpress",
   "miravia",
-  "elcorteingles",
+  "fnac",
+  "decathlon",
+  "ikea",
+  "pccomponentes",
 ] as const;
 
 export type AllowedStore = (typeof ALLOWED_STORES)[number];
+
+const MAX_SUGGESTED_STORES = ALLOWED_STORES.length;
 
 const ALLOWED_RELATIONSHIPS = [
   "friend",

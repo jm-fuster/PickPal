@@ -199,9 +199,13 @@ Definidas en [`src/lib/stores.ts`](../src/lib/stores.ts). Lista cerrada con allo
 | Store ID | Etiqueta | Plantilla de URL | Encaje típico |
 |---|---|---|---|
 | `amazon` | Amazon | `https://www.amazon.es/s?k={query}` | Generalista. Tech, libros, marcas internacionales, envío rápido |
-| `aliexpress` | AliExpress | `https://es.aliexpress.com/w/wholesale-{query}.html` | Gadgets baratos, accesorios sin marca, espera larga |
-| `miravia` | Miravia | `https://www.miravia.es/search?q={query}` | Marketplace asiático curado, moda y belleza |
 | `elcorteingles` | El Corte Inglés | `https://www.elcorteingles.es/search/?s={query}` | Gourmet, vinos, moda media-alta, hogar, regalos premium nacionales |
+| `aliexpress` | AliExpress | `https://es.aliexpress.com/w/wholesale-{query}.html` | Gadgets baratos, accesorios sin marca, espera larga |
+| `miravia` | Miravia | `https://www.miravia.es/search?q={query}` | Marketplace asiático/europeo curado, moda y belleza |
+| `fnac` | Fnac | `https://www.fnac.es/SearchResult/ResultList.aspx?Search={query}` | Libros, vinilos, juguetes educativos, gaming, fotografía, papelería |
+| `decathlon` | Decathlon | `https://www.decathlon.es/es/search?q={query}` | Deporte y outdoor: running, ciclismo, montaña, fitness, camping |
+| `ikea` | IKEA | `https://www.ikea.com/es/es/search/?q={query}` | Hogar, muebles, decoración, textil hogar, organización, iluminación |
+| `pccomponentes` | PcComponentes | `https://www.pccomponentes.com/search/?query={query}` | Tech especializada: componentes PC, periféricos, gaming, monitores |
 
 Las URLs se construyen con `encodeURIComponent` sobre la query, así que cualquier carácter especial queda escapado correctamente. Los enlaces siempre llevan `target="_blank" rel="noopener noreferrer"`.
 
@@ -228,8 +232,13 @@ Para evitar mostrar chips a tiendas que claramente no tienen el producto (miel a
 - **Persistencia**: `recommendations.ideas[].suggestedStores: v.optional(v.array(v.string()))` en el schema Convex.
 - **Reglas que el prompt impone a Gemini** (ver `buildPrompt` en [`src/app/api/recommendations/route.ts`](../src/app/api/recommendations/route.ts)):
   - **Incluir siempre al menos una generalista** (`amazon` o `elcorteingles`) salvo en casos claramente nicho (artesanal, gourmet hiper-local, hecho a medida).
-  - Excluir AliExpress/Miravia para gourmet español, moda media-alta o regalos donde la calidad importa.
-  - El Corte Inglés cuando la marca o calidad importan, o cuando es un producto muy "español".
+  - **Generalistas** (`amazon`, `elcorteingles`): Amazon en la mayoría de tech/libros/marcas internacionales; ECI cuando marca/calidad importan o es producto muy "español".
+  - **Marketplaces baratos** (`aliexpress`, `miravia`): solo cuando la idea funciona con producto barato + espera larga aceptable; excluir gourmet español, moda media-alta, calidad relevante.
+  - **Especialistas** — la IA tiene que añadir la tienda especialista junto a la generalista cuando claramente encaja:
+    - `fnac` → libros, vinilos, juguetes educativos, papelería, gaming, fotografía.
+    - `decathlon` → solo si la idea es claramente deportiva/outdoor.
+    - `ikea` → hogar, muebles, decoración, textil; útil para mudanzas o pareja que estrena piso.
+    - `pccomponentes` → tech serio (PCs, periféricos gaming, monitores, smart home).
   - Solo se pide para `fisica` y para los items físicos dentro de `sorprendeme`. Para `experiencia` y `tiempo-juntos` el prompt instruye explícitamente a omitir el campo.
 
 ### Lógica de renderizado
