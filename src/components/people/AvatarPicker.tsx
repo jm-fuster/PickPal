@@ -43,7 +43,7 @@ export function AvatarPicker({ value, onChange }: AvatarPickerProps) {
             type="button"
             onClick={() => handleClick(url)}
             className={cn(
-              "rounded-full p-0.5 transition-all border-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              "rounded-full p-0.5 transition-all border-2 overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               url === value
                 ? "border-primary ring-2 ring-primary ring-offset-2"
                 : "border-transparent hover:border-muted-foreground/40",
@@ -54,7 +54,7 @@ export function AvatarPicker({ value, onChange }: AvatarPickerProps) {
             <img
               src={url}
               alt=""
-              className="size-12 rounded-full bg-muted"
+              className="size-12 rounded-full bg-muted block"
               loading="lazy"
             />
           </button>
