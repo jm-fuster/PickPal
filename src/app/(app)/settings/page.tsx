@@ -252,7 +252,7 @@ export default function SettingsPage() {
                   className="size-4 rounded border-border accent-primary"
                 />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={STORE_ICONS[store]} alt="" className="size-4 rounded-sm object-contain" aria-hidden />
+                <img src={STORE_ICONS[store]} alt="" className="size-4 rounded-sm object-contain bg-white p-px" aria-hidden />
                 <span className="font-medium">{STORE_LABELS[store]}</span>
               </label>
             );

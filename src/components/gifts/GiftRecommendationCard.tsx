@@ -108,7 +108,7 @@ export function GiftRecommendationCard({
                         })}
                       >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={STORE_ICONS[store]} alt="" className="size-3.5 rounded-sm object-contain" aria-hidden />
+                        <img src={STORE_ICONS[store]} alt="" className="size-3.5 rounded-sm object-contain bg-white p-px" aria-hidden />
                         {STORE_LABELS[store]}
                         <ExternalLink className="size-3" aria-hidden />
                       </a>
