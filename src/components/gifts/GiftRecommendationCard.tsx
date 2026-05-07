@@ -111,7 +111,6 @@ export function GiftRecommendationCard({
                         rel="noopener noreferrer"
                         className={buttonVariants({
                           size: "sm",
-                          variant: "outline",
                         })}
                       >
                         {/* eslint-disable-next-line @next/next/no-img-element */}

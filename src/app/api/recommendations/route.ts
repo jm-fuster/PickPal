@@ -93,11 +93,13 @@ const buildPrompt = (
 ${storesGuide}`,
     experiencia: `- Todas las ideas deben ser experiencias (cenas, talleres, escapadas, conciertos, actividades…). No productos físicos.
 - "amazonQuery" debe ser una búsqueda de 3-6 palabras para encontrar esa experiencia en Google (ej. "cata de vinos Madrid", "taller cerámica Barcelona").
-- Omite "suggestedStores" en este tipo de ideas (no aplica).`,
+- Omite "suggestedStores" en este tipo de ideas (no aplica).
+- "category" debe referenciar los intereses concretos de la persona que motivan la experiencia (ej: ["Fotografía"], ["Cocina"], ["Senderismo"]). Si la experiencia no encaja con ningún interés definido, usa una etiqueta específica a la actividad (ej: ["Escape Room"], no ["Aventura"]).`,
     "tiempo-juntos": `- Todas las ideas deben ser planes gratuitos o caseros: actividades para hacer juntos, recetas, rutas, vales artesanales, etc.
 - "amazonQuery" debe ser una frase descriptiva de 3-5 palabras para buscar inspiración en Google (ej. "ruta senderismo fácil", "receta cena especial").
 - Los precios deben ser bajos o cero (experiencias sin coste o materiales mínimos).
-- Omite "suggestedStores" en este tipo de ideas (no aplica).`,
+- Omite "suggestedStores" en este tipo de ideas (no aplica).
+- "category" debe referenciar los intereses concretos de la persona que motivan el plan (ej: ["Leer"], ["Cocina"]). Si el plan no encaja con ningún interés definido, usa una etiqueta específica al plan (ej: ["Paseo al atardecer"], no ["Romántico"]).`,
     sorprendeme: `- Mezcla libremente productos físicos, experiencias y planes juntos. Varía el tipo entre las 9 ideas.
 - Para productos: "amazonQuery" útil para buscar online y rellena "suggestedStores" siguiendo los criterios. Para experiencias/planes: "amazonQuery" útil para Google y omite "suggestedStores".
 ${storesGuide}`,
