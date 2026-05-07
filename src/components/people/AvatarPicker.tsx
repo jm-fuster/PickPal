@@ -36,7 +36,7 @@ export function AvatarPicker({ value, onChange }: AvatarPickerProps) {
 
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-5 sm:grid-cols-6 gap-2">
+      <div className="grid grid-cols-5 sm:grid-cols-6 gap-2 justify-items-center">
         {options.map((url) => (
           <button
             key={url}
