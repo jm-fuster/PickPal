@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import {
   ALL_STORES,
+  STORE_ICONS,
   STORE_LABELS,
   generateStoreSearchUrl,
   pickEffectiveStores,
@@ -97,24 +98,28 @@ export function GiftRecommendationCard({
             isPhysical ? (
               <div className="space-y-1.5">
                 <div className="flex flex-wrap gap-1.5">
-                  {storesToRender.map((store) => (
-                    <a
-                      key={store}
-                      href={generateStoreSearchUrl(store, idea.amazonQuery, {
-                        minEuros: idea.priceMinEuros,
-                        maxEuros: idea.priceMaxEuros,
-                      })}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={buttonVariants({
-                        size: "sm",
-                        variant: "outline",
-                      })}
-                    >
-                      {STORE_LABELS[store]}
-                      <ExternalLink className="size-3" aria-hidden />
-                    </a>
-                  ))}
+                  {storesToRender.map((store) => {
+                    const StoreIcon = STORE_ICONS[store];
+                    return (
+                      <a
+                        key={store}
+                        href={generateStoreSearchUrl(store, idea.amazonQuery, {
+                          minEuros: idea.priceMinEuros,
+                          maxEuros: idea.priceMaxEuros,
+                        })}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={buttonVariants({
+                          size: "sm",
+                          variant: "outline",
+                        })}
+                      >
+                        <StoreIcon className="size-3.5" aria-hidden />
+                        {STORE_LABELS[store]}
+                        <ExternalLink className="size-3" aria-hidden />
+                      </a>
+                    );
+                  })}
                 </div>
                 {isFallback && (
                   <p className="text-[11px] text-muted-foreground">

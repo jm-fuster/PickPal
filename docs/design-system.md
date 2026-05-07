@@ -173,7 +173,8 @@ Visible a partir de `lg` (1024px). Implementado en `src/app/(app)/layout.tsx`.
 
 Las tarjetas de regalo físico muestran 1–N chips, uno por tienda relevante. La lista actual de tiendas soportadas (`STORE_IDS` en `src/lib/stores.ts`) son 7: Amazon, El Corte Inglés, AliExpress, Miravia, Decathlon, IKEA, PcComponentes. En la práctica la IA filtra a 1–3 chips por idea según `suggestedStores`, así que el grupo pocas veces es masivo. Reglas:
 
-- **Estilo**: `<a className={buttonVariants({ size: "sm", variant: "outline" })}>` con icono `ExternalLink` (size-3) detrás del texto. Siempre `target="_blank"` + `rel="noopener noreferrer"` (evita reverse tabnabbing).
+- **Estilo**: `<a className={buttonVariants({ size: "sm", variant: "outline" })}>` con icono de tienda (`STORE_ICONS[store]`, size-3.5) antes del texto, e icono `ExternalLink` (size-3) detrás. Siempre `target="_blank"` + `rel="noopener noreferrer"` (evita reverse tabnabbing).
+- **Iconos por tienda** (lucide, `STORE_ICONS` en `src/lib/stores.ts`): Amazon→`ShoppingCart`, El Corte Inglés→`Building2`, AliExpress→`Globe`, Miravia→`Tag`, Decathlon→`Activity`, IKEA→`Sofa`, PcComponentes→`Cpu`. Decisión deliberada: iconos genéricos del set lucide, no logos de marca, para mantener la coherencia visual del sistema (warm notebook, no branded e-commerce). El icono diferencia la tienda lo bastante; el nombre al lado confirma la identidad.
 - **Layout**: `flex flex-wrap gap-1.5` — los chips hacen wrap a 2 líneas en móvil cuando los 4 no caben.
 - **Orden**: canónico de `ALL_STORES` siempre, no el orden en que el usuario los marcó. Predecibilidad > preferencia.
 - **Etiqueta**: nombre legible de la tienda (`STORE_LABELS[store]`), no el ID. "El Corte Inglés", no "elcorteingles".
@@ -325,6 +326,8 @@ Patrón para "volver a la sección anterior", visible en la parte superior de p�
 
 **Sin guard de navegación:** al ser autosave no hay "cambios sin guardar" — se puede navegar libremente. No usar `beforeunload` ni `pendingNav` en pantallas con autosave.
 
+**Mismo patrón en `/settings`:** la página de Ajustes usa exactamente el mismo helper local `save(patch, revert)` con pill flotante "Guardado", `toast.error` solo en fallo, sin botón "Guardar" ni dirty flags. Switches y checkboxes guardan al `onChange`; el campo numérico de días guarda al `onBlur`. Diferencia respecto a la ficha de persona: las mutations Convex de Ajustes (`api.settings.setMine`) reciben patches por campo igual que `api.people.update`, así que el patrón se traslada 1:1.
+
 **Tipografía en secciones inline:**
 - Los labels de sección (eyebrows) usan `<p>` o `<h2>` según el contexto — en ambos casos añadir `font-sans` explícito para anular el base layer serif. Ver regla en Tipografía.
 
@@ -361,6 +364,13 @@ Iconos en uso:
 - `Heart` — tipo de regalo "Tiempo juntos".
 - `Shuffle` — tipo de regalo "Sorpréndeme".
 - `ExternalLink` — chips de tienda en `GiftRecommendationCard` (size-3, detrás del texto).
+- `ShoppingCart` — chip de Amazon en `GiftRecommendationCard` y `/settings`.
+- `Building2` — chip de El Corte Inglés.
+- `Globe` — chip de AliExpress.
+- `Tag` — chip de Miravia.
+- `Activity` — chip de Decathlon.
+- `Sofa` — chip de IKEA.
+- `Cpu` — chip de PcComponentes.
 
 **Reglas:**
 - **Botones icon-only** necesitan `aria-label` y `title`. Usar variant `ghost` y size `icon` o `icon-sm`.

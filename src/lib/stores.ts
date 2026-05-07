@@ -1,3 +1,14 @@
+import {
+  Activity,
+  Building2,
+  Cpu,
+  Globe,
+  ShoppingCart,
+  Sofa,
+  Tag,
+  type LucideIcon,
+} from "lucide-react";
+
 export const STORE_IDS = [
   "amazon",
   "elcorteingles",
@@ -20,6 +31,22 @@ export const STORE_LABELS: Record<StoreId, string> = {
   decathlon: "Decathlon",
   ikea: "IKEA",
   pccomponentes: "PcComponentes",
+};
+
+/**
+ * Icono lucide por tienda. Decisión deliberada: usar iconos genéricos del set
+ * lucide en vez de logos de marca, para mantener la coherencia visual del
+ * sistema de diseño (warm notebook, no branded e-commerce). El icono diferencia
+ * la tienda lo bastante; el nombre al lado confirma la identidad.
+ */
+export const STORE_ICONS: Record<StoreId, LucideIcon> = {
+  amazon: ShoppingCart,
+  elcorteingles: Building2,
+  aliexpress: Globe,
+  miravia: Tag,
+  decathlon: Activity,
+  ikea: Sofa,
+  pccomponentes: Cpu,
 };
 
 export interface PriceRange {

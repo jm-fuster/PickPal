@@ -1,19 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
 import { useTheme } from "next-themes";
-import { Moon, Sun } from "lucide-react";
+import { Check, Moon, Sun } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "../../../../convex/_generated/api";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { LoadingFallback } from "@/components/layout/LoadingFallback";
 import {
   ALL_STORES,
+  STORE_ICONS,
   STORE_LABELS,
   sanitizeFavoriteStores,
   type StoreId,
@@ -30,24 +30,35 @@ export default function SettingsPage() {
   const [emailDays, setEmailDays] = useState<number | "">("");
   const [favoriteStores, setFavoriteStores] = useState<StoreId[]>([]);
   const [mounted, setMounted] = useState(false);
+  // Tras la primera carga, ignoramos cambios externos en `settings` para no
+  // pisar actualizaciones optimistas que aún están viajando al servidor.
+  const initializedRef = useRef(false);
+  // Pill flotante "Guardado" — mismo patrón que /people/[id]/page.tsx
+  const [savedRecently, setSavedRecently] = useState(false);
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+    };
+  }, []);
+
   const isDark = mounted ? resolvedTheme === "dark" : false;
-  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    // Sincroniza el form con el valor cargado desde Convex la primera vez
-    // que llega; nuevas escrituras no necesitan reset porque el cliente ya
-    // tiene el valor optimista tras la mutation.
-    if (settings) {
+    if (settings && !initializedRef.current) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setEmailEnabled(settings.emailNotificationsEnabled);
       setEmailDays(settings.emailNotifyDaysBefore);
       setFavoriteStores(sanitizeFavoriteStores(settings.favoriteStores));
+      initializedRef.current = true;
     }
   }, [settings]);
 
@@ -55,56 +66,72 @@ export default function SettingsPage() {
     return <LoadingFallback />;
   }
 
-  const onSave = async () => {
-    if (emailEnabled && (emailDays === "" || !Number.isInteger(emailDays))) {
-      toast.error("Introduce los días de antelación del correo.");
-      return;
+  // Helper: aplica patch optimista, llama al servidor, dispara el pill
+  // "Guardado" en éxito y revierte + toast.error en fallo. Mismo patrón que
+  // el autosave de la ficha de persona (silencio en éxito, toast en error).
+  const save = async (
+    patch: Parameters<typeof setMine>[0],
+    revert: () => void,
+  ) => {
+    try {
+      await setMine(patch);
+      if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+      setSavedRecently(true);
+      savedTimerRef.current = setTimeout(() => setSavedRecently(false), 2000);
+    } catch (err) {
+      revert();
+      toast.error(err instanceof Error ? err.message : "No se pudo guardar");
     }
-    if (emailEnabled && !settings.email) {
+  };
+
+  const handleEmailToggle = (checked: boolean) => {
+    if (checked && !settings.email) {
       toast.error(
         "No encontramos tu email. Verifícalo en tu cuenta para activar las notificaciones.",
       );
       return;
     }
-    if (favoriteStores.length === 0) {
+    const previous = emailEnabled;
+    setEmailEnabled(checked);
+    save(
+      { emailNotificationsEnabled: checked },
+      () => setEmailEnabled(previous),
+    );
+  };
+
+  const handleEmailDaysBlur = () => {
+    if (!emailEnabled) return;
+    if (
+      emailDays === "" ||
+      !Number.isInteger(emailDays) ||
+      (emailDays as number) < 1 ||
+      (emailDays as number) > 365
+    ) {
+      toast.error("Introduce un número entre 1 y 365.");
+      setEmailDays(settings.emailNotifyDaysBefore);
+      return;
+    }
+    if (emailDays === settings.emailNotifyDaysBefore) return;
+    const previous = settings.emailNotifyDaysBefore;
+    save(
+      { emailNotifyDaysBefore: emailDays as number },
+      () => setEmailDays(previous),
+    );
+  };
+
+  const handleStoreToggle = (store: StoreId) => {
+    const willCheck = !favoriteStores.includes(store);
+    const next = willCheck
+      ? ALL_STORES.filter((s) => [...favoriteStores, store].includes(s))
+      : favoriteStores.filter((s) => s !== store);
+
+    if (next.length === 0) {
       toast.error("Selecciona al menos una tienda.");
       return;
     }
-    setSaving(true);
-    try {
-      await setMine({
-        notifyDaysBefore: settings.notifyDaysBefore,
-        emailNotificationsEnabled: emailEnabled,
-        emailNotifyDaysBefore:
-          emailDays === "" ? undefined : (emailDays as number),
-        favoriteStores,
-      });
-      toast.success("Ajustes guardados");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Error al guardar");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const savedStores = sanitizeFavoriteStores(settings.favoriteStores);
-  const storesChanged =
-    favoriteStores.length !== savedStores.length ||
-    favoriteStores.some((s, i) => savedStores[i] !== s);
-  const dirty =
-    settings.emailNotificationsEnabled !== emailEnabled ||
-    settings.emailNotifyDaysBefore !== emailDays ||
-    storesChanged;
-
-  const toggleStore = (store: StoreId) => {
-    setFavoriteStores((prev) => {
-      if (prev.includes(store)) {
-        return prev.filter((s) => s !== store);
-      }
-      const next = [...prev, store];
-      // Mantener orden canónico para que `dirty` sea estable
-      return ALL_STORES.filter((s) => next.includes(s));
-    });
+    const previous = favoriteStores;
+    setFavoriteStores(next);
+    save({ favoriteStores: next }, () => setFavoriteStores(previous));
   };
 
   return (
@@ -112,7 +139,7 @@ export default function SettingsPage() {
       <div>
         <h1 className="text-4xl font-medium">Ajustes</h1>
         <p className="text-muted-foreground">
-          Personaliza cómo se comportan las notificaciones.
+          Los cambios se guardan automáticamente.
         </p>
       </div>
 
@@ -149,7 +176,7 @@ export default function SettingsPage() {
             <Switch
               id="email-toggle"
               checked={emailEnabled}
-              onCheckedChange={setEmailEnabled}
+              onCheckedChange={handleEmailToggle}
             />
           </div>
 
@@ -182,6 +209,7 @@ export default function SettingsPage() {
                       e.target.value === "" ? "" : Number(e.target.value),
                     )
                   }
+                  onBlur={handleEmailDaysBlur}
                   className="max-w-[140px]"
                 />
                 <p className="text-xs text-muted-foreground">
@@ -205,6 +233,7 @@ export default function SettingsPage() {
         <div className="grid grid-cols-2 gap-2 pt-1">
           {ALL_STORES.map((store) => {
             const checked = favoriteStores.includes(store);
+            const StoreIcon = STORE_ICONS[store];
             return (
               <label
                 key={store}
@@ -220,8 +249,12 @@ export default function SettingsPage() {
                   id={`store-${store}`}
                   type="checkbox"
                   checked={checked}
-                  onChange={() => toggleStore(store)}
+                  onChange={() => handleStoreToggle(store)}
                   className="size-4 rounded border-border accent-primary"
+                />
+                <StoreIcon
+                  className="size-4 text-muted-foreground"
+                  aria-hidden
                 />
                 <span className="font-medium">{STORE_LABELS[store]}</span>
               </label>
@@ -230,13 +263,18 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      <Button
-        onClick={onSave}
-        disabled={saving || !dirty}
-        className="w-fit"
+      {/* Pill flotante "Guardado" — mismo patrón que la ficha de persona */}
+      <div
+        aria-live="polite"
+        className={`fixed bottom-6 right-6 z-50 flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground shadow-md transition-all duration-300 ${
+          savedRecently
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 translate-y-2 pointer-events-none"
+        }`}
       >
-        {saving ? "Guardando…" : "Guardar"}
-      </Button>
+        <Check className="size-3" aria-hidden />
+        Guardado
+      </div>
     </main>
   );
 }

@@ -208,6 +208,8 @@ Definidas en [`src/lib/stores.ts`](../src/lib/stores.ts). Lista cerrada con allo
 
 Las URLs se construyen con `encodeURIComponent` sobre la query, así que cualquier carácter especial queda escapado correctamente. Los enlaces siempre llevan `target="_blank" rel="noopener noreferrer"`.
 
+Cada chip muestra además un icono lucide específico por tienda (ver `STORE_ICONS` en `src/lib/stores.ts`). Son iconos genéricos del mismo set que el resto de la UI — no logos de marca — por coherencia visual con el sistema de diseño. La identificación visual viene del icono + el nombre.
+
 ### Filtro de precio en la URL
 
 Algunas tiendas aceptan filtro de precio en la query string, otras no. La lista actual está en `STORES_WITH_PRICE_FILTER` (`src/lib/stores.ts`):
