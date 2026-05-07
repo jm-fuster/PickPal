@@ -128,7 +128,7 @@ export function GiftRecommendationCard({
                 )}
               </div>
             ) : (
-              <div className="flex justify-end">
+              <div className="flex">
                 <a
                   href={generateGoogleUrl(idea.amazonQuery)}
                   target="_blank"
