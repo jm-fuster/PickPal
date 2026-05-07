@@ -90,6 +90,7 @@ const buildPrompt = (
   const typeRules: Record<GiftType, string> = {
     fisica: `- Todas las ideas deben ser productos físicos comprables online.
 - "amazonQuery" debe ser una búsqueda específica de 3-6 palabras útil para encontrar el producto en cualquier tienda online.
+- Si la idea es ropa o calzado y conoces la talla, inclúyela en "amazonQuery" (ej: "zapatillas running hombre talla 42", "camiseta algodón mujer talla M").
 ${storesGuide}`,
     experiencia: `- Todas las ideas deben ser experiencias (cenas, talleres, escapadas, conciertos, actividades…). No productos físicos.
 - "amazonQuery" debe ser una búsqueda de 3-6 palabras para encontrar esa experiencia en Google (ej. "cata de vinos Madrid", "taller cerámica Barcelona").
@@ -102,6 +103,7 @@ ${storesGuide}`,
 - "category" debe referenciar los intereses concretos de la persona que motivan el plan (ej: ["Leer"], ["Cocina"]). Si el plan no encaja con ningún interés definido, usa una etiqueta específica al plan (ej: ["Paseo al atardecer"], no ["Romántico"]).`,
     sorprendeme: `- Mezcla libremente productos físicos, experiencias y planes juntos. Varía el tipo entre las 9 ideas.
 - Para productos: "amazonQuery" útil para buscar online y rellena "suggestedStores" siguiendo los criterios. Para experiencias/planes: "amazonQuery" útil para Google y omite "suggestedStores".
+- Si la idea es ropa o calzado y conoces la talla, inclúyela en "amazonQuery".
 ${storesGuide}`,
   };
 
