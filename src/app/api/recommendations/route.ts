@@ -119,7 +119,7 @@ ${typeRules[giftType]}
 - Los precios deben respetar el presupuesto indicado cuando sea posible.
 - Varía las categorías (no todas del mismo tipo).
 - "description" en español, máximo 2 frases, explicando por qué encaja con esta persona.
-- "category" en español, una o dos palabras (ej: "Tecnología", "Hogar", "Libros", "Experiencia").
+- "category" en español: usa 1, 2 o 3 intereses concretos de la persona que justifiquen esta idea, separados por " · " (ej: "Senderismo · Fotografía", "Cocina japonesa", "Gaming · Tecnología"). Si la idea no encaja con ningún interés definido, usa una etiqueta descriptiva específica al regalo (ej: "Accesorios viaje", no solo "Viajes"). Nunca uses categorías genéricas sueltas como "Tecnología", "Hogar" o "Libros" si hay intereses más concretos disponibles.
 - "priceMinEuros" y "priceMaxEuros" en euros, valores enteros razonables.
 - Responde en español.`;
 };
