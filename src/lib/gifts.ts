@@ -30,7 +30,7 @@ export const giftRecommendationSchema = z.object({
 });
 
 export const giftRecommendationsSchema = z.object({
-  ideas: z.array(giftRecommendationSchema).length(6),
+  ideas: z.array(giftRecommendationSchema).length(9),
 });
 
 export type GiftRecommendation = z.infer<typeof giftRecommendationSchema>;

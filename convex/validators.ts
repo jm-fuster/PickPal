@@ -22,7 +22,7 @@ const MAX_IDEA_DESCRIPTION = 280;
 const MAX_IDEA_CATEGORY = 40;
 const MAX_IDEA_QUERY = 120;
 const MAX_IDEA_PRICE_EUROS = 100_000;
-const IDEAS_PER_GENERATION = 6;
+const IDEAS_PER_GENERATION = 9;
 // Lista de tiendas soportadas. Fuente de verdad para validación server-side
 // tanto en `validateRecommendationIdeas` como en `setMine` (favoritas).
 // Espejada en `STORE_IDS` de `src/lib/stores.ts` (cliente) — si añades una

@@ -205,7 +205,7 @@ export default function GiftsPage({
             ) : (
               <Sparkles className="size-4" aria-hidden />
             )}
-            {loading ? "Generando…" : hasCached ? "Regenerar" : "Generar 6 ideas"}
+            {loading ? "Generando…" : hasCached ? "Regenerar" : "Generar 9 ideas"}
           </Button>
         </div>
 
@@ -249,7 +249,7 @@ export default function GiftsPage({
 
       {loading ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
+          {Array.from({ length: 9 }).map((_, i) => (
             <div
               key={i}
               className="h-52 rounded-2xl border border-dashed border-border/60 bg-muted/40 animate-pulse"

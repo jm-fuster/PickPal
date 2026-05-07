@@ -5,15 +5,15 @@
 ```
 Usuario → selecciona un evento del perfil (Select)
   → elige tipo de regalo (tarjeta de tipo)
-  → click "Generar 6 ideas"
+  → click "Generar 9 ideas"
     → POST /api/recommendations { personId, occasionLabel, giftType }
     → Busca persona en Convex (intereses, notas, tallas, alergias, dislikes)
     → Busca la importantDate cuyo label == occasionLabel (presupuesto)
     → Busca historial de regalos anteriores (para no repetir)
     → Llama a Gemini 2.5 Flash vía AI SDK con generateObject
-    → Persiste las 6 ideas en Convex (tabla recommendations, upsert)
-    → Devuelve 6 recomendaciones validadas por Zod
-    → Cada tarjeta muestra título, descripción, precio, categoría y botón Amazon/Google
+    → Persiste las 9 ideas en Convex (tabla recommendations, upsert)
+    → Devuelve 9 recomendaciones validadas por Zod
+    → Cada tarjeta muestra título, badge de categoría, descripción, precio y chips de tienda
 ```
 
 ---
@@ -60,7 +60,7 @@ Se muestran como tarjetas en grid 2×2 (4×1 en `sm+`) con icono, nombre y descr
 
 Mientras la petición a Gemini está en curso (`loading === true`):
 - El botón muestra "Generando…" y queda deshabilitado.
-- Se muestran 6 tarjetas placeholder con `animate-pulse` y fondo `bg-muted/40` para indicar actividad.
+- Se muestran 9 tarjetas placeholder con `animate-pulse` y fondo `bg-muted/40` para indicar actividad.
 - Al llegar la respuesta, las tarjetas reales aparecen con animación escalonada (`animationDelay: index * 60ms`).
 
 ---
@@ -161,7 +161,7 @@ await Promise.all([
 ## Diseño del prompt (`buildPrompt`)
 
 ```
-Genera EXACTAMENTE 6 ideas de regalo para la siguiente persona.
+Genera EXACTAMENTE 9 ideas de regalo para la siguiente persona.
 
 Persona:
 - Nombre: {name}
@@ -208,7 +208,7 @@ Definidas en [`src/lib/stores.ts`](../src/lib/stores.ts). Lista cerrada con allo
 
 Las URLs se construyen con `encodeURIComponent` sobre la query, así que cualquier carácter especial queda escapado correctamente. Los enlaces siempre llevan `target="_blank" rel="noopener noreferrer"`.
 
-Cada chip muestra además un icono lucide específico por tienda (ver `STORE_ICONS` en `src/lib/stores.ts`). Son iconos genéricos del mismo set que el resto de la UI — no logos de marca — por coherencia visual con el sistema de diseño. La identificación visual viene del icono + el nombre.
+Cada chip muestra el logo oficial de la tienda (PNG 64px o SVG según disponibilidad) almacenado en `public/stores/{storeId}.{ext}`. `STORE_ICONS` en `src/lib/stores.ts` mapea cada `StoreId` a su path público. Los iconos se renderizan como `<img>` con fondo blanco (`bg-white p-px`) para garantizar visibilidad en modo oscuro.
 
 ### Filtro de precio en la URL
 
@@ -283,7 +283,7 @@ Gemini  →  generateObject + Zod (giftRecommendationSchema)  →  fetchMutation
 ```
 
 1. **Zod** rechaza cualquier idea con campos fuera de tipo o tienda no listada (`z.enum(STORE_IDS)`).
-2. **`validateRecommendationIdeas`** se ejecuta dentro de la mutation Convex y revalida tamaños, rangos numéricos, allowlist de tiendas, no-duplicados, y exactamente 6 ideas. Cierra el agujero de "atacante autenticado llama a `api.recommendations.upsert` directamente saltándose la API route" (ver [`docs/security.md`](security.md) sección "Validar tamaños y rangos en el servidor").
+2. **`validateRecommendationIdeas`** se ejecuta dentro de la mutation Convex y revalida tamaños, rangos numéricos, allowlist de tiendas, no-duplicados, y exactamente 9 ideas. Cierra el agujero de "atacante autenticado llama a `api.recommendations.upsert` directamente saltándose la API route" (ver [`docs/security.md`](security.md) sección "Validar tamaños y rangos en el servidor").
 3. **`encodeURIComponent`** al construir la URL impide cualquier inyección desde la query string al path/dominio.
 
 Si en algún momento futuro Gemini empieza a devolver datos hostiles (prompt injection vía `notes`/`interests` del usuario), el daño máximo es: query de búsqueda rara que el propio usuario abriría en su navegador. Sin amplificación cross-user, sin escape a otros endpoints.
@@ -336,8 +336,8 @@ La variable de entorno `GOOGLE_GENERATIVE_AI_API_KEY` debe configurarse en Verce
 - [ ] Crear persona con intereses y **añadir una fecha con presupuesto definido**
 - [ ] Ir a `/people/[id]/gifts`, el `<Select>` muestra los eventos con presupuesto
 - [ ] Seleccionar evento → botón "Generar" se activa
-- [ ] Click en "Generar" → aparecen 6 skeletons con fondo visible mientras carga
-- [ ] Aparecen 6 tarjetas con título, descripción, precio, categoría y botón de búsqueda
+- [ ] Click en "Generar" → aparecen 9 skeletons con fondo visible mientras carga
+- [ ] Aparecen 9 tarjetas con título, badge de categoría, precio y chips de tienda
 - [ ] Volver a la pantalla sin regenerar → las ideas cacheadas aparecen y el botón dice "Regenerar"
 - [ ] Pulsar X en una tarjeta → desaparece, toast permanente con "Deshacer"
 - [ ] Pulsar "Deshacer" → la tarjeta vuelve a su posición
@@ -345,11 +345,11 @@ La variable de entorno `GOOGLE_GENERATIVE_AI_API_KEY` debe configurarse en Verce
 - [ ] Navegar fuera de la pantalla con toasts abiertos → las ideas pendientes se eliminan de Convex al desmontar
 
 ### Multi-tienda
-- [ ] En `/settings` aparece la sección "Tiendas para recomendaciones" con 4 checkboxes (todas marcadas por defecto)
+- [ ] En `/settings` aparece la sección "Tiendas para recomendaciones" con 7 checkboxes (todas marcadas por defecto)
 - [ ] Desmarcar todas y pulsar "Guardar" → toast de error "Selecciona al menos una tienda", no se guarda
 - [ ] Marcar solo Amazon + ECI, guardar, recargar → la selección persiste
-- [ ] Generar 6 ideas físicas → cada tarjeta muestra solo chips de Amazon/ECI (no AliExpress/Miravia)
-- [ ] Generar ideas con un mix temático (gourmet + tech + algo artesanal) y revisar que **no todas las tarjetas muestran las mismas tiendas** (la IA filtra por idea)
+- [ ] Generar 9 ideas físicas → cada tarjeta muestra solo chips de Amazon/ECI (no AliExpress/Miravia)
+- [ ] Generar 9 ideas con un mix temático (gourmet + tech + algo artesanal) y revisar que **no todas las tarjetas muestran las mismas tiendas** (la IA filtra por idea)
 - [ ] Marcar solo AliExpress + Miravia y generar una idea de gourmet/vino → debería aparecer el hint "Búsqueda genérica — esta idea encaja mejor en otras tiendas" (la IA habrá sugerido `amazon`/`elcorteingles`, sin solapamiento)
 - [ ] Click en cada chip abre la búsqueda real de esa tienda con la query correcta
 - [ ] Cambiar el tipo a "experiencia" o "tiempo-juntos" → solo aparece el botón único a Google, sin chips de tienda

@@ -11,31 +11,31 @@ describe("giftRecommendationsSchema", () => {
     amazonQuery: "libro recetas mediterraneas",
   };
 
-  const sixIdeas = Array.from({ length: 6 }, () => validIdea);
+  const nineIdeas = Array.from({ length: 9 }, () => validIdea);
 
-  it("acepta exactamente 6 ideas", () => {
+  it("acepta exactamente 9 ideas", () => {
     expect(
-      giftRecommendationsSchema.safeParse({ ideas: sixIdeas }).success,
+      giftRecommendationsSchema.safeParse({ ideas: nineIdeas }).success,
     ).toBe(true);
   });
 
-  it("rechaza menos de 6 ideas", () => {
+  it("rechaza menos de 9 ideas", () => {
     expect(
-      giftRecommendationsSchema.safeParse({ ideas: sixIdeas.slice(0, 5) })
+      giftRecommendationsSchema.safeParse({ ideas: nineIdeas.slice(0, 8) })
         .success,
     ).toBe(false);
   });
 
-  it("rechaza más de 6 ideas", () => {
+  it("rechaza más de 9 ideas", () => {
     expect(
       giftRecommendationsSchema.safeParse({
-        ideas: [...sixIdeas, validIdea],
+        ideas: [...nineIdeas, validIdea],
       }).success,
     ).toBe(false);
   });
 
   it("rechaza idea con título vacío", () => {
-    const broken = [...sixIdeas];
+    const broken = [...nineIdeas];
     broken[0] = { ...validIdea, title: "" };
     expect(
       giftRecommendationsSchema.safeParse({ ideas: broken }).success,
@@ -43,7 +43,7 @@ describe("giftRecommendationsSchema", () => {
   });
 
   it("rechaza idea con precio negativo", () => {
-    const broken = [...sixIdeas];
+    const broken = [...nineIdeas];
     broken[0] = { ...validIdea, priceMinEuros: -10 };
     expect(
       giftRecommendationsSchema.safeParse({ ideas: broken }).success,
@@ -51,7 +51,7 @@ describe("giftRecommendationsSchema", () => {
   });
 
   it("rechaza descripción demasiado larga", () => {
-    const broken = [...sixIdeas];
+    const broken = [...nineIdeas];
     broken[0] = { ...validIdea, description: "x".repeat(281) };
     expect(
       giftRecommendationsSchema.safeParse({ ideas: broken }).success,

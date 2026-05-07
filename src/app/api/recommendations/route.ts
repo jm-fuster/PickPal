@@ -98,12 +98,12 @@ ${storesGuide}`,
 - "amazonQuery" debe ser una frase descriptiva de 3-5 palabras para buscar inspiración en Google (ej. "ruta senderismo fácil", "receta cena especial").
 - Los precios deben ser bajos o cero (experiencias sin coste o materiales mínimos).
 - Omite "suggestedStores" en este tipo de ideas (no aplica).`,
-    sorprendeme: `- Mezcla libremente productos físicos, experiencias y planes juntos. Varía el tipo entre las 6 ideas.
+    sorprendeme: `- Mezcla libremente productos físicos, experiencias y planes juntos. Varía el tipo entre las 9 ideas.
 - Para productos: "amazonQuery" útil para buscar online y rellena "suggestedStores" siguiendo los criterios. Para experiencias/planes: "amazonQuery" útil para Google y omite "suggestedStores".
 ${storesGuide}`,
   };
 
-  return `Genera EXACTAMENTE 6 ideas de regalo para la siguiente persona.
+  return `Genera EXACTAMENTE 9 ideas de regalo para la siguiente persona.
 
 Persona:
 - Nombre: ${person.name}
