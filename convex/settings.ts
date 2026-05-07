@@ -1,28 +1,22 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireUser } from "./auth";
+import { ALLOWED_STORES, type AllowedStore } from "./validators";
 
 export const DEFAULT_NOTIFY_DAYS_BEFORE = 30;
 export const DEFAULT_EMAIL_NOTIFY_DAYS_BEFORE = 14;
 export const DEFAULT_EMAIL_NOTIFICATIONS_ENABLED = true;
 
-const VALID_STORES = [
-  "amazon",
-  "aliexpress",
-  "miravia",
-  "elcorteingles",
-] as const;
-type ValidStore = (typeof VALID_STORES)[number];
-export const DEFAULT_FAVORITE_STORES: readonly ValidStore[] = VALID_STORES;
+export const DEFAULT_FAVORITE_STORES: readonly AllowedStore[] = ALLOWED_STORES;
 
-function sanitizeStores(stores: readonly string[]): ValidStore[] {
-  const seen = new Set<ValidStore>();
+function sanitizeStores(stores: readonly string[]): AllowedStore[] {
+  const seen = new Set<AllowedStore>();
   for (const s of stores) {
-    if ((VALID_STORES as readonly string[]).includes(s)) {
-      seen.add(s as ValidStore);
+    if ((ALLOWED_STORES as readonly string[]).includes(s)) {
+      seen.add(s as AllowedStore);
     }
   }
-  return VALID_STORES.filter((s) => seen.has(s));
+  return ALLOWED_STORES.filter((s) => seen.has(s));
 }
 
 export const getMine = query({
@@ -112,7 +106,7 @@ export const setMine = mutation({
       }
     }
 
-    let cleanedStores: ValidStore[] | undefined;
+    let cleanedStores: AllowedStore[] | undefined;
     if (favoriteStores !== undefined) {
       cleanedStores = sanitizeStores(favoriteStores);
       if (cleanedStores.length === 0) {

@@ -1,5 +1,5 @@
-// Límites espejados de src/lib/schemas.ts. La validación cliente es UX;
-// estas comprobaciones son la frontera de confianza del servidor.
+// Límites espejados de src/lib/schemas.ts y src/lib/gifts.ts. La validación
+// cliente es UX; estas comprobaciones son la frontera de confianza del servidor.
 
 const MAX_NAME = 80;
 const MAX_NOTES = 1000;
@@ -15,6 +15,28 @@ const MAX_SIZE = 20;
 const MAX_QUIRK = 200;
 const MAX_AVATAR_URL = 512;
 const DICEBEAR_PREFIX = "https://api.dicebear.com/";
+
+// Recomendaciones IA. Espejados de giftRecommendationSchema en src/lib/gifts.ts.
+const MAX_IDEA_TITLE = 80;
+const MAX_IDEA_DESCRIPTION = 280;
+const MAX_IDEA_CATEGORY = 40;
+const MAX_IDEA_QUERY = 120;
+const MAX_IDEA_PRICE_EUROS = 100_000;
+const IDEAS_PER_GENERATION = 6;
+const MAX_SUGGESTED_STORES = 4;
+
+// Lista de tiendas soportadas. Fuente de verdad para validación server-side
+// tanto en `validateRecommendationIdeas` como en `setMine` (favoritas).
+// Espejada en `src/lib/stores.ts` (cliente) — si añades una nueva tienda,
+// actualiza ambos sitios.
+export const ALLOWED_STORES = [
+  "amazon",
+  "aliexpress",
+  "miravia",
+  "elcorteingles",
+] as const;
+
+export type AllowedStore = (typeof ALLOWED_STORES)[number];
 
 const ALLOWED_RELATIONSHIPS = [
   "friend",
@@ -95,6 +117,79 @@ export function validateBudget(min?: number, max?: number) {
   }
   if (min !== undefined && max !== undefined && min > max) {
     throw new Error("Presupuesto mínimo mayor que el máximo.");
+  }
+}
+
+type RecommendationIdea = {
+  title: string;
+  description: string;
+  priceMinEuros: number;
+  priceMaxEuros: number;
+  category: string;
+  amazonQuery: string;
+  suggestedStores?: string[];
+};
+
+/**
+ * Valida un lote de ideas devuelto por la IA antes de persistirlo.
+ * Cap de tamaños y allowlist de tiendas — protege contra clientes que llamen
+ * directamente a `api.recommendations.upsert` saltándose la API route.
+ */
+export function validateRecommendationIdeas(
+  ideas: ReadonlyArray<RecommendationIdea>,
+) {
+  if (ideas.length !== IDEAS_PER_GENERATION) {
+    throw new Error(
+      `Una recomendación debe contener exactamente ${IDEAS_PER_GENERATION} ideas.`,
+    );
+  }
+  for (const idea of ideas) {
+    const title = idea.title.trim();
+    if (title.length === 0 || idea.title.length > MAX_IDEA_TITLE) {
+      throw new Error("Título de idea inválido.");
+    }
+    const description = idea.description.trim();
+    if (
+      description.length === 0 ||
+      idea.description.length > MAX_IDEA_DESCRIPTION
+    ) {
+      throw new Error("Descripción de idea inválida.");
+    }
+    const category = idea.category.trim();
+    if (category.length === 0 || idea.category.length > MAX_IDEA_CATEGORY) {
+      throw new Error("Categoría de idea inválida.");
+    }
+    const query = idea.amazonQuery.trim();
+    if (query.length === 0 || idea.amazonQuery.length > MAX_IDEA_QUERY) {
+      throw new Error("Query de búsqueda inválida.");
+    }
+    for (const value of [idea.priceMinEuros, idea.priceMaxEuros]) {
+      if (
+        !Number.isFinite(value) ||
+        value < 0 ||
+        value > MAX_IDEA_PRICE_EUROS
+      ) {
+        throw new Error("Precio de idea fuera de rango.");
+      }
+    }
+    if (idea.suggestedStores !== undefined) {
+      if (
+        idea.suggestedStores.length === 0 ||
+        idea.suggestedStores.length > MAX_SUGGESTED_STORES
+      ) {
+        throw new Error("Cantidad de tiendas sugeridas inválida.");
+      }
+      const seen = new Set<string>();
+      for (const store of idea.suggestedStores) {
+        if (!(ALLOWED_STORES as readonly string[]).includes(store)) {
+          throw new Error("Tienda sugerida inválida.");
+        }
+        if (seen.has(store)) {
+          throw new Error("Tiendas sugeridas duplicadas.");
+        }
+        seen.add(store);
+      }
+    }
   }
 }
 

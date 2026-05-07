@@ -47,13 +47,27 @@ Si añades una tabla nueva con dueño, replica el patrón. Si no es posible iden
 
 ### 3. Validar tamaños y rangos en el servidor
 
-Los validators viven en [`convex/validators.ts`](../convex/validators.ts) y espejan los límites de [`src/lib/schemas.ts`](../src/lib/schemas.ts). Si añades un campo a una tabla:
+Los validators viven en [`convex/validators.ts`](../convex/validators.ts) y espejan los límites de [`src/lib/schemas.ts`](../src/lib/schemas.ts) y [`src/lib/gifts.ts`](../src/lib/gifts.ts). Si añades un campo a una tabla:
 
 1. Define su límite en el zod schema cliente (UX).
 2. Replica el límite en `validators.ts`.
 3. Llama al validator desde `create` y `update`.
 
 Por qué importa: sin esto un usuario autenticado puede insertar `notes` de 100 MB, presupuestos negativos, o 10.000 intereses. Aparte de coste de almacenamiento, los campos de texto se concatenan al prompt de Gemini → amplifica prompt injection.
+
+**Validators actuales:**
+
+- `validatePersonInput` — campos de `people` (nombre, intereses, notas, tallas, alergias, dislikes, avatar).
+- `validateBudget` — `budgetMin`/`budgetMax` en `importantDates` (cap 100.000€, min ≤ max).
+- `validateDateInput` — campos de `importantDates` (label, año, recurring + budget).
+- `validateRecommendationIdeas` — el array `ideas` que `api.recommendations.upsert` persiste tras una llamada a Gemini. Aplica:
+  - Exactamente 6 ideas (cualquier otro número se rechaza).
+  - Caps por idea: title ≤ 80, description ≤ 280, category ≤ 40, amazonQuery ≤ 120 chars; precios finitos en [0, 100.000€].
+  - `suggestedStores` (opcional): allowlist contra `ALLOWED_STORES`, sin duplicados, máximo 4 elementos.
+
+  Cierra el gap de que un atacante autenticado llamara directamente a `api.recommendations.upsert` saltándose la API route con un payload masivo.
+
+**Salida de Gemini = input no confiable.** El JSON que devuelve la IA pasa por `generateObject` con un schema Zod (`giftRecommendationSchema`), pero antes de tocar la BD vuelve a validarse en `validateRecommendationIdeas`. Defensa en profundidad: el schema Zod podría aflojar sus restricciones por error, o un cliente malicioso podría llamar a `upsert` directamente con datos que nunca pasaron por Gemini.
 
 ### 4. Rate limit en mutations que crean recursos
 
@@ -141,6 +155,7 @@ Antes de mergear, verifica que el cambio no rompe ninguno de estos:
 ### Si tocas el schema de Convex:
 - [ ] Índices nuevos no exponen datos cruzados (ej. un índice solo por `personId` sin `clerkUserId` en la query).
 - [ ] Campos sensibles nuevos están listados aquí.
+- [ ] Si el campo viene del cliente o de Gemini y es de tamaño/contenido variable, hay un validator en `convex/validators.ts` que se llama desde la mutation que escribe.
 
 ---
 

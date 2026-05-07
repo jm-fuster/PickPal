@@ -1,6 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { requireUser } from "./auth";
+import { validateRecommendationIdeas } from "./validators";
 
 const ideaValidator = v.object({
   title: v.string(),
@@ -75,6 +76,8 @@ export const upsert = mutation({
   },
   handler: async (ctx, { personId, occasionLabel, giftType, ideas }) => {
     const clerkUserId = await requireUser(ctx);
+
+    validateRecommendationIdeas(ideas);
 
     const person = await ctx.db.get(personId);
     if (!person || person.clerkUserId !== clerkUserId) {
