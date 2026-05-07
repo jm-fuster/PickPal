@@ -212,14 +212,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(object);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    const errObj = err as Record<string, unknown> | null;
-    const lastErr = errObj?.lastError as Record<string, unknown> | undefined;
-    console.error("[recommendations] gemini:", {
-      message,
-      giftType,
-      statusCode: errObj?.statusCode ?? lastErr?.statusCode,
-      responseBody: errObj?.responseBody ?? lastErr?.responseBody,
-    });
+    console.error("[recommendations] gemini:", JSON.stringify(err, Object.getOwnPropertyNames(err ?? {})));
     // AI_RetryError wraps the real cause in lastError
     const statusCode =
       err != null && typeof err === "object"
