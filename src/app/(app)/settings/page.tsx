@@ -233,7 +233,6 @@ export default function SettingsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
           {ALL_STORES.map((store) => {
             const checked = favoriteStores.includes(store);
-            const StoreIcon = STORE_ICONS[store];
             return (
               <label
                 key={store}
@@ -252,10 +251,8 @@ export default function SettingsPage() {
                   onChange={() => handleStoreToggle(store)}
                   className="size-4 rounded border-border accent-primary"
                 />
-                <StoreIcon
-                  className="size-4 text-muted-foreground"
-                  aria-hidden
-                />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={STORE_ICONS[store]} alt="" className="size-4 rounded-sm object-contain" aria-hidden />
                 <span className="font-medium">{STORE_LABELS[store]}</span>
               </label>
             );

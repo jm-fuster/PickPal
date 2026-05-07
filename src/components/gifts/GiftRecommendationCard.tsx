@@ -93,7 +93,6 @@ export function GiftRecommendationCard({
               <div className="space-y-1.5">
                 <div className="flex flex-wrap gap-1.5">
                   {storesToRender.map((store) => {
-                    const StoreIcon = STORE_ICONS[store];
                     return (
                       <a
                         key={store}
@@ -108,7 +107,8 @@ export function GiftRecommendationCard({
                           variant: "outline",
                         })}
                       >
-                        <StoreIcon className="size-3.5" aria-hidden />
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={STORE_ICONS[store]} alt="" className="size-3.5 rounded-sm object-contain" aria-hidden />
                         {STORE_LABELS[store]}
                         <ExternalLink className="size-3" aria-hidden />
                       </a>
