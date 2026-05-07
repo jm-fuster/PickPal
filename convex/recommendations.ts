@@ -9,6 +9,7 @@ const ideaValidator = v.object({
   priceMaxEuros: v.number(),
   category: v.string(),
   amazonQuery: v.string(),
+  suggestedStores: v.optional(v.array(v.string())),
 });
 
 export const getByPersonOccasion = query({

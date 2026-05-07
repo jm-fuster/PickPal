@@ -3,6 +3,7 @@ import {
   ALL_STORES,
   generateStoreSearchUrl,
   isStoreId,
+  pickEffectiveStores,
   sanitizeFavoriteStores,
 } from "./stores";
 
@@ -82,5 +83,80 @@ describe("sanitizeFavoriteStores", () => {
 
   it("devuelve array vacío si no hay tiendas válidas", () => {
     expect(sanitizeFavoriteStores(["ebay", "shein"])).toEqual([]);
+  });
+});
+
+describe("pickEffectiveStores", () => {
+  it("devuelve todas las favoritas cuando suggestedStores es undefined (idea cacheada pre-v2)", () => {
+    const result = pickEffectiveStores(
+      ["amazon", "miravia"],
+      undefined,
+    );
+    expect(result).toEqual({
+      stores: ["amazon", "miravia"],
+      isFallback: false,
+    });
+  });
+
+  it("devuelve todas las favoritas cuando suggestedStores está vacío", () => {
+    const result = pickEffectiveStores(["amazon", "miravia"], []);
+    expect(result).toEqual({
+      stores: ["amazon", "miravia"],
+      isFallback: false,
+    });
+  });
+
+  it("devuelve la intersección cuando hay solapamiento", () => {
+    const result = pickEffectiveStores(
+      ["amazon", "aliexpress", "miravia", "elcorteingles"],
+      ["amazon", "elcorteingles"],
+    );
+    expect(result).toEqual({
+      stores: ["amazon", "elcorteingles"],
+      isFallback: false,
+    });
+  });
+
+  it("hace fallback a todas las favoritas si no hay intersección", () => {
+    const result = pickEffectiveStores(
+      ["aliexpress", "miravia"],
+      ["amazon", "elcorteingles"],
+    );
+    expect(result).toEqual({
+      stores: ["aliexpress", "miravia"],
+      isFallback: true,
+    });
+  });
+
+  it("filtra tiendas sugeridas inválidas antes de calcular la intersección", () => {
+    const result = pickEffectiveStores(
+      ["amazon", "miravia"],
+      ["amazon", "etsy", "carrefour"],
+    );
+    expect(result).toEqual({
+      stores: ["amazon"],
+      isFallback: false,
+    });
+  });
+
+  it("trata sugerencias con solo tiendas inválidas como ausencia de sugerencia", () => {
+    const result = pickEffectiveStores(
+      ["amazon", "miravia"],
+      ["etsy", "carrefour"],
+    );
+    expect(result).toEqual({
+      stores: ["amazon", "miravia"],
+      isFallback: false,
+    });
+  });
+
+  it("mantiene el orden canónico de favoritas en la intersección", () => {
+    const result = pickEffectiveStores(
+      ["elcorteingles", "amazon", "miravia"],
+      ["miravia", "amazon"],
+    );
+    // ALL_STORES order: amazon, aliexpress, miravia, elcorteingles
+    // favoriteStores debería venir ya en orden canónico desde sanitizeFavoriteStores
+    expect(result.stores).toEqual(["amazon", "miravia"]);
   });
 });

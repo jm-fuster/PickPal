@@ -6,6 +6,7 @@ import {
   ALL_STORES,
   STORE_LABELS,
   generateStoreSearchUrl,
+  pickEffectiveStores,
   type StoreId,
 } from "@/lib/stores";
 import type { GiftRecommendation, GiftType } from "@/lib/gifts";
@@ -36,10 +37,15 @@ export function GiftRecommendationCard({
   const isPhysical = giftType === "fisica";
   const isSurprise = giftType === "sorprendeme";
 
-  const storesToRender =
+  const userFavorites =
     favoriteStores && favoriteStores.length > 0
       ? ALL_STORES.filter((s) => favoriteStores.includes(s))
-      : ALL_STORES;
+      : [...ALL_STORES];
+
+  const { stores: storesToRender, isFallback } = pickEffectiveStores(
+    userFavorites,
+    idea.suggestedStores,
+  );
 
   const nonPhysicalLabel = isSurprise
     ? "Buscar"
@@ -89,22 +95,29 @@ export function GiftRecommendationCard({
 
           {idea.amazonQuery ? (
             isPhysical ? (
-              <div className="flex flex-wrap gap-1.5">
-                {storesToRender.map((store) => (
-                  <a
-                    key={store}
-                    href={generateStoreSearchUrl(store, idea.amazonQuery)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={buttonVariants({
-                      size: "sm",
-                      variant: "outline",
-                    })}
-                  >
-                    {STORE_LABELS[store]}
-                    <ExternalLink className="size-3" aria-hidden />
-                  </a>
-                ))}
+              <div className="space-y-1.5">
+                <div className="flex flex-wrap gap-1.5">
+                  {storesToRender.map((store) => (
+                    <a
+                      key={store}
+                      href={generateStoreSearchUrl(store, idea.amazonQuery)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={buttonVariants({
+                        size: "sm",
+                        variant: "outline",
+                      })}
+                    >
+                      {STORE_LABELS[store]}
+                      <ExternalLink className="size-3" aria-hidden />
+                    </a>
+                  ))}
+                </div>
+                {isFallback && (
+                  <p className="text-[11px] text-muted-foreground">
+                    Búsqueda genérica — esta idea encaja mejor en otras tiendas.
+                  </p>
+                )}
               </div>
             ) : (
               <div className="flex justify-end">

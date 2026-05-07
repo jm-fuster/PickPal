@@ -198,6 +198,25 @@ Notas:
 - Para `experiencia`, `tiempo-juntos` y `sorprendeme` se mantiene el botón único a Google (no tiene sentido buscar "cena romántica" en Aliexpress).
 - Sin API keys ni cuentas de afiliado. Futuro: parámetros de afiliación por tienda para monetización (Amazon Associates, AliExpress Affiliate, etc.).
 
+### Tiendas sugeridas por idea (`suggestedStores`)
+
+Para evitar enseñar chips a tiendas que claramente no tienen el producto (ej. miel artesanal en AliExpress), Gemini devuelve un campo opcional `suggestedStores: StoreId[]` por idea. La UI cruza esa lista con las favoritas del usuario:
+
+| Caso | Comportamiento |
+|---|---|
+| `suggestedStores` ausente o vacío (idea pre-v2 cacheada) | Muestra todas las favoritas, sin hint |
+| Intersección no vacía con favoritas | Muestra solo la intersección |
+| Sugerencias presentes pero ninguna coincide con favoritas | Fallback a todas las favoritas + hint "Búsqueda genérica — esta idea encaja mejor en otras tiendas" |
+
+Reglas que el prompt impone a Gemini:
+
+- "amazon": casi siempre, salvo productos artesanales/locales claros.
+- "aliexpress" / "miravia": gadgets baratos, accesorios, productos sin marca; excluir gourmet español, moda media-alta, artesanía.
+- "elcorteingles": gourmet, vinos, moda media-alta, hogar, perfumería, regalos premium nacionales.
+- Incluir SIEMPRE al menos una generalista (`amazon` o `elcorteingles`) salvo en casos claramente nicho.
+
+Implementación: `pickEffectiveStores` en [`src/lib/stores.ts`](../src/lib/stores.ts). Es pura y testeada en `stores.test.ts`. La validación Zod (`giftRecommendationSchema`) usa `z.enum(STORE_IDS)` así que cualquier valor inválido devuelto por Gemini hace fallar la generación entera.
+
 ### Setting `favoriteStores`
 
 - Se persiste en `userSettings.favoriteStores: string[]` (opcional en el schema).

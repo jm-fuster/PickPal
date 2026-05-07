@@ -75,16 +75,28 @@ const buildPrompt = (
           .join("\n")}\nEvita sugerir regalos similares a los marcados negativamente.`
       : "";
 
+  const storesGuide = `- "suggestedStores": array de 1-4 elementos indicando en qué tiendas online tiene sentido buscar este producto concreto. Valores válidos: "amazon", "aliexpress", "miravia", "elcorteingles".
+  Criterios por tienda:
+  - "amazon": catálogo amplísimo. Tech, libros, productos genéricos, marcas internacionales, envío rápido. Inclúyelo casi siempre, salvo cuando el producto sea claramente artesanal o muy local.
+  - "aliexpress": gadgets baratos, accesorios sin marca, productos chinos. Inclúyelo si la idea funciona con producto barato o con tiempo de espera largo. Excluye productos delicados, gourmet español, moda media-alta o regalos donde la calidad importa.
+  - "miravia": marketplace asiático tipo Aliexpress pero algo más curado, también moda y belleza. Mismo criterio que Aliexpress.
+  - "elcorteingles": gran almacén español. Gourmet, vinos, moda media-alta, hogar, perfumería, juguetes, electrodomésticos, regalos premium nacionales. Inclúyelo cuando la marca o calidad importan o cuando es un producto muy "español".
+  Incluye SIEMPRE al menos una tienda generalista ("amazon" o "elcorteingles"), excepto si el producto es claramente nicho (ej: cuadro pintado a mano, artesanía local, productos hechos a medida) — en ese caso indica solo las que realmente encajen.`;
+
   const typeRules: Record<GiftType, string> = {
-    fisica: `- Todas las ideas deben ser productos físicos comprables en Amazon.es.
-- "amazonQuery" debe ser una búsqueda específica de 3-6 palabras útil para encontrar el producto en Amazon.es.`,
+    fisica: `- Todas las ideas deben ser productos físicos comprables online.
+- "amazonQuery" debe ser una búsqueda específica de 3-6 palabras útil para encontrar el producto en cualquier tienda online.
+${storesGuide}`,
     experiencia: `- Todas las ideas deben ser experiencias (cenas, talleres, escapadas, conciertos, actividades…). No productos físicos.
-- "amazonQuery" debe ser una búsqueda de 3-6 palabras para encontrar esa experiencia en Google (ej. "cata de vinos Madrid", "taller cerámica Barcelona").`,
+- "amazonQuery" debe ser una búsqueda de 3-6 palabras para encontrar esa experiencia en Google (ej. "cata de vinos Madrid", "taller cerámica Barcelona").
+- Omite "suggestedStores" en este tipo de ideas (no aplica).`,
     "tiempo-juntos": `- Todas las ideas deben ser planes gratuitos o caseros: actividades para hacer juntos, recetas, rutas, vales artesanales, etc.
 - "amazonQuery" debe ser una frase descriptiva de 3-5 palabras para buscar inspiración en Google (ej. "ruta senderismo fácil", "receta cena especial").
-- Los precios deben ser bajos o cero (experiencias sin coste o materiales mínimos).`,
+- Los precios deben ser bajos o cero (experiencias sin coste o materiales mínimos).
+- Omite "suggestedStores" en este tipo de ideas (no aplica).`,
     sorprendeme: `- Mezcla libremente productos físicos, experiencias y planes juntos. Varía el tipo entre las 6 ideas.
-- Para productos: "amazonQuery" útil para Amazon.es. Para experiencias/planes: "amazonQuery" útil para buscar en Google.`,
+- Para productos: "amazonQuery" útil para buscar online y rellena "suggestedStores" siguiendo los criterios. Para experiencias/planes: "amazonQuery" útil para Google y omite "suggestedStores".
+${storesGuide}`,
   };
 
   return `Genera EXACTAMENTE 6 ideas de regalo para la siguiente persona.

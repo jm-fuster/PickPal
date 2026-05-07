@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { STORE_IDS } from "./stores";
 
 export const GIFT_TYPES = [
   { value: "fisica", label: "Producto físico", icon: "ShoppingBag", description: "Algo que comprar y envolver" },
@@ -16,6 +17,10 @@ export const giftRecommendationSchema = z.object({
   priceMaxEuros: z.number().min(0),
   category: z.string().min(1).max(40),
   amazonQuery: z.string().min(1).max(120),
+  // Tiendas en las que tiene sentido buscar este producto. Opcional para
+  // mantener compatibilidad con ideas cacheadas pre-v2; el prompt actual
+  // pide a la IA que lo incluya siempre para regalos físicos.
+  suggestedStores: z.array(z.enum(STORE_IDS)).min(1).max(4).optional(),
 });
 
 export const giftRecommendationsSchema = z.object({
