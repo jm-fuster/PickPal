@@ -200,12 +200,10 @@ export async function POST(req: NextRequest) {
       prompt,
     });
 
-    // Consumir cuota solo tras generación exitosa, y guardar ideas en paralelo.
-    await Promise.all([
-      fetchMutation(api.recommendationUsage.consume, {}, { token }),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      fetchMutation(api.recommendations.upsert, { personId, occasionLabel, giftType, ideas: object.ideas as any }, { token }),
-    ]);
+    // Guardar primero; consumir cuota solo si el upsert tiene éxito.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await fetchMutation(api.recommendations.upsert, { personId, occasionLabel, giftType, ideas: object.ideas as any }, { token });
+    await fetchMutation(api.recommendationUsage.consume, {}, { token });
 
     return NextResponse.json(object);
   } catch (err) {
