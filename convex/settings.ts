@@ -6,6 +6,20 @@ export const DEFAULT_NOTIFY_DAYS_BEFORE = 30;
 export const DEFAULT_EMAIL_NOTIFY_DAYS_BEFORE = 14;
 export const DEFAULT_EMAIL_NOTIFICATIONS_ENABLED = true;
 
+const VALID_STORES = ["amazon", "aliexpress", "miravia", "etsy"] as const;
+type ValidStore = (typeof VALID_STORES)[number];
+export const DEFAULT_FAVORITE_STORES: readonly ValidStore[] = VALID_STORES;
+
+function sanitizeStores(stores: readonly string[]): ValidStore[] {
+  const seen = new Set<ValidStore>();
+  for (const s of stores) {
+    if ((VALID_STORES as readonly string[]).includes(s)) {
+      seen.add(s as ValidStore);
+    }
+  }
+  return VALID_STORES.filter((s) => seen.has(s));
+}
+
 export const getMine = query({
   args: {},
   handler: async (ctx) => {
@@ -15,6 +29,11 @@ export const getMine = query({
       .query("userSettings")
       .withIndex("by_user", (q) => q.eq("clerkUserId", clerkUserId))
       .unique();
+    const storedStores = existing?.favoriteStores;
+    const favoriteStores =
+      storedStores && storedStores.length > 0
+        ? sanitizeStores(storedStores)
+        : [...DEFAULT_FAVORITE_STORES];
     return {
       notifyDaysBefore: existing?.notifyDaysBefore ?? DEFAULT_NOTIFY_DAYS_BEFORE,
       emailNotificationsEnabled:
@@ -22,6 +41,7 @@ export const getMine = query({
       emailNotifyDaysBefore:
         existing?.emailNotifyDaysBefore ?? DEFAULT_EMAIL_NOTIFY_DAYS_BEFORE,
       email: existing?.email ?? identity?.email ?? null,
+      favoriteStores,
     };
   },
 });
@@ -57,10 +77,16 @@ export const setMine = mutation({
     notifyDaysBefore: v.optional(v.number()),
     emailNotificationsEnabled: v.optional(v.boolean()),
     emailNotifyDaysBefore: v.optional(v.number()),
+    favoriteStores: v.optional(v.array(v.string())),
   },
   handler: async (
     ctx,
-    { notifyDaysBefore, emailNotificationsEnabled, emailNotifyDaysBefore },
+    {
+      notifyDaysBefore,
+      emailNotificationsEnabled,
+      emailNotifyDaysBefore,
+      favoriteStores,
+    },
   ) => {
     if (notifyDaysBefore !== undefined) {
       if (
@@ -78,6 +104,14 @@ export const setMine = mutation({
         emailNotifyDaysBefore > 365
       ) {
         throw new Error("Días de antelación del correo fuera de rango (1–365).");
+      }
+    }
+
+    let cleanedStores: ValidStore[] | undefined;
+    if (favoriteStores !== undefined) {
+      cleanedStores = sanitizeStores(favoriteStores);
+      if (cleanedStores.length === 0) {
+        throw new Error("Selecciona al menos una tienda.");
       }
     }
 
@@ -100,6 +134,7 @@ export const setMine = mutation({
       emailNotificationsEnabled?: boolean;
       emailNotifyDaysBefore?: number;
       email?: string;
+      favoriteStores?: string[];
     } = {};
     if (notifyDaysBefore !== undefined) patch.notifyDaysBefore = notifyDaysBefore;
     if (emailNotificationsEnabled !== undefined) {
@@ -109,6 +144,7 @@ export const setMine = mutation({
       patch.emailNotifyDaysBefore = emailNotifyDaysBefore;
     }
     if (identity?.email) patch.email = identity.email;
+    if (cleanedStores !== undefined) patch.favoriteStores = cleanedStores;
 
     if (existing) {
       await ctx.db.patch(existing._id, patch);
@@ -119,6 +155,7 @@ export const setMine = mutation({
         emailNotificationsEnabled: patch.emailNotificationsEnabled,
         emailNotifyDaysBefore: patch.emailNotifyDaysBefore,
         email: patch.email,
+        favoriteStores: patch.favoriteStores,
       });
     }
   },

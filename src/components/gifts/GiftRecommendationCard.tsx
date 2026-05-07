@@ -2,7 +2,12 @@ import { ExternalLink, Sparkles, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
-import { generateAmazonUrl } from "@/lib/amazon";
+import {
+  ALL_STORES,
+  STORE_LABELS,
+  generateStoreSearchUrl,
+  type StoreId,
+} from "@/lib/stores";
 import type { GiftRecommendation, GiftType } from "@/lib/gifts";
 
 const formatRange = (min: number, max: number) =>
@@ -17,6 +22,7 @@ interface GiftRecommendationCardProps {
   idea: GiftRecommendation;
   index?: number;
   giftType?: GiftType;
+  favoriteStores?: StoreId[];
   onDiscard?: () => void;
 }
 
@@ -24,16 +30,22 @@ export function GiftRecommendationCard({
   idea,
   index = 0,
   giftType = "fisica",
+  favoriteStores,
   onDiscard,
 }: GiftRecommendationCardProps) {
   const isPhysical = giftType === "fisica";
   const isSurprise = giftType === "sorprendeme";
 
-  const linkHref = isPhysical
-    ? generateAmazonUrl(idea.amazonQuery)
-    : generateGoogleUrl(idea.amazonQuery);
+  const storesToRender =
+    favoriteStores && favoriteStores.length > 0
+      ? ALL_STORES.filter((s) => favoriteStores.includes(s))
+      : ALL_STORES;
 
-  const linkLabel = isPhysical ? "Amazon" : isSurprise ? "Buscar" : giftType === "tiempo-juntos" ? "Ideas" : "Buscar";
+  const nonPhysicalLabel = isSurprise
+    ? "Buscar"
+    : giftType === "tiempo-juntos"
+      ? "Ideas"
+      : "Buscar";
 
   return (
     <Card
@@ -65,8 +77,8 @@ export function GiftRecommendationCard({
           {idea.description}
         </p>
 
-        <div className="flex items-end justify-between gap-3 pt-3 border-t border-border/50">
-          <div className="space-y-1">
+        <div className="space-y-3 pt-3 border-t border-border/50">
+          <div className="flex items-end justify-between gap-3">
             <Badge variant="secondary" className="text-xs">
               {idea.category}
             </Badge>
@@ -74,16 +86,39 @@ export function GiftRecommendationCard({
               {formatRange(idea.priceMinEuros, idea.priceMaxEuros)}
             </div>
           </div>
+
           {idea.amazonQuery ? (
-            <a
-              href={linkHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={buttonVariants({ size: "sm" })}
-            >
-              {linkLabel}
-              <ExternalLink className="size-3.5" aria-hidden />
-            </a>
+            isPhysical ? (
+              <div className="flex flex-wrap gap-1.5">
+                {storesToRender.map((store) => (
+                  <a
+                    key={store}
+                    href={generateStoreSearchUrl(store, idea.amazonQuery)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={buttonVariants({
+                      size: "sm",
+                      variant: "outline",
+                    })}
+                  >
+                    {STORE_LABELS[store]}
+                    <ExternalLink className="size-3" aria-hidden />
+                  </a>
+                ))}
+              </div>
+            ) : (
+              <div className="flex justify-end">
+                <a
+                  href={generateGoogleUrl(idea.amazonQuery)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={buttonVariants({ size: "sm" })}
+                >
+                  {nonPhysicalLabel}
+                  <ExternalLink className="size-3.5" aria-hidden />
+                </a>
+              </div>
+            )
           ) : null}
         </div>
       </CardContent>

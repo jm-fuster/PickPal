@@ -47,7 +47,7 @@ Cuatro opciones mutuamente excluyentes definidas en `src/lib/gifts.ts`:
 
 | Valor | Icono (lucide) | Label | Descripción visible | Comportamiento del prompt |
 |---|---|---|---|---|
-| `fisica` | `ShoppingBag` | Producto físico | Algo que comprar y envolver | Solo productos comprables en Amazon.es. `amazonQuery` para Amazon. |
+| `fisica` | `ShoppingBag` | Producto físico | Algo que comprar y envolver | Productos comprables online. `amazonQuery` se usa como query de búsqueda en cada tienda favorita del usuario. |
 | `experiencia` | `Ticket` | Experiencia | Cena, taller, escapada… | Cenas, talleres, escapadas, conciertos. `amazonQuery` para Google. |
 | `tiempo-juntos` | `Heart` | Tiempo juntos | Planes sin coste o caseros | Planes gratuitos o caseros. Precios bajos o cero. |
 | `sorprendeme` | `Shuffle` | Sorpréndeme | Mezcla de los tres tipos | Mezcla libre de los tres tipos anteriores. |
@@ -180,17 +180,30 @@ Reglas:
 
 ---
 
-## URLs de Amazon (`src/lib/amazon.ts`)
+## Tiendas soportadas (`src/lib/stores.ts`)
 
-```typescript
-export function generateAmazonUrl(query: string): string {
-  return `https://www.amazon.es/s?${new URLSearchParams({ k: query })}`
-}
-```
+Para regalos físicos la tarjeta muestra un chip por cada tienda que el usuario tiene marcada como favorita. Cada chip enlaza a una **búsqueda determinista** construida desde el `amazonQuery` que devuelve la IA — no se le pide a Gemini que invente URLs.
 
-- Sin API key ni cuenta de afiliado.
-- El modelo genera queries específicas para maximizar la relevancia de los resultados.
-- Futuro: añadir parámetro `tag` de Amazon Associates para monetización.
+| Store ID | Plantilla de URL |
+|---|---|
+| `amazon` | `https://www.amazon.es/s?k={query}` |
+| `aliexpress` | `https://es.aliexpress.com/w/wholesale-{query}.html` |
+| `miravia` | `https://www.miravia.es/search?q={query}` |
+| `etsy` | `https://www.etsy.com/search?q={query}` |
+
+Notas:
+
+- El campo se llama `amazonQuery` por motivos legacy (antes solo había Amazon). Su contenido es una query genérica de 3-6 palabras, válida para cualquier tienda. Renombrarlo a `searchQuery` requiere migración Convex y queda fuera de alcance.
+- El usuario configura sus tiendas favoritas en `/settings` (campo `userSettings.favoriteStores`). Si nunca lo ha tocado, por defecto aparecen las cuatro.
+- Para `experiencia`, `tiempo-juntos` y `sorprendeme` se mantiene el botón único a Google (no tiene sentido buscar "cena romántica" en Aliexpress).
+- Sin API keys ni cuentas de afiliado. Futuro: parámetros de afiliación por tienda para monetización (Amazon Associates, AliExpress Affiliate, etc.).
+
+### Setting `favoriteStores`
+
+- Se persiste en `userSettings.favoriteStores: string[]` (opcional en el schema).
+- Validado server-side en `convex/settings.ts` contra la lista de tiendas conocidas — valores desconocidos se descartan.
+- Si el usuario intenta guardar el array vacío, la mutation lanza error y la UI muestra un toast.
+- Cliente y servidor sanitizan con `sanitizeFavoriteStores` para mantener orden canónico y filtrar valores caducados (por si se elimina una tienda en el futuro).
 
 ---
 
@@ -218,14 +231,15 @@ La variable de entorno `GOOGLE_GENERATIVE_AI_API_KEY` debe configurarse en Verce
 | [`convex/recommendations.ts`](../convex/recommendations.ts) | `getByPersonOccasion`, `upsert`, `removeIdea` |
 | [`convex/recommendationUsage.ts`](../convex/recommendationUsage.ts) | Rate limit: `check` (query sin efecto) + `consume` (mutation, solo tras éxito) |
 | [`src/lib/gifts.ts`](../src/lib/gifts.ts) | Tipos `GiftType`, `GiftRecommendation`, schema Zod, constante `GIFT_TYPES` |
-| [`src/lib/amazon.ts`](../src/lib/amazon.ts) | Generador de URLs de búsqueda en Amazon.es |
+| [`src/lib/stores.ts`](../src/lib/stores.ts) | Tiendas soportadas, builder de URLs de búsqueda, helpers de validación |
+| [`convex/settings.ts`](../convex/settings.ts) | `userSettings.favoriteStores` con validación y default |
 
 ---
 
 ## Mejoras pendientes
 
 - **Excluir `discardedTitles` en `buildPrompt`**: el campo ya se persiste, pero el prompt todavía no los inyecta para evitar que la IA repita ideas descartadas al regenerar.
-- **Afiliación Amazon**: añadir `tag` al `generateAmazonUrl` cuando haya cuenta de Associates.
+- **Afiliación**: añadir parámetros de afiliado por tienda en `generateStoreSearchUrl` cuando haya cuentas (Amazon Associates, AliExpress Affiliate, etc.).
 - **Recordatorios escalonados**: no relacionado con IA, pero la estructura de `importantDates` ya lo soporta.
 
 ---

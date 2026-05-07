@@ -12,6 +12,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { LoadingFallback } from "@/components/layout/LoadingFallback";
+import {
+  ALL_STORES,
+  STORE_LABELS,
+  sanitizeFavoriteStores,
+  type StoreId,
+} from "@/lib/stores";
 
 export default function SettingsPage() {
   const { isLoaded, isSignedIn } = useAuth();
@@ -22,6 +28,7 @@ export default function SettingsPage() {
 
   const [emailEnabled, setEmailEnabled] = useState(false);
   const [emailDays, setEmailDays] = useState<number | "">("");
+  const [favoriteStores, setFavoriteStores] = useState<StoreId[]>([]);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -40,6 +47,7 @@ export default function SettingsPage() {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setEmailEnabled(settings.emailNotificationsEnabled);
       setEmailDays(settings.emailNotifyDaysBefore);
+      setFavoriteStores(sanitizeFavoriteStores(settings.favoriteStores));
     }
   }, [settings]);
 
@@ -58,6 +66,10 @@ export default function SettingsPage() {
       );
       return;
     }
+    if (favoriteStores.length === 0) {
+      toast.error("Selecciona al menos una tienda.");
+      return;
+    }
     setSaving(true);
     try {
       await setMine({
@@ -65,6 +77,7 @@ export default function SettingsPage() {
         emailNotificationsEnabled: emailEnabled,
         emailNotifyDaysBefore:
           emailDays === "" ? undefined : (emailDays as number),
+        favoriteStores,
       });
       toast.success("Ajustes guardados");
     } catch (err) {
@@ -74,9 +87,25 @@ export default function SettingsPage() {
     }
   };
 
+  const savedStores = sanitizeFavoriteStores(settings.favoriteStores);
+  const storesChanged =
+    favoriteStores.length !== savedStores.length ||
+    favoriteStores.some((s, i) => savedStores[i] !== s);
   const dirty =
     settings.emailNotificationsEnabled !== emailEnabled ||
-    settings.emailNotifyDaysBefore !== emailDays;
+    settings.emailNotifyDaysBefore !== emailDays ||
+    storesChanged;
+
+  const toggleStore = (store: StoreId) => {
+    setFavoriteStores((prev) => {
+      if (prev.includes(store)) {
+        return prev.filter((s) => s !== store);
+      }
+      const next = [...prev, store];
+      // Mantener orden canónico para que `dirty` sea estable
+      return ALL_STORES.filter((s) => next.includes(s));
+    });
+  };
 
   return (
     <main className="flex flex-1 flex-col gap-8 p-4 sm:p-6 lg:p-8 max-w-xl">
@@ -163,11 +192,51 @@ export default function SettingsPage() {
             </div>
           )}
         </div>
-
-        <Button onClick={onSave} disabled={saving || !dirty}>
-          {saving ? "Guardando…" : "Guardar"}
-        </Button>
       </section>
+
+      <section className="space-y-3 rounded-xl border p-5">
+        <div className="space-y-0.5">
+          <Label>Tiendas para recomendaciones</Label>
+          <p className="text-xs text-muted-foreground">
+            Elige en qué tiendas quieres buscar regalos físicos. Los enlaces se
+            generan como búsquedas en cada tienda.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-2 pt-1">
+          {ALL_STORES.map((store) => {
+            const checked = favoriteStores.includes(store);
+            return (
+              <label
+                key={store}
+                htmlFor={`store-${store}`}
+                className={[
+                  "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm cursor-pointer transition-colors",
+                  checked
+                    ? "border-border bg-muted"
+                    : "border-border/50 hover:border-border",
+                ].join(" ")}
+              >
+                <input
+                  id={`store-${store}`}
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() => toggleStore(store)}
+                  className="size-4 rounded border-border accent-primary"
+                />
+                <span className="font-medium">{STORE_LABELS[store]}</span>
+              </label>
+            );
+          })}
+        </div>
+      </section>
+
+      <Button
+        onClick={onSave}
+        disabled={saving || !dirty}
+        className="w-fit"
+      >
+        {saving ? "Guardando…" : "Guardar"}
+      </Button>
     </main>
   );
 }

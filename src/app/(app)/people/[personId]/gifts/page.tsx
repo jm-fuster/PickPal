@@ -20,6 +20,7 @@ import {
 import { GiftRecommendationCard } from "@/components/gifts/GiftRecommendationCard";
 import { LoadingFallback } from "@/components/layout/LoadingFallback";
 import { GIFT_TYPES, type GiftType, type GiftRecommendation } from "@/lib/gifts";
+import { ALL_STORES, sanitizeFavoriteStores } from "@/lib/stores";
 
 const formatBudget = (min?: number, max?: number) => {
   const toEur = (v: number) => Math.round(v / 100);
@@ -41,6 +42,11 @@ export default function GiftsPage({
 
   const person = useQuery(api.people.getById, ready ? { id } : "skip");
   const events = useQuery(api.importantDates.getByPerson, ready ? { personId: id } : "skip");
+  const settings = useQuery(api.settings.getMine, ready ? {} : "skip");
+  const favoriteStores =
+    settings && settings.favoriteStores.length > 0
+      ? sanitizeFavoriteStores(settings.favoriteStores)
+      : [...ALL_STORES];
 
   const [occasion, setOccasion] = useState("");
   const [giftType, setGiftType] = useState<GiftType>("fisica");
@@ -257,6 +263,7 @@ export default function GiftsPage({
               idea={idea}
               index={i}
               giftType={giftType}
+              favoriteStores={favoriteStores}
               onDiscard={() => handleDiscard(idea, i)}
             />
           ))}

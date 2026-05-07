@@ -34,6 +34,7 @@ export default defineSchema({
     emailNotificationsEnabled: v.optional(v.boolean()),
     emailNotifyDaysBefore: v.optional(v.number()),
     email: v.optional(v.string()),
+    favoriteStores: v.optional(v.array(v.string())),
   }).index("by_user", ["clerkUserId"]),
 
   emailNotifications: defineTable({
