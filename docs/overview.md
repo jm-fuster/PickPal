@@ -12,7 +12,7 @@ Es fácil olvidar cumpleaños y aniversarios, y cuando se recuerdan a última ho
 2. A cada persona se le añaden fechas importantes: cumpleaños, aniversario, graduación, o cualquier fecha personalizada.
 3. La app muestra en el dashboard las fechas próximas (filtro de 30/60/90 días) y avisa con un badge en la campanilla.
 4. Opcionalmente, el usuario activa **avisos por email** desde Ajustes y elige con cuántos días de antelación quiere recibirlos. Un cron diario en Convex envía un correo agrupado vía Resend cuando los eventos entran exactamente en esa ventana. Detalle completo en [`docs/email-notifications.md`](email-notifications.md).
-5. En la página de regalos de cada persona, la IA genera 6 ideas personalizadas con rango de precio y enlace directo a Amazon para comprar.
+5. En la página de regalos de cada persona, la IA genera 9 ideas personalizadas con rango de precio y chips de búsqueda en las tiendas favoritas del usuario (Amazon, El Corte Inglés, AliExpress, Miravia, Decathlon, IKEA, PcComponentes).
 
 ## Páginas principales
 

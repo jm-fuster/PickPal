@@ -164,7 +164,7 @@ Visible a partir de `lg` (1024px). Implementado en `src/app/(app)/layout.tsx`.
 - **Hover · cards con acción interna** (la card no es link, pero contiene botón): `transition-shadow hover:shadow-md`. Sin translate ni cambio de fondo. Ejemplo: `GiftRecommendationCard`.
 - **Cards estáticas** (sin acción): solo `shadow-sm`, sin hover. Ejemplo: feature cards de la landing.
 - **Card de urgencia** (UpcomingDateCard cuando `daysUntil <= 7`): `border-primary/60 shadow-sm bg-primary/5`. El tinte rosado del primary llama la atención sin chillar.
-- **Cards generadas por IA** (GiftRecommendationCard): un `<Sparkles>` discreto en `text-primary/80 size-4` antes del título marca la procedencia. Footer separado por `border-t border-border/50` con badge de categoría + precio prominente (`text-lg font-medium`) a la izquierda y CTA a la derecha. Stagger animation `animate-in fade-in slide-in-from-bottom-2 duration-500` con `animationDelay: index * 60ms` para que aparezcan en cascada.
+- **Cards generadas por IA** (GiftRecommendationCard): layout fijo desde arriba — título (`font-medium`), badges de intereses (`variant="secondary"`, 1–3 según lo que devuelva la IA), descripción con altura mínima fija (`min-h-[5rem] line-clamp-4`) para que las cards del grid queden alineadas, separador `border-t border-border/50`, precio prominente (`text-lg font-medium`) + chips de tienda. Sin icono `Sparkles` (se eliminó — el contexto de la página ya comunica que son sugerencias IA). Stagger animation `animate-in fade-in slide-in-from-bottom-2 duration-500` con `animationDelay: index * 60ms` para que aparezcan en cascada. Los 9 skeletons de carga usan `h-52 rounded-2xl border-dashed bg-muted/40 animate-pulse`.
 
 ### Buttons
 
@@ -182,8 +182,8 @@ Visible a partir de `lg` (1024px). Implementado en `src/app/(app)/layout.tsx`.
 
 Las tarjetas de regalo físico muestran 1–N chips, uno por tienda relevante. La lista actual de tiendas soportadas (`STORE_IDS` en `src/lib/stores.ts`) son 7: Amazon, El Corte Inglés, AliExpress, Miravia, Decathlon, IKEA, PcComponentes. En la práctica la IA filtra a 1–3 chips por idea según `suggestedStores`, así que el grupo pocas veces es masivo. Reglas:
 
-- **Estilo**: `<a className={buttonVariants({ size: "sm", variant: "outline" })}>` con icono de tienda (`STORE_ICONS[store]`, size-3.5) antes del texto, e icono `ExternalLink` (size-3) detrás. Siempre `target="_blank"` + `rel="noopener noreferrer"` (evita reverse tabnabbing).
-- **Iconos por tienda** (lucide, `STORE_ICONS` en `src/lib/stores.ts`): Amazon→`ShoppingCart`, El Corte Inglés→`Building2`, AliExpress→`Globe`, Miravia→`Tag`, Decathlon→`Activity`, IKEA→`Sofa`, PcComponentes→`Cpu`. Decisión deliberada: iconos genéricos del set lucide, no logos de marca, para mantener la coherencia visual del sistema (warm notebook, no branded e-commerce). El icono diferencia la tienda lo bastante; el nombre al lado confirma la identidad.
+- **Estilo**: `<a className={buttonVariants({ size: "sm", variant: "outline" })}>` con logo de tienda (`<img src={STORE_ICONS[store]} className="size-3.5 rounded-sm object-contain bg-white p-px">`) antes del texto, e icono `ExternalLink` (size-3) detrás. Siempre `target="_blank"` + `rel="noopener noreferrer"` (evita reverse tabnabbing).
+- **Iconos por tienda**: logos oficiales en PNG o SVG almacenados en `public/stores/{storeId}.{ext}`. `STORE_ICONS` en `src/lib/stores.ts` mapea cada `StoreId` a su path público. Todos se renderizan con `bg-white p-px rounded-sm` para garantizar visibilidad en modo oscuro (muchos logos son monócromos o tienen fondo transparente). Las tiendas de `/settings` usan el mismo `STORE_ICONS` con `size-4`.
 - **Layout**: `flex flex-wrap gap-1.5` — los chips hacen wrap a 2 líneas en móvil cuando los 4 no caben.
 - **Orden**: canónico de `ALL_STORES` siempre, no el orden en que el usuario los marcó. Predecibilidad > preferencia.
 - **Etiqueta**: nombre legible de la tienda (`STORE_LABELS[store]`), no el ID. "El Corte Inglés", no "elcorteingles".
@@ -303,7 +303,7 @@ Patrón para "volver a la sección anterior", visible en la parte superior de p�
 - Tamaño default `size-10`–`size-12` en cards, `size-20`–`size-24` en headers de detalle.
 - En headers grandes, añadir `ring-1 ring-border` para definir el contorno sin que pese.
 - Si no hay foto, fallback con iniciales (2 letras max, mayúsculas).
-- **Avatar picker**: integrado en `PersonForm` y en el encabezado de perfil. Usa la API de [DiceBear](https://api.dicebear.com/9.x/) con el estilo `big-ears-neutral`. Genera 12 opciones con seed fijo `"avatar"` (NO el nombre de la persona — si se usara el nombre, las opciones regenerarían en cada keystroke al escribir el nombre). "Regenerar" avanza el offset en +12. La URL seleccionada se guarda en `person.avatarUrl` (opcional). El componente vive en `src/components/people/AvatarPicker.tsx`. Validación server-side: solo se aceptan URLs que empiecen por `https://api.dicebear.com/`.
+- **Avatar picker**: integrado en `PersonForm` y en el encabezado de perfil. Usa la API de [DiceBear](https://api.dicebear.com/9.x/) con el estilo `dylan`. Genera 12 opciones con seed fijo `"avatar"` (NO el nombre de la persona — si se usara el nombre, las opciones regenerarían en cada keystroke al escribir el nombre). "Regenerar" avanza el offset en +12. La URL seleccionada se guarda en `person.avatarUrl` (opcional). El componente vive en `src/components/people/AvatarPicker.tsx`. Validación server-side: solo se aceptan URLs que empiecen por `https://api.dicebear.com/`. Parámetros aplicados: `hairColor[]` restringido a negro, rojo/coral, rubio dorado (`e8c170`), castaño (`8b4513`), chocolate (`d2691e`), blanco y transparente (calvo); `mood[]` excluye `sad` (se usan `happy`, `angry`, `hopeful`, `confused`, `superHappy`, `neutral`). El grid del picker usa `justify-items-center` para que las celdas no estiren los botones horizontalmente (sin eso el anillo de selección queda ovalado).
 - **Avatar en perfil**: el avatar del encabezado tiene un overlay de cámara (`Camera` icon) visible en hover. Al pulsarlo se abre un `Dialog` con `AvatarPicker`. Al seleccionar un avatar el dialog se cierra y el cambio se guarda automáticamente (autosave inmediato al elegir).
 
 ### Edición inline (perfil de persona)
@@ -373,13 +373,8 @@ Iconos en uso:
 - `Heart` — tipo de regalo "Tiempo juntos".
 - `Shuffle` — tipo de regalo "Sorpréndeme".
 - `ExternalLink` — chips de tienda en `GiftRecommendationCard` (size-3, detrás del texto).
-- `ShoppingCart` — chip de Amazon en `GiftRecommendationCard` y `/settings`.
-- `Building2` — chip de El Corte Inglés.
-- `Globe` — chip de AliExpress.
-- `Tag` — chip de Miravia.
-- `Activity` — chip de Decathlon.
-- `Sofa` — chip de IKEA.
-- `Cpu` — chip de PcComponentes.
+- `Gift` — empty state de la campana de notificaciones cuando no hay fechas próximas.
+- **Nota tiendas**: los chips de tienda ya NO usan iconos Lucide. Usan logos PNG/SVG oficiales en `public/stores/`. Ver sección Chips de tienda.
 
 **Reglas:**
 - **Botones icon-only** necesitan `aria-label` y `title`. Usar variant `ghost` y size `icon` o `icon-sm`.
