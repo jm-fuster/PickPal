@@ -86,13 +86,11 @@ export function GiftRecommendationCard({
           </div>
         </div>
 
-        <div className="flex-1">
-          <p className="text-sm leading-relaxed text-muted-foreground line-clamp-4">
-            {idea.description}
-          </p>
-        </div>
+        <p className="text-sm leading-relaxed text-muted-foreground line-clamp-4 min-h-[5rem]">
+          {idea.description}
+        </p>
 
-        <div className="space-y-3 pt-3 border-t border-border/50">
+        <div className="mt-auto space-y-3 pt-3 border-t border-border/50">
           <div className="text-lg font-medium tracking-tight">
             {formatRange(idea.priceMinEuros, idea.priceMaxEuros)}
           </div>
