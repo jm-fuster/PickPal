@@ -40,7 +40,7 @@ pickpal/
 │   │   ├── ui/                                 # shadcn/ui (auto-generados)
 │   │   ├── layout/
 │   │   │   ├── Sidebar.tsx
-│   │   │   └── NotificationBell.tsx            # badge con fechas próximas
+│   │   │   └── NotificationBell.tsx            # popover con fechas próximas → enlaza a /gifts
 │   │   ├── people/
 │   │   │   ├── PersonForm.tsx                  # formulario compartido create/edit
 │   │   │   ├── InterestTagInput.tsx            # input de intereses con tags

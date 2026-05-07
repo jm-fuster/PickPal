@@ -134,6 +134,15 @@ Visible a partir de `lg` (1024px). Implementado en `src/app/(app)/layout.tsx`.
 - **Tema**: `defaultTheme="light"` sin `enableSystem`. El toggle está en `/settings`. No hay ThemeToggle en sidebar ni en el header. Los usuarios existentes conservan su preferencia guardada en `localStorage`.
 - En móvil (`< lg`): header compacto con hamburguesa (`MobileNav`) + logo a la izquierda, campana + UserButton a la derecha. La navegación se abre en un `Sheet` lateral (shadcn `sheet.tsx`) desde la izquierda. `MobileNav` es un componente cliente en `src/components/layout/MobileNav.tsx`.
 
+**Campana de notificaciones (`NotificationBell` / `SafeNotificationBell`):**
+
+- Botón con icono `Bell`. Muestra un badge numérico con las fechas próximas dentro de la ventana `notifyDaysBefore` (de `userSettings`).
+- Al pulsar abre un **popover** (base-ui) con la lista de fechas próximas, ordenadas por días restantes (ascendente).
+- Cada fila muestra: nombre de la persona, etiqueta del evento, y un contador coloreado — rojo si es hoy, ámbar si queda ≤ 7 días, gris el resto. Muestra "Hoy" / "Mañana" en vez de "0d" / "1d".
+- Cada fila enlaza a `/people/[id]/gifts` (generación de ideas) para pasar a la acción directamente.
+- Estado vacío con icono `Gift` cuando no hay nada en la ventana.
+- `SafeNotificationBell` envuelve el componente en un `ErrorBoundary` para que un fallo no rompa el layout.
+
 **Secciones de la navegación:**
 
 | Etiqueta | Ruta | Icono |
