@@ -70,7 +70,7 @@ export default defineSchema({
         description: v.string(),
         priceMinEuros: v.number(),
         priceMaxEuros: v.number(),
-        category: v.string(),
+        category: v.union(v.string(), v.array(v.string())),
         amazonQuery: v.string(),
         suggestedStores: v.optional(v.array(v.string())),
       }),

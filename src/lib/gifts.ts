@@ -15,7 +15,7 @@ export const giftRecommendationSchema = z.object({
   description: z.string().min(1).max(280),
   priceMinEuros: z.number().min(0),
   priceMaxEuros: z.number().min(0),
-  category: z.string().min(1).max(40),
+  category: z.array(z.string().min(1).max(40)).min(1).max(3),
   amazonQuery: z.string().min(1).max(120),
   // Tiendas en las que tiene sentido buscar este producto. Opcional para
   // mantener compatibilidad con ideas cacheadas pre-v2; el prompt actual

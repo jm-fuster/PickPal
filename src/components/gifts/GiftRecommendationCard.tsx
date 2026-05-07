@@ -74,9 +74,16 @@ export function GiftRecommendationCard({
           <h3 className="text-base font-medium leading-snug pr-6">
             {idea.title}
           </h3>
-          <Badge variant="secondary" className="text-xs">
-            {idea.category}
-          </Badge>
+          <div className="flex flex-wrap gap-1">
+            {(Array.isArray(idea.category)
+              ? idea.category
+              : (idea.category as unknown as string).split(" · ")
+            ).map((tag) => (
+              <Badge key={tag} variant="secondary" className="text-xs">
+                {tag}
+              </Badge>
+            ))}
+          </div>
         </div>
 
         <p className="text-sm leading-relaxed text-muted-foreground flex-1">

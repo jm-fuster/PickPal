@@ -128,7 +128,7 @@ type RecommendationIdea = {
   description: string;
   priceMinEuros: number;
   priceMaxEuros: number;
-  category: string;
+  category: string | string[];
   amazonQuery: string;
   suggestedStores?: string[];
 };
@@ -158,8 +158,9 @@ export function validateRecommendationIdeas(
     ) {
       throw new Error("Descripción de idea inválida.");
     }
-    const category = idea.category.trim();
-    if (category.length === 0 || idea.category.length > MAX_IDEA_CATEGORY) {
+    const categories = Array.isArray(idea.category) ? idea.category : [idea.category];
+    if (categories.length === 0 || categories.length > 3 ||
+        categories.some(c => c.trim().length === 0 || c.length > MAX_IDEA_CATEGORY)) {
       throw new Error("Categoría de idea inválida.");
     }
     const query = idea.amazonQuery.trim();
