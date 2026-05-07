@@ -169,6 +169,19 @@ Visible a partir de `lg` (1024px). Implementado en `src/app/(app)/layout.tsx`.
 - `secondary` (terracota): badges informativos de identidad/relación ("Amigo/a", "Pareja") y énfasis o urgencia (NotificationBell).
 - `outline`: tags de atributos (intereses, etiquetas de fecha) y "+N más".
 
+### Chips de tienda (multi-tienda en `GiftRecommendationCard`)
+
+Las tarjetas de regalo físico muestran 1-4 chips, uno por tienda relevante (Amazon, AliExpress, Miravia, El Corte Inglés). Reglas:
+
+- **Estilo**: `<a className={buttonVariants({ size: "sm", variant: "outline" })}>` con icono `ExternalLink` (size-3) detrás del texto. Siempre `target="_blank"` + `rel="noopener noreferrer"` (evita reverse tabnabbing).
+- **Layout**: `flex flex-wrap gap-1.5` — los chips hacen wrap a 2 líneas en móvil cuando los 4 no caben.
+- **Orden**: canónico de `ALL_STORES` siempre, no el orden en que el usuario los marcó. Predecibilidad > preferencia.
+- **Etiqueta**: nombre legible de la tienda (`STORE_LABELS[store]`), no el ID. "El Corte Inglés", no "elcorteingles".
+- **Hint de fallback**: cuando la IA sugiere tiendas que no coinciden con las favoritas del usuario, debajo de la fila de chips aparece `<p className="text-[11px] text-muted-foreground">Búsqueda genérica — esta idea encaja mejor en otras tiendas.</p>`. Es el único caso en el que un texto explica el comportamiento del card.
+- **No mezclar con icon-only buttons**: si en algún momento se quiere reducir el espacio (más de 4 tiendas, móvil pequeño), usar un overflow menu en vez de quitar las labels — los logos de tienda sin texto son fáciles de confundir.
+
+Ver lógica completa en [`docs/ia-regalos.md`](ia-regalos.md#multi-tienda) y la implementación en [`src/components/gifts/GiftRecommendationCard.tsx`](../src/components/gifts/GiftRecommendationCard.tsx).
+
 ### Páginas — padding y layout
 
 Padding de página responsive en todos los `<main>`: `p-4 sm:p-6 lg:p-8`. No usar `p-8` fijo.
@@ -347,6 +360,7 @@ Iconos en uso:
 - `Ticket` — tipo de regalo "Experiencia".
 - `Heart` — tipo de regalo "Tiempo juntos".
 - `Shuffle` — tipo de regalo "Sorpréndeme".
+- `ExternalLink` — chips de tienda en `GiftRecommendationCard` (size-3, detrás del texto).
 
 **Reglas:**
 - **Botones icon-only** necesitan `aria-label` y `title`. Usar variant `ghost` y size `icon` o `icon-sm`.

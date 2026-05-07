@@ -180,49 +180,84 @@ Reglas:
 
 ---
 
-## Tiendas soportadas (`src/lib/stores.ts`)
+## Multi-tienda
 
-Para regalos físicos la tarjeta muestra un chip por cada tienda que el usuario tiene marcada como favorita. Cada chip enlaza a una **búsqueda determinista** construida desde el `amazonQuery` que devuelve la IA — no se le pide a Gemini que invente URLs.
+Para regalos físicos cada tarjeta muestra un chip por cada tienda relevante. El click abre una búsqueda en esa tienda con la query que generó la IA. La lista de tiendas que se ven en cada tarjeta resulta del cruce entre tres señales:
 
-| Store ID | Plantilla de URL |
-|---|---|
-| `amazon` | `https://www.amazon.es/s?k={query}` |
-| `aliexpress` | `https://es.aliexpress.com/w/wholesale-{query}.html` |
-| `miravia` | `https://www.miravia.es/search?q={query}` |
-| `elcorteingles` | `https://www.elcorteingles.es/search/?s={query}` |
+1. Las **tiendas soportadas** (4 hardcoded por la app).
+2. Las **favoritas del usuario** (configuradas en `/settings`).
+3. Las **sugeridas por la IA** para esa idea concreta (`suggestedStores`).
+
+### Por qué multi-tienda
+
+Antes solo había Amazon. Ampliar a 4 tiendas amplía el rango calidad-precio sin coste técnico: Gemini no consulta catálogos reales — devuelve una query de búsqueda genérica de 3-6 palabras y la app construye URLs deterministas por tienda. Cero alucinaciones de URL, cero claves API, fácil añadir tiendas.
+
+### Tiendas soportadas
+
+Definidas en [`src/lib/stores.ts`](../src/lib/stores.ts). Lista cerrada con allowlist en cliente (`STORE_IDS`) y servidor (`ALLOWED_STORES` en [`convex/validators.ts`](../convex/validators.ts)).
+
+| Store ID | Etiqueta | Plantilla de URL | Encaje típico |
+|---|---|---|---|
+| `amazon` | Amazon | `https://www.amazon.es/s?k={query}` | Generalista. Tech, libros, marcas internacionales, envío rápido |
+| `aliexpress` | AliExpress | `https://es.aliexpress.com/w/wholesale-{query}.html` | Gadgets baratos, accesorios sin marca, espera larga |
+| `miravia` | Miravia | `https://www.miravia.es/search?q={query}` | Marketplace asiático curado, moda y belleza |
+| `elcorteingles` | El Corte Inglés | `https://www.elcorteingles.es/search/?s={query}` | Gourmet, vinos, moda media-alta, hogar, regalos premium nacionales |
+
+Las URLs se construyen con `encodeURIComponent` sobre la query, así que cualquier carácter especial queda escapado correctamente. Los enlaces siempre llevan `target="_blank" rel="noopener noreferrer"`.
 
 Notas:
 
-- El campo se llama `amazonQuery` por motivos legacy (antes solo había Amazon). Su contenido es una query genérica de 3-6 palabras, válida para cualquier tienda. Renombrarlo a `searchQuery` requiere migración Convex y queda fuera de alcance.
-- El usuario configura sus tiendas favoritas en `/settings` (campo `userSettings.favoriteStores`). Si nunca lo ha tocado, por defecto aparecen las cuatro.
-- Para `experiencia`, `tiempo-juntos` y `sorprendeme` se mantiene el botón único a Google (no tiene sentido buscar "cena romántica" en Aliexpress).
-- Sin API keys ni cuentas de afiliado. Futuro: parámetros de afiliación por tienda para monetización (Amazon Associates, AliExpress Affiliate, etc.).
+- El campo de la idea se llama `amazonQuery` por motivos legacy (antes solo existía Amazon). Su contenido ya es una query genérica de 3-6 palabras válida para cualquier tienda. Renombrarlo a `searchQuery` requiere migración Convex y queda fuera de alcance.
+- Para `experiencia`, `tiempo-juntos` y `sorprendeme` se mantiene un único botón a Google (no tiene sentido buscar "cena romántica" en AliExpress).
+- Sin afiliación. Futuro: parámetros de afiliado por tienda para monetización (Amazon Associates, AliExpress Affiliate, etc.).
+
+### Setting `favoriteStores` (preferencia del usuario)
+
+Cada usuario elige en `/settings` qué tiendas quiere ver en sus tarjetas.
+
+- **Storage**: `userSettings.favoriteStores: string[]` (opcional en el schema). Si nunca se ha tocado, `getMine` devuelve `DEFAULT_FAVORITE_STORES` (las 4).
+- **UI**: 4 checkboxes en `/settings`. Validación cliente "selecciona al menos una tienda" antes de llamar la mutation.
+- **Mutation**: `setMine` en [`convex/settings.ts`](../convex/settings.ts) llama `sanitizeStores` (allowlist contra `ALLOWED_STORES`) y rechaza el array vacío con error.
+- **Lectura**: tanto `getMine` como el cliente vuelven a pasar el array por `sanitizeFavoriteStores` para mantener orden canónico y filtrar valores caducados (por si se elimina una tienda en el futuro — p.ej. Etsy quedó como valor legacy filtrado tras retirarla).
 
 ### Tiendas sugeridas por idea (`suggestedStores`)
 
-Para evitar enseñar chips a tiendas que claramente no tienen el producto (ej. miel artesanal en AliExpress), Gemini devuelve un campo opcional `suggestedStores: StoreId[]` por idea. La UI cruza esa lista con las favoritas del usuario:
+Para evitar mostrar chips a tiendas que claramente no tienen el producto (miel artesanal de un pueblo en AliExpress), la IA marca por idea en qué tiendas tiene sentido buscar.
 
-| Caso | Comportamiento |
-|---|---|
-| `suggestedStores` ausente o vacío (idea pre-v2 cacheada) | Muestra todas las favoritas, sin hint |
-| Intersección no vacía con favoritas | Muestra solo la intersección |
-| Sugerencias presentes pero ninguna coincide con favoritas | Fallback a todas las favoritas + hint "Búsqueda genérica — esta idea encaja mejor en otras tiendas" |
+- **Schema**: campo opcional en `giftRecommendationSchema` con `z.array(z.enum(STORE_IDS)).min(1).max(4)`. Opcional por compatibilidad con ideas cacheadas pre-v2 que no lo tienen.
+- **Persistencia**: `recommendations.ideas[].suggestedStores: v.optional(v.array(v.string()))` en el schema Convex.
+- **Reglas que el prompt impone a Gemini** (ver `buildPrompt` en [`src/app/api/recommendations/route.ts`](../src/app/api/recommendations/route.ts)):
+  - **Incluir siempre al menos una generalista** (`amazon` o `elcorteingles`) salvo en casos claramente nicho (artesanal, gourmet hiper-local, hecho a medida).
+  - Excluir AliExpress/Miravia para gourmet español, moda media-alta o regalos donde la calidad importa.
+  - El Corte Inglés cuando la marca o calidad importan, o cuando es un producto muy "español".
+  - Solo se pide para `fisica` y para los items físicos dentro de `sorprendeme`. Para `experiencia` y `tiempo-juntos` el prompt instruye explícitamente a omitir el campo.
 
-Reglas que el prompt impone a Gemini:
+### Lógica de renderizado
 
-- "amazon": casi siempre, salvo productos artesanales/locales claros.
-- "aliexpress" / "miravia": gadgets baratos, accesorios, productos sin marca; excluir gourmet español, moda media-alta, artesanía.
-- "elcorteingles": gourmet, vinos, moda media-alta, hogar, perfumería, regalos premium nacionales.
-- Incluir SIEMPRE al menos una generalista (`amazon` o `elcorteingles`) salvo en casos claramente nicho.
+`pickEffectiveStores(favoriteStores, suggestedStores)` en [`src/lib/stores.ts`](../src/lib/stores.ts) decide qué chips mostrar. Es pura y testeada en `stores.test.ts`.
 
-Implementación: `pickEffectiveStores` en [`src/lib/stores.ts`](../src/lib/stores.ts). Es pura y testeada en `stores.test.ts`. La validación Zod (`giftRecommendationSchema`) usa `z.enum(STORE_IDS)` así que cualquier valor inválido devuelto por Gemini hace fallar la generación entera.
+| Caso | `stores` devuelto | `isFallback` | UI |
+|---|---|---|---|
+| `suggestedStores` ausente o vacío (idea cacheada pre-v2 o tipo no físico) | Todas las favoritas | `false` | Chips sin hint |
+| Hay intersección entre sugeridas y favoritas | Solo la intersección | `false` | Chips sin hint |
+| Hay sugeridas pero ninguna coincide con favoritas | Todas las favoritas | `true` | Chips + texto "Búsqueda genérica — esta idea encaja mejor en otras tiendas" |
 
-### Setting `favoriteStores`
+El orden de los chips es siempre el canónico de `ALL_STORES` (Amazon, AliExpress, Miravia, El Corte Inglés), sin importar el orden en que llegan los inputs.
 
-- Se persiste en `userSettings.favoriteStores: string[]` (opcional en el schema).
-- Validado server-side en `convex/settings.ts` contra la lista de tiendas conocidas — valores desconocidos se descartan.
-- Si el usuario intenta guardar el array vacío, la mutation lanza error y la UI muestra un toast.
-- Cliente y servidor sanitizan con `sanitizeFavoriteStores` para mantener orden canónico y filtrar valores caducados (por si se elimina una tienda en el futuro).
+### Defensa en profundidad
+
+La salida de un LLM se trata como input no confiable. El flujo de validación tiene 3 capas:
+
+```
+Gemini  →  generateObject + Zod (giftRecommendationSchema)  →  fetchMutation(api.recommendations.upsert)  →  validateRecommendationIdeas  →  Convex DB
+                          [/api/recommendations/route.ts]                                                     [convex/validators.ts]
+```
+
+1. **Zod** rechaza cualquier idea con campos fuera de tipo o tienda no listada (`z.enum(STORE_IDS)`).
+2. **`validateRecommendationIdeas`** se ejecuta dentro de la mutation Convex y revalida tamaños, rangos numéricos, allowlist de tiendas, no-duplicados, y exactamente 6 ideas. Cierra el agujero de "atacante autenticado llama a `api.recommendations.upsert` directamente saltándose la API route" (ver [`docs/security.md`](security.md) sección "Validar tamaños y rangos en el servidor").
+3. **`encodeURIComponent`** al construir la URL impide cualquier inyección desde la query string al path/dominio.
+
+Si en algún momento futuro Gemini empieza a devolver datos hostiles (prompt injection vía `notes`/`interests` del usuario), el daño máximo es: query de búsqueda rara que el propio usuario abriría en su navegador. Sin amplificación cross-user, sin escape a otros endpoints.
 
 ---
 
@@ -249,9 +284,12 @@ La variable de entorno `GOOGLE_GENERATIVE_AI_API_KEY` debe configurarse en Verce
 | [`src/app/api/recommendations/route.ts`](../src/app/api/recommendations/route.ts) | API route: fetches Convex, llama a Gemini, persiste resultado |
 | [`convex/recommendations.ts`](../convex/recommendations.ts) | `getByPersonOccasion`, `upsert`, `removeIdea` |
 | [`convex/recommendationUsage.ts`](../convex/recommendationUsage.ts) | Rate limit: `check` (query sin efecto) + `consume` (mutation, solo tras éxito) |
-| [`src/lib/gifts.ts`](../src/lib/gifts.ts) | Tipos `GiftType`, `GiftRecommendation`, schema Zod, constante `GIFT_TYPES` |
-| [`src/lib/stores.ts`](../src/lib/stores.ts) | Tiendas soportadas, builder de URLs de búsqueda, helpers de validación |
-| [`convex/settings.ts`](../convex/settings.ts) | `userSettings.favoriteStores` con validación y default |
+| [`src/lib/gifts.ts`](../src/lib/gifts.ts) | Tipos `GiftType`, `GiftRecommendation`, schema Zod (incluye `suggestedStores`), constante `GIFT_TYPES` |
+| [`src/lib/stores.ts`](../src/lib/stores.ts) | `STORE_IDS`, `STORE_LABELS`, `generateStoreSearchUrl`, `pickEffectiveStores`, `sanitizeFavoriteStores` |
+| [`src/lib/stores.test.ts`](../src/lib/stores.test.ts) | Tests unitarios de URL building, sanitización y `pickEffectiveStores` |
+| [`convex/settings.ts`](../convex/settings.ts) | `getMine` y `setMine` con `favoriteStores`; importa `ALLOWED_STORES` de `validators.ts` |
+| [`convex/validators.ts`](../convex/validators.ts) | Allowlist `ALLOWED_STORES` y `validateRecommendationIdeas` (defensa en profundidad sobre `upsert`) |
+| [`src/app/(app)/settings/page.tsx`](../src/app/%28app%29/settings/page.tsx) | UI de selector de tiendas favoritas (4 checkboxes) |
 
 ---
 
@@ -265,6 +303,7 @@ La variable de entorno `GOOGLE_GENERATIVE_AI_API_KEY` debe configurarse en Verce
 
 ## Verificación manual
 
+### Flujo base
 - [ ] Crear persona con intereses y **añadir una fecha con presupuesto definido**
 - [ ] Ir a `/people/[id]/gifts`, el `<Select>` muestra los eventos con presupuesto
 - [ ] Seleccionar evento → botón "Generar" se activa
@@ -275,3 +314,14 @@ La variable de entorno `GOOGLE_GENERATIVE_AI_API_KEY` debe configurarse en Verce
 - [ ] Pulsar "Deshacer" → la tarjeta vuelve a su posición
 - [ ] Cerrar el toast manualmente → la idea se elimina de Convex (verificar en dashboard de Convex)
 - [ ] Navegar fuera de la pantalla con toasts abiertos → las ideas pendientes se eliminan de Convex al desmontar
+
+### Multi-tienda
+- [ ] En `/settings` aparece la sección "Tiendas para recomendaciones" con 4 checkboxes (todas marcadas por defecto)
+- [ ] Desmarcar todas y pulsar "Guardar" → toast de error "Selecciona al menos una tienda", no se guarda
+- [ ] Marcar solo Amazon + ECI, guardar, recargar → la selección persiste
+- [ ] Generar 6 ideas físicas → cada tarjeta muestra solo chips de Amazon/ECI (no AliExpress/Miravia)
+- [ ] Generar ideas con un mix temático (gourmet + tech + algo artesanal) y revisar que **no todas las tarjetas muestran las mismas tiendas** (la IA filtra por idea)
+- [ ] Marcar solo AliExpress + Miravia y generar una idea de gourmet/vino → debería aparecer el hint "Búsqueda genérica — esta idea encaja mejor en otras tiendas" (la IA habrá sugerido `amazon`/`elcorteingles`, sin solapamiento)
+- [ ] Click en cada chip abre la búsqueda real de esa tienda con la query correcta
+- [ ] Cambiar el tipo a "experiencia" o "tiempo-juntos" → solo aparece el botón único a Google, sin chips de tienda
+- [ ] Las ideas cacheadas pre-multi-tienda (sin `suggestedStores`) deberían mostrar todas las favoritas del usuario sin hint hasta que se regeneren
