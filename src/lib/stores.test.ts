@@ -34,12 +34,6 @@ describe("generateStoreSearchUrl", () => {
     );
   });
 
-  it("genera URL de búsqueda en Fnac", () => {
-    expect(generateStoreSearchUrl("fnac", "libro de cocina")).toBe(
-      "https://www.fnac.es/SearchResult/ResultList.aspx?Search=libro%20de%20cocina",
-    );
-  });
-
   it("genera URL de búsqueda en Decathlon", () => {
     expect(generateStoreSearchUrl("decathlon", "zapatillas running")).toBe(
       "https://www.decathlon.es/es/search?q=zapatillas%20running",
@@ -75,6 +69,7 @@ describe("isStoreId", () => {
   it("rechaza valores desconocidos", () => {
     expect(isStoreId("ebay")).toBe(false);
     expect(isStoreId("etsy")).toBe(false);
+    expect(isStoreId("fnac")).toBe(false);
     expect(isStoreId("")).toBe(false);
     expect(isStoreId("AMAZON")).toBe(false);
   });
@@ -87,16 +82,15 @@ describe("sanitizeFavoriteStores", () => {
     ).toEqual(["amazon", "elcorteingles"]);
   });
 
-  it("descarta tiendas legacy retiradas (etsy)", () => {
-    expect(sanitizeFavoriteStores(["amazon", "etsy", "miravia"])).toEqual([
-      "amazon",
-      "miravia",
-    ]);
+  it("descarta tiendas legacy retiradas (etsy, fnac)", () => {
+    expect(
+      sanitizeFavoriteStores(["amazon", "etsy", "fnac", "miravia"]),
+    ).toEqual(["amazon", "miravia"]);
   });
 
   it("elimina duplicados manteniendo orden canónico", () => {
     // Orden canónico de STORE_IDS: amazon, elcorteingles, aliexpress, miravia,
-    // fnac, decathlon, ikea, pccomponentes.
+    // decathlon, ikea, pccomponentes.
     expect(
       sanitizeFavoriteStores([
         "miravia",

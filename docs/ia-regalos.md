@@ -202,7 +202,6 @@ Definidas en [`src/lib/stores.ts`](../src/lib/stores.ts). Lista cerrada con allo
 | `elcorteingles` | El Corte Inglés | `https://www.elcorteingles.es/search/?s={query}` | Gourmet, vinos, moda media-alta, hogar, regalos premium nacionales |
 | `aliexpress` | AliExpress | `https://es.aliexpress.com/w/wholesale-{query}.html` | Gadgets baratos, accesorios sin marca, espera larga |
 | `miravia` | Miravia | `https://www.miravia.es/search?q={query}` | Marketplace asiático/europeo curado, moda y belleza |
-| `fnac` | Fnac | `https://www.fnac.es/SearchResult/ResultList.aspx?Search={query}` | Libros, vinilos, juguetes educativos, gaming, fotografía, papelería |
 | `decathlon` | Decathlon | `https://www.decathlon.es/es/search?q={query}` | Deporte y outdoor: running, ciclismo, montaña, fitness, camping |
 | `ikea` | IKEA | `https://www.ikea.com/es/es/search/?q={query}` | Hogar, muebles, decoración, textil hogar, organización, iluminación |
 | `pccomponentes` | PcComponentes | `https://www.pccomponentes.com/search/?query={query}` | Tech especializada: componentes PC, periféricos, gaming, monitores |
@@ -235,7 +234,6 @@ Para evitar mostrar chips a tiendas que claramente no tienen el producto (miel a
   - **Generalistas** (`amazon`, `elcorteingles`): Amazon en la mayoría de tech/libros/marcas internacionales; ECI cuando marca/calidad importan o es producto muy "español".
   - **Marketplaces baratos** (`aliexpress`, `miravia`): solo cuando la idea funciona con producto barato + espera larga aceptable; excluir gourmet español, moda media-alta, calidad relevante.
   - **Especialistas** — la IA tiene que añadir la tienda especialista junto a la generalista cuando claramente encaja:
-    - `fnac` → libros, vinilos, juguetes educativos, papelería, gaming, fotografía.
     - `decathlon` → solo si la idea es claramente deportiva/outdoor.
     - `ikea` → hogar, muebles, decoración, textil; útil para mudanzas o pareja que estrena piso.
     - `pccomponentes` → tech serio (PCs, periféricos gaming, monitores, smart home).

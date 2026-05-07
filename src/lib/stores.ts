@@ -3,7 +3,6 @@ export const STORE_IDS = [
   "elcorteingles",
   "aliexpress",
   "miravia",
-  "fnac",
   "decathlon",
   "ikea",
   "pccomponentes",
@@ -18,7 +17,6 @@ export const STORE_LABELS: Record<StoreId, string> = {
   elcorteingles: "El Corte Inglés",
   aliexpress: "AliExpress",
   miravia: "Miravia",
-  fnac: "Fnac",
   decathlon: "Decathlon",
   ikea: "IKEA",
   pccomponentes: "PcComponentes",
@@ -35,8 +33,6 @@ export function generateStoreSearchUrl(store: StoreId, query: string): string {
       return `https://es.aliexpress.com/w/wholesale-${q}.html`;
     case "miravia":
       return `https://www.miravia.es/search?q=${q}`;
-    case "fnac":
-      return `https://www.fnac.es/SearchResult/ResultList.aspx?Search=${q}`;
     case "decathlon":
       return `https://www.decathlon.es/es/search?q=${q}`;
     case "ikea":

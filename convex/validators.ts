@@ -32,7 +32,6 @@ export const ALLOWED_STORES = [
   "elcorteingles",
   "aliexpress",
   "miravia",
-  "fnac",
   "decathlon",
   "ikea",
   "pccomponentes",
