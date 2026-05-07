@@ -90,7 +90,7 @@ export function GiftRecommendationCard({
           {idea.description}
         </p>
 
-        <div className="space-y-3 pt-3 border-t border-border/50 mt-auto">
+        <div className="space-y-3 pt-3 border-t border-border/50">
           <div className="text-lg font-medium tracking-tight">
             {formatRange(idea.priceMinEuros, idea.priceMaxEuros)}
           </div>
