@@ -10,26 +10,31 @@ export const GIFT_TYPES = [
 
 export type GiftType = (typeof GIFT_TYPES)[number]["value"];
 
-export const giftRecommendationSchema = z.object({
+const baseRecommendationSchema = z.object({
   title: z.string().min(1).max(80),
   description: z.string().min(1).max(280),
   priceMinEuros: z.number().min(0),
   priceMaxEuros: z.number().min(0),
   category: z.array(z.string().min(1).max(40)).min(1).max(3),
   amazonQuery: z.string().min(1).max(120),
-  // Tiendas en las que tiene sentido buscar este producto. Opcional para
-  // mantener compatibilidad con ideas cacheadas pre-v2; el prompt actual
-  // pide a la IA que lo incluya siempre para regalos físicos. El cap es
-  // `STORE_IDS.length` (no menor) para que la IA pueda devolver todas las
-  // tiendas en productos genéricos sin que falle el schema.
-  suggestedStores: z
-    .array(z.enum(STORE_IDS))
-    .max(STORE_IDS.length)
-    .nullish(),
+});
+
+// Para tipos sin tiendas (experiencia, tiempo-juntos): campo ausente del schema
+// para evitar que Gemini falle al intentar omitir un campo enum opcional.
+const recommendationWithStoresSchema = baseRecommendationSchema.extend({
+  suggestedStores: z.array(z.enum(STORE_IDS)).min(1).max(STORE_IDS.length).optional(),
+});
+
+export const giftRecommendationSchema = baseRecommendationSchema.extend({
+  suggestedStores: z.array(z.enum(STORE_IDS)).max(STORE_IDS.length).optional(),
 });
 
 export const giftRecommendationsSchema = z.object({
-  ideas: z.array(giftRecommendationSchema).length(9),
+  ideas: z.array(recommendationWithStoresSchema).length(9),
+});
+
+export const giftRecommendationsSchemaNoStores = z.object({
+  ideas: z.array(baseRecommendationSchema).length(9),
 });
 
 export type GiftRecommendation = z.infer<typeof giftRecommendationSchema>;

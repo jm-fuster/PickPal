@@ -7,7 +7,7 @@ import { google } from "@ai-sdk/google";
 import { z } from "zod";
 import { api } from "../../../../convex/_generated/api";
 import type { Id } from "../../../../convex/_generated/dataModel";
-import { giftRecommendationsSchema, GIFT_TYPES, type GiftType } from "@/lib/gifts";
+import { giftRecommendationsSchema, giftRecommendationsSchemaNoStores, GIFT_TYPES, type GiftType } from "@/lib/gifts";
 import { RELATIONSHIPS, REACTIONS } from "@/lib/schemas";
 
 const GIFT_TYPE_VALUES = GIFT_TYPES.map((t) => t.value) as [GiftType, ...GiftType[]];
@@ -195,10 +195,12 @@ export async function POST(req: NextRequest) {
 
   const prompt = buildPrompt(person, matchingDate?.budgetMin, matchingDate?.budgetMax, occasionLabel, giftType, history);
 
+  const noStores = giftType === "experiencia" || giftType === "tiempo-juntos";
+
   try {
     const { object } = await generateObject({
       model: google("gemini-2.5-flash"),
-      schema: giftRecommendationsSchema,
+      schema: noStores ? giftRecommendationsSchemaNoStores : giftRecommendationsSchema,
       prompt,
     });
 
