@@ -78,7 +78,13 @@ Las ideas generadas se persisten en Convex (`tabla recommendations`) indexadas p
 
 ## Límite de uso (rate limit)
 
-10 generaciones por usuario por día (UTC), gestionadas por `api.recommendationUsage.consume`. Si se supera el límite, la API devuelve `429` y se muestra un toast de error.
+10 generaciones por usuario por día (UTC). El flujo es en dos pasos para que los errores de la IA **no consuman cuota**:
+
+1. `api.recommendationUsage.check` (query, sin efecto): verifica que el usuario tiene cuota disponible. Si está agotada lanza `ConvexError` y la API devuelve `429`.
+2. Gemini se llama solo si el check pasa.
+3. `api.recommendationUsage.consume` (mutation): incrementa el contador **únicamente si Gemini devuelve éxito**. Se ejecuta en paralelo con `api.recommendations.upsert`.
+
+Si Gemini falla (saturación, error de modelo, etc.) el contador no se toca y el usuario puede volver a intentarlo sin perder cuota.
 
 ---
 
@@ -121,29 +127,31 @@ Los títulos descartados se acumulan en `recommendations.discardedTitles` (array
 ## Implementación (`/api/recommendations/route.ts`)
 
 ```typescript
-const [person, matchingDate, history] = await Promise.all([
-  fetchQuery(api.people.getById, { id: personId }, { token }),
-  fetchQuery(api.importantDates.getByPersonAndLabel, { personId, label: occasionLabel }, { token }),
-  fetchQuery(api.giftHistory.getByPerson, { personId }, { token }),
+// 1. Datos de contexto + check de cuota en paralelo
+const [[person, matchingDate, history]] = await Promise.all([
+  Promise.all([
+    fetchQuery(api.people.getById, { id: personId }, { token }),
+    fetchQuery(api.importantDates.getByPersonAndLabel, { personId, label: occasionLabel }, { token }),
+    fetchQuery(api.giftHistory.getByPerson, { personId }, { token }),
+  ]),
 ]);
 
-const prompt = buildPrompt(
-  person,
-  matchingDate?.budgetMin,   // céntimos → la fn formatea a euros
-  matchingDate?.budgetMax,
-  occasionLabel,
-  giftType,
-  history,
-);
+// 2. Verificar cuota sin consumirla (lanza ConvexError si agotada)
+await fetchQuery(api.recommendationUsage.check, {}, { token });
 
+// 3. Llamar a Gemini — si falla aquí, la cuota no se toca
 const { object } = await generateObject({
   model: google("gemini-2.5-flash"),
   schema: giftRecommendationsSchema,   // definido en src/lib/gifts.ts
   prompt,
 });
 
-await fetchMutation(api.recommendations.upsert,
-  { personId, occasionLabel, giftType, ideas: object.ideas }, { token });
+// 4. Solo si Gemini tuvo éxito: consumir cuota y persistir ideas
+await Promise.all([
+  fetchMutation(api.recommendationUsage.consume, {}, { token }),
+  fetchMutation(api.recommendations.upsert,
+    { personId, occasionLabel, giftType, ideas: object.ideas }, { token }),
+]);
 ```
 
 `generateObject` valida la respuesta contra el schema Zod automáticamente.
@@ -186,6 +194,20 @@ export function generateAmazonUrl(query: string): string {
 
 ---
 
+## Configuración de la API key de Google
+
+La variable de entorno `GOOGLE_GENERATIVE_AI_API_KEY` debe configurarse en Vercel.
+
+**Requisitos para que funcione en producción:**
+1. Crear la API key en [aistudio.google.com/apikey](https://aistudio.google.com/apikey).
+2. El proyecto de Google Cloud asociado **debe tener facturación activada** — sin billing, la cuota del free tier es 0 y todas las llamadas fallan con 429.
+3. Configurar un **spending cap** en [ai.studio/spend](https://ai.studio/spend) (recomendado: 1–5 €) para no incurrir en costes inesperados. Con el volumen actual de PickPal el coste real es < 0,01 €/mes.
+4. Con billing activo y cap > 0, el free tier de `gemini-2.5-flash` (1 500 req/día, 15 RPM) es suficiente para cientos de usuarios activos diarios.
+
+**Modelo actual:** `gemini-2.5-flash`. `gemini-2.0-flash` está retirado para API keys nuevas.
+
+---
+
 ## Archivos clave
 
 | Archivo | Rol |
@@ -194,7 +216,7 @@ export function generateAmazonUrl(query: string): string {
 | [`src/components/gifts/GiftRecommendationCard.tsx`](../src/components/gifts/GiftRecommendationCard.tsx) | Tarjeta de idea: título, descripción, precio, categoría, botón de búsqueda, botón X |
 | [`src/app/api/recommendations/route.ts`](../src/app/api/recommendations/route.ts) | API route: fetches Convex, llama a Gemini, persiste resultado |
 | [`convex/recommendations.ts`](../convex/recommendations.ts) | `getByPersonOccasion`, `upsert`, `removeIdea` |
-| [`convex/recommendationUsage.ts`](../convex/recommendationUsage.ts) | Rate limit: 10 generaciones/usuario/día |
+| [`convex/recommendationUsage.ts`](../convex/recommendationUsage.ts) | Rate limit: `check` (query sin efecto) + `consume` (mutation, solo tras éxito) |
 | [`src/lib/gifts.ts`](../src/lib/gifts.ts) | Tipos `GiftType`, `GiftRecommendation`, schema Zod, constante `GIFT_TYPES` |
 | [`src/lib/amazon.ts`](../src/lib/amazon.ts) | Generador de URLs de búsqueda en Amazon.es |
 
