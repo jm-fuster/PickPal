@@ -24,7 +24,6 @@ export const giftRecommendationSchema = z.object({
   // tiendas en productos genéricos sin que falle el schema.
   suggestedStores: z
     .array(z.enum(STORE_IDS))
-    .min(1)
     .max(STORE_IDS.length)
     .optional(),
 });
