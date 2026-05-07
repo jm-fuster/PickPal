@@ -17,7 +17,7 @@ export default function PeoplePage() {
 
   return (
     <main className="flex flex-1 flex-col gap-8 p-4 sm:p-6 lg:p-8">
-      <div className="flex items-end justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
           <h1 className="text-4xl font-medium">Seres queridos</h1>
           <p className="text-sm text-muted-foreground mt-1">

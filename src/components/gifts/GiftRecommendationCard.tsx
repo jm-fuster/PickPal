@@ -1,4 +1,4 @@
-import { ExternalLink, Sparkles, X } from "lucide-react";
+import { ExternalLink, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
@@ -70,14 +70,18 @@ export function GiftRecommendationCard({
         </button>
       )}
       <CardContent className="flex flex-1 flex-col gap-4 p-5">
-        <div className="flex items-start gap-3">
-          <Sparkles
-            className="size-4 shrink-0 mt-1 text-primary/80"
-            aria-hidden
-          />
-          <h3 className="flex-1 text-base font-medium leading-snug">
-            {idea.title}
-          </h3>
+        <div className="space-y-1.5">
+          <div className="flex items-start justify-between gap-3">
+            <h3 className="flex-1 text-base font-medium leading-snug">
+              {idea.title}
+            </h3>
+            <div className="text-lg font-medium tracking-tight shrink-0">
+              {formatRange(idea.priceMinEuros, idea.priceMaxEuros)}
+            </div>
+          </div>
+          <Badge variant="secondary" className="text-xs">
+            {idea.category}
+          </Badge>
         </div>
 
         <p className="text-sm leading-relaxed text-muted-foreground flex-1">
@@ -85,14 +89,6 @@ export function GiftRecommendationCard({
         </p>
 
         <div className="space-y-3 pt-3 border-t border-border/50">
-          <div className="flex items-end justify-between gap-3">
-            <Badge variant="secondary" className="text-xs">
-              {idea.category}
-            </Badge>
-            <div className="text-lg font-medium tracking-tight">
-              {formatRange(idea.priceMinEuros, idea.priceMaxEuros)}
-            </div>
-          </div>
 
           {idea.amazonQuery ? (
             isPhysical ? (

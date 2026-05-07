@@ -165,7 +165,7 @@ export default function GiftsPage({
 
       <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-5 space-y-5">
         {/* Top row: occasion select + generate button */}
-        <div className="flex items-end justify-between gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
           <div className="space-y-1.5">
             <Label>¿Para qué ocasión?</Label>
             <Select
@@ -176,7 +176,7 @@ export default function GiftsPage({
                 setIdeas(null);
               }}
             >
-              <SelectTrigger className="w-56">
+              <SelectTrigger className="w-full sm:w-56">
                 <SelectValue placeholder="Elige un evento" />
               </SelectTrigger>
               <SelectContent>
@@ -196,6 +196,7 @@ export default function GiftsPage({
           </div>
           <Button
             size="lg"
+            className="w-full sm:w-auto"
             onClick={generate}
             disabled={loading || !occasion}
           >

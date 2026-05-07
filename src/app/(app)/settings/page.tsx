@@ -230,7 +230,7 @@ export default function SettingsPage() {
             generan como búsquedas en cada tienda.
           </p>
         </div>
-        <div className="grid grid-cols-2 gap-2 pt-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
           {ALL_STORES.map((store) => {
             const checked = favoriteStores.includes(store);
             const StoreIcon = STORE_ICONS[store];
