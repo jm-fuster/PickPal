@@ -128,7 +128,7 @@ export function GiftRecommendationCard({
                 )}
               </div>
             ) : (
-              <div className="flex">
+              <div className="flex flex-wrap gap-1.5">
                 <a
                   href={generateGoogleUrl(idea.amazonQuery)}
                   target="_blank"
