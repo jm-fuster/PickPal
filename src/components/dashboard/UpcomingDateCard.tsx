@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { RELATIONSHIPS } from "@/lib/schemas";
@@ -22,6 +21,13 @@ const initials = (name: string) =>
 const relationshipLabel = (value: string) =>
   RELATIONSHIPS.find((r) => r.value === value)?.label ?? value;
 
+function budgetLabel(min?: number, max?: number): string | null {
+  if (min != null && max != null) return `${min} – ${max} €`;
+  if (min != null) return `Desde ${min} €`;
+  if (max != null) return `Hasta ${max} €`;
+  return null;
+}
+
 export function UpcomingDateCard({
   person,
   date,
@@ -29,11 +35,15 @@ export function UpcomingDateCard({
 }: UpcomingDateCardProps) {
   const urgent = daysUntil <= 7;
 
+  const budget =
+    budgetLabel(date.budgetMin, date.budgetMax) ??
+    budgetLabel(person.budgetMin, person.budgetMax);
+
   return (
     <Card
       className={
         urgent
-          ? "border-primary/60 shadow-sm bg-primary/5"
+          ? "border-primary/60 shadow-sm"
           : "border-border/60 shadow-sm"
       }
     >
@@ -58,26 +68,15 @@ export function UpcomingDateCard({
             </span>
           </div>
 
-          {(person.interests?.length ?? 0) > 0 && (
-            <div className="flex flex-wrap gap-1">
-              {person.interests.slice(0, 4).map((i) => (
-                <Badge key={i} variant="outline" className="text-xs">
-                  {i}
-                </Badge>
-              ))}
-              {person.interests.length > 4 && (
-                <Badge variant="outline" className="text-xs">
-                  +{person.interests.length - 4}
-                </Badge>
-              )}
-            </div>
-          )}
-
-          {person.notes && (
-            <p className="text-xs text-muted-foreground mt-1 truncate">
+          {budget ? (
+            <p className="text-xs text-muted-foreground">
+              Presupuesto: {budget}
+            </p>
+          ) : person.notes ? (
+            <p className="text-xs text-muted-foreground truncate">
               {person.notes}
             </p>
-          )}
+          ) : null}
         </div>
 
         <Link
