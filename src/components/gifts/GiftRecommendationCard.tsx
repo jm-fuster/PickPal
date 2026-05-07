@@ -45,7 +45,7 @@ export function GiftRecommendationCard({
 
   const { stores: storesToRender, isFallback } = pickEffectiveStores(
     userFavorites,
-    idea.suggestedStores,
+    idea.suggestedStores ?? undefined,
   );
 
   const nonPhysicalLabel = isSurprise
