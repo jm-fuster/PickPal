@@ -176,11 +176,8 @@ export function validateRecommendationIdeas(
         throw new Error("Precio de idea fuera de rango.");
       }
     }
-    if (idea.suggestedStores !== undefined) {
-      if (
-        idea.suggestedStores.length === 0 ||
-        idea.suggestedStores.length > MAX_SUGGESTED_STORES
-      ) {
+    if (idea.suggestedStores != null && idea.suggestedStores.length > 0) {
+      if (idea.suggestedStores.length > MAX_SUGGESTED_STORES) {
         throw new Error("Cantidad de tiendas sugeridas inválida.");
       }
       const seen = new Set<string>();

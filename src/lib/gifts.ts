@@ -25,7 +25,7 @@ export const giftRecommendationSchema = z.object({
   suggestedStores: z
     .array(z.enum(STORE_IDS))
     .max(STORE_IDS.length)
-    .optional(),
+    .nullish(),
 });
 
 export const giftRecommendationsSchema = z.object({
