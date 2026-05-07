@@ -3,6 +3,7 @@ import {
   ALL_STORES,
   generateStoreSearchUrl,
   isStoreId,
+  padPriceRange,
   pickEffectiveStores,
   sanitizeFavoriteStores,
 } from "./stores";
@@ -56,6 +57,78 @@ describe("generateStoreSearchUrl", () => {
     expect(generateStoreSearchUrl("amazon", "café & té")).toBe(
       "https://www.amazon.es/s?k=caf%C3%A9%20%26%20t%C3%A9",
     );
+  });
+
+  it("añade filtro de precio en Amazon con margen padded", () => {
+    expect(
+      generateStoreSearchUrl("amazon", "auriculares", {
+        minEuros: 30,
+        maxEuros: 50,
+      }),
+    ).toBe(
+      "https://www.amazon.es/s?k=auriculares&low-price=24&high-price=65",
+    );
+  });
+
+  it("añade filtro de precio en AliExpress con margen padded", () => {
+    expect(
+      generateStoreSearchUrl("aliexpress", "auriculares", {
+        minEuros: 30,
+        maxEuros: 50,
+      }),
+    ).toBe(
+      "https://es.aliexpress.com/w/wholesale-auriculares.html?minPrice=24&maxPrice=65",
+    );
+  });
+
+  it("ignora el filtro de precio en tiendas que no lo soportan", () => {
+    const range = { minEuros: 30, maxEuros: 50 };
+    expect(generateStoreSearchUrl("elcorteingles", "vino tinto", range)).toBe(
+      "https://www.elcorteingles.es/search/?s=vino%20tinto",
+    );
+    expect(generateStoreSearchUrl("decathlon", "zapatillas", range)).toBe(
+      "https://www.decathlon.es/es/search?q=zapatillas",
+    );
+    expect(generateStoreSearchUrl("ikea", "lámpara", range)).toBe(
+      "https://www.ikea.com/es/es/search/?q=l%C3%A1mpara",
+    );
+  });
+
+  it("sin priceRange genera URL sin filtro de precio aunque la tienda lo soporte", () => {
+    expect(generateStoreSearchUrl("amazon", "auriculares")).toBe(
+      "https://www.amazon.es/s?k=auriculares",
+    );
+    expect(generateStoreSearchUrl("aliexpress", "auriculares")).toBe(
+      "https://es.aliexpress.com/w/wholesale-auriculares.html",
+    );
+  });
+});
+
+describe("padPriceRange", () => {
+  it("ensancha la franja con -20% / +30% redondeando a enteros", () => {
+    expect(padPriceRange(30, 50)).toEqual({ lowEuros: 24, highEuros: 65 });
+  });
+
+  it("redondea hacia abajo el mínimo y hacia arriba el máximo", () => {
+    expect(padPriceRange(10, 15)).toEqual({ lowEuros: 8, highEuros: 20 });
+  });
+
+  it("acepta min === max (precio puntual)", () => {
+    expect(padPriceRange(30, 30)).toEqual({ lowEuros: 24, highEuros: 39 });
+  });
+
+  it("nunca devuelve mínimo negativo", () => {
+    expect(padPriceRange(0, 50)).toEqual({ lowEuros: 0, highEuros: 65 });
+  });
+
+  it("garantiza que high > low aunque la franja sea diminuta", () => {
+    expect(padPriceRange(0, 0)).toEqual({ lowEuros: 0, highEuros: 1 });
+  });
+
+  it("devuelve 0/0 cuando la entrada es inválida (defensa)", () => {
+    expect(padPriceRange(NaN, 50)).toEqual({ lowEuros: 0, highEuros: 0 });
+    expect(padPriceRange(-5, 50)).toEqual({ lowEuros: 0, highEuros: 0 });
+    expect(padPriceRange(50, 30)).toEqual({ lowEuros: 0, highEuros: 0 });
   });
 });
 

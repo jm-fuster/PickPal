@@ -208,6 +208,26 @@ Definidas en [`src/lib/stores.ts`](../src/lib/stores.ts). Lista cerrada con allo
 
 Las URLs se construyen con `encodeURIComponent` sobre la query, así que cualquier carácter especial queda escapado correctamente. Los enlaces siempre llevan `target="_blank" rel="noopener noreferrer"`.
 
+### Filtro de precio en la URL
+
+Algunas tiendas aceptan filtro de precio en la query string, otras no. La lista actual está en `STORES_WITH_PRICE_FILTER` (`src/lib/stores.ts`):
+
+| Tienda | Filtro precio | Sintaxis |
+|---|---|---|
+| `amazon` | ✅ | `&low-price={n}&high-price={m}` |
+| `aliexpress` | ✅ | `?minPrice={n}&maxPrice={m}` |
+| `elcorteingles` | ❌ | Filtros van en path, no en query string |
+| `miravia` | ❌ | Filtros JS-driven, URL params no honran |
+| `decathlon` | ❌ | Filtros JS-driven, parámetros desconocidos redirigen a home |
+| `ikea` | ❌ | Filtros JS-driven |
+| `pccomponentes` | ❌ | Sintaxis no documentada con fiabilidad |
+
+En las tiendas que NO soportan filtro fiable, el chip enlaza a la búsqueda sin filtrar — preferible a un filtro silencioso que la tienda ignore.
+
+**Padding de la franja**: `padPriceRange(min, max)` ensancha `[min × 0.8, max × 1.3]` antes de pasarla al filtro. Motivo: la IA estima precios y suele subestimarlos un poco; un filtro estricto sobre una estimación deja la página vacía con frecuencia. Ejemplos: `[30, 50] → [24, 65]`, `[10, 15] → [8, 20]`, `[30, 30] → [24, 39]`.
+
+El padding solo afecta a la URL del filtro. La etiqueta de precio en la card sigue mostrando los valores originales que devolvió Gemini.
+
 Notas:
 
 - El campo de la idea se llama `amazonQuery` por motivos legacy (antes solo existía Amazon). Su contenido ya es una query genérica de 3-6 palabras válida para cualquier tienda. Renombrarlo a `searchQuery` requiere migración Convex y queda fuera de alcance.

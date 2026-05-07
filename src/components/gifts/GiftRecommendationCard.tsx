@@ -100,7 +100,10 @@ export function GiftRecommendationCard({
                   {storesToRender.map((store) => (
                     <a
                       key={store}
-                      href={generateStoreSearchUrl(store, idea.amazonQuery)}
+                      href={generateStoreSearchUrl(store, idea.amazonQuery, {
+                        minEuros: idea.priceMinEuros,
+                        maxEuros: idea.priceMaxEuros,
+                      })}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={buttonVariants({

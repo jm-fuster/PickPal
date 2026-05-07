@@ -22,15 +22,76 @@ export const STORE_LABELS: Record<StoreId, string> = {
   pccomponentes: "PcComponentes",
 };
 
-export function generateStoreSearchUrl(store: StoreId, query: string): string {
+export interface PriceRange {
+  /** Precio mínimo en euros (incluido). Recibido tal cual de la idea de la IA. */
+  minEuros: number;
+  /** Precio máximo en euros (incluido). Recibido tal cual de la idea de la IA. */
+  maxEuros: number;
+}
+
+/**
+ * Ensancha la franja de precio que devuelve la IA antes de pasarla al filtro
+ * de la tienda. La IA estima los precios — si la franja real del catálogo
+ * está un poco fuera, un filtro estricto deja la página vacía y eso es peor
+ * UX que ver resultados ligeramente fuera del rango.
+ *
+ * Padding: -20% en el mínimo, +30% en el máximo. El bias hacia arriba viene
+ * de que es más frecuente que la IA subestime precios reales (modelos
+ * conocidos suelen costar más de lo que la IA "recuerda").
+ */
+export function padPriceRange(
+  minEuros: number,
+  maxEuros: number,
+): { lowEuros: number; highEuros: number } {
+  if (
+    !Number.isFinite(minEuros) ||
+    !Number.isFinite(maxEuros) ||
+    minEuros < 0 ||
+    maxEuros < minEuros
+  ) {
+    return { lowEuros: 0, highEuros: 0 };
+  }
+  const low = Math.max(0, Math.floor(minEuros * 0.8));
+  const high = Math.max(low + 1, Math.ceil(maxEuros * 1.3));
+  return { lowEuros: low, highEuros: high };
+}
+
+/**
+ * Lista de tiendas donde el filtro de precio en la URL es fiable. Solo
+ * estas reciben los parámetros `low/high-price` o `minPrice/maxPrice` —
+ * el resto se quedan con la query sin filtro porque su sintaxis es
+ * inestable (Decathlon redirige a home, Miravia/IKEA filtran vía JS,
+ * El Corte Inglés usa filtros en el path).
+ */
+export const STORES_WITH_PRICE_FILTER: readonly StoreId[] = [
+  "amazon",
+  "aliexpress",
+];
+
+export function generateStoreSearchUrl(
+  store: StoreId,
+  query: string,
+  priceRange?: PriceRange,
+): string {
   const q = encodeURIComponent(query);
+  const padded =
+    priceRange && STORES_WITH_PRICE_FILTER.includes(store)
+      ? padPriceRange(priceRange.minEuros, priceRange.maxEuros)
+      : null;
+
   switch (store) {
-    case "amazon":
-      return `https://www.amazon.es/s?k=${q}`;
+    case "amazon": {
+      const base = `https://www.amazon.es/s?k=${q}`;
+      if (!padded) return base;
+      return `${base}&low-price=${padded.lowEuros}&high-price=${padded.highEuros}`;
+    }
     case "elcorteingles":
       return `https://www.elcorteingles.es/search/?s=${q}`;
-    case "aliexpress":
-      return `https://es.aliexpress.com/w/wholesale-${q}.html`;
+    case "aliexpress": {
+      const base = `https://es.aliexpress.com/w/wholesale-${q}.html`;
+      if (!padded) return base;
+      return `${base}?minPrice=${padded.lowEuros}&maxPrice=${padded.highEuros}`;
+    }
     case "miravia":
       return `https://www.miravia.es/search?q=${q}`;
     case "decathlon":
