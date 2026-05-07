@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { Bell } from "lucide-react";
+import { Bell, Gift } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { computeDaysUntil } from "@/lib/dates";
 
 export function NotificationBell() {
@@ -16,28 +17,71 @@ export function NotificationBell() {
 
   const windowDays = settings?.notifyDaysBefore ?? 30;
 
-  const count =
-    upcoming?.filter(({ date }) => {
-      const days = computeDaysUntil(date);
-      return days !== null && days <= windowDays;
-    }).length ?? 0;
+  type UpcomingItem = NonNullable<typeof upcoming>[number] & { days: number };
+
+  const items: UpcomingItem[] = (upcoming ?? [])
+    .map((entry) => ({ ...entry, days: computeDaysUntil(entry.date) }))
+    .filter((entry): entry is UpcomingItem => entry.days !== null && entry.days <= windowDays)
+    .sort((a, b) => a.days - b.days);
+
+  const count = items.length;
 
   return (
-    <Link
-      href="/dashboard"
-      className="relative inline-flex items-center justify-center size-8 rounded-md hover:bg-muted transition-colors"
-      aria-label={`${count} fechas próximas`}
-      title={`${count} fechas próximas en los próximos ${windowDays} días`}
-    >
-      <Bell className="size-4" aria-hidden />
-      {count > 0 ? (
-        <Badge
-          variant="default"
-          className="absolute -top-1 -right-1 size-4 p-0 text-[10px] flex items-center justify-center rounded-full"
-        >
-          {count > 9 ? "9+" : count}
-        </Badge>
-      ) : null}
-    </Link>
+    <Popover>
+      <PopoverTrigger
+        className="relative inline-flex items-center justify-center size-8 rounded-md hover:bg-muted transition-colors"
+        aria-label={`${count} fechas próximas`}
+      >
+        <Bell className="size-4" aria-hidden />
+        {count > 0 && (
+          <Badge
+            variant="default"
+            className="absolute -top-1 -right-1 size-4 p-0 text-[10px] flex items-center justify-center rounded-full"
+          >
+            {count > 9 ? "9+" : count}
+          </Badge>
+        )}
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-72 p-0 overflow-hidden">
+        <div className="px-4 py-3 border-b border-border/60">
+          <p className="text-sm font-medium">Próximas fechas</p>
+          <p className="text-xs text-muted-foreground">
+            Próximos {windowDays} días
+          </p>
+        </div>
+        {items.length === 0 ? (
+          <div className="flex flex-col items-center gap-2 py-8 text-center text-muted-foreground">
+            <Gift className="size-6 opacity-40" aria-hidden />
+            <p className="text-sm">Nada en los próximos {windowDays} días</p>
+          </div>
+        ) : (
+          <ul className="divide-y divide-border/40 max-h-72 overflow-y-auto">
+            {items.map(({ date, person, days }) => (
+              <li key={date._id}>
+                <Link
+                  href={`/people/${person._id}`}
+                  className="flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-muted/50 transition-colors"
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium truncate">{person.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{date.label}</p>
+                  </div>
+                  <span className={[
+                    "text-xs font-medium shrink-0 tabular-nums",
+                    days === 0
+                      ? "text-destructive"
+                      : days <= 7
+                        ? "text-amber-500"
+                        : "text-muted-foreground",
+                  ].join(" ")}>
+                    {days === 0 ? "Hoy" : days === 1 ? "Mañana" : `${days}d`}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </PopoverContent>
+    </Popover>
   );
 }
