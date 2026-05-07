@@ -8,8 +8,8 @@ import { cn } from "@/lib/utils";
 const STYLE = "dylan";
 const GRID_COUNT = 12;
 
-const HAIR_COLORS = ["000000", "ff543d", "fff500", "8b4513", "d2691e", "ffffff"];
-const MOODS = ["happy", "hopeful", "confused", "superHappy", "neutral"];
+const HAIR_COLORS = ["000000", "ff543d", "e8c170", "8b4513", "d2691e", "ffffff", "transparent"];
+const MOODS = ["happy", "angry", "hopeful", "confused", "superHappy", "neutral"];
 
 function buildUrl(seed: string): string {
   const hair = HAIR_COLORS.map((c) => `hairColor[]=${c}`).join("&");
