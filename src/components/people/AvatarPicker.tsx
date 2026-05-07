@@ -5,7 +5,7 @@ import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const STYLE = "big-ears-neutral";
+const STYLE = "dylan";
 const GRID_COUNT = 12;
 
 function buildUrl(seed: string): string {
