@@ -156,9 +156,9 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Rate limit: 10 recomendaciones por usuario y día (UTC).
+  // Rate limit: verificar cuota sin consumirla aún.
   try {
-    await fetchMutation(api.recommendationUsage.consume, {}, { token });
+    await fetchQuery(api.recommendationUsage.check, {}, { token });
   } catch (err) {
     if (err instanceof ConvexError) {
       return NextResponse.json(
@@ -166,7 +166,7 @@ export async function POST(req: NextRequest) {
         { status: 429 },
       );
     }
-    console.error("[recommendations] rate limit:", err);
+    console.error("[recommendations] rate limit check:", err);
     return NextResponse.json(
       { error: "Error interno al verificar el límite de uso." },
       { status: 500 },
@@ -182,11 +182,11 @@ export async function POST(req: NextRequest) {
       prompt,
     });
 
-    await fetchMutation(
-      api.recommendations.upsert,
-      { personId, occasionLabel, giftType, ideas: object.ideas },
-      { token },
-    );
+    // Consumir cuota solo tras generación exitosa, y guardar ideas en paralelo.
+    await Promise.all([
+      fetchMutation(api.recommendationUsage.consume, {}, { token }),
+      fetchMutation(api.recommendations.upsert, { personId, occasionLabel, giftType, ideas: object.ideas }, { token }),
+    ]);
 
     return NextResponse.json(object);
   } catch (err) {
