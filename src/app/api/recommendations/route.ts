@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
+import { ConvexError } from "convex/values";
 import { fetchMutation, fetchQuery } from "convex/nextjs";
 import { generateObject } from "ai";
 import { google } from "@ai-sdk/google";
@@ -159,10 +160,16 @@ export async function POST(req: NextRequest) {
   try {
     await fetchMutation(api.recommendationUsage.consume, {}, { token });
   } catch (err) {
+    if (err instanceof ConvexError) {
+      return NextResponse.json(
+        { error: typeof err.data === "string" ? err.data : "Has alcanzado el límite diario de recomendaciones." },
+        { status: 429 },
+      );
+    }
     console.error("[recommendations] rate limit:", err);
     return NextResponse.json(
-      { error: "Has alcanzado el límite diario de recomendaciones." },
-      { status: 429 },
+      { error: "Error interno al verificar el límite de uso." },
+      { status: 500 },
     );
   }
 

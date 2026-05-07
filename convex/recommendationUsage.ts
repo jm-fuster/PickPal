@@ -1,3 +1,4 @@
+import { ConvexError } from "convex/values";
 import { mutation } from "./_generated/server";
 import { requireUser } from "./auth";
 
@@ -31,7 +32,7 @@ export const consume = mutation({
 
     if (existing) {
       if (existing.count >= DAILY_LIMIT) {
-        throw new Error(
+        throw new ConvexError(
           `Has alcanzado el límite diario de ${DAILY_LIMIT} recomendaciones. Vuelve mañana.`,
         );
       }
