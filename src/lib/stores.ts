@@ -25,7 +25,7 @@ export const STORE_LABELS: Record<StoreId, string> = {
 export const STORE_ICONS: Record<StoreId, string> = {
   amazon: "/stores/amazon.png",
   elcorteingles: "/stores/elcorteingles.png",
-  aliexpress: "/stores/aliexpress.svg",
+  aliexpress: "/stores/aliexpress.png",
   miravia: "/stores/miravia.png",
   decathlon: "/stores/decathlon.png",
   ikea: "/stores/ikea.svg",
