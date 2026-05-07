@@ -35,9 +35,9 @@ describe("generateStoreSearchUrl", () => {
     );
   });
 
-  it("genera URL de búsqueda en Decathlon", () => {
+  it("genera URL de búsqueda en Decathlon (Endeca usa Ntt, no q)", () => {
     expect(generateStoreSearchUrl("decathlon", "zapatillas running")).toBe(
-      "https://www.decathlon.es/es/search?q=zapatillas%20running",
+      "https://www.decathlon.es/es/search?Ntt=zapatillas%20running",
     );
   });
 
@@ -87,7 +87,7 @@ describe("generateStoreSearchUrl", () => {
       "https://www.elcorteingles.es/search/?s=vino%20tinto",
     );
     expect(generateStoreSearchUrl("decathlon", "zapatillas", range)).toBe(
-      "https://www.decathlon.es/es/search?q=zapatillas",
+      "https://www.decathlon.es/es/search?Ntt=zapatillas",
     );
     expect(generateStoreSearchUrl("ikea", "lámpara", range)).toBe(
       "https://www.ikea.com/es/es/search/?q=l%C3%A1mpara",

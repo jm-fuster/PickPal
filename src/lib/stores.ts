@@ -95,7 +95,9 @@ export function generateStoreSearchUrl(
     case "miravia":
       return `https://www.miravia.es/search?q=${q}`;
     case "decathlon":
-      return `https://www.decathlon.es/es/search?q=${q}`;
+      // Decathlon usa Endeca/ATG: el parámetro de búsqueda es `Ntt`, no `q`.
+      // Con `q` el sitio redirige a la home porque no reconoce el parámetro.
+      return `https://www.decathlon.es/es/search?Ntt=${q}`;
     case "ikea":
       return `https://www.ikea.com/es/es/search/?q=${q}`;
     case "pccomponentes":

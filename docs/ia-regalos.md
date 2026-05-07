@@ -202,7 +202,7 @@ Definidas en [`src/lib/stores.ts`](../src/lib/stores.ts). Lista cerrada con allo
 | `elcorteingles` | El Corte Inglés | `https://www.elcorteingles.es/search/?s={query}` | Gourmet, vinos, moda media-alta, hogar, regalos premium nacionales |
 | `aliexpress` | AliExpress | `https://es.aliexpress.com/w/wholesale-{query}.html` | Gadgets baratos, accesorios sin marca, espera larga |
 | `miravia` | Miravia | `https://www.miravia.es/search?q={query}` | Marketplace asiático/europeo curado, moda y belleza |
-| `decathlon` | Decathlon | `https://www.decathlon.es/es/search?q={query}` | Deporte y outdoor: running, ciclismo, montaña, fitness, camping |
+| `decathlon` | Decathlon | `https://www.decathlon.es/es/search?Ntt={query}` | Deporte y outdoor: running, ciclismo, montaña, fitness, camping |
 | `ikea` | IKEA | `https://www.ikea.com/es/es/search/?q={query}` | Hogar, muebles, decoración, textil hogar, organización, iluminación |
 | `pccomponentes` | PcComponentes | `https://www.pccomponentes.com/search/?query={query}` | Tech especializada: componentes PC, periféricos, gaming, monitores |
 
