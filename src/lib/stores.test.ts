@@ -25,9 +25,11 @@ describe("generateStoreSearchUrl", () => {
     );
   });
 
-  it("genera URL de búsqueda en etsy", () => {
-    expect(generateStoreSearchUrl("etsy", "pulsera personalizada")).toBe(
-      "https://www.etsy.com/search?q=pulsera%20personalizada",
+  it("genera URL de búsqueda en El Corte Inglés", () => {
+    expect(
+      generateStoreSearchUrl("elcorteingles", "pulsera personalizada"),
+    ).toBe(
+      "https://www.elcorteingles.es/search/?s=pulsera%20personalizada",
     );
   });
 
@@ -47,6 +49,7 @@ describe("isStoreId", () => {
 
   it("rechaza valores desconocidos", () => {
     expect(isStoreId("ebay")).toBe(false);
+    expect(isStoreId("etsy")).toBe(false);
     expect(isStoreId("")).toBe(false);
     expect(isStoreId("AMAZON")).toBe(false);
   });
@@ -54,16 +57,27 @@ describe("isStoreId", () => {
 
 describe("sanitizeFavoriteStores", () => {
   it("filtra valores desconocidos", () => {
-    expect(sanitizeFavoriteStores(["amazon", "ebay", "etsy"])).toEqual([
+    expect(
+      sanitizeFavoriteStores(["amazon", "ebay", "elcorteingles"]),
+    ).toEqual(["amazon", "elcorteingles"]);
+  });
+
+  it("descarta tiendas legacy retiradas (etsy)", () => {
+    expect(sanitizeFavoriteStores(["amazon", "etsy", "miravia"])).toEqual([
       "amazon",
-      "etsy",
+      "miravia",
     ]);
   });
 
   it("elimina duplicados manteniendo orden canónico", () => {
     expect(
-      sanitizeFavoriteStores(["etsy", "amazon", "amazon", "miravia"]),
-    ).toEqual(["amazon", "miravia", "etsy"]);
+      sanitizeFavoriteStores([
+        "elcorteingles",
+        "amazon",
+        "amazon",
+        "miravia",
+      ]),
+    ).toEqual(["amazon", "miravia", "elcorteingles"]);
   });
 
   it("devuelve array vacío si no hay tiendas válidas", () => {

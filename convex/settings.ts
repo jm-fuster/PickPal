@@ -6,7 +6,12 @@ export const DEFAULT_NOTIFY_DAYS_BEFORE = 30;
 export const DEFAULT_EMAIL_NOTIFY_DAYS_BEFORE = 14;
 export const DEFAULT_EMAIL_NOTIFICATIONS_ENABLED = true;
 
-const VALID_STORES = ["amazon", "aliexpress", "miravia", "etsy"] as const;
+const VALID_STORES = [
+  "amazon",
+  "aliexpress",
+  "miravia",
+  "elcorteingles",
+] as const;
 type ValidStore = (typeof VALID_STORES)[number];
 export const DEFAULT_FAVORITE_STORES: readonly ValidStore[] = VALID_STORES;
 

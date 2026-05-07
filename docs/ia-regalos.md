@@ -189,7 +189,7 @@ Para regalos físicos la tarjeta muestra un chip por cada tienda que el usuario 
 | `amazon` | `https://www.amazon.es/s?k={query}` |
 | `aliexpress` | `https://es.aliexpress.com/w/wholesale-{query}.html` |
 | `miravia` | `https://www.miravia.es/search?q={query}` |
-| `etsy` | `https://www.etsy.com/search?q={query}` |
+| `elcorteingles` | `https://www.elcorteingles.es/search/?s={query}` |
 
 Notas:
 

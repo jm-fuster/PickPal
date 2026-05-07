@@ -1,17 +1,17 @@
-export type StoreId = "amazon" | "aliexpress" | "miravia" | "etsy";
+export type StoreId = "amazon" | "aliexpress" | "miravia" | "elcorteingles";
 
 export const ALL_STORES: readonly StoreId[] = [
   "amazon",
   "aliexpress",
   "miravia",
-  "etsy",
+  "elcorteingles",
 ] as const;
 
 export const STORE_LABELS: Record<StoreId, string> = {
   amazon: "Amazon",
   aliexpress: "AliExpress",
   miravia: "Miravia",
-  etsy: "Etsy",
+  elcorteingles: "El Corte Inglés",
 };
 
 export function generateStoreSearchUrl(store: StoreId, query: string): string {
@@ -23,8 +23,8 @@ export function generateStoreSearchUrl(store: StoreId, query: string): string {
       return `https://es.aliexpress.com/w/wholesale-${q}.html`;
     case "miravia":
       return `https://www.miravia.es/search?q=${q}`;
-    case "etsy":
-      return `https://www.etsy.com/search?q=${q}`;
+    case "elcorteingles":
+      return `https://www.elcorteingles.es/search/?s=${q}`;
   }
 }
 

@@ -49,7 +49,7 @@ pickpal/
 │   │       └── GiftRecommendationCard.tsx      # tarjeta de cada idea de regalo
 │   │
 │   ├── lib/
-│   │   ├── stores.ts                           # generateStoreSearchUrl(store, query) para Amazon/Aliexpress/Miravia/Etsy
+│   │   ├── stores.ts                           # generateStoreSearchUrl(store, query) para Amazon/AliExpress/Miravia/El Corte Inglés
 │   │   └── dates.ts                            # computeDaysUntilNextOccurrence()
 │   │
 │   └── types/index.ts                          # tipos TypeScript compartidos
