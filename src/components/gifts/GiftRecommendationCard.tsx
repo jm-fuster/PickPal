@@ -71,14 +71,9 @@ export function GiftRecommendationCard({
       )}
       <CardContent className="flex flex-1 flex-col gap-4 p-5">
         <div className="space-y-1.5">
-          <div className="flex items-start justify-between gap-3">
-            <h3 className="flex-1 text-base font-medium leading-snug">
-              {idea.title}
-            </h3>
-            <div className="text-lg font-medium tracking-tight shrink-0">
-              {formatRange(idea.priceMinEuros, idea.priceMaxEuros)}
-            </div>
-          </div>
+          <h3 className="text-base font-medium leading-snug pr-6">
+            {idea.title}
+          </h3>
           <Badge variant="secondary" className="text-xs">
             {idea.category}
           </Badge>
@@ -89,6 +84,9 @@ export function GiftRecommendationCard({
         </p>
 
         <div className="space-y-3 pt-3 border-t border-border/50">
+          <div className="text-lg font-medium tracking-tight">
+            {formatRange(idea.priceMinEuros, idea.priceMaxEuros)}
+          </div>
 
           {idea.amazonQuery ? (
             isPhysical ? (
