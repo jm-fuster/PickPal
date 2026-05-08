@@ -261,9 +261,10 @@ export function GiftsPanel({
               </SelectContent>
             </Select>
           </div>
+          {/* Desktop: botón inline junto al selector de ocasión */}
           <Button
             size="lg"
-            className="w-full sm:w-auto"
+            className="hidden sm:inline-flex sm:w-auto"
             onClick={generate}
             disabled={loading || !occasion}
           >
@@ -307,6 +308,21 @@ export function GiftsPanel({
             })}
           </div>
         </div>
+
+        {/* Móvil: botón debajo del Tipo de regalo */}
+        <Button
+          size="lg"
+          className="w-full sm:hidden"
+          onClick={generate}
+          disabled={loading || !occasion}
+        >
+          {hasCached ? (
+            <RefreshCw className="size-4" aria-hidden />
+          ) : (
+            <Sparkles className="size-4" aria-hidden />
+          )}
+          {loading ? "Generando…" : hasCached ? "Regenerar" : "Generar 9 ideas"}
+        </Button>
 
         {hasCached && !loading && (
           <p className="text-xs text-muted-foreground">

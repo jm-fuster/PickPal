@@ -438,8 +438,22 @@ export function EditImportantDateInline({
             <span>{watchedRecurring === false ? "Fecha única" : "Todos los años"}</span>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="true">Todos los años</SelectItem>
-            <SelectItem value="false">Fecha única</SelectItem>
+            <SelectItem value="true">
+              <span className="flex flex-col items-start gap-0.5 whitespace-normal py-0.5">
+                <span className="font-medium leading-tight">Todos los años</span>
+                <span className="text-xs text-muted-foreground leading-tight">
+                  Se repite cada año (cumpleaños, aniversarios…)
+                </span>
+              </span>
+            </SelectItem>
+            <SelectItem value="false">
+              <span className="flex flex-col items-start gap-0.5 whitespace-normal py-0.5">
+                <span className="font-medium leading-tight">Fecha única</span>
+                <span className="text-xs text-muted-foreground leading-tight">
+                  Solo en esta fecha concreta (boda, viaje…)
+                </span>
+              </span>
+            </SelectItem>
           </SelectContent>
         </Select>
         {watchedRecurring === false && !watchedYear && (
