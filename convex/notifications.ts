@@ -81,13 +81,16 @@ export const findEventsNeedingEmail = internalQuery({
         s.emailNotificationsEnabled === true &&
         typeof s.email === "string" &&
         s.email.length > 0 &&
-        typeof s.emailNotifyDaysBefore === "number",
+        s.emailNotifyDaysBefore !== undefined,
     );
 
     const result: UserToNotify[] = [];
 
     for (const s of targets) {
-      const lead = s.emailNotifyDaysBefore as number;
+      // Backward-compat: docs antiguos guardan número, nuevos array.
+      const raw = s.emailNotifyDaysBefore as number | number[];
+      const leadDays = typeof raw === "number" ? [raw] : raw;
+      if (leadDays.length === 0) continue;
       const people = await ctx.db
         .query("people")
         .withIndex("by_user", (q) => q.eq("clerkUserId", s.clerkUserId))
@@ -102,14 +105,17 @@ export const findEventsNeedingEmail = internalQuery({
         for (const date of dates) {
           const next = nextOccurrence(date);
           if (next === null) continue;
-          if (next.daysUntil !== lead) continue;
+          if (!leadDays.includes(next.daysUntil)) continue;
 
+          // Dedupe por (dateId, year, leadDays). Un aviso a 14 días no debe
+          // bloquear el de 7 días para la misma ocurrencia.
           const already = await ctx.db
             .query("emailNotifications")
-            .withIndex("by_date_year", (q) =>
+            .withIndex("by_date_year_lead", (q) =>
               q
                 .eq("importantDateId", date._id)
-                .eq("occurrenceYear", next.occurrenceYear),
+                .eq("occurrenceYear", next.occurrenceYear)
+                .eq("leadDays", next.daysUntil),
             )
             .unique();
           if (already) continue;
@@ -147,6 +153,7 @@ export const markEmailsSent = internalMutation({
       v.object({
         dateId: v.id("importantDates"),
         occurrenceYear: v.number(),
+        leadDays: v.number(),
       }),
     ),
   },
@@ -157,6 +164,7 @@ export const markEmailsSent = internalMutation({
         clerkUserId,
         importantDateId: item.dateId,
         occurrenceYear: item.occurrenceYear,
+        leadDays: item.leadDays,
         sentAt,
       });
     }

@@ -4,7 +4,10 @@ import { requireUser } from "./auth";
 import { ALLOWED_STORES, type AllowedStore } from "./validators";
 
 export const DEFAULT_NOTIFY_DAYS_BEFORE = 30;
-export const DEFAULT_EMAIL_NOTIFY_DAYS_BEFORE = 14;
+// Multi-trigger: por defecto un único aviso a 14 días. La UI permite también
+// 0 (día relevante), 2 y 7. Los valores aceptados están en EMAIL_LEAD_DAY_OPTIONS.
+export const DEFAULT_EMAIL_NOTIFY_DAYS_BEFORE: readonly number[] = [14];
+export const EMAIL_LEAD_DAY_OPTIONS: readonly number[] = [0, 2, 7, 14];
 export const DEFAULT_EMAIL_NOTIFICATIONS_ENABLED = true;
 
 export const DEFAULT_FAVORITE_STORES: readonly AllowedStore[] = ALLOWED_STORES;
@@ -17,6 +20,16 @@ function sanitizeStores(stores: readonly string[]): AllowedStore[] {
     }
   }
   return ALLOWED_STORES.filter((s) => seen.has(s));
+}
+
+// Acepta número (formato legacy) o array. Devuelve siempre un array ordenado y
+// deduplicado, o `undefined` si la entrada es `undefined`.
+function normalizeLeadDays(
+  raw: number | readonly number[] | undefined,
+): number[] | undefined {
+  if (raw === undefined) return undefined;
+  const arr = typeof raw === "number" ? [raw] : [...raw];
+  return Array.from(new Set(arr)).sort((a, b) => a - b);
 }
 
 export const getMine = query({
@@ -33,12 +46,14 @@ export const getMine = query({
       storedStores && storedStores.length > 0
         ? sanitizeStores(storedStores)
         : [...DEFAULT_FAVORITE_STORES];
+    const leadDays =
+      normalizeLeadDays(existing?.emailNotifyDaysBefore) ??
+      [...DEFAULT_EMAIL_NOTIFY_DAYS_BEFORE];
     return {
       notifyDaysBefore: existing?.notifyDaysBefore ?? DEFAULT_NOTIFY_DAYS_BEFORE,
       emailNotificationsEnabled:
         existing?.emailNotificationsEnabled ?? DEFAULT_EMAIL_NOTIFICATIONS_ENABLED,
-      emailNotifyDaysBefore:
-        existing?.emailNotifyDaysBefore ?? DEFAULT_EMAIL_NOTIFY_DAYS_BEFORE,
+      emailNotifyDaysBefore: leadDays,
       email: existing?.email ?? identity?.email ?? null,
       favoriteStores,
     };
@@ -65,7 +80,7 @@ export const ensureDefaults = mutation({
       clerkUserId,
       notifyDaysBefore: DEFAULT_NOTIFY_DAYS_BEFORE,
       emailNotificationsEnabled: email !== null,
-      emailNotifyDaysBefore: DEFAULT_EMAIL_NOTIFY_DAYS_BEFORE,
+      emailNotifyDaysBefore: [...DEFAULT_EMAIL_NOTIFY_DAYS_BEFORE],
       ...(email !== null ? { email } : {}),
     });
   },
@@ -75,7 +90,7 @@ export const setMine = mutation({
   args: {
     notifyDaysBefore: v.optional(v.number()),
     emailNotificationsEnabled: v.optional(v.boolean()),
-    emailNotifyDaysBefore: v.optional(v.number()),
+    emailNotifyDaysBefore: v.optional(v.array(v.number())),
     favoriteStores: v.optional(v.array(v.string())),
   },
   handler: async (
@@ -96,14 +111,20 @@ export const setMine = mutation({
         throw new Error("Días de aviso fuera de rango (1–365).");
       }
     }
+    let cleanedLeadDays: number[] | undefined;
     if (emailNotifyDaysBefore !== undefined) {
-      if (
-        !Number.isInteger(emailNotifyDaysBefore) ||
-        emailNotifyDaysBefore < 1 ||
-        emailNotifyDaysBefore > 365
-      ) {
-        throw new Error("Días de antelación del correo fuera de rango (1–365).");
+      const allowed = new Set<number>(EMAIL_LEAD_DAY_OPTIONS);
+      const seen = new Set<number>();
+      for (const d of emailNotifyDaysBefore) {
+        if (!Number.isInteger(d) || !allowed.has(d)) {
+          throw new Error("Antelación de correo no válida.");
+        }
+        seen.add(d);
       }
+      if (seen.size === 0) {
+        throw new Error("Selecciona al menos una antelación.");
+      }
+      cleanedLeadDays = [...seen].sort((a, b) => a - b);
     }
 
     let cleanedStores: AllowedStore[] | undefined;
@@ -131,7 +152,7 @@ export const setMine = mutation({
     const patch: {
       notifyDaysBefore?: number;
       emailNotificationsEnabled?: boolean;
-      emailNotifyDaysBefore?: number;
+      emailNotifyDaysBefore?: number[];
       email?: string;
       favoriteStores?: string[];
     } = {};
@@ -139,8 +160,8 @@ export const setMine = mutation({
     if (emailNotificationsEnabled !== undefined) {
       patch.emailNotificationsEnabled = emailNotificationsEnabled;
     }
-    if (emailNotifyDaysBefore !== undefined) {
-      patch.emailNotifyDaysBefore = emailNotifyDaysBefore;
+    if (cleanedLeadDays !== undefined) {
+      patch.emailNotifyDaysBefore = cleanedLeadDays;
     }
     if (identity?.email) patch.email = identity.email;
     if (cleanedStores !== undefined) patch.favoriteStores = cleanedStores;
@@ -152,7 +173,8 @@ export const setMine = mutation({
         clerkUserId,
         notifyDaysBefore: patch.notifyDaysBefore ?? DEFAULT_NOTIFY_DAYS_BEFORE,
         emailNotificationsEnabled: patch.emailNotificationsEnabled,
-        emailNotifyDaysBefore: patch.emailNotifyDaysBefore,
+        emailNotifyDaysBefore:
+          patch.emailNotifyDaysBefore ?? [...DEFAULT_EMAIL_NOTIFY_DAYS_BEFORE],
         email: patch.email,
         favoriteStores: patch.favoriteStores,
       });

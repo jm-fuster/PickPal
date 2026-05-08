@@ -6,7 +6,7 @@ Documento vivo. Captura cómo funciona el envío automático de emails de record
 
 ## Qué hace
 
-Un cron diario de Convex revisa los `userSettings` de todos los usuarios. Para cada usuario que tenga las notificaciones por correo activadas, busca las `importantDates` cuya próxima ocurrencia sea **exactamente** `emailNotifyDaysBefore` días desde hoy (UTC) y le envía **un único email agrupado** con esos eventos. Cada ocurrencia (par `(importantDateId, occurrenceYear)`) se marca como enviada en una tabla aparte para no duplicar.
+Un cron diario de Convex revisa los `userSettings` de todos los usuarios. Para cada usuario que tenga las notificaciones por correo activadas, busca las `importantDates` cuya próxima ocurrencia coincida con **alguna** de las antelaciones marcadas por el usuario (`emailNotifyDaysBefore`, array — opciones: 0 / 2 / 7 / 14 días) y le envía **un único email agrupado** con esos eventos. Cada disparo concreto se identifica por `(importantDateId, occurrenceYear, leadDays)` y se registra en una tabla aparte para no duplicar.
 
 La activación y la antelación son configurables desde `/settings`.
 
@@ -17,7 +17,7 @@ La activación y la antelación son configurables desde `/settings`.
 | Concepto | Significado |
 |---|---|
 | `userSettings.notifyDaysBefore` | **Ventana visual** de la app (campanita y dashboard). "Muéstrame todo lo que ocurra en los próximos 30 días". |
-| `userSettings.emailNotifyDaysBefore` | **Gatillo puntual** del email. "Avísame por correo cuando falten exactamente 7 días para un evento". |
+| `userSettings.emailNotifyDaysBefore` | **Gatillos** del email (array). "Avísame cuando falten 14, 7, 2 días o el mismo día". Opciones permitidas: `[0, 2, 7, 14]`. Default `[14]`. Cada antelación marcada produce un email independiente cuando se alcanza. |
 | `userSettings.emailNotificationsEnabled` | Toggle on/off. **Activo por defecto** para nuevos usuarios (si Clerk provee email). |
 | `userSettings.email` | Copia local del email del usuario (vino del JWT de Clerk al guardar ajustes). El cron lo lee de aquí, sin volver a pedírselo a Clerk. |
 | `emailNotifications` (tabla) | Registro de envíos para deduplicar. Una fila = una ocurrencia notificada. |
@@ -37,8 +37,8 @@ internal.emails.runDailyEmailNotifications  (action)
         ├─► internal.notifications.findEventsNeedingEmail  (query)
         │     ├─ recorre userSettings con emailNotificationsEnabled=true
         │     ├─ para cada user, calcula daysUntil de cada importantDate
-        │     ├─ filtra por daysUntil === emailNotifyDaysBefore
-        │     └─ descarta los ya presentes en emailNotifications(date, year)
+        │     ├─ filtra eventos cuyo daysUntil ∈ emailNotifyDaysBefore
+        │     └─ descarta los ya presentes en emailNotifications(date, year, lead)
         │
         ├─► internal.emails.sendBatchedReminderEmail  (action, una por usuario)
         │     └─ POST https://api.resend.com/emails
@@ -47,7 +47,7 @@ internal.emails.runDailyEmailNotifications  (action)
               └─ inserta filas en emailNotifications
 ```
 
-Si el envío a un usuario falla (Resend devuelve 4xx/5xx, red caída, etc.), el orquestador **no** marca ese envío como hecho y continúa con el siguiente usuario. Como la ocurrencia sigue sin estar marcada, el cron del día siguiente lo vuelve a intentar — pero ese día ya `daysUntil` será `emailNotifyDaysBefore - 1`, así que el filtro no matcheará y se pierde el aviso. Asumido conscientemente: simplificar > reintentar (una recuperación robusta requeriría una tabla de "pendientes").
+Si el envío a un usuario falla (Resend devuelve 4xx/5xx, red caída, etc.), el orquestador **no** marca ese envío como hecho y continúa con el siguiente usuario. Como la ocurrencia sigue sin estar marcada, el cron del día siguiente lo vuelve a intentar — pero ese día ya `daysUntil` no coincidirá con esa antelación concreta y el filtro no matcheará, así que se pierde ese aviso (los demás disparos de la misma fecha siguen funcionando). Asumido conscientemente: simplificar > reintentar (una recuperación robusta requeriría una tabla de "pendientes").
 
 ---
 
@@ -58,7 +58,7 @@ Al entrar por primera vez a la app (cualquier ruta autenticada), el componente `
 | Campo | Valor por defecto | Condición |
 |---|---|---|
 | `emailNotificationsEnabled` | `true` | Solo si Clerk provee email. Si no hay email, queda `false`. |
-| `emailNotifyDaysBefore` | `14` | Siempre |
+| `emailNotifyDaysBefore` | `[14]` | Siempre. Array — el usuario puede marcar varias antelaciones (0/2/7/14) en `/settings`. |
 | `notifyDaysBefore` | `30` | Siempre (ventana visual de campanita) |
 | `email` | Del JWT de Clerk | Si está disponible |
 
@@ -76,7 +76,7 @@ Al entrar por primera vez a la app (cualquier ruta autenticada), el componente `
 | [`convex/notifications.ts`](../convex/notifications.ts) | Cálculo de próxima ocurrencia (recurrente / no recurrente), matching contra antelación, dedup vs. `emailNotifications`. Exporta el tipo `EventToNotify` (incluye `personId` para el CTA del email). |
 | [`convex/emails.ts`](../convex/emails.ts) | Llama a Resend (vía `fetch`, sin SDK) y orquesta el cron diario. Construye HTML inline en español con diseño visual propio (ver sección "Plantilla de email"). |
 | [`convex/crons.ts`](../convex/crons.ts) | `crons.cron("0 8 * * *", ...)` — diario a las 08:00 UTC. |
-| [`src/app/(app)/settings/page.tsx`](../src/app/%28app%29/settings/page.tsx) | UI: toggle + input de antelación + email destino visible. |
+| [`src/app/(app)/settings/page.tsx`](../src/app/%28app%29/settings/page.tsx) | UI: toggle + grid de checkboxes con las antelaciones (0/2/7/14) + email destino visible. |
 
 ---
 
@@ -187,7 +187,7 @@ Configuración en Clerk Dashboard → Configure → JWT Templates → convex:
 - **Una ejecución diaria** del cron a las **08:00 UTC** (10:00 verano / 09:00 invierno en España peninsular). Hora elegida para que el correo llegue en horario de mañana sin invadir madrugadas.
 - **Un email por usuario** que tenga eventos disparando ese día. Si un usuario tiene 3 cumples a 7 días vista, recibe 1 correo con los 3, no 3 correos.
 - **Sin reintentos automáticos** (ver "Flujo end-to-end").
-- **Sin recordatorios escalonados** (no se envía a 30/7/1 días para el mismo evento). Si el usuario quiere recibir varios, tendría que cambiar la antelación varias veces, lo cual no es práctico → futura mejora opcional: aceptar `emailNotifyDaysBefore` como array.
+- **Recordatorios escalonados (multi-trigger)**: el usuario puede marcar varias antelaciones (0/2/7/14) en `/settings`. Cada antelación marcada genera un email independiente cuando se alcanza. La dedupe es por `(importantDateId, occurrenceYear, leadDays)`, así que los avisos a 14 y a 7 días para la misma ocurrencia coexisten sin bloquearse.
 
 ---
 
@@ -280,7 +280,6 @@ Si por alguna razón hay que reenviar un aviso ya marcado como enviado, hay que 
 ## Limitaciones conocidas y decisiones "ahora no"
 
 - **Sin reintentos**: ver "Flujo end-to-end".
-- **Sin recordatorios escalonados** (30/7/1): mejora opcional. La estructura está lista para soportar `emailNotifyDaysBefore: number[]` cambiando solo el matching y la UI.
 - **Sin email de prueba desde Ajustes**: cuando lo haya, requiere bucket de rate limit. De momento, ver "Opción B" en la sección de operativa.
 - **Sin localización**: el correo va siempre en español, igual que el resto de la app.
 - **Sin opciones por evento**: el toggle es global. No se puede silenciar el recordatorio de una persona o evento concreto.

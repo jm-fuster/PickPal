@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
@@ -7,6 +8,16 @@ import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { PersonCard } from "@/components/people/PersonCard";
 import { buttonVariants } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { RELATIONSHIPS } from "@/lib/schemas";
+
+const ALL_VALUE = "all";
 
 export default function PeoplePage() {
   const { isLoaded, isSignedIn } = useAuth();
@@ -14,6 +25,20 @@ export default function PeoplePage() {
     api.people.getAll,
     isLoaded && isSignedIn ? {} : "skip",
   );
+
+  const [relationshipFilter, setRelationshipFilter] = useState<string>(ALL_VALUE);
+
+  const filteredPeople = useMemo(() => {
+    if (!people) return people;
+    if (relationshipFilter === ALL_VALUE) return people;
+    return people.filter((p) => p.relationship === relationshipFilter);
+  }, [people, relationshipFilter]);
+
+  const filterLabel =
+    relationshipFilter === ALL_VALUE
+      ? "Todas las relaciones"
+      : (RELATIONSHIPS.find((r) => r.value === relationshipFilter)?.label ??
+        "Todas las relaciones");
 
   return (
     <main className="flex flex-1 flex-col gap-8 p-4 sm:p-6 lg:p-8">
@@ -54,11 +79,43 @@ export default function PeoplePage() {
           </Link>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-          {people.map((p) => (
-            <PersonCard key={p._id} person={p} />
-          ))}
-        </div>
+        <>
+          <div className="flex items-center gap-3">
+            <Label htmlFor="relationship-filter" className="text-xs font-sans uppercase tracking-[0.18em] text-muted-foreground">
+              Filtrar
+            </Label>
+            <Select
+              value={relationshipFilter}
+              onValueChange={(v) => setRelationshipFilter(v ?? ALL_VALUE)}
+            >
+              <SelectTrigger id="relationship-filter" className="w-auto min-w-[180px]">
+                <span>{filterLabel}</span>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL_VALUE}>Todas las relaciones</SelectItem>
+                {RELATIONSHIPS.map((r) => (
+                  <SelectItem key={r.value} value={r.value}>
+                    {r.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {filteredPeople && filteredPeople.length > 0 ? (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+              {filteredPeople.map((p) => (
+                <PersonCard key={p._id} person={p} />
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-10 text-center">
+              <p className="text-sm text-muted-foreground">
+                Nadie en esta categoría todavía.
+              </p>
+            </div>
+          )}
+        </>
       )}
     </main>
   );

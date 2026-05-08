@@ -85,7 +85,9 @@ export default defineSchema({
     clerkUserId: v.string(),
     notifyDaysBefore: v.number(),                    // ventana visual (campanita / dashboard)
     emailNotificationsEnabled: v.optional(v.boolean()),
-    emailNotifyDaysBefore: v.optional(v.number()),   // gatillo del correo
+    emailNotifyDaysBefore: v.optional(                 // gatillos del correo
+      v.union(v.number(), v.array(v.number())),        // legacy number o array
+    ),                                                 // (0/2/7/14)
     email: v.optional(v.string()),                   // copia local del email Clerk
   }).index("by_user", ["clerkUserId"]),
 
@@ -93,9 +95,11 @@ export default defineSchema({
     clerkUserId: v.string(),
     importantDateId: v.id("importantDates"),
     occurrenceYear: v.number(),                      // dedup por año concreto del evento
+    leadDays: v.optional(v.number()),                // antelación con la que se envió
     sentAt: v.number(),
   })
     .index("by_date_year", ["importantDateId", "occurrenceYear"])
+    .index("by_date_year_lead", ["importantDateId", "occurrenceYear", "leadDays"])
     .index("by_user", ["clerkUserId"]),
 })
 ```

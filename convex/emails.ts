@@ -185,6 +185,7 @@ export const runDailyEmailNotifications = internalAction({
           items: user.events.map((e) => ({
             dateId: e.dateId,
             occurrenceYear: e.occurrenceYear,
+            leadDays: e.daysUntil,
           })),
         });
         sentUsers++;

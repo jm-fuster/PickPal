@@ -7,7 +7,6 @@ import { useTheme } from "next-themes";
 import { Check, Moon, Sun } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "../../../../convex/_generated/api";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { LoadingFallback } from "@/components/layout/LoadingFallback";
@@ -19,6 +18,13 @@ import {
   type StoreId,
 } from "@/lib/stores";
 
+const EMAIL_LEAD_OPTIONS: { value: number; label: string }[] = [
+  { value: 0, label: "Día relevante" },
+  { value: 2, label: "2 días antes" },
+  { value: 7, label: "7 días antes" },
+  { value: 14, label: "2 semanas antes" },
+];
+
 export default function SettingsPage() {
   const { isLoaded, isSignedIn } = useAuth();
   const ready = isLoaded && isSignedIn;
@@ -27,7 +33,7 @@ export default function SettingsPage() {
   const { resolvedTheme, setTheme } = useTheme();
 
   const [emailEnabled, setEmailEnabled] = useState(false);
-  const [emailDays, setEmailDays] = useState<number | "">("");
+  const [emailDays, setEmailDays] = useState<number[]>([]);
   const [favoriteStores, setFavoriteStores] = useState<StoreId[]>([]);
   const [mounted, setMounted] = useState(false);
   // Tras la primera carga, ignoramos cambios externos en `settings` para no
@@ -99,22 +105,19 @@ export default function SettingsPage() {
     );
   };
 
-  const handleEmailDaysBlur = () => {
-    if (!emailEnabled) return;
-    if (
-      emailDays === "" ||
-      !Number.isInteger(emailDays) ||
-      (emailDays as number) < 1 ||
-      (emailDays as number) > 365
-    ) {
-      toast.error("Introduce un número entre 1 y 365.");
-      setEmailDays(settings.emailNotifyDaysBefore);
+  const handleEmailDayToggle = (day: number) => {
+    const willCheck = !emailDays.includes(day);
+    const next = willCheck
+      ? [...emailDays, day].sort((a, b) => a - b)
+      : emailDays.filter((d) => d !== day);
+    if (next.length === 0) {
+      toast.error("Selecciona al menos una antelación.");
       return;
     }
-    if (emailDays === settings.emailNotifyDaysBefore) return;
-    const previous = settings.emailNotifyDaysBefore;
+    const previous = emailDays;
+    setEmailDays(next);
     save(
-      { emailNotifyDaysBefore: emailDays as number },
+      { emailNotifyDaysBefore: next },
       () => setEmailDays(previous),
     );
   };
@@ -196,25 +199,37 @@ export default function SettingsPage() {
                   las notificaciones.
                 </p>
               )}
-              <div className="space-y-1.5">
-                <Label htmlFor="email-days">Días de antelación del correo</Label>
-                <Input
-                  id="email-days"
-                  type="number"
-                  min={1}
-                  max={365}
-                  value={emailDays}
-                  onChange={(e) =>
-                    setEmailDays(
-                      e.target.value === "" ? "" : Number(e.target.value),
-                    )
-                  }
-                  onBlur={handleEmailDaysBlur}
-                  className="max-w-[140px]"
-                />
+              <div className="space-y-2">
+                <Label>Cuándo enviarte el correo</Label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {EMAIL_LEAD_OPTIONS.map((opt) => {
+                    const checked = emailDays.includes(opt.value);
+                    return (
+                      <label
+                        key={opt.value}
+                        htmlFor={`email-day-${opt.value}`}
+                        className={[
+                          "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm cursor-pointer transition-colors",
+                          checked
+                            ? "border-border bg-muted"
+                            : "border-border/50 hover:border-border hover:bg-muted/40",
+                        ].join(" ")}
+                      >
+                        <input
+                          id={`email-day-${opt.value}`}
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => handleEmailDayToggle(opt.value)}
+                          className="size-4 rounded border-border accent-primary"
+                        />
+                        <span className="font-medium">{opt.label}</span>
+                      </label>
+                    );
+                  })}
+                </div>
                 <p className="text-xs text-muted-foreground">
-                  Te enviaremos un correo el día que falten exactamente este
-                  número de días para cada evento.
+                  Recibirás un correo cada vez que se cumpla una de las
+                  antelaciones marcadas. Puedes elegir varias.
                 </p>
               </div>
             </div>

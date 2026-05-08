@@ -32,7 +32,11 @@ export default defineSchema({
     clerkUserId: v.string(),
     notifyDaysBefore: v.number(),
     emailNotificationsEnabled: v.optional(v.boolean()),
-    emailNotifyDaysBefore: v.optional(v.number()),
+    // Backward-compat: docs anteriores a la migración a multi-trigger guardan
+    // un único número. Nuevos docs guardan un array. Los lectores normalizan.
+    emailNotifyDaysBefore: v.optional(
+      v.union(v.number(), v.array(v.number())),
+    ),
     email: v.optional(v.string()),
     favoriteStores: v.optional(v.array(v.string())),
   }).index("by_user", ["clerkUserId"]),
@@ -41,9 +45,18 @@ export default defineSchema({
     clerkUserId: v.string(),
     importantDateId: v.id("importantDates"),
     occurrenceYear: v.number(),
+    // Antelación con la que se envió este aviso (0/2/7/14). Optional para
+    // documentos previos a la migración multi-trigger; los nuevos siempre lo
+    // tienen. La dedupe se hace por (dateId, year, leadDays).
+    leadDays: v.optional(v.number()),
     sentAt: v.number(),
   })
     .index("by_date_year", ["importantDateId", "occurrenceYear"])
+    .index("by_date_year_lead", [
+      "importantDateId",
+      "occurrenceYear",
+      "leadDays",
+    ])
     .index("by_user", ["clerkUserId"]),
 
   recommendationUsage: defineTable({

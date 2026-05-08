@@ -58,12 +58,18 @@ export function UpcomingDateCard({
       )}
     >
       <CardContent className="flex items-center gap-4 p-4">
-        <Avatar className="size-12 shrink-0">
-          {person.avatarUrl ? (
-            <AvatarImage src={person.avatarUrl} alt={person.name} />
-          ) : null}
-          <AvatarFallback>{initials(person.name)}</AvatarFallback>
-        </Avatar>
+        <Link
+          href={`/seres-queridos/${person._id}`}
+          aria-label={`Ver ficha de ${person.name}`}
+          className="shrink-0 rounded-full transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
+          <Avatar className="size-12">
+            {person.avatarUrl ? (
+              <AvatarImage src={person.avatarUrl} alt={person.name} />
+            ) : null}
+            <AvatarFallback>{initials(person.name)}</AvatarFallback>
+          </Avatar>
+        </Link>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-baseline gap-2 mb-1">
