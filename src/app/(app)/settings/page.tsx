@@ -1,12 +1,24 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useClerk } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "convex/react";
 import { useTheme } from "next-themes";
 import { Check, Moon, Sun } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "../../../../convex/_generated/api";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { LoadingFallback } from "@/components/layout/LoadingFallback";
@@ -27,6 +39,8 @@ const EMAIL_LEAD_OPTIONS: { value: number; label: string }[] = [
 
 export default function SettingsPage() {
   const { isLoaded, isSignedIn } = useAuth();
+  const { signOut } = useClerk();
+  const router = useRouter();
   const ready = isLoaded && isSignedIn;
   const settings = useQuery(api.settings.getMine, ready ? {} : "skip");
   const setMine = useMutation(api.settings.setMine);
@@ -36,6 +50,9 @@ export default function SettingsPage() {
   const [emailDays, setEmailDays] = useState<number[]>([]);
   const [favoriteStores, setFavoriteStores] = useState<StoreId[]>([]);
   const [mounted, setMounted] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deleting, setDeleting] = useState(false);
   // Tras la primera carga, ignoramos cambios externos en `settings` para no
   // pisar actualizaciones optimistas que aún están viajando al servidor.
   const initializedRef = useRef(false);
@@ -123,6 +140,24 @@ export default function SettingsPage() {
       { emailNotifyDaysBefore: next },
       () => setEmailDays(previous),
     );
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeleting(true);
+    try {
+      const res = await fetch("/api/account/delete", { method: "POST" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        toast.error(data.error ?? "No se pudo eliminar la cuenta");
+        setDeleting(false);
+        return;
+      }
+      await signOut({ redirectUrl: "/" });
+      router.push("/");
+    } catch {
+      toast.error("No se pudo eliminar la cuenta");
+      setDeleting(false);
+    }
   };
 
   const handleStoreToggle = (store: StoreId) => {
@@ -277,6 +312,68 @@ export default function SettingsPage() {
           })}
         </div>
       </section>
+
+      <section className="space-y-3 rounded-xl border border-destructive/30 p-5">
+        <div className="space-y-0.5">
+          <Label className="text-destructive">Eliminar cuenta</Label>
+          <p className="text-xs text-muted-foreground">
+            Borra tu cuenta y todos tus datos en PickPal — seres queridos,
+            eventos, historial de regalos y ajustes. Esta acción no se puede
+            deshacer.
+          </p>
+        </div>
+        <Button
+          variant="destructive"
+          onClick={() => {
+            setDeleteConfirmText("");
+            setDeleteOpen(true);
+          }}
+        >
+          Eliminar mi cuenta
+        </Button>
+      </section>
+
+      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>¿Seguro que quieres borrar tu cuenta?</DialogTitle>
+            <DialogDescription>
+              Se borrarán de forma permanente tus datos en PickPal y tu cuenta
+              de acceso. No se puede deshacer.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="delete-confirm">
+              Escribe <span className="font-mono font-semibold">ELIMINAR</span>{" "}
+              para confirmar
+            </Label>
+            <Input
+              id="delete-confirm"
+              value={deleteConfirmText}
+              onChange={(e) => setDeleteConfirmText(e.target.value)}
+              placeholder="ELIMINAR"
+              autoComplete="off"
+              disabled={deleting}
+            />
+          </div>
+          <DialogFooter>
+            <DialogClose
+              render={
+                <Button variant="outline" disabled={deleting}>
+                  Cancelar
+                </Button>
+              }
+            />
+            <Button
+              variant="destructive"
+              onClick={handleDeleteAccount}
+              disabled={deleting || deleteConfirmText !== "ELIMINAR"}
+            >
+              {deleting ? "Eliminando…" : "Eliminar cuenta"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Pill flotante "Guardado" — mismo patrón que la ficha de persona */}
       <div

@@ -117,7 +117,26 @@ try {
 - Si requiere sesión (caso por defecto): no toques nada, ya está protegido.
 - Si debe ser público: añádelo explícitamente a `isPublicRoute`. **Justifica por qué en el commit.**
 
-### 7. Variables de entorno
+Rutas públicas actuales:
+- `/` — landing.
+- `/sign-in(.*)`, `/sign-up(.*)` — flujo Clerk.
+- `/privacidad` — aviso de privacidad. Debe ser legible antes de crear cuenta y por terceros que aparezcan como "ser querido" en la cuenta de un usuario.
+
+### 7. Borrado de cuenta (autoservicio)
+
+Toda cuenta de PickPal se puede borrar desde [`/settings`](../src/app/(app)/settings/page.tsx) con un diálogo de confirmación ("escribe ELIMINAR").
+
+Flujo:
+1. UI llama `POST /api/account/delete` ([`src/app/api/account/delete/route.ts`](../src/app/api/account/delete/route.ts)).
+2. La ruta valida el token Clerk y llama a `api.account.deleteMyAccount` ([`convex/account.ts`](../convex/account.ts)), que con `requireUser(ctx)` purga en cascada todo lo del usuario en Convex: `people` (con sus `importantDates`, `giftHistory`, `recommendations`), `userSettings`, `emailNotifications`, `recommendationUsage`, `rateLimitBuckets`.
+3. Solo si el purge en Convex sale bien, se llama `clerkClient().users.deleteUser(userId)`.
+4. UI hace `signOut` y redirige a `/`.
+
+**Reglas al añadir tablas nuevas:** si guardas datos vinculados a un usuario, añade su limpieza a `deleteMyAccount`. La regla aplica también si la tabla no tiene un campo `clerkUserId` directo: el borrado debe alcanzarla por relación (ej. `importantDates` se borra siguiendo `people` → `by_person`). Si una tabla nueva no se puede asociar a un usuario, no se puede exponer.
+
+El `clerkUserId` siempre se lee de la sesión vía `requireUser` — la mutation no acepta argumentos. No existe forma de que un usuario borre los datos de otro.
+
+### 8. Variables de entorno
 
 - `NEXT_PUBLIC_*` se inyecta en el bundle cliente. **Nunca** poner secrets ahí.
 - Secrets server-only: `CLERK_SECRET_KEY`, `GOOGLE_GENERATIVE_AI_API_KEY`, `CONVEX_DEPLOYMENT`, `RESEND_API_KEY`. `RESEND_API_KEY` y `EMAIL_FROM` viven en el entorno de **Convex** (`npx convex env set ...`), no en Next.js, porque solo los consume el cron del backend.

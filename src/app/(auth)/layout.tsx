@@ -17,6 +17,11 @@ export default function AuthLayout({
         <ThemeToggle />
       </header>
       {children}
+      <footer className="px-6 py-6 text-center text-xs text-muted-foreground">
+        <Link href="/privacidad" className="hover:text-foreground">
+          Privacidad
+        </Link>
+      </footer>
     </div>
   );
 }

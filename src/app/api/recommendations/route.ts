@@ -234,7 +234,6 @@ export async function POST(req: NextRequest) {
         error: isOverloaded
           ? "La IA está saturada ahora mismo — no se ha consumido cuota. Inténtalo en unos minutos."
           : "No hemos podido conectar con la IA en este momento, inténtalo de nuevo.",
-        ...(process.env.NODE_ENV !== "production" && { detail: message }),
       },
       { status: isOverloaded ? 503 : 500 },
     );

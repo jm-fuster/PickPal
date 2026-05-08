@@ -6,6 +6,10 @@ const isPublicRoute = createRouteMatcher([
   "/",
   "/sign-in(.*)",
   "/sign-up(.*)",
+  // Aviso de privacidad: legítimamente público — debe ser legible antes de
+  // crear cuenta y para que cualquiera al que un usuario haya añadido como
+  // "ser querido" pueda consultar el tratamiento de sus datos.
+  "/privacidad",
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
