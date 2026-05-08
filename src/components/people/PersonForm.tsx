@@ -33,16 +33,7 @@ import {
 import { InterestTagInput } from "./InterestTagInput";
 import { AvatarPicker } from "./AvatarPicker";
 import { BudgetRangeSlider } from "./BudgetRangeSlider";
-
-const MONTHS = [
-  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
-];
-
-function formatEventDate(day: number, month: number, year?: number) {
-  const m = MONTHS[month - 1]?.toLowerCase() ?? "";
-  return year ? `${day} de ${m} de ${year}` : `${day} de ${m}`;
-}
+import { DatePickerDialog, MONTHS, formatDate as formatEventDate } from "./DatePickerDialog";
 
 // ─── Inline add-event form ────────────────────────────────────────────────────
 
@@ -53,6 +44,7 @@ function AddEventForm({
   onAdd: (values: ImportantDateFormValues) => void;
   onCancel: () => void;
 }) {
+  const [pickerOpen, setPickerOpen] = useState(false);
   const {
     register,
     handleSubmit,
@@ -77,9 +69,23 @@ function AddEventForm({
   const watchedRecurring = useWatch({ control, name: "recurring" });
   const watchedYear = useWatch({ control, name: "year" });
   const watchedMonth = useWatch({ control, name: "month" });
+  const watchedDay = useWatch({ control, name: "day" });
 
   return (
     <div className="space-y-3 rounded-lg bg-background/60 p-3">
+      <DatePickerDialog
+        open={pickerOpen}
+        day={watchedDay ?? 1}
+        month={watchedMonth ?? 1}
+        year={watchedYear}
+        onChange={(d, m, y) => {
+          setValue("day", d, { shouldValidate: true });
+          setValue("month", m, { shouldValidate: true });
+          setValue("year", y as number | undefined);
+        }}
+        onClose={() => setPickerOpen(false)}
+      />
+
       {/* Etiqueta */}
       <div className="space-y-1.5">
         <Label htmlFor="ae-label" className="text-xs">Etiqueta</Label>
@@ -89,8 +95,18 @@ function AddEventForm({
         ) : null}
       </div>
 
-      {/* Día / Mes / Año */}
-      <div className="grid grid-cols-3 gap-3">
+      {/* Hidden RHF registrations — kept in sync from desktop inputs and mobile picker */}
+      <input type="hidden" {...register("day", { valueAsNumber: true })} />
+      <input type="hidden" {...register("month", { valueAsNumber: true })} />
+      <input
+        type="hidden"
+        {...register("year", {
+          setValueAs: (v) => (v === "" || v === null ? undefined : Number(v)),
+        })}
+      />
+
+      {/* Desktop: día / mes / año en línea */}
+      <div className="hidden md:grid grid-cols-3 gap-3">
         <div className="space-y-1.5">
           <Label htmlFor="ae-day" className="text-xs">Día</Label>
           <Input
@@ -99,7 +115,12 @@ function AddEventForm({
             min={1}
             max={31}
             placeholder="Día"
-            {...register("day", { valueAsNumber: true })}
+            value={watchedDay ?? ""}
+            onChange={(e) =>
+              setValue("day", e.target.value ? Number(e.target.value) : 1, {
+                shouldValidate: true,
+              })
+            }
           />
           {errors.day ? (
             <p className="text-xs text-destructive">{errors.day.message}</p>
@@ -109,7 +130,7 @@ function AddEventForm({
           <Label className="text-xs">Mes</Label>
           <Select
             value={watchedMonth ? String(watchedMonth) : ""}
-            onValueChange={(v) => { if (v) setValue("month", Number(v)); }}
+            onValueChange={(v) => { if (v) setValue("month", Number(v), { shouldValidate: true }); }}
           >
             <SelectTrigger className="w-full">
               <span>{watchedMonth ? MONTHS[watchedMonth - 1] : "Mes"}</span>
@@ -132,14 +153,34 @@ function AddEventForm({
             min={1900}
             max={2100}
             placeholder="Año"
-            {...register("year", {
-              setValueAs: (v) => (v === "" || v === null ? undefined : Number(v)),
-            })}
+            value={watchedYear ?? ""}
+            onChange={(e) =>
+              setValue("year", e.target.value ? Number(e.target.value) : undefined)
+            }
           />
           {errors.year ? (
             <p className="text-xs text-destructive">{errors.year.message}</p>
           ) : null}
         </div>
+      </div>
+
+      {/* Móvil: un único botón que abre el drum-roll picker */}
+      <div className="md:hidden space-y-1.5">
+        <Label className="text-xs">Fecha</Label>
+        <button
+          type="button"
+          onClick={() => setPickerOpen(true)}
+          className={`h-8 w-full rounded-md border bg-background px-3 text-sm text-left transition-colors hover:bg-muted/50 ${!watchedDay || !watchedMonth ? "text-muted-foreground" : ""}`}
+        >
+          {watchedDay && watchedMonth
+            ? formatEventDate(watchedDay, watchedMonth, watchedYear)
+            : "Selecciona fecha"}
+        </button>
+        {errors.day || errors.month || errors.year ? (
+          <p className="text-xs text-destructive">
+            {errors.day?.message ?? errors.month?.message ?? errors.year?.message}
+          </p>
+        ) : null}
       </div>
 
       {/* Recurrencia */}
