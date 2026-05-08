@@ -2,10 +2,14 @@ export const STORE_IDS = [
   "amazon",
   "elcorteingles",
   "aliexpress",
+  "temu",
   "miravia",
   "decathlon",
   "ikea",
   "pccomponentes",
+  "mediamarkt",
+  "zalando",
+  "druni",
 ] as const;
 
 export type StoreId = (typeof STORE_IDS)[number];
@@ -16,20 +20,28 @@ export const STORE_LABELS: Record<StoreId, string> = {
   amazon: "Amazon",
   elcorteingles: "El Corte Inglés",
   aliexpress: "AliExpress",
+  temu: "Temu",
   miravia: "Miravia",
   decathlon: "Decathlon",
   ikea: "IKEA",
   pccomponentes: "PcComponentes",
+  mediamarkt: "MediaMarkt",
+  zalando: "Zalando",
+  druni: "Druni",
 };
 
 export const STORE_ICONS: Record<StoreId, string> = {
   amazon: "/stores/amazon.png",
   elcorteingles: "/stores/elcorteingles.png",
   aliexpress: "/stores/aliexpress.png",
+  temu: "/stores/temu.svg",
   miravia: "/stores/miravia.png",
   decathlon: "/stores/decathlon.png",
   ikea: "/stores/ikea.svg",
   pccomponentes: "/stores/pccomponentes.png",
+  mediamarkt: "/stores/mediamarkt.svg",
+  zalando: "/stores/zalando.svg",
+  druni: "/stores/druni.svg",
 };
 
 export interface PriceRange {
@@ -104,6 +116,9 @@ export function generateStoreSearchUrl(
     }
     case "miravia":
       return `https://www.miravia.es/search?q=${q}`;
+    case "temu":
+      // Temu usa `search_key` y la URL termina en `.html`. Con `q` redirige a home.
+      return `https://www.temu.com/search_result.html?search_key=${q}`;
     case "decathlon":
       // Decathlon usa Endeca/ATG: el parámetro de búsqueda es `Ntt`, no `q`.
       // Con `q` el sitio redirige a la home porque no reconoce el parámetro.
@@ -112,6 +127,13 @@ export function generateStoreSearchUrl(
       return `https://www.ikea.com/es/es/search/?q=${q}`;
     case "pccomponentes":
       return `https://www.pccomponentes.com/search/?query=${q}`;
+    case "mediamarkt":
+      return `https://www.mediamarkt.es/es/search.html?query=${q}`;
+    case "zalando":
+      return `https://www.zalando.es/catalog/?q=${q}`;
+    case "druni":
+      // Druni usa Magento (catalogsearch/result/?q=).
+      return `https://www.druni.es/catalogsearch/result/?q=${q}`;
   }
 }
 

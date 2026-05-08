@@ -9,6 +9,7 @@ import { api } from "../../../../convex/_generated/api";
 import type { Id } from "../../../../convex/_generated/dataModel";
 import { giftRecommendationsSchema, giftRecommendationsSchemaNoStores, GIFT_TYPES, type GiftType } from "@/lib/gifts";
 import { RELATIONSHIPS, REACTIONS } from "@/lib/schemas";
+import { STORE_IDS } from "@/lib/stores";
 
 const GIFT_TYPE_VALUES = GIFT_TYPES.map((t) => t.value) as [GiftType, ...GiftType[]];
 
@@ -75,17 +76,21 @@ const buildPrompt = (
           .join("\n")}\nEvita sugerir regalos similares a los marcados negativamente.`
       : "";
 
-  const storesGuide = `- "suggestedStores": array de 1-7 elementos indicando en qué tiendas online tiene sentido buscar este producto concreto. Valores válidos: "amazon", "elcorteingles", "aliexpress", "miravia", "decathlon", "ikea", "pccomponentes".
+  const storesGuide = `- "suggestedStores": array de 1-${STORE_IDS.length} elementos indicando en qué tiendas online tiene sentido buscar este producto concreto. Valores válidos: ${STORE_IDS.map((s) => `"${s}"`).join(", ")}.
   Criterios por tienda — incluye solo las que realmente encajen, no copies todas:
   - "amazon": generalista. Tech, libros, productos de marca internacional, envío rápido. Inclúyela en la mayoría de productos físicos salvo nichos muy claros.
   - "elcorteingles": gran almacén español. Gourmet, vinos, moda media-alta, perfumería, juguetes, electrodomésticos, libros, regalos premium nacionales. Útil cuando la marca o la calidad importan, o cuando el producto es muy "español".
   - "aliexpress": gadgets baratos, accesorios sin marca, productos chinos genéricos. Útil para precio bajo + espera larga aceptable. Excluye gourmet español, moda media-alta, calidad relevante, artesanía.
+  - "temu": marketplace ultra-low-cost (similar a AliExpress pero más reciente, con foco en hogar, gadgets, papelería, accesorios y ropa básica). Útil para presupuesto muy bajo y compras impulsivas. Mismas exclusiones que AliExpress.
   - "miravia": marketplace asiático/europeo más curado que AliExpress, con énfasis en moda y belleza. Mismo criterio general que AliExpress.
   - "decathlon": deporte y outdoor. Ropa deportiva, equipamiento (running, ciclismo, montaña, fitness, natación, fútbol), camping, mochilas técnicas. Inclúyela SOLO si la idea es claramente deportiva/outdoor.
   - "ikea": hogar, muebles, decoración, textil hogar, vajilla, iluminación, organización, plantas. Útil para regalos de mudanza o parejas que estrenan piso. Excluye tech, moda, deporte, libros.
   - "pccomponentes": tech especializada — componentes PC, periféricos, gaming, monitores, sillas gaming, smart home, móviles/portátiles. Inclúyela junto a Amazon cuando la idea es claramente tech serio.
+  - "mediamarkt": electrónica mainstream — TV, audio, electrodomésticos pequeños y grandes, gaming consolas, móviles, fotografía, smartwatches. Útil para tech "no nicho", complementaria a Amazon. No la uses para componentes PC sueltos (esa es pccomponentes).
+  - "zalando": moda y calzado. Ropa, zapatos, deportivas, bolsos, complementos de marca media-alta. Inclúyela cuando la idea es claramente prenda o calzado de marca; salta si es ropa deportiva técnica (esa va a decathlon).
+  - "druni": perfumería y cosmética. Perfumes, maquillaje, skincare, cuidado personal, set de regalo de belleza. Inclúyela SOLO si la idea es claramente belleza/perfumería; combina con elcorteingles para regalos premium.
   Incluye SIEMPRE al menos una tienda generalista ("amazon" o "elcorteingles"), excepto si el producto es claramente nicho (artesanal, gourmet local, hecho a medida) — en ese caso indica solo las que realmente encajen.
-  Para productos muy específicos (deporte → "decathlon"; muebles → "ikea"; tech serio → "pccomponentes" + "amazon"; libros y cultura → "amazon" + "elcorteingles"), incluye la tienda especialista junto a la generalista para dar al usuario más opciones de calidad-precio.`;
+  Para productos muy específicos (deporte → "decathlon"; muebles → "ikea"; tech serio → "pccomponentes" + "amazon"; electrónica mainstream → "mediamarkt" + "amazon"; libros y cultura → "amazon" + "elcorteingles"; moda/calzado → "zalando" + "elcorteingles"; belleza/perfumería → "druni" + "elcorteingles"; ultra-low-cost → "aliexpress" + "temu"), incluye la tienda especialista junto a la generalista para dar al usuario más opciones de calidad-precio.`;
 
   const typeRules: Record<GiftType, string> = {
     fisica: `- Todas las ideas deben ser productos físicos comprables online.

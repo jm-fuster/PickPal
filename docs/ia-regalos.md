@@ -207,7 +207,7 @@ Para regalos físicos cada tarjeta muestra un chip por cada tienda relevante. El
 
 ### Por qué multi-tienda
 
-Antes solo había Amazon. Ampliar a 4 tiendas amplía el rango calidad-precio sin coste técnico: Gemini no consulta catálogos reales — devuelve una query de búsqueda genérica de 3-6 palabras y la app construye URLs deterministas por tienda. Cero alucinaciones de URL, cero claves API, fácil añadir tiendas.
+Antes solo había Amazon. Ampliar a 11 tiendas amplía el rango calidad-precio y cubre más categorías sin coste técnico: Gemini no consulta catálogos reales — devuelve una query de búsqueda genérica de 3-6 palabras y la app construye URLs deterministas por tienda. Cero alucinaciones de URL, cero claves API, fácil añadir tiendas.
 
 ### Tiendas soportadas
 
@@ -218,10 +218,14 @@ Definidas en [`src/lib/stores.ts`](../src/lib/stores.ts). Lista cerrada con allo
 | `amazon` | Amazon | `https://www.amazon.es/s?k={query}` | Generalista. Tech, libros, marcas internacionales, envío rápido |
 | `elcorteingles` | El Corte Inglés | `https://www.elcorteingles.es/search/?s={query}` | Gourmet, vinos, moda media-alta, hogar, regalos premium nacionales |
 | `aliexpress` | AliExpress | `https://es.aliexpress.com/w/wholesale-{query}.html` | Gadgets baratos, accesorios sin marca, espera larga |
+| `temu` | Temu | `https://www.temu.com/search_result.html?search_key={query}` | Marketplace ultra-low-cost: hogar, gadgets, papelería, accesorios |
 | `miravia` | Miravia | `https://www.miravia.es/search?q={query}` | Marketplace asiático/europeo curado, moda y belleza |
 | `decathlon` | Decathlon | `https://www.decathlon.es/es/search?Ntt={query}` | Deporte y outdoor: running, ciclismo, montaña, fitness, camping |
 | `ikea` | IKEA | `https://www.ikea.com/es/es/search/?q={query}` | Hogar, muebles, decoración, textil hogar, organización, iluminación |
 | `pccomponentes` | PcComponentes | `https://www.pccomponentes.com/search/?query={query}` | Tech especializada: componentes PC, periféricos, gaming, monitores |
+| `mediamarkt` | MediaMarkt | `https://www.mediamarkt.es/es/search.html?query={query}` | Electrónica mainstream: TV, audio, electrodomésticos, móviles, gaming consolas |
+| `zalando` | Zalando | `https://www.zalando.es/catalog/?q={query}` | Moda y calzado: ropa, zapatos, deportivas, complementos de marca |
+| `druni` | Druni | `https://www.druni.es/catalogsearch/result/?q={query}` | Perfumería y cosmética: perfumes, maquillaje, skincare, sets de belleza |
 
 Las URLs se construyen con `encodeURIComponent` sobre la query, así que cualquier carácter especial queda escapado correctamente. Los enlaces siempre llevan `target="_blank" rel="noopener noreferrer"`.
 
@@ -236,10 +240,14 @@ Algunas tiendas aceptan filtro de precio en la query string, otras no. La lista 
 | `amazon` | ✅ | `&low-price={n}&high-price={m}` |
 | `aliexpress` | ✅ | `?minPrice={n}&maxPrice={m}` |
 | `elcorteingles` | ❌ | Filtros van en path, no en query string |
+| `temu` | ❌ | Filtros JS-driven, parámetros de precio en URL inestables |
 | `miravia` | ❌ | Filtros JS-driven, URL params no honran |
 | `decathlon` | ❌ | Filtros JS-driven, parámetros desconocidos redirigen a home |
 | `ikea` | ❌ | Filtros JS-driven |
 | `pccomponentes` | ❌ | Sintaxis no documentada con fiabilidad |
+| `mediamarkt` | ❌ | Filtros JS-driven, URL params no honran |
+| `zalando` | ❌ | Filtros van en path (ej. `/catalog/?price=`) y son inestables |
+| `druni` | ❌ | Magento default, filtros van por path layered nav |
 
 En las tiendas que NO soportan filtro fiable, el chip enlaza a la búsqueda sin filtrar — preferible a un filtro silencioso que la tienda ignore.
 
@@ -257,8 +265,8 @@ Notas:
 
 Cada usuario elige en `/settings` qué tiendas quiere ver en sus tarjetas.
 
-- **Storage**: `userSettings.favoriteStores: string[]` (opcional en el schema). Si nunca se ha tocado, `getMine` devuelve `DEFAULT_FAVORITE_STORES` (las 4).
-- **UI**: 4 checkboxes en `/settings`. Validación cliente "selecciona al menos una tienda" antes de llamar la mutation.
+- **Storage**: `userSettings.favoriteStores: string[]` (opcional en el schema). Si nunca se ha tocado, `getMine` devuelve `DEFAULT_FAVORITE_STORES` (todas las soportadas, hoy 11).
+- **UI**: una casilla por tienda en `/settings`, en grid `grid-cols-1 sm:grid-cols-2`. Validación cliente "selecciona al menos una tienda" antes de llamar la mutation.
 - **Mutation**: `setMine` en [`convex/settings.ts`](../convex/settings.ts) llama `sanitizeStores` (allowlist contra `ALLOWED_STORES`) y rechaza el array vacío con error.
 - **Lectura**: tanto `getMine` como el cliente vuelven a pasar el array por `sanitizeFavoriteStores` para mantener orden canónico y filtrar valores caducados (por si se elimina una tienda en el futuro — p.ej. Etsy quedó como valor legacy filtrado tras retirarla).
 
@@ -271,11 +279,14 @@ Para evitar mostrar chips a tiendas que claramente no tienen el producto (miel a
 - **Reglas que el prompt impone a Gemini** (ver `buildPrompt` en [`src/app/api/recommendations/route.ts`](../src/app/api/recommendations/route.ts)):
   - **Incluir siempre al menos una generalista** (`amazon` o `elcorteingles`) salvo en casos claramente nicho (artesanal, gourmet hiper-local, hecho a medida).
   - **Generalistas** (`amazon`, `elcorteingles`): Amazon en la mayoría de tech/libros/marcas internacionales; ECI cuando marca/calidad importan o es producto muy "español".
-  - **Marketplaces baratos** (`aliexpress`, `miravia`): solo cuando la idea funciona con producto barato + espera larga aceptable; excluir gourmet español, moda media-alta, calidad relevante.
+  - **Marketplaces baratos** (`aliexpress`, `temu`, `miravia`): solo cuando la idea funciona con producto barato + espera larga aceptable; excluir gourmet español, moda media-alta, calidad relevante. `temu` y `aliexpress` se solapan; añade ambos cuando la idea es ultra-low-cost y la espera no importa.
   - **Especialistas** — la IA tiene que añadir la tienda especialista junto a la generalista cuando claramente encaja:
     - `decathlon` → solo si la idea es claramente deportiva/outdoor.
     - `ikea` → hogar, muebles, decoración, textil; útil para mudanzas o pareja que estrena piso.
     - `pccomponentes` → tech serio (PCs, periféricos gaming, monitores, smart home).
+    - `mediamarkt` → electrónica mainstream (TV, audio, electrodomésticos, gaming consolas, móviles, fotografía). Complementaria a Amazon. No para componentes PC sueltos.
+    - `zalando` → moda y calzado de marca (no deportivo técnico, eso va a Decathlon).
+    - `druni` → perfumería y cosmética (perfumes, maquillaje, skincare, sets de belleza).
   - Solo se pide para `fisica` y para los items físicos dentro de `sorprendeme`. Para `experiencia` y `tiempo-juntos` el prompt instruye explícitamente a omitir el campo.
 
 ### Lógica de renderizado

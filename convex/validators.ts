@@ -31,10 +31,14 @@ export const ALLOWED_STORES = [
   "amazon",
   "elcorteingles",
   "aliexpress",
+  "temu",
   "miravia",
   "decathlon",
   "ikea",
   "pccomponentes",
+  "mediamarkt",
+  "zalando",
+  "druni",
 ] as const;
 
 export type AllowedStore = (typeof ALLOWED_STORES)[number];

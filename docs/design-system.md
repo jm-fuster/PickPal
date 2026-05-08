@@ -183,7 +183,7 @@ Visible a partir de `lg` (1024px). Implementado en `src/app/(app)/layout.tsx`.
 
 ### Chips de tienda (multi-tienda en `GiftRecommendationCard`)
 
-Las tarjetas de regalo físico muestran 1–N chips, uno por tienda relevante. La lista actual de tiendas soportadas (`STORE_IDS` en `src/lib/stores.ts`) son 7: Amazon, El Corte Inglés, AliExpress, Miravia, Decathlon, IKEA, PcComponentes. En la práctica la IA filtra a 1–3 chips por idea según `suggestedStores`, así que el grupo pocas veces es masivo. Reglas:
+Las tarjetas de regalo físico muestran 1–N chips, uno por tienda relevante. La lista actual de tiendas soportadas (`STORE_IDS` en `src/lib/stores.ts`) son 11: Amazon, El Corte Inglés, AliExpress, Temu, Miravia, Decathlon, IKEA, PcComponentes, MediaMarkt, Zalando, Druni. En la práctica la IA filtra a 1–3 chips por idea según `suggestedStores`, así que el grupo pocas veces es masivo. Reglas:
 
 - **Estilo**: `<a className={buttonVariants({ size: "sm", variant: "outline" })}>` con logo de tienda (`<img src={STORE_ICONS[store]} className="size-3.5 rounded-sm object-contain bg-white p-px">`) antes del texto, e icono `ExternalLink` (size-3) detrás. Siempre `target="_blank"` + `rel="noopener noreferrer"` (evita reverse tabnabbing).
 - **Iconos por tienda**: logos oficiales en PNG o SVG almacenados en `public/stores/{storeId}.{ext}`. `STORE_ICONS` en `src/lib/stores.ts` mapea cada `StoreId` a su path público. Todos se renderizan con `bg-white p-px rounded-sm` para garantizar visibilidad en modo oscuro (muchos logos son monócromos o tienen fondo transparente). Las tiendas de `/settings` usan el mismo `STORE_ICONS` con `size-4`.
