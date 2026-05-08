@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { use, useState } from "react";
 import {
-  ArrowLeft, CalendarX2, Camera, Check, PencilLine, Repeat2, Sparkles, Trash2, X,
+  ArrowLeft, CalendarX2, Camera, Check, Gift, PencilLine, Repeat2, Trash2, X,
 } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
@@ -172,7 +172,7 @@ function PersonDetailContent({
 
         <div className="flex flex-wrap items-center gap-2 shrink-0">
           <Link href={`/seres-queridos/${person._id}/gifts`} className={buttonVariants()}>
-            <Sparkles className="size-4" aria-hidden />
+            <Gift className="size-4" aria-hidden />
             Ideas de regalo
           </Link>
           <Button

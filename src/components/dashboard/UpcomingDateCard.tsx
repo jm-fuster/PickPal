@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Gift } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
@@ -25,9 +26,10 @@ const relationshipLabel = (value: string) =>
   RELATIONSHIPS.find((r) => r.value === value)?.label ?? value;
 
 function budgetLabel(min?: number, max?: number): string | null {
-  if (min != null && max != null) return `${min} – ${max} €`;
-  if (min != null) return `Desde ${min} €`;
-  if (max != null) return `Hasta ${max} €`;
+  const fmt = (v: number) => Math.round(v / 100);
+  if (min != null && max != null) return `${fmt(min)} – ${fmt(max)} €`;
+  if (min != null) return `Desde ${fmt(min)} €`;
+  if (max != null) return `Hasta ${fmt(max)} €`;
   return null;
 }
 
@@ -91,14 +93,16 @@ export function UpcomingDateCard({
           href={`/seres-queridos/${person._id}/gifts?occasion=${encodeURIComponent(date.label)}`}
           className={cn(buttonVariants({ size: "sm" }), "shrink-0", onSelect && "xl:hidden")}
         >
-          Ver regalos
+          <Gift className="size-4" aria-hidden />
+          Ideas de regalo
         </Link>
         {onSelect && (
           <button
             onClick={onSelect}
             className={cn(buttonVariants({ size: "sm" }), "shrink-0 hidden xl:inline-flex")}
           >
-            Ver regalos
+            <Gift className="size-4" aria-hidden />
+          Ideas de regalo
           </button>
         )}
       </CardContent>
