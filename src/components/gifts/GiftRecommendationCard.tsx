@@ -86,7 +86,7 @@ export function GiftRecommendationCard({
           </div>
         </div>
 
-        <p className="text-sm leading-relaxed text-muted-foreground line-clamp-4 min-h-[5rem]">
+        <p className="text-sm leading-relaxed text-muted-foreground flex-1">
           {idea.description}
         </p>
 
