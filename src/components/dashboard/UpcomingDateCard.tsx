@@ -89,14 +89,14 @@ export function UpcomingDateCard({
         {/* Móvil: navega a la página. Desktop: abre el panel lateral (si hay callback). */}
         <Link
           href={`/seres-queridos/${person._id}/gifts?occasion=${encodeURIComponent(date.label)}`}
-          className={cn(buttonVariants({ size: "sm" }), "shrink-0", onSelect && "lg:hidden")}
+          className={cn(buttonVariants({ size: "sm" }), "shrink-0", onSelect && "xl:hidden")}
         >
           Ver regalos
         </Link>
         {onSelect && (
           <button
             onClick={onSelect}
-            className={cn(buttonVariants({ size: "sm" }), "shrink-0 hidden lg:inline-flex")}
+            className={cn(buttonVariants({ size: "sm" }), "shrink-0 hidden xl:inline-flex")}
           >
             Ver regalos
           </button>

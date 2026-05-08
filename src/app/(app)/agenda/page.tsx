@@ -78,7 +78,7 @@ export default function DashboardPage() {
         </div>
       ) : (
         <>
-          <div className="lg:max-w-[480px] lg:px-1 lg:pb-1">
+          <div className="xl:max-w-[480px] xl:px-1 xl:pb-1">
             <DateGroupedList
               entries={filtered}
               onSelect={(entry) =>
@@ -93,7 +93,7 @@ export default function DashboardPage() {
           </div>
 
           {selected && (
-            <div className="hidden lg:flex flex-col fixed top-8 bottom-8 right-8 left-[48.5rem]">
+            <div className="hidden xl:flex flex-col fixed top-8 bottom-8 right-8 left-[48.5rem]">
               <GiftsPanel
                 key={`${selected.personId}-${selected.occasion}`}
                 personId={selected.personId}
