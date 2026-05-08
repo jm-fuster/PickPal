@@ -369,8 +369,16 @@ export function GiftsPanel({
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            {showHeaderRegen && (hasCached || ideas) && (
-              <Button size="sm" variant="outline" onClick={generate} disabled={loading}>
+            {(hasCached || ideas) && (
+              <Button
+                size="sm"
+                onClick={generate}
+                disabled={loading}
+                className={[
+                  "transition-opacity duration-200",
+                  showHeaderRegen ? "opacity-100" : "opacity-0 pointer-events-none",
+                ].join(" ")}
+              >
                 <RefreshCw className="size-3.5" aria-hidden />
                 {loading ? "Generando…" : "Regenerar"}
               </Button>
