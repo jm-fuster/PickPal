@@ -298,7 +298,7 @@ function EventsSection({
         <button
           type="button"
           onClick={() => setShowAddForm(true)}
-          className="flex w-full items-center gap-2 rounded-lg border border-dashed border-border/70 p-3 text-sm text-muted-foreground transition-colors hover:border-border hover:text-foreground"
+          className="flex w-full items-center gap-2 rounded-lg border border-dashed border-border/70 p-3 text-sm text-muted-foreground transition-colors hover:border-border hover:bg-muted/40 hover:text-foreground"
         >
           <Plus className="size-4" aria-hidden />
           Añadir evento
