@@ -80,6 +80,7 @@ export function GiftsPanel({
   const [loading, setLoading] = useState(false);
   const [showHeaderRegen, setShowHeaderRegen] = useState(false);
   const controlsRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const removeIdea = useMutation(api.recommendations.removeIdea);
   const pendingDiscards = useRef<
@@ -104,14 +105,20 @@ export function GiftsPanel({
   }, []);
 
   useEffect(() => {
-    if (!embedded || !controlsRef.current) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => setShowHeaderRegen(!entry.isIntersecting),
-      { threshold: 0 },
-    );
-    obs.observe(controlsRef.current);
-    return () => obs.disconnect();
-  }, [embedded]);
+    if (!embedded) return;
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    const check = () => {
+      const controls = controlsRef.current;
+      if (!controls) { setShowHeaderRegen(false); return; }
+      const controlsBottom = controls.getBoundingClientRect().bottom;
+      const containerTop = container.getBoundingClientRect().top;
+      setShowHeaderRegen(controlsBottom < containerTop);
+    };
+    check();
+    container.addEventListener("scroll", check, { passive: true });
+    return () => container.removeEventListener("scroll", check);
+  }, [embedded, person]);
 
   const cached = useQuery(
     api.recommendations.getByPersonOccasion,
@@ -380,7 +387,7 @@ export function GiftsPanel({
           </div>
         </div>
         {/* Cuerpo scrollable */}
-        <div className="flex-1 overflow-y-auto p-5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border/60 [scrollbar-width:thin] [scrollbar-color:hsl(var(--border)/0.6)_transparent]">
+        <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border/60 [scrollbar-width:thin] [scrollbar-color:hsl(var(--border)/0.6)_transparent]">
           {content}
         </div>
       </div>
