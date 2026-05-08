@@ -1,15 +1,23 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
+import type { Id } from "../../../../convex/_generated/dataModel";
 import { DateGroupedList } from "@/components/dashboard/DateGroupedList";
+import { GiftsPanel } from "@/components/gifts/GiftsPanel";
 import { buttonVariants } from "@/components/ui/button";
 import { computeDaysUntil } from "@/lib/dates";
 
 const WINDOW_DAYS = 120;
+
+type SelectedEvent = {
+  personId: Id<"people">;
+  occasion: string;
+  dateId: string;
+};
 
 export default function DashboardPage() {
   const { isLoaded, isSignedIn } = useAuth();
@@ -18,6 +26,8 @@ export default function DashboardPage() {
     api.importantDates.getUpcoming,
     ready ? {} : "skip",
   );
+
+  const [selected, setSelected] = useState<SelectedEvent | null>(null);
 
   const filtered = useMemo(() => {
     if (!upcoming) return [];
@@ -67,7 +77,33 @@ export default function DashboardPage() {
           </Link>
         </div>
       ) : (
-        <DateGroupedList entries={filtered} />
+        <div className="flex gap-6 items-start">
+          <div className="flex-1 min-w-0">
+            <DateGroupedList
+              entries={filtered}
+              onSelect={(entry) =>
+                setSelected({
+                  personId: entry.person._id,
+                  occasion: entry.date.label,
+                  dateId: entry.date._id,
+                })
+              }
+              selectedDateId={selected?.dateId}
+            />
+          </div>
+
+          {selected && (
+            <div className="hidden lg:block w-[420px] shrink-0 sticky top-8 self-start">
+              <GiftsPanel
+                key={`${selected.personId}-${selected.occasion}`}
+                personId={selected.personId}
+                initialOccasion={selected.occasion}
+                embedded
+                onClose={() => setSelected(null)}
+              />
+            </div>
+          )}
+        </div>
       )}
     </main>
   );

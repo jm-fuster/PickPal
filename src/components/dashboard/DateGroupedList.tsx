@@ -37,8 +37,17 @@ function groupEntries(entries: Entry[]): { key: string; label: string; badge: st
   return Array.from(map.entries()).map(([key, val]) => ({ key, ...val }));
 }
 
-export function DateGroupedList({ entries }: { entries: Entry[] }) {
+interface DateGroupedListProps {
+  entries: Entry[];
+  onSelect?: (entry: Entry) => void;
+  selectedDateId?: string;
+}
+
+export function DateGroupedList({ entries, onSelect, selectedDateId }: DateGroupedListProps) {
   const groups = groupEntries(entries);
+  const gridClass = onSelect
+    ? "grid-cols-1 gap-3"
+    : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3";
 
   return (
     <div className="space-y-8">
@@ -50,13 +59,15 @@ export function DateGroupedList({ entries }: { entries: Entry[] }) {
               <span className="text-xs text-muted-foreground">{group.badge}</span>
             )}
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+          <div className={`grid ${gridClass}`}>
             {group.items.map((entry) => (
               <UpcomingDateCard
                 key={entry.date._id}
                 person={entry.person}
                 date={entry.date}
                 daysUntil={entry.daysUntil}
+                onSelect={onSelect ? () => onSelect(entry) : undefined}
+                isSelected={selectedDateId === entry.date._id}
               />
             ))}
           </div>

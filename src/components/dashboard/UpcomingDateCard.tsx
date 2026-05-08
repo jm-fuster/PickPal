@@ -9,6 +9,8 @@ interface UpcomingDateCardProps {
   person: Doc<"people">;
   date: Doc<"importantDates">;
   daysUntil: number;
+  onSelect?: () => void;
+  isSelected?: boolean;
 }
 
 const initials = (name: string) =>
@@ -32,6 +34,8 @@ export function UpcomingDateCard({
   person,
   date,
   daysUntil,
+  onSelect,
+  isSelected,
 }: UpcomingDateCardProps) {
   const urgent = daysUntil <= 7;
 
@@ -42,9 +46,11 @@ export function UpcomingDateCard({
   return (
     <Card
       className={
-        urgent
-          ? "border-primary/60 shadow-sm"
-          : "border-border/60 shadow-sm"
+        isSelected
+          ? "border-primary/80 shadow-sm ring-1 ring-primary/30"
+          : urgent
+            ? "border-primary/60 shadow-sm"
+            : "border-border/60 shadow-sm"
       }
     >
       <CardContent className="flex items-center gap-4 p-4">
@@ -79,12 +85,21 @@ export function UpcomingDateCard({
           ) : null}
         </div>
 
+        {/* Móvil: navega a la página. Desktop: abre el panel lateral (si hay callback). */}
         <Link
           href={`/people/${person._id}/gifts?occasion=${encodeURIComponent(date.label)}`}
-          className={buttonVariants({ size: "sm", className: "shrink-0" })}
+          className={buttonVariants({ size: "sm", className: `shrink-0 ${onSelect ? "lg:hidden" : ""}` })}
         >
           Ver regalos
         </Link>
+        {onSelect && (
+          <button
+            onClick={onSelect}
+            className={buttonVariants({ size: "sm", className: "shrink-0 hidden lg:inline-flex" })}
+          >
+            Ver regalos
+          </button>
+        )}
       </CardContent>
     </Card>
   );
