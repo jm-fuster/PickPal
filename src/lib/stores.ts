@@ -34,14 +34,14 @@ export const STORE_ICONS: Record<StoreId, string> = {
   amazon: "/stores/amazon.png",
   elcorteingles: "/stores/elcorteingles.png",
   aliexpress: "/stores/aliexpress.png",
-  temu: "/stores/temu.svg",
+  temu: "/stores/temu.png",
   miravia: "/stores/miravia.png",
   decathlon: "/stores/decathlon.png",
   ikea: "/stores/ikea.svg",
   pccomponentes: "/stores/pccomponentes.png",
-  mediamarkt: "/stores/mediamarkt.svg",
-  zalando: "/stores/zalando.svg",
-  druni: "/stores/druni.svg",
+  mediamarkt: "/stores/mediamarkt.png",
+  zalando: "/stores/zalando.png",
+  druni: "/stores/druni.png",
 };
 
 export interface PriceRange {
