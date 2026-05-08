@@ -201,6 +201,7 @@ Padding de página responsive en todos los `<main>`: `p-4 sm:p-6 lg:p-8`. No usa
 - **Móvil (< lg)**: columna única. El botón "Ver regalos" de cada `UpcomingDateCard` es un `<Link>` que navega a `/people/[id]/gifts?occasion=...`.
 - **Desktop (≥ lg)**: CSS Grid de dos columnas fijas: `lg:grid-cols-[480px_1fr]`. La columna izquierda (480 px) lista los eventos; la derecha (flexible) muestra el `GiftsPanel` embebido al pulsar "Ver regalos". El botón "Ver regalos" en desktop es un `<button>` con `onClick` que actualiza el estado local `selected`; el `<Link>` tiene clase `lg:hidden` para que solo sea visible en móvil.
 - **Por qué grid fijo (no flex)**: con `flex-1` en la columna de eventos, su ancho cambia al aparecer el panel, deformando las cards. Con `grid-cols-[480px_1fr]` la columna izquierda siempre mide exactamente 480 px, independientemente de si el panel está abierto o no. El padding `lg:px-1 lg:pb-1` del contenedor de la lista también se aplica siempre (no condicionalmente) para que el ancho disponible de las cards no varíe nunca.
+- **Botón dual en `UpcomingDateCard`**: siempre usar `cn(buttonVariants({ size: "sm" }), "lg:hidden")` — nunca pasar clases de display dentro del `className` de `buttonVariants`. `buttonVariants` incluye `inline-flex` en su base; si se pasa `hidden` dentro del objeto `className`, `tailwind-merge` no lo procesa y `inline-flex` prevalece, mostrando ambos botones a la vez en móvil.
 - **Scroll del panel vs. scroll general**: cuando el panel está abierto en desktop, la columna de eventos recibe `lg:overflow-y-auto lg:max-h-[calc(100vh-11rem)]` y el panel tiene su propio scroll interno. Ninguna de las dos columnas desborda la ventana, por lo que no se genera scroll general de página.
 
 **Detalle de persona** (`/people/[id]`): `max-w-6xl w-full`. Suficiente para no desbordar en monitores muy anchos, pero sin el desperdicio de `max-w-4xl`.
@@ -232,7 +233,7 @@ Padding de página responsive en todos los `<main>`: `p-4 sm:p-6 lg:p-8`. No usa
 | Grid de ideas | `sm:grid-cols-2 lg:grid-cols-3` | `grid-cols-1` |
 | Scroll | Scroll general de página | Scroll interno acotado |
 
-**Modo standalone**: usado por `/people/[id]/gifts/page.tsx`, que es un thin wrapper. La ruta acepta `?occasion=...` para preseleccionar el evento.
+**Modo standalone**: usado por `/people/[id]/gifts/page.tsx`, que es un thin wrapper. La ruta acepta `?occasion=...` para preseleccionar el evento. El back link es "← Agenda" y va a `/dashboard` — no a la ficha de la persona, porque el flujo principal de entrada es dashboard → móvil → página de regalos → volver.
 
 **Modo embebido**: usado por el dashboard. La card exterior tiene `overflow-hidden rounded-2xl` — esto recorta el scrollbar nativo a las esquinas redondeadas. La card interior tiene `overflow-y-auto max-h-[calc(100vh-11rem)]` con el scroll real. **Nunca poner `overflow-y-auto` y `rounded-2xl` en el mismo div**: el scrollbar se renderiza fuera de las esquinas redondeadas en Chrome/Windows.
 
