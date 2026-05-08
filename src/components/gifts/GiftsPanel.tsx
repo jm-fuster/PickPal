@@ -358,8 +358,8 @@ export function GiftsPanel({
 
   if (embedded) {
     return (
-      <div className="rounded-2xl border border-border/60 bg-card shadow-sm overflow-hidden max-h-[calc(100vh-11rem)]">
-        <div className="p-5 overflow-y-auto max-h-[calc(100vh-11rem)] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border/60 [scrollbar-width:thin] [scrollbar-color:hsl(var(--border)/0.6)_transparent]">
+      <div className="rounded-2xl border border-border/60 bg-card shadow-sm overflow-hidden max-h-[calc(100vh-4rem)]">
+        <div className="p-5 overflow-y-auto max-h-[calc(100vh-4rem)] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border/60 [scrollbar-width:thin] [scrollbar-color:hsl(var(--border)/0.6)_transparent]">
           {content}
         </div>
       </div>
