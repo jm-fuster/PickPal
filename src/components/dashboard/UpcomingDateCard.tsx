@@ -57,7 +57,7 @@ export function UpcomingDateCard({
             : "border-border/60 shadow-sm",
       )}
     >
-      <CardContent className="flex items-center gap-4 p-4">
+      <CardContent className="flex items-center gap-3 p-4 sm:gap-4">
         <Link
           href={`/seres-queridos/${person._id}`}
           aria-label={`Ver ficha de ${person.name}`}
@@ -72,20 +72,17 @@ export function UpcomingDateCard({
         </Link>
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-baseline gap-2 mb-1">
-            <Link
-              href={`/seres-queridos/${person._id}`}
-              className="font-medium truncate hover:underline transition-colors duration-150"
-            >
-              {person.name}
-            </Link>
-            <span className="text-xs text-muted-foreground shrink-0">
-              {date.label} · {relationshipLabel(person.relationship)}
-            </span>
-          </div>
-
+          <Link
+            href={`/seres-queridos/${person._id}`}
+            className="block font-medium truncate hover:underline transition-colors duration-150"
+          >
+            {person.name}
+          </Link>
+          <p className="text-xs text-muted-foreground truncate">
+            {date.label} · {relationshipLabel(person.relationship)}
+          </p>
           {budget ? (
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground truncate">
               Presupuesto: {budget}
             </p>
           ) : person.notes ? (
@@ -98,18 +95,20 @@ export function UpcomingDateCard({
         {/* Móvil: navega a la página. Desktop: abre el panel lateral (si hay callback). */}
         <Link
           href={`/seres-queridos/${person._id}/gifts?occasion=${encodeURIComponent(date.label)}`}
+          aria-label="Ideas de regalo"
           className={cn(buttonVariants({ size: "sm" }), "shrink-0", onSelect && "xl:hidden")}
         >
           <Gift className="size-4" aria-hidden />
-          Ideas de regalo
+          <span className="hidden sm:inline">Ideas de regalo</span>
         </Link>
         {onSelect && (
           <button
             onClick={onSelect}
+            aria-label="Ideas de regalo"
             className={cn(buttonVariants({ size: "sm" }), "shrink-0 hidden xl:inline-flex hover:bg-primary/80")}
           >
             <Gift className="size-4" aria-hidden />
-          Ideas de regalo
+            Ideas de regalo
           </button>
         )}
       </CardContent>
