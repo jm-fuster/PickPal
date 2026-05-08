@@ -171,7 +171,7 @@ function PersonDetailContent({
         </div>
 
         <div className="flex flex-wrap items-center gap-2 shrink-0">
-          <Link href={`/seres-queridos/${person._id}/gifts`} className={buttonVariants()}>
+          <Link href={`/seres-queridos/${person._id}/gifts?from=person`} className={buttonVariants()}>
             <Gift className="size-4" aria-hidden />
             Ideas de regalo
           </Link>

@@ -13,11 +13,16 @@ export default function GiftsPage({
   const { personId } = use(params);
   const searchParams = useSearchParams();
   const initialOccasion = searchParams.get("occasion") ?? undefined;
+  const backHref =
+    searchParams.get("from") === "person"
+      ? `/seres-queridos/${personId}`
+      : "/agenda";
 
   return (
     <GiftsPanel
       personId={personId as Id<"people">}
       initialOccasion={initialOccasion}
+      backHref={backHref}
     />
   );
 }
