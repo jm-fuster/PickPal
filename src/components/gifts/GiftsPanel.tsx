@@ -342,12 +342,27 @@ export function GiftsPanel({
           <div className="text-4xl mb-3" aria-hidden>
             ✨
           </div>
-          <h2 className="text-2xl font-medium mb-2">A medida para {person.name}</h2>
-          <p className="text-sm text-muted-foreground max-w-md mx-auto">
-            {events && events.length === 0
-              ? "Añade un evento en el perfil para poder generar ideas con el presupuesto correcto."
-              : "La IA combinará intereses, notas y presupuesto que has guardado con la ocasión y el tipo de regalo que elijas para sugerir seis ideas concretas."}
-          </p>
+          {events && events.length === 0 ? (
+            <>
+              <h2 className="text-2xl font-medium mb-2">Sin eventos todavía</h2>
+              <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-6">
+                Para generar ideas necesitas al menos un evento — cumpleaños, aniversario, lo que sea.
+              </p>
+              <Link
+                href={`/seres-queridos/${personId}`}
+                className={buttonVariants({ variant: "outline" })}
+              >
+                Añadir evento a {person.name}
+              </Link>
+            </>
+          ) : (
+            <>
+              <h2 className="text-2xl font-medium mb-2">A medida para {person.name}</h2>
+              <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                La IA combinará intereses, notas y presupuesto que has guardado con la ocasión y el tipo de regalo que elijas para sugerir seis ideas concretas.
+              </p>
+            </>
+          )}
         </div>
       )}
     </div>

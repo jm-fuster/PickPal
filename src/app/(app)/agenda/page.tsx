@@ -26,6 +26,7 @@ export default function DashboardPage() {
     api.importantDates.getUpcoming,
     ready ? {} : "skip",
   );
+  const people = useQuery(api.people.getAll, ready ? {} : "skip");
 
   const [selected, setSelected] = useState<SelectedEvent | null>(null);
 
@@ -60,22 +61,39 @@ export default function DashboardPage() {
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-14 text-center">
-          <div className="text-4xl mb-3" aria-hidden>
-            ☕
+        people && people.length > 0 ? (
+          <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-14 text-center">
+            <div className="text-4xl mb-3" aria-hidden>
+              ☕
+            </div>
+            <h2 className="text-2xl font-medium mb-2">Todo tranquilo</h2>
+            <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
+              Tus seres queridos no tienen fechas en los próximos 4 meses. ¿Les falta algún evento?
+            </p>
+            <Link
+              href="/seres-queridos"
+              className={buttonVariants({ variant: "outline" })}
+            >
+              Ver seres queridos
+            </Link>
           </div>
-          <h2 className="text-2xl font-medium mb-2">Calma por delante</h2>
-          <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
-            No hay fechas en los próximos 4 meses. Buen momento para añadir
-            a alguien que te falte.
-          </p>
-          <Link
-            href="/seres-queridos/new"
-            className={buttonVariants({ variant: "outline" })}
-          >
-            Añadir ser querido
-          </Link>
-        </div>
+        ) : (
+          <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-14 text-center">
+            <div className="text-4xl mb-3" aria-hidden>
+              ☕
+            </div>
+            <h2 className="text-2xl font-medium mb-2">Empieza aquí</h2>
+            <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
+              Añade a alguien para que la agenda cobre vida.
+            </p>
+            <Link
+              href="/seres-queridos/new"
+              className={buttonVariants({ variant: "outline" })}
+            >
+              Añadir ser querido
+            </Link>
+          </div>
+        )
       ) : (
         <>
           <div className="xl:max-w-[480px] xl:px-1 xl:pb-1">
