@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useMutation } from "convex/react";
 import { toast } from "sonner";
 import { api } from "../../../../../convex/_generated/api";
-import { PersonForm } from "@/components/seres-queridos/PersonForm";
+import { PersonForm } from "@/components/people/PersonForm";
 import type { PersonFormValues } from "@/lib/schemas";
 
 export default function NewPersonPage() {

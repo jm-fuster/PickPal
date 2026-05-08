@@ -31,11 +31,11 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger,
 } from "@/components/ui/select";
-import { EditImportantDateInline, ImportantDateForm } from "@/components/seres-queridos/ImportantDateForm";
-import { EditGiftHistoryInline, GiftHistoryForm } from "@/components/seres-queridos/GiftHistoryForm";
+import { EditImportantDateInline, ImportantDateForm } from "@/components/people/ImportantDateForm";
+import { EditGiftHistoryInline, GiftHistoryForm } from "@/components/people/GiftHistoryForm";
 import { LoadingFallback } from "@/components/layout/LoadingFallback";
-import { AvatarPicker } from "@/components/seres-queridos/AvatarPicker";
-import { InterestTagInput } from "@/components/seres-queridos/InterestTagInput";
+import { AvatarPicker } from "@/components/people/AvatarPicker";
+import { InterestTagInput } from "@/components/people/InterestTagInput";
 import { RELATIONSHIPS, REACTIONS } from "@/lib/schemas";
 
 const MONTHS = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
