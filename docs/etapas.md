@@ -68,7 +68,7 @@ Montar la base del proyecto con todas las herramientas configuradas.
 - [ ] `GiftRecommendationCard.tsx` — título, descripción, rango de precio, categoría y botón "Buscar en Amazon"
 - [ ] Página `/people/[id]/gifts` — botón "Generar ideas" + grid de 6 tarjetas
 
-**Resultado:** la IA genera 6 ideas de regalo personalizadas con links directos a Amazon.
+**Resultado:** la IA genera 9 ideas de regalo personalizadas con links directos a Amazon.
 
 ---
 

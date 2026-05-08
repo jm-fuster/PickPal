@@ -359,7 +359,7 @@ export function GiftsPanel({
             <>
               <h2 className="text-2xl font-medium mb-2">A medida para {person.name}</h2>
               <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                La IA combinará intereses, notas y presupuesto que has guardado con la ocasión y el tipo de regalo que elijas para sugerir seis ideas concretas.
+                La IA combinará intereses, notas y presupuesto que has guardado con la ocasión y el tipo de regalo que elijas para sugerir nueve ideas concretas.
               </p>
             </>
           )}

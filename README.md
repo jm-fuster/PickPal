@@ -10,7 +10,7 @@ App web open-source para recordar fechas importantes (cumpleaños, aniversarios)
 
 - 👤 **Personas con contexto**: nombre, relación, intereses, presupuesto y notas.
 - 📅 **Fechas importantes** (cumpleaños, aniversarios, lo que quieras), con recordatorios configurables.
-- ✨ **6 ideas de regalo personalizadas con Gemini** según los gustos y presupuesto, con búsqueda directa en Amazon.es.
+- ✨ **9 ideas de regalo personalizadas con Gemini** según los gustos y presupuesto, con búsqueda directa en Amazon.es.
 - 🌓 Modo claro / oscuro.
 - 🇪🇸 Interfaz en español.
 

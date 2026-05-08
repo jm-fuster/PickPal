@@ -162,7 +162,7 @@ Visible a partir de `lg` (1024px). Implementado en `src/app/(app)/layout.tsx`.
 - **Hover · cards completamente clicables** (toda la card es Link): `transition-all hover:bg-muted/40 hover:shadow-md hover:-translate-y-0.5`. Sutilmente "el papel se levanta". Ejemplo: `PersonCard`.
 - **PersonCard**: layout vertical. Avatar `size-16` centrado arriba, nombre centrado, badge de relación (`variant="secondary"`) posicionado `absolute top-3 right-3`, sección de intereses con eyebrow label, y CTA "Ver perfil" (`buttonVariants outline sm w-full`) en el pie. Grid responsive: `sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5`.
 - **Hover · cards con acción interna** (la card no es link, pero contiene botón): `transition-shadow hover:shadow-md`. Sin translate ni cambio de fondo. Ejemplo: `GiftRecommendationCard`.
-- **Cards estáticas** (sin acción): solo `shadow-sm`, sin hover. Ejemplo: feature cards de la landing.
+- **Cards estáticas** (sin acción): solo `shadow-sm`, sin hover. Ejemplo: step cards de la landing.
 - **Card de urgencia** (UpcomingDateCard cuando `daysUntil <= 7`): `border-primary/60 shadow-sm bg-primary/5`. El tinte rosado del primary llama la atención sin chillar.
 - **Presupuesto en agenda**: `budgetLabel()` en `UpcomingDateCard` divide los valores entre 100 antes de mostrarlos — los presupuestos se almacenan en céntimos en Convex (1000 = 10 €). Cualquier otro componente que muestre presupuestos debe hacer lo mismo.
 - **Cards generadas por IA** (GiftRecommendationCard): layout fijo desde arriba — título (`font-medium`), badges de intereses (`variant="secondary"`, 1–3 según lo que devuelva la IA), descripción con altura mínima fija (`min-h-[5rem] line-clamp-4`) para que las cards del grid queden alineadas, separador `border-t border-border/50`, precio prominente (`text-lg font-medium`) + chips de tienda. Sin icono `Sparkles` (se eliminó — el contexto de la página ya comunica que son sugerencias IA). Stagger animation `animate-in fade-in slide-in-from-bottom-2 duration-500` con `animationDelay: index * 60ms` para que aparezcan en cascada. Los 9 skeletons de carga usan `h-52 rounded-2xl border-dashed bg-muted/40 animate-pulse`.
@@ -192,6 +192,34 @@ Las tarjetas de regalo físico muestran 1–N chips, uno por tienda relevante. L
 - **No mezclar con icon-only buttons**: si en algún momento se quiere reducir el espacio (más de 4 tiendas, móvil pequeño), usar un overflow menu en vez de quitar las labels — los logos de tienda sin texto son fáciles de confundir.
 
 Ver lógica completa en [`docs/ia-regalos.md`](ia-regalos.md#multi-tienda) y la implementación en [`src/components/gifts/GiftRecommendationCard.tsx`](../src/components/gifts/GiftRecommendationCard.tsx).
+
+### Landing page (`src/app/page.tsx`)
+
+Página de marketing, server component. Estructura:
+
+- **Header**: logo + "PickPal" a la izquierda, `UserButton` de Clerk a la derecha (solo si autenticado).
+- **Hero**: eyebrow (`font-sans text-xs uppercase tracking-[0.2em]`) + H1 serif escalado (`text-4xl → lg:text-7xl`) + subtítulo + CTAs.
+  - Autenticado: un botón "Ir a la agenda" → `/agenda`.
+  - No autenticado: "Empezar gratis" (primary) + "Iniciar sesión" (outline).
+- **Steps**: grid `grid-cols-1 sm:grid-cols-3`, tres `Card` estáticas (sin hover). Cada card tiene:
+  - Badge de número: `size-6 rounded-full bg-primary text-primary-foreground text-[11px] font-semibold`.
+  - Icono lucide `size-5 text-muted-foreground` junto al badge (flex row, `gap-3`).
+  - Título `text-xl font-medium` (serif heredado).
+  - Cuerpo `text-sm leading-relaxed text-muted-foreground`.
+- **Footer**: una línea centrada `text-xs text-muted-foreground`.
+
+**Pasos actuales:**
+
+| # | Icono | Título | Cuerpo |
+|---|---|---|---|
+| 1 | `Users` | Añade a tus seres queridos | Sus gustos, notas, tallas y sus eventos — cada ocasión con su presupuesto. |
+| 2 | `Bell` | Dile cuándo avisarte | Elige con cuántos días de antelación quieres saber que se acerca una fecha. Sin sorpresas. |
+| 3 | `Gift` | Genera ideas perfectas | Un botón. Nueve sugerencias adaptadas a esa persona, a la ocasión y a tu presupuesto. |
+
+**Decisiones:**
+- Las step cards no tienen hover — son informativas, no interactivas.
+- Sin emojis en las cards: el número + icono lucide comunica el paso mejor y mantiene el registro adulto.
+- El H1 apunta al pain principal ("regalo perfecto"), no al recordatorio de fechas, que es lo que ya hace el calendario del teléfono.
 
 ### Páginas — padding y layout
 
@@ -430,7 +458,7 @@ Iconos en uso:
 - **Botones icon-only** necesitan `aria-label` y `title`. Usar variant `ghost` y size `icon` o `icon-sm`.
 - **Botones con icono + texto**: el icono va antes del texto, separado por el gap nativo del botón. No añadir `mr-2`.
 - **No mezclar sets**: no usar Heroicons / Phosphor / SVG inline. Si lucide no tiene un icono concreto, abrir issue en pendientes antes de meter algo ad-hoc.
-- **No usar emojis en botones, chips ni tarjetas de acción**: los emojis son solo para empty states y feature cards de marketing. En su lugar usar el icono de lucide más cercano.
+- **No usar emojis en botones, chips ni tarjetas de acción**: los emojis son solo para empty states. En su lugar usar el icono de lucide más cercano.
 - **Iconos decorativos**: `aria-hidden`. Solo los que aportan información llevan label.
 
 ---
@@ -453,7 +481,7 @@ Patrón consolidado. Vivo en [`src/app/(app)/people/page.tsx`](../src/app/(app)/
 ```
 
 **Reglas:**
-- Emoji decorativo (📓 ☕ ✨) **solo aquí y en cards de feature de la landing**. Nunca en navegación, headers, badges.
+- Emoji decorativo (📓 ☕ ✨) **solo aquí**. Nunca en navegación, headers, badges ni step cards.
 - Título h2 en serif (heredado del base layer), **frase con voz**, no etiqueta funcional. "Una libreta en blanco" sí; "Sin datos" no.
 - Container: `rounded-2xl border-dashed`. Punteado refuerza "este sitio está esperando algo".
 - **El CTA debe ir al destino más directo**: el empty state del dashboard lleva a `/people/new` ("Añadir ser querido"), no a `/people`. El usuario ya sabe que necesita crear una persona — no hay que darle un paso intermedio.
@@ -513,7 +541,7 @@ El email de recordatorio de eventos traduce los tokens del design system a hex p
 Cosas que se han probado o considerado y NO funcionan. Si vuelven a tentar, leer aquí primero.
 
 - **Gradients en superficies grandes**: rompen la sensación de papel del fondo crema. Los CTAs y headers son planos.
-- **Emojis en navegación, botones o tarjetas de acción**: rompen el registro adulto. Los emojis son solo para empty states y feature cards de marketing. Sustituir siempre por el icono de lucide más cercano.
+- **Emojis en navegación, botones o tarjetas**: rompen el registro adulto. Los emojis son solo para empty states. Sustituir siempre por el icono de lucide más cercano.
 - **Sombras fuertes** (`shadow-lg`+): material design vibe, choque inmediato con la calidez. Máximo `shadow-md` y solo en hover si se justifica.
 - **Borde de color en cards** (ej. `border-primary` decorativo): se sentía corporativo. Mantener bordes en `border-border` o variantes con alpha.
 - **`font-bold` en headings de serif sin razón**: peso 700 en Fraunces a tamaños medianos parece "newspaper" anticuado. Preferir 500–600 salvo en hero gigante.

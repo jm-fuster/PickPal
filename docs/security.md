@@ -61,7 +61,7 @@ Por qué importa: sin esto un usuario autenticado puede insertar `notes` de 100 
 - `validateBudget` — `budgetMin`/`budgetMax` en `importantDates` (cap 100.000€, min ≤ max).
 - `validateDateInput` — campos de `importantDates` (label, año, recurring + budget).
 - `validateRecommendationIdeas` — el array `ideas` que `api.recommendations.upsert` persiste tras una llamada a Gemini. Aplica:
-  - Exactamente 6 ideas (cualquier otro número se rechaza).
+  - Exactamente 9 ideas (cualquier otro número se rechaza).
   - Caps por idea: title ≤ 80, description ≤ 280, category ≤ 40, amazonQuery ≤ 120 chars; precios finitos en [0, 100.000€].
   - `suggestedStores` (opcional): allowlist contra `ALLOWED_STORES`, sin duplicados, máximo 4 elementos.
 

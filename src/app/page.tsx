@@ -1,25 +1,30 @@
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
 import { UserButton } from "@clerk/nextjs";
+import { Bell, Gift, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { LogoMark } from "@/components/ui/LogoMark";
+import type { LucideIcon } from "lucide-react";
 
-const FEATURES = [
+const STEPS: { number: number; icon: LucideIcon; title: string; body: string }[] = [
   {
-    emoji: "🪴",
-    title: "Una libreta para los tuyos",
-    body: "Guarda intereses, presupuesto y notas de cada persona que te importa. Como una agenda de papel, pero que no se pierde.",
+    number: 1,
+    icon: Users,
+    title: "Añade a tus seres queridos",
+    body: "Sus gustos, notas, tallas y sus eventos — cada ocasión con su presupuesto.",
   },
   {
-    emoji: "🔔",
-    title: "Avisos cuando hacen falta",
-    body: "Decide tú con cuántos días de antelación quieres saberlo. La campanita y el dashboard te avisan a tiempo.",
+    number: 2,
+    icon: Bell,
+    title: "Dile cuándo avisarte",
+    body: "Elige con cuántos días de antelación quieres saber que se acerca una fecha. Sin sorpresas.",
   },
   {
-    emoji: "✨",
-    title: "Seis ideas hechas a medida",
-    body: "Pulsa un botón y recibe seis sugerencias adaptadas a sus gustos, con enlace directo a Amazon.",
+    number: 3,
+    icon: Gift,
+    title: "Genera ideas perfectas",
+    body: "Un botón. Nueve sugerencias adaptadas a esa persona, a la ocasión y a tu presupuesto.",
   },
 ];
 
@@ -41,20 +46,19 @@ export default async function Home() {
 
       <main className="flex flex-1 flex-col items-center justify-center gap-16 px-6 py-16">
         <section className="space-y-6 max-w-3xl text-center">
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
+          <p className="font-sans text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
             Para las personas que te importan
           </p>
           <h1 className="text-balance text-4xl font-medium leading-[1.05] sm:text-5xl md:text-6xl lg:text-7xl">
-            No olvides el cumpleaños de quien te hace bien.
+            El regalo perfecto para quien más te importa.
           </h1>
           <p className="mx-auto max-w-xl text-lg text-muted-foreground">
-            Guarda fechas importantes y recibe ideas de regalo personalizadas
-            con IA cuando se acerca cada ocasión.
+            Guarda lo que sabes de cada persona, activa los avisos y deja que la IA piense contigo cuando llegue el momento.
           </p>
           <div className="flex flex-wrap justify-center gap-3 pt-3">
             {isSignedIn ? (
               <Link href="/agenda" className={buttonVariants({ size: "lg" })}>
-                Ir al dashboard
+                Ir a la agenda
               </Link>
             ) : (
               <>
@@ -73,16 +77,17 @@ export default async function Home() {
         </section>
 
         <section className="grid w-full max-w-5xl gap-4 grid-cols-1 sm:grid-cols-3">
-          {FEATURES.map((f) => (
-            <Card key={f.title} className="border-border/60 shadow-sm">
-              <CardContent className="space-y-3 p-6">
-                <div className="text-2xl" aria-hidden>
-                  {f.emoji}
+          {STEPS.map(({ number, icon: Icon, title, body }) => (
+            <Card key={title} className="border-border/60 shadow-sm">
+              <CardContent className="space-y-4 p-6">
+                <div className="flex items-center gap-3">
+                  <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
+                    {number}
+                  </span>
+                  <Icon className="size-5 text-muted-foreground" aria-hidden />
                 </div>
-                <h2 className="text-xl font-medium">{f.title}</h2>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  {f.body}
-                </p>
+                <h2 className="text-xl font-medium">{title}</h2>
+                <p className="text-sm leading-relaxed text-muted-foreground">{body}</p>
               </CardContent>
             </Card>
           ))}
