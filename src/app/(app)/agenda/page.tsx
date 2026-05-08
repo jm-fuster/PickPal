@@ -77,33 +77,31 @@ export default function DashboardPage() {
           </Link>
         </div>
       ) : (
-        <div className="lg:grid lg:gap-6 lg:grid-cols-[480px_1fr] lg:items-start">
-          <div className="lg:px-1 lg:pb-1">
-            <DateGroupedList
-              entries={filtered}
-              onSelect={(entry) =>
-                setSelected({
-                  personId: entry.person._id,
-                  occasion: entry.date.label,
-                  dateId: entry.date._id,
-                })
-              }
-              selectedDateId={selected?.dateId}
+        <div className="lg:max-w-[480px] lg:px-1 lg:pb-1">
+          <DateGroupedList
+            entries={filtered}
+            onSelect={(entry) =>
+              setSelected({
+                personId: entry.person._id,
+                occasion: entry.date.label,
+                dateId: entry.date._id,
+              })
+            }
+            selectedDateId={selected?.dateId}
+          />
+        </div>
+
+        {selected && (
+          <div className="hidden lg:flex flex-col fixed top-8 bottom-8 right-8 left-[48.5rem]">
+            <GiftsPanel
+              key={`${selected.personId}-${selected.occasion}`}
+              personId={selected.personId}
+              initialOccasion={selected.occasion}
+              embedded
+              onClose={() => setSelected(null)}
             />
           </div>
-
-          {selected && (
-            <div className="hidden lg:flex lg:flex-col min-w-0 sticky top-0 h-screen py-8">
-              <GiftsPanel
-                key={`${selected.personId}-${selected.occasion}`}
-                personId={selected.personId}
-                initialOccasion={selected.occasion}
-                embedded
-                onClose={() => setSelected(null)}
-              />
-            </div>
-          )}
-        </div>
+        )}
       )}
     </main>
   );
