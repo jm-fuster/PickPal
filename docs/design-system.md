@@ -457,6 +457,25 @@ Patrón consolidado. Vivo en [`src/app/(app)/people/page.tsx`](../src/app/(app)/
 - Título h2 en serif (heredado del base layer), **frase con voz**, no etiqueta funcional. "Una libreta en blanco" sí; "Sin datos" no.
 - Container: `rounded-2xl border-dashed`. Punteado refuerza "este sitio está esperando algo".
 - **El CTA debe ir al destino más directo**: el empty state del dashboard lleva a `/people/new` ("Añadir ser querido"), no a `/people`. El usuario ya sabe que necesita crear una persona — no hay que darle un paso intermedio.
+- **Empty states contextuales**: cuando hay más de una razón posible para que algo esté vacío, distinguir cuál aplica y adaptar mensaje + CTA. No mostrar siempre el mismo empty state genérico.
+
+**Agenda — dos empty states** (`src/app/(app)/agenda/page.tsx`):
+
+| Situación | Emoji | Título | CTA |
+|---|---|---|---|
+| Sin personas (`people.length === 0`) | ☕ | "Empieza aquí" | "Añadir ser querido" → `/seres-queridos/new` |
+| Hay personas pero sin eventos próximos | ☕ | "Todo tranquilo" | "Ver seres queridos" → `/seres-queridos` |
+
+La página hace dos queries en paralelo: `api.importantDates.getUpcoming` y `api.people.getAll`. Si `filtered.length === 0`, se comprueba `people.length` para decidir qué empty state mostrar. Si `people` todavía carga, se muestra el skeleton (no el empty state) para evitar un flash.
+
+**GiftsPanel sin eventos** (`src/components/gifts/GiftsPanel.tsx`):
+
+Cuando `events.length === 0` (la persona existe pero no tiene ningún evento guardado), el placeholder central muestra:
+- Título: "Sin eventos todavía"
+- Mensaje: "Para generar ideas necesitas al menos un evento."
+- CTA botón `outline`: "Añadir evento a [nombre]" → `/seres-queridos/[personId]`
+
+Cuando hay eventos pero no se ha generado aún, muestra el placeholder informativo habitual ("A medida para [nombre]") sin CTA.
 
 ---
 
