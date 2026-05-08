@@ -59,7 +59,7 @@ export function NotificationBell() {
             {items.map(({ date, person, days }) => (
               <li key={date._id}>
                 <Link
-                  href={`/people/${person._id}/gifts?occasion=${encodeURIComponent(date.label)}`}
+                  href={`/seres-queridos/${person._id}/gifts?occasion=${encodeURIComponent(date.label)}`}
                   className="flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-muted/50 transition-colors"
                 >
                   <div className="min-w-0">

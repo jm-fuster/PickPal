@@ -31,11 +31,11 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger,
 } from "@/components/ui/select";
-import { EditImportantDateInline, ImportantDateForm } from "@/components/people/ImportantDateForm";
-import { EditGiftHistoryInline, GiftHistoryForm } from "@/components/people/GiftHistoryForm";
+import { EditImportantDateInline, ImportantDateForm } from "@/components/seres-queridos/ImportantDateForm";
+import { EditGiftHistoryInline, GiftHistoryForm } from "@/components/seres-queridos/GiftHistoryForm";
 import { LoadingFallback } from "@/components/layout/LoadingFallback";
-import { AvatarPicker } from "@/components/people/AvatarPicker";
-import { InterestTagInput } from "@/components/people/InterestTagInput";
+import { AvatarPicker } from "@/components/seres-queridos/AvatarPicker";
+import { InterestTagInput } from "@/components/seres-queridos/InterestTagInput";
 import { RELATIONSHIPS, REACTIONS } from "@/lib/schemas";
 
 const MONTHS = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
@@ -106,14 +106,14 @@ function PersonDetailContent({
     try {
       await removePerson({ id });
       toast.success("Persona eliminada");
-      router.push("/people");
+      router.push("/seres-queridos");
     } catch { toast.error("Algo salió mal"); setDeleting(false); }
   };
 
   return (
     <main className="flex flex-1 flex-col gap-8 p-4 sm:p-6 lg:p-8 w-full max-w-6xl">
       <Link
-        href="/people"
+        href="/seres-queridos"
         className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground w-fit"
       >
         <ArrowLeft className="size-3.5" aria-hidden />
@@ -171,7 +171,7 @@ function PersonDetailContent({
         </div>
 
         <div className="flex flex-wrap items-center gap-2 shrink-0">
-          <Link href={`/people/${person._id}/gifts`} className={buttonVariants()}>
+          <Link href={`/seres-queridos/${person._id}/gifts`} className={buttonVariants()}>
             <Sparkles className="size-4" aria-hidden />
             Ideas de regalo
           </Link>
@@ -469,7 +469,7 @@ export default function PersonDetailPage({
     return (
       <main className="flex flex-1 flex-col gap-4 p-8">
         <p>Persona no encontrada.</p>
-        <Link href="/people" className={buttonVariants({ variant: "outline" })}>Volver</Link>
+        <Link href="/seres-queridos" className={buttonVariants({ variant: "outline" })}>Volver</Link>
       </main>
     );
   }

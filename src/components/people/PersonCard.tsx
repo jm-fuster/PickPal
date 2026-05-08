@@ -17,7 +17,7 @@ const initials = (name: string) =>
 
 export function PersonCard({ person }: { person: Doc<"people"> }) {
   return (
-    <Link href={`/people/${person._id}`} className="block h-full">
+    <Link href={`/seres-queridos/${person._id}`} className="block h-full">
       <Card className="relative h-full border-border/60 transition-all hover:bg-muted/40 hover:shadow-md hover:-translate-y-0.5">
         <Badge
           variant="secondary"

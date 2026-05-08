@@ -15,8 +15,8 @@ import { SidebarUserInfo } from "@/components/layout/SidebarUserInfo";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
-  { href: "/dashboard", label: "Agenda", icon: CalendarDays },
-  { href: "/people", label: "Seres queridos", icon: Users },
+  { href: "/agenda", label: "Agenda", icon: CalendarDays },
+  { href: "/seres-queridos", label: "Seres queridos", icon: Users },
   { href: "/settings", label: "Ajustes", icon: Settings },
 ];
 
@@ -40,7 +40,7 @@ export function MobileNav() {
           <SheetHeader className="px-5 py-5 border-b border-border">
             <SheetTitle>
               <Link
-                href="/dashboard"
+                href="/agenda"
                 className="font-semibold text-lg text-foreground"
                 onClick={() => setOpen(false)}
               >

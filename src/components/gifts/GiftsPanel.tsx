@@ -123,7 +123,7 @@ export function GiftsPanel({
       <div className="p-8 space-y-3">
         <p>Persona no encontrada.</p>
         {!embedded && (
-          <Link href="/people" className={buttonVariants({ variant: "outline" })}>
+          <Link href="/seres-queridos" className={buttonVariants({ variant: "outline" })}>
             Volver
           </Link>
         )}
@@ -220,7 +220,7 @@ export function GiftsPanel({
       ) : (
         <div className="space-y-2">
           <Link
-            href="/dashboard"
+            href="/agenda"
             className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground w-fit"
           >
             <ArrowLeft className="size-3.5" aria-hidden />

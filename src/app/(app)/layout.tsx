@@ -20,7 +20,7 @@ export default function AppLayout({
       <aside className="hidden lg:flex flex-col w-60 shrink-0 bg-background text-foreground border-r border-border h-screen sticky top-0">
         <div className="px-5 py-5 border-b border-border flex items-center justify-between">
           <Link
-            href="/dashboard"
+            href="/agenda"
             className="font-semibold text-lg text-foreground flex items-center gap-2"
           >
             <LogoMark className="size-7" />
@@ -29,11 +29,11 @@ export default function AppLayout({
           <SafeNotificationBell />
         </div>
         <nav className="flex flex-col gap-1 p-3 flex-1 overflow-y-auto">
-          <SidebarLink href="/dashboard">
+          <SidebarLink href="/agenda">
             <CalendarDays className="size-4" aria-hidden />
             Agenda
           </SidebarLink>
-          <SidebarLink href="/people">
+          <SidebarLink href="/seres-queridos">
             <Users className="size-4" aria-hidden />
             Seres queridos
           </SidebarLink>
@@ -52,7 +52,7 @@ export default function AppLayout({
         <header className="lg:hidden flex items-center justify-between border-b px-4 py-3">
           <div className="flex items-center gap-3">
             <MobileNav />
-            <Link href="/dashboard" className="font-semibold text-lg flex items-center gap-2">
+            <Link href="/agenda" className="font-semibold text-lg flex items-center gap-2">
               <LogoMark className="size-6" />
               PickPal
             </Link>

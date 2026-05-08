@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useMutation } from "convex/react";
 import { toast } from "sonner";
 import { api } from "../../../../../convex/_generated/api";
-import { PersonForm } from "@/components/people/PersonForm";
+import { PersonForm } from "@/components/seres-queridos/PersonForm";
 import type { PersonFormValues } from "@/lib/schemas";
 
 export default function NewPersonPage() {
@@ -38,13 +38,13 @@ export default function NewPersonPage() {
         toast.warning(
           `Persona creada, pero ${failed} fecha${failed === 1 ? "" : "s"} no se guardó.`,
         );
-        router.push(`/people/${id}`);
+        router.push(`/seres-queridos/${id}`);
         return;
       }
     }
 
     toast.success("Persona creada");
-    router.push(`/people/${id}`);
+    router.push(`/seres-queridos/${id}`);
   };
 
   return (
@@ -54,7 +54,7 @@ export default function NewPersonPage() {
         onSubmit={onSubmit}
         submitLabel="Crear persona"
         includeDates
-        onCancel={() => router.push("/people")}
+        onCancel={() => router.push("/seres-queridos")}
       />
     </main>
   );

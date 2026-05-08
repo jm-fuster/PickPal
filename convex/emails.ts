@@ -49,7 +49,7 @@ function buildSubject(events: EventToNotify[]): string {
 function buildCta(events: EventToNotify[]): string {
   const href =
     events.length === 1
-      ? `${APP_BASE_URL}/people/${events[0].personId}/gifts?occasion=${encodeURIComponent(events[0].label)}`
+      ? `${APP_BASE_URL}/seres-queridos/${events[0].personId}/gifts?occasion=${encodeURIComponent(events[0].label)}`
       : `${APP_BASE_URL}/people`;
   const label =
     events.length === 1

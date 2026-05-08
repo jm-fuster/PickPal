@@ -24,7 +24,7 @@ export default function PeoplePage() {
             Quienes te importan, en una sola libreta.
           </p>
         </div>
-        <Link href="/people/new" className={buttonVariants({ size: "lg" })}>
+        <Link href="/seres-queridos/new" className={buttonVariants({ size: "lg" })}>
           <Plus className="size-4" aria-hidden />
           Nueva persona
         </Link>
@@ -49,7 +49,7 @@ export default function PeoplePage() {
             Empieza por alguien fácil — pareja, padres, mejor amigo. Anota sus
             intereses y déjanos cuidar las fechas.
           </p>
-          <Link href="/people/new" className={buttonVariants({ size: "lg" })}>
+          <Link href="/seres-queridos/new" className={buttonVariants({ size: "lg" })}>
             Añadir la primera persona
           </Link>
         </div>

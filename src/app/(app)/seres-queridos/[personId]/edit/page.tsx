@@ -6,5 +6,5 @@ export default async function EditPersonRedirect({
   params: Promise<{ personId: string }>;
 }) {
   const { personId } = await params;
-  redirect(`/people/${personId}`);
+  redirect(`/seres-queridos/${personId}`);
 }

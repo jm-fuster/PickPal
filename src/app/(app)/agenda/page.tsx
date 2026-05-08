@@ -70,7 +70,7 @@ export default function DashboardPage() {
             a alguien que te falte.
           </p>
           <Link
-            href="/people/new"
+            href="/seres-queridos/new"
             className={buttonVariants({ variant: "outline" })}
           >
             Añadir ser querido

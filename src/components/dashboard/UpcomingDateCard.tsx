@@ -65,7 +65,7 @@ export function UpcomingDateCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-baseline gap-2 mb-1">
             <Link
-              href={`/people/${person._id}`}
+              href={`/seres-queridos/${person._id}`}
               className="font-medium truncate hover:underline"
             >
               {person.name}
@@ -88,7 +88,7 @@ export function UpcomingDateCard({
 
         {/* Móvil: navega a la página. Desktop: abre el panel lateral (si hay callback). */}
         <Link
-          href={`/people/${person._id}/gifts?occasion=${encodeURIComponent(date.label)}`}
+          href={`/seres-queridos/${person._id}/gifts?occasion=${encodeURIComponent(date.label)}`}
           className={cn(buttonVariants({ size: "sm" }), "shrink-0", onSelect && "lg:hidden")}
         >
           Ver regalos

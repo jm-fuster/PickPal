@@ -53,7 +53,7 @@ export default async function Home() {
           </p>
           <div className="flex flex-wrap justify-center gap-3 pt-3">
             {isSignedIn ? (
-              <Link href="/dashboard" className={buttonVariants({ size: "lg" })}>
+              <Link href="/agenda" className={buttonVariants({ size: "lg" })}>
                 Ir al dashboard
               </Link>
             ) : (
