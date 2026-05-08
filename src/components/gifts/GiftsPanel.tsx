@@ -78,6 +78,8 @@ export function GiftsPanel({
   const [giftType, setGiftType] = useState<GiftType>("fisica");
   const [ideas, setIdeas] = useState<GiftRecommendation[] | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showHeaderRegen, setShowHeaderRegen] = useState(false);
+  const controlsRef = useRef<HTMLDivElement>(null);
 
   const removeIdea = useMutation(api.recommendations.removeIdea);
   const pendingDiscards = useRef<
@@ -100,6 +102,16 @@ export function GiftsPanel({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (!embedded || !controlsRef.current) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => setShowHeaderRegen(!entry.isIntersecting),
+      { threshold: 0 },
+    );
+    obs.observe(controlsRef.current);
+    return () => obs.disconnect();
+  }, [embedded]);
 
   const cached = useQuery(
     api.recommendations.getByPersonOccasion,
@@ -193,31 +205,7 @@ export function GiftsPanel({
 
   const content = (
     <div className="flex flex-col gap-6">
-      {embedded ? (
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <Avatar className="size-9 shrink-0">
-              {person.avatarUrl ? (
-                <AvatarImage src={person.avatarUrl} alt={person.name} />
-              ) : null}
-              <AvatarFallback>{initials(person.name)}</AvatarFallback>
-            </Avatar>
-            <div className="min-w-0">
-              <p className="font-medium truncate">{person.name}</p>
-              <p className="text-xs text-muted-foreground">Ideas de regalo</p>
-            </div>
-          </div>
-          {onClose && (
-            <button
-              onClick={onClose}
-              className="shrink-0 rounded-md p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-              aria-label="Cerrar panel"
-            >
-              <X className="size-4" aria-hidden />
-            </button>
-          )}
-        </div>
-      ) : (
+      {!embedded && (
         <div className="space-y-2">
           <Link
             href="/agenda"
@@ -233,7 +221,7 @@ export function GiftsPanel({
         </div>
       )}
 
-      <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-5 space-y-5">
+      <div ref={embedded ? controlsRef : undefined} className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-5 space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
           <div className="space-y-1.5">
             <Label>¿Para qué ocasión?</Label>
@@ -358,8 +346,41 @@ export function GiftsPanel({
 
   if (embedded) {
     return (
-      <div className="rounded-2xl border border-border/60 bg-card shadow-sm overflow-hidden h-full">
-        <div className="p-5 overflow-y-auto h-full [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border/60 [scrollbar-width:thin] [scrollbar-color:hsl(var(--border)/0.6)_transparent]">
+      <div className="rounded-2xl border border-border/60 bg-card shadow-sm overflow-hidden h-full flex flex-col">
+        {/* Cabecera fija */}
+        <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-border/40 shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <Avatar className="size-9 shrink-0">
+              {person.avatarUrl ? (
+                <AvatarImage src={person.avatarUrl} alt={person.name} />
+              ) : null}
+              <AvatarFallback>{initials(person.name)}</AvatarFallback>
+            </Avatar>
+            <div className="min-w-0">
+              <p className="font-medium truncate">{person.name}</p>
+              <p className="text-xs text-muted-foreground">Ideas de regalo</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {showHeaderRegen && (hasCached || ideas) && (
+              <Button size="sm" variant="outline" onClick={generate} disabled={loading}>
+                <RefreshCw className="size-3.5" aria-hidden />
+                {loading ? "Generando…" : "Regenerar"}
+              </Button>
+            )}
+            {onClose && (
+              <button
+                onClick={onClose}
+                className="rounded-md p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                aria-label="Cerrar panel"
+              >
+                <X className="size-4" aria-hidden />
+              </button>
+            )}
+          </div>
+        </div>
+        {/* Cuerpo scrollable */}
+        <div className="flex-1 overflow-y-auto p-5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border/60 [scrollbar-width:thin] [scrollbar-color:hsl(var(--border)/0.6)_transparent]">
           {content}
         </div>
       </div>
