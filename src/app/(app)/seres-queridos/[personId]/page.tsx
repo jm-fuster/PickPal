@@ -277,29 +277,34 @@ function PersonDetailContent({
                     {editingDate?._id === d._id ? (
                       <EditImportantDateInline date={d} onClose={() => setEditingDate(null)} />
                     ) : (
-                      <div className="flex items-center justify-between rounded-lg border border-border/60 bg-background/60 p-3 text-sm">
-                        <span className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
-                          <span className="font-medium">{d.label}</span>
-                          {d.recurring === false ? (
-                            <Badge variant="outline" className="gap-1 text-muted-foreground">
-                              <CalendarX2 className="size-3" aria-hidden />Única
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="gap-1 text-muted-foreground">
-                              <Repeat2 className="size-3" aria-hidden />Anual
-                            </Badge>
-                          )}
-                          <span className="text-muted-foreground">
-                            {" · "}{d.day} {MONTHS[d.month - 1]}{d.year ? ` ${d.year}` : ""}
-                            {(d.budgetMin !== undefined || d.budgetMax !== undefined) && (
-                              <>{" · "}{d.budgetMin !== undefined && d.budgetMax !== undefined
+                      <div className="flex items-start justify-between gap-3 rounded-lg border border-border/60 bg-background/60 p-3 text-sm">
+                        <div className="min-w-0 flex-1 space-y-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="font-medium">{d.label}</span>
+                            {d.recurring === false ? (
+                              <Badge variant="outline" className="gap-1 text-muted-foreground">
+                                <CalendarX2 className="size-3" aria-hidden />Única
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="gap-1 text-muted-foreground">
+                                <Repeat2 className="size-3" aria-hidden />Anual
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            {d.day} {MONTHS[d.month - 1]}{d.year ? ` ${d.year}` : ""}
+                          </p>
+                          {(d.budgetMin !== undefined || d.budgetMax !== undefined) && (
+                            <p className="text-xs text-muted-foreground">
+                              Presupuesto:{" "}
+                              {d.budgetMin !== undefined && d.budgetMax !== undefined
                                 ? `${(d.budgetMin / 100).toFixed(0)}€ – ${(d.budgetMax / 100).toFixed(0)}€`
                                 : d.budgetMin !== undefined
                                   ? `desde ${(d.budgetMin / 100).toFixed(0)}€`
-                                  : `hasta ${(d.budgetMax! / 100).toFixed(0)}€`}</>
-                            )}
-                          </span>
-                        </span>
+                                  : `hasta ${(d.budgetMax! / 100).toFixed(0)}€`}
+                            </p>
+                          )}
+                        </div>
                         <div className="flex items-center gap-0.5 shrink-0">
                           <Button variant="ghost" size="icon-sm" aria-label="Editar evento" onClick={() => setEditingDate(d)}>
                             <PencilLine className="size-3.5" aria-hidden />

@@ -11,7 +11,8 @@ import {
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { CalendarDays, Plus, Ruler, Trash2 } from "lucide-react";
+import { CalendarDays, CalendarX2, Plus, Repeat2, Ruler, Trash2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import {
   personFormSchema,
   importantDateSchema,
@@ -265,28 +266,58 @@ function EventsSection({
       </p>
 
       {/* List of added events */}
-      {fields.map((field, idx) => (
-        <div
-          key={field.id}
-          className="flex items-center justify-between rounded-lg bg-background/60 px-3 py-2 text-sm"
-        >
-          <div>
-            <span className="font-medium">{field.label}</span>
-            <span className="ml-2 text-muted-foreground">
-              {formatEventDate(field.day, field.month, field.year)}
-            </span>
-          </div>
-          <Button
-            type="button"
-            size="icon"
-            variant="ghost"
-            onClick={() => remove(idx)}
-            aria-label="Quitar evento"
+      {fields.map((field, idx) => {
+        const min = field.budgetMinEuros;
+        const max = field.budgetMaxEuros;
+        const hasBudget = min !== undefined || max !== undefined;
+        const budgetText =
+          min !== undefined && max !== undefined
+            ? `${min}€ – ${max}€`
+            : min !== undefined
+              ? `desde ${min}€`
+              : max !== undefined
+                ? `hasta ${max}€`
+                : null;
+        return (
+          <div
+            key={field.id}
+            className="flex items-start justify-between gap-3 rounded-lg bg-background/60 px-3 py-2 text-sm"
           >
-            <Trash2 className="size-4" />
-          </Button>
-        </div>
-      ))}
+            <div className="min-w-0 flex-1 space-y-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-medium">{field.label}</span>
+                {field.recurring === false ? (
+                  <Badge variant="outline" className="gap-1 text-muted-foreground">
+                    <CalendarX2 className="size-3" aria-hidden />Única
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="gap-1 text-muted-foreground">
+                    <Repeat2 className="size-3" aria-hidden />Anual
+                  </Badge>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {formatEventDate(field.day, field.month, field.year)}
+              </p>
+              {hasBudget && budgetText ? (
+                <p className="text-xs text-muted-foreground">
+                  Presupuesto: {budgetText}
+                </p>
+              ) : null}
+            </div>
+            <Button
+              type="button"
+              size="icon-sm"
+              variant="ghost"
+              onClick={() => remove(idx)}
+              aria-label="Quitar evento"
+              className="shrink-0"
+            >
+              <Trash2 className="size-3.5" />
+            </Button>
+          </div>
+        );
+      })}
 
       {/* Add form or button */}
       {showAddForm ? (
