@@ -196,7 +196,12 @@ Ver lógica completa en [`docs/ia-regalos.md`](ia-regalos.md#multi-tienda) y la 
 
 Padding de página responsive en todos los `<main>`: `p-4 sm:p-6 lg:p-8`. No usar `p-8` fijo.
 
-**Dashboard** (`/dashboard`): los grupos de fechas usan `DateGroupedList`. Las cards dentro de cada grupo se disponen en grid: `grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3`.
+**Dashboard** (`/dashboard`): layout master-detail diferente según dispositivo.
+
+- **Móvil (< lg)**: columna única. El botón "Ver regalos" de cada `UpcomingDateCard` es un `<Link>` que navega a `/people/[id]/gifts?occasion=...`.
+- **Desktop (≥ lg)**: CSS Grid de dos columnas fijas: `lg:grid-cols-[480px_1fr]`. La columna izquierda (480 px) lista los eventos; la derecha (flexible) muestra el `GiftsPanel` embebido al pulsar "Ver regalos". El botón "Ver regalos" en desktop es un `<button>` con `onClick` que actualiza el estado local `selected`; el `<Link>` tiene clase `lg:hidden` para que solo sea visible en móvil.
+- **Por qué grid fijo (no flex)**: con `flex-1` en la columna de eventos, su ancho cambia al aparecer el panel, deformando las cards. Con `grid-cols-[480px_1fr]` la columna izquierda siempre mide exactamente 480 px, independientemente de si el panel está abierto o no. El padding `lg:px-1 lg:pb-1` del contenedor de la lista también se aplica siempre (no condicionalmente) para que el ancho disponible de las cards no varíe nunca.
+- **Scroll del panel vs. scroll general**: cuando el panel está abierto en desktop, la columna de eventos recibe `lg:overflow-y-auto lg:max-h-[calc(100vh-11rem)]` y el panel tiene su propio scroll interno. Ninguna de las dos columnas desborda la ventana, por lo que no se genera scroll general de página.
 
 **Detalle de persona** (`/people/[id]`): `max-w-6xl w-full`. Suficiente para no desbordar en monitores muy anchos, pero sin el desperdicio de `max-w-4xl`.
 
@@ -214,6 +219,37 @@ Padding de página responsive en todos los `<main>`: `p-4 sm:p-6 lg:p-8`. No usa
 - `AddEventForm` usa `<div>`, NO `<form>` — evita anidamiento de `<form>` HTML prohibido. El botón "Añadir evento" es `type="button"` con `onClick={handleSubmit(onAdd)}`.
 - Al confirmar, el evento se añade al array local con `useFieldArray.append` y el subformulario desaparece. El usuario puede añadir varios antes de guardar la persona.
 - `BudgetRangeSlider` es un componente compartido (`src/components/people/BudgetRangeSlider.tsx`) usado en `AddEventForm`, `ImportantDateForm` y `EditImportantDateInline`.
+
+### GiftsPanel (generación de regalos)
+
+`src/components/gifts/GiftsPanel.tsx`. Componente único con dos modos:
+
+| Prop | Modo standalone | Modo embebido |
+|---|---|---|
+| `embedded` | `false` (default) | `true` |
+| Wrapper | `<main className="flex flex-1 flex-col gap-8 p-8 max-w-6xl">` | `rounded-2xl` card con scroll interno |
+| Cabecera | Título `h1` + back link `← [nombre]` | Avatar + nombre + botón `✕` |
+| Grid de ideas | `sm:grid-cols-2 lg:grid-cols-3` | `grid-cols-1` |
+| Scroll | Scroll general de página | Scroll interno acotado |
+
+**Modo standalone**: usado por `/people/[id]/gifts/page.tsx`, que es un thin wrapper. La ruta acepta `?occasion=...` para preseleccionar el evento.
+
+**Modo embebido**: usado por el dashboard. La card exterior tiene `overflow-hidden rounded-2xl` — esto recorta el scrollbar nativo a las esquinas redondeadas. La card interior tiene `overflow-y-auto max-h-[calc(100vh-11rem)]` con el scroll real. **Nunca poner `overflow-y-auto` y `rounded-2xl` en el mismo div**: el scrollbar se renderiza fuera de las esquinas redondeadas en Chrome/Windows.
+
+El valor `calc(100vh-11rem)` cubre: `2rem` padding vertical de `<main>` + `4rem` título "Agenda" + `1rem` subtítulo + `2rem` gap + `2rem` padding superior del contenedor + `1rem` de margen. Si el layout del dashboard cambia, ajustar esta constante.
+
+**Scrollbar styling** (embebido):
+```tsx
+[&::-webkit-scrollbar]:w-1.5
+[&::-webkit-scrollbar-track]:bg-transparent
+[&::-webkit-scrollbar-thumb]:rounded-full
+[&::-webkit-scrollbar-thumb]:bg-border/60
+[scrollbar-width:thin]
+[scrollbar-color:hsl(var(--border)/0.6)_transparent]
+```
+Las dos últimas clases son para Firefox. El `overflow-hidden` del div exterior hace que el thumb quede recortado a las esquinas redondeadas de la card.
+
+**Remount limpio al cambiar de evento**: el dashboard pasa `key={personId + "-" + occasion}` al `GiftsPanel`. Esto fuerza un remount completo cuando cambia el evento seleccionado, reseteando todo el estado interno (ideas, loading, tipo de regalo). Sin el `key`, al cambiar de evento el panel reutiliza el estado del anterior.
 
 ### Inputs / Forms
 
@@ -469,6 +505,7 @@ Lista de cosas que sé que faltan o que no han recibido pasada todavía. Se irá
 - [x] ~~ThemeToggle en sidebar~~ → retirado. El toggle vive solo en `/settings`. Tema fijo: `dark` por defecto.
 - [x] ~~Navegación móvil~~ → hamburguesa + Sheet lateral (`MobileNav`).
 - [x] ~~Grids fijos en desktop~~ → todos los grids son ahora responsive con columnas dinámicas.
+- [x] ~~Panel lateral de regalos en Agenda~~ → layout master-detail en desktop con CSS Grid `[480px_1fr]`. Ver "Dashboard" y "GiftsPanel".
 - [x] ~~Footer global~~ → decisión tomada: la landing tiene un footer mínimo de una línea. Las páginas de la app (autenticadas) no tienen footer — no es un sitio web, es una herramienta.
 - [x] ~~Estado de loading global~~ → decisión tomada: cada página gestiona su propio estado. Las páginas de lista usan skeletons inline con `animate-pulse rounded-2xl border-dashed`. Las páginas de detalle/edición usan `LoadingFallback` (tres puntos con stagger de 150ms). No se introduce un skeleton global porque no hay estructura de página compartida que lo justifique.
 - [x] ~~Mobile < 380px (landing)~~ → h1 reducido a `text-4xl` base con escalado `sm:text-5xl md:text-6xl lg:text-7xl`. Feature cards con `grid-cols-1` base. `ThemeToggle` eliminado de la landing (tema dark fijo).
