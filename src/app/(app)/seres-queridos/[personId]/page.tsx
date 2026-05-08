@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { use, useState } from "react";
 import {
-  ArrowLeft, CalendarX2, Camera, Check, Gift, PencilLine, Repeat2, Trash2, X,
+  ArrowLeft, CalendarDays, CalendarX2, Camera, Check, Gift, NotebookPen, PencilLine, Repeat2, Ruler, Star, Trash2, X,
 } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
@@ -231,7 +231,8 @@ function PersonDetailContent({
         {/* ── Interests + Notes card ── */}
         <Card className="border-border/60 shadow-sm">
           <CardContent className="space-y-4 p-5">
-            <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-1.5">
+              <Star className="size-3.5" aria-hidden />
               Intereses
             </h2>
             {/* Interests — autosave on each tag change */}
@@ -243,7 +244,8 @@ function PersonDetailContent({
               }}
             />
 
-            <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground pt-2">
+            <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-1.5 pt-2">
+              <NotebookPen className="size-3.5" aria-hidden />
               Notas
             </h2>
             {/* Notes — autosave on blur */}
@@ -260,7 +262,8 @@ function PersonDetailContent({
         {/* ── Events card ── */}
         <Card className="border-border/60 shadow-sm">
           <CardContent className="space-y-4 p-5">
-            <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-1.5">
+              <CalendarDays className="size-3.5" aria-hidden />
               Eventos
             </h2>
             {dates.length === 0 ? (
@@ -325,7 +328,8 @@ function PersonDetailContent({
       {/* ── Practical data card ── */}
       <Card className="border-border/60 shadow-sm">
         <CardContent className="space-y-4 p-5">
-          <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+          <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-1.5">
+            <Ruler className="size-3.5" aria-hidden />
             Datos prácticos
           </h2>
           <p className="text-xs text-muted-foreground">
@@ -392,7 +396,8 @@ function PersonDetailContent({
       {/* ── Gift history card ── */}
       <Card className="border-border/60 shadow-sm">
         <CardContent className="space-y-4 p-5">
-          <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+          <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-1.5">
+            <Gift className="size-3.5" aria-hidden />
             Historial de regalos
           </h2>
           {giftHistory.length === 0 ? (

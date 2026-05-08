@@ -11,7 +11,7 @@ import {
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Plus, Trash2 } from "lucide-react";
+import { CalendarDays, Plus, Ruler, Trash2 } from "lucide-react";
 import {
   personFormSchema,
   importantDateSchema,
@@ -201,7 +201,8 @@ function EventsSection({
 
   return (
     <div className="space-y-3 rounded-xl border border-dashed border-border/70 bg-background/40 p-4">
-      <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+      <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-1.5">
+        <CalendarDays className="size-3.5" aria-hidden />
         Eventos (opcional)
       </p>
       <p className="text-xs text-muted-foreground">
@@ -378,7 +379,8 @@ export function PersonForm({
         {/* ── Right column: practical info + events ── */}
         <div className="space-y-5">
           <div className="space-y-3 rounded-xl border border-dashed border-border/70 bg-background/40 p-4">
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-1.5">
+              <Ruler className="size-3.5" aria-hidden />
               Datos prácticos (opcional)
             </p>
             <p className="text-xs text-muted-foreground">
