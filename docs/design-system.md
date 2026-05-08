@@ -161,6 +161,7 @@ Visible a partir de `lg` (1024px). Implementado en `src/app/(app)/layout.tsx`.
 - Padding: `p-4` en cards densas (PersonCard), `p-5`–`p-6` en cards informativas (UpcomingDateCard, GiftRecommendationCard, feature cards).
 - **Hover · cards completamente clicables** (toda la card es Link): `transition-all hover:bg-muted/40 hover:shadow-md hover:-translate-y-0.5`. Sutilmente "el papel se levanta". Ejemplo: `PersonCard`.
 - **PersonCard**: layout vertical. Avatar `size-16` centrado arriba, nombre centrado, badge de relación (`variant="secondary"`) posicionado `absolute top-3 right-3`, sección de intereses con eyebrow label, y CTA "Ver perfil" (`buttonVariants outline sm w-full`) en el pie. Grid responsive: `sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5`.
+- **Filtro de relación en `/seres-queridos`**: encima del grid, fila con `<Label>` eyebrow ("Filtrar") + `<Select>` shadcn. Opciones: "Todas las relaciones" (valor sentinel `"all"`) + las de `RELATIONSHIPS`. El `Select` controlado normaliza `null → "all"` en `onValueChange`. Filtrado client-side en memoria (lista pequeña, no merece pasar por Convex). Cuando el filtro vacía la lista, mostrar empty state propio con el mismo estilo dashed que el original (no reutilizar el de "una libreta en blanco" — distinto motivo).
 - **Hover · cards con acción interna** (la card no es link, pero contiene botón): `transition-shadow hover:shadow-md`. Sin translate ni cambio de fondo. Ejemplo: `GiftRecommendationCard`.
 - **Cards estáticas** (sin acción): solo `shadow-sm`, sin hover. Ejemplo: step cards de la landing.
 - **Card de urgencia** (UpcomingDateCard cuando `daysUntil <= 7`): `border-primary/60 shadow-sm bg-primary/5`. El tinte rosado del primary llama la atención sin chillar.
@@ -432,8 +433,13 @@ Patrón para "volver a la sección anterior", visible en la parte superior de p�
 
 - **Aparición de listas grandes** (>3 elementos generados): stagger fade-in usando `animate-in fade-in slide-in-from-bottom-2 duration-500 fill-mode-both` + `style={{ animationDelay: '${i * 60}ms' }}`. 60ms entre cards, no más, para no demorar la lectura. Ejemplo: cards de `/people/[id]/gifts`.
 - **Hover sobre cards**: ya cubierto en sus reglas. `transition-all` o `transition-shadow` solo, duración por defecto (~150ms).
-- **No animar**: aparición de un único elemento (es ruido), elementos que reaparecen tras refresh, headers, navegación.
+- **Formularios inline expand/collapse**: cuando un formulario aparece in situ tras pulsar un botón "Añadir/Editar X" (`ImportantDateForm`, `EditImportantDateInline`, `GiftHistoryForm`, `EditGiftHistoryInline`, `AddEventForm` de `PersonForm`), añadir `animate-in fade-in slide-in-from-top-1 duration-200` al elemento raíz del formulario. Es excepción legítima a la regla "no animar elementos individuales" porque hay continuidad espacial (el contenedor expande, no aparece de la nada). 200ms corto para no demorar la interacción.
+  - **Riesgo:** la animación se replay si el componente se desmonta/remonta. Verificar que ningún ancestro tiene un `key` que cambie con datos de Convex. El toggle interno (`useState` de `showForm`) mantiene el elemento montado mientras esté abierto; sin riesgo en los formularios actuales.
+- **Selección de cards con cambio visual** (UpcomingDateCard cuando `isSelected`): `transition-[border-color,box-shadow] duration-150` para que el ring/border aparezca con fade en lugar de saltar. No usar `transition-all` con `hover:-translate-y` en cards con acción interna (regla 164).
+- **Hovers en chips/badges clicables** (`<span>` con `onClick`, ej. tags de interés): añadir explícitamente `hover:bg-secondary/80 transition-colors` (o equivalente). Las variantes shadcn de Badge tienen el hover bajo selector `[a]:hover:...`, que solo aplica a `<a>` — un `<span>` con cursor-pointer no recibe hover por defecto.
+- **No animar**: aparición de un único elemento espontáneo (es ruido), elementos que reaparecen tras refresh, headers, navegación, transiciones de página.
 - **`fill-mode-both`** es importante en stagger: sin él, las cards parpadean al inicio porque la animación no tiene estado inicial.
+- **`prefers-reduced-motion`**: Tailwind y `tw-animate-css` lo respetan por defecto. No añadir overrides manuales.
 
 ### Iconografía
 
