@@ -99,6 +99,7 @@ export function UpcomingDateCard({
           className={cn(buttonVariants({ size: "sm" }), "shrink-0", onSelect && "xl:hidden")}
         >
           <Gift className="size-4" aria-hidden />
+          <span className="sm:hidden">Regalar</span>
           <span className="hidden sm:inline">Ideas de regalo</span>
         </Link>
         {onSelect && (
