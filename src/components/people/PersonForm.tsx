@@ -72,7 +72,7 @@ function AddEventForm({
   const watchedDay = useWatch({ control, name: "day" });
 
   return (
-    <div className="space-y-3 rounded-lg bg-background/60 p-3">
+    <div className="space-y-3 rounded-lg bg-background/60 p-3 animate-in fade-in slide-in-from-top-1 duration-200">
       <DatePickerDialog
         open={pickerOpen}
         day={watchedDay ?? 1}

@@ -48,13 +48,14 @@ export function UpcomingDateCard({
 
   return (
     <Card
-      className={
+      className={cn(
+        "transition-[border-color,box-shadow] duration-150",
         isSelected
           ? "border-primary/80 shadow-sm ring-1 ring-primary/30"
           : urgent
             ? "border-primary/60 shadow-sm"
-            : "border-border/60 shadow-sm"
-      }
+            : "border-border/60 shadow-sm",
+      )}
     >
       <CardContent className="flex items-center gap-4 p-4">
         <Avatar className="size-12 shrink-0">
@@ -68,7 +69,7 @@ export function UpcomingDateCard({
           <div className="flex items-baseline gap-2 mb-1">
             <Link
               href={`/seres-queridos/${person._id}`}
-              className="font-medium truncate hover:underline"
+              className="font-medium truncate hover:underline transition-colors duration-150"
             >
               {person.name}
             </Link>

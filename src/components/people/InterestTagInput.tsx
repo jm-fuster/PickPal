@@ -59,7 +59,7 @@ export function InterestTagInput({
             <Badge
               key={tag}
               variant="secondary"
-              className="cursor-pointer"
+              className="cursor-pointer hover:bg-secondary/80"
               onClick={() => removeTag(tag)}
               title="Eliminar"
             >
