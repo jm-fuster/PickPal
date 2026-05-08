@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { RELATIONSHIPS } from "@/lib/schemas";
 import type { Doc } from "../../../convex/_generated/dataModel";
 
@@ -88,14 +89,14 @@ export function UpcomingDateCard({
         {/* Móvil: navega a la página. Desktop: abre el panel lateral (si hay callback). */}
         <Link
           href={`/people/${person._id}/gifts?occasion=${encodeURIComponent(date.label)}`}
-          className={buttonVariants({ size: "sm", className: `shrink-0 ${onSelect ? "lg:hidden" : ""}` })}
+          className={cn(buttonVariants({ size: "sm" }), "shrink-0", onSelect && "lg:hidden")}
         >
           Ver regalos
         </Link>
         {onSelect && (
           <button
             onClick={onSelect}
-            className={buttonVariants({ size: "sm", className: "shrink-0 hidden lg:inline-flex" })}
+            className={cn(buttonVariants({ size: "sm" }), "shrink-0 hidden lg:inline-flex")}
           >
             Ver regalos
           </button>

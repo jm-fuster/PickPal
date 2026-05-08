@@ -220,11 +220,11 @@ export function GiftsPanel({
       ) : (
         <div className="space-y-2">
           <Link
-            href={`/people/${personId}`}
+            href="/dashboard"
             className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground w-fit"
           >
             <ArrowLeft className="size-3.5" aria-hidden />
-            {person.name}
+            Agenda
           </Link>
           <h1 className="text-4xl font-medium leading-tight">Ideas de regalo</h1>
           <p className="text-sm text-muted-foreground">
