@@ -77,8 +77,8 @@ export default function DashboardPage() {
           </Link>
         </div>
       ) : (
-        <div className="flex gap-6 items-start">
-          <div className="flex-1 min-w-0">
+        <div className={selected ? "lg:grid lg:gap-6 lg:grid-cols-[480px_1fr] lg:items-start" : ""}>
+          <div className={`max-w-[480px] ${selected ? "lg:overflow-y-auto lg:max-h-[calc(100vh-11rem)] lg:px-1 lg:pb-1" : ""}`}>
             <DateGroupedList
               entries={filtered}
               onSelect={(entry) =>
@@ -93,7 +93,7 @@ export default function DashboardPage() {
           </div>
 
           {selected && (
-            <div className="hidden lg:block w-[420px] shrink-0 sticky top-8 self-start">
+            <div className="hidden lg:block min-w-0">
               <GiftsPanel
                 key={`${selected.personId}-${selected.occasion}`}
                 personId={selected.personId}
