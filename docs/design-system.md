@@ -164,6 +164,7 @@ Visible a partir de `lg` (1024px). Implementado en `src/app/(app)/layout.tsx`.
 - **Hover · cards con acción interna** (la card no es link, pero contiene botón): `transition-shadow hover:shadow-md`. Sin translate ni cambio de fondo. Ejemplo: `GiftRecommendationCard`.
 - **Cards estáticas** (sin acción): solo `shadow-sm`, sin hover. Ejemplo: feature cards de la landing.
 - **Card de urgencia** (UpcomingDateCard cuando `daysUntil <= 7`): `border-primary/60 shadow-sm bg-primary/5`. El tinte rosado del primary llama la atención sin chillar.
+- **Presupuesto en agenda**: `budgetLabel()` en `UpcomingDateCard` divide los valores entre 100 antes de mostrarlos — los presupuestos se almacenan en céntimos en Convex (1000 = 10 €). Cualquier otro componente que muestre presupuestos debe hacer lo mismo.
 - **Cards generadas por IA** (GiftRecommendationCard): layout fijo desde arriba — título (`font-medium`), badges de intereses (`variant="secondary"`, 1–3 según lo que devuelva la IA), descripción con altura mínima fija (`min-h-[5rem] line-clamp-4`) para que las cards del grid queden alineadas, separador `border-t border-border/50`, precio prominente (`text-lg font-medium`) + chips de tienda. Sin icono `Sparkles` (se eliminó — el contexto de la página ya comunica que son sugerencias IA). Stagger animation `animate-in fade-in slide-in-from-bottom-2 duration-500` con `animationDelay: index * 60ms` para que aparezcan en cascada. Los 9 skeletons de carga usan `h-52 rounded-2xl border-dashed bg-muted/40 animate-pulse`.
 
 ### Buttons
@@ -198,8 +199,8 @@ Padding de página responsive en todos los `<main>`: `p-4 sm:p-6 lg:p-8`. No usa
 
 **Dashboard** (`/dashboard`): layout master-detail diferente según dispositivo.
 
-- **Móvil (< lg)**: columna única. El botón "Ver regalos" de cada `UpcomingDateCard` es un `<Link>` que navega a `/people/[id]/gifts?occasion=...`.
-- **Desktop (≥ lg)**: CSS Grid de dos columnas fijas: `lg:grid-cols-[480px_1fr]`. La columna izquierda (480 px) lista los eventos; la derecha (flexible) muestra el `GiftsPanel` embebido al pulsar "Ver regalos". El botón "Ver regalos" en desktop es un `<button>` con `onClick` que actualiza el estado local `selected`; el `<Link>` tiene clase `lg:hidden` para que solo sea visible en móvil.
+- **Móvil (< lg)**: columna única. El botón "Ideas de regalo" de cada `UpcomingDateCard` es un `<Link>` que navega a `/seres-queridos/[id]/gifts?occasion=...`.
+- **Desktop (≥ lg)**: CSS Grid de dos columnas fijas: `lg:grid-cols-[480px_1fr]`. La columna izquierda (480 px) lista los eventos; la derecha (flexible) muestra el `GiftsPanel` embebido al pulsar "Ideas de regalo". El botón "Ideas de regalo" en desktop es un `<button>` con `onClick` que actualiza el estado local `selected`; el `<Link>` tiene clase `lg:hidden` para que solo sea visible en móvil. El `<button>` nativo necesita `hover:bg-primary/80` explícito porque `buttonVariants` default usa el selector `[a]:hover` que solo aplica a `<a>`.
 - **Por qué grid fijo (no flex)**: con `flex-1` en la columna de eventos, su ancho cambia al aparecer el panel, deformando las cards. Con `grid-cols-[480px_1fr]` la columna izquierda siempre mide exactamente 480 px, independientemente de si el panel está abierto o no. El padding `lg:px-1 lg:pb-1` del contenedor de la lista también se aplica siempre (no condicionalmente) para que el ancho disponible de las cards no varíe nunca.
 - **Botón dual en `UpcomingDateCard`**: siempre usar `cn(buttonVariants({ size: "sm" }), "lg:hidden")` — nunca pasar clases de display dentro del `className` de `buttonVariants`. `buttonVariants` incluye `inline-flex` en su base; si se pasa `hidden` dentro del objeto `className`, `tailwind-merge` no lo procesa y `inline-flex` prevalece, mostrando ambos botones a la vez en móvil.
 - **Scroll de eventos vs. panel fijo**: la lista de eventos fluye con el scroll general de la página (sin scroll propio). La card de regalos usa `position: fixed` con coordenadas exactas derivadas del layout: `top-8 bottom-8 right-8 left-[48.5rem]`. El `left` se calcula como sidebar (`w-60` = 15rem) + padding izquierdo del main (`p-8` = 2rem) + columna de eventos (480px = 30rem) + gap (`gap-6` = 1.5rem) = 48.5rem. Si cambia el ancho del sidebar o el padding del main, hay que actualizar este valor. El panel está fuera del flujo del documento (`fixed`), por lo que la lista de eventos no necesita un placeholder en el grid — se usa `lg:max-w-[480px]` directamente. El panel y la lista de eventos son dos elementos hermanos dentro de un Fragment (`<>`).
@@ -233,7 +234,11 @@ Padding de página responsive en todos los `<main>`: `p-4 sm:p-6 lg:p-8`. No usa
 | Grid de ideas | `sm:grid-cols-2 lg:grid-cols-3` | `grid-cols-1` |
 | Scroll | Scroll general de página | Scroll interno acotado |
 
-**Modo standalone**: usado por `/people/[id]/gifts/page.tsx`, que es un thin wrapper. La ruta acepta `?occasion=...` para preseleccionar el evento. El back link es "← Agenda" y va a `/dashboard` — no a la ficha de la persona, porque el flujo principal de entrada es dashboard → móvil → página de regalos → volver.
+**Modo standalone**: usado por `/seres-queridos/[id]/gifts/page.tsx`, que es un thin wrapper. La ruta acepta `?occasion=...` para preseleccionar el evento y `?from=person` para indicar el origen. El back link es contextual:
+- Sin `from` (entrada desde agenda): "← Agenda", vuelve a `/agenda`.
+- Con `?from=person` (entrada desde la ficha): "← [nombre de la persona]", vuelve a `/seres-queridos/[id]`.
+
+El `backHref` lo calcula la página y lo pasa como prop a `GiftsPanel`. El label lo resuelve el panel: si `backHref === "/agenda"` muestra "Agenda", si no muestra `person?.name ?? "Volver"`.
 
 **Modo embebido**: usado por el dashboard. La card exterior tiene `overflow-hidden rounded-2xl` — esto recorta el scrollbar nativo a las esquinas redondeadas. La card interior tiene `overflow-y-auto max-h-[calc(100vh-11rem)]` con el scroll real. **Nunca poner `overflow-y-auto` y `rounded-2xl` en el mismo div**: el scrollbar se renderiza fuera de las esquinas redondeadas en Chrome/Windows.
 
@@ -403,7 +408,7 @@ Iconos en uso:
 - `Bell` — campanita de notificaciones.
 - `Menu` — hamburguesa, abre el `Sheet` de navegación en móvil.
 - `Plus` — crear nueva entidad.
-- `Sparkles` — acciones que invocan IA ("Ideas de regalo").
+- `Sparkles` — reservado; el botón "Ideas de regalo" usa `Gift` (ver regla más abajo).
 - `Pencil` — editar (botón de cabecera, navegación a página de edición).
 - `PencilLine` — editar inline dentro de una lista (abre formulario en lugar, sin navegar).
 - `Trash2` — eliminar (siempre con `text-destructive`).
@@ -418,7 +423,7 @@ Iconos en uso:
 - `Heart` — tipo de regalo "Tiempo juntos".
 - `Shuffle` — tipo de regalo "Sorpréndeme".
 - `ExternalLink` — chips de tienda en `GiftRecommendationCard` (size-3, detrás del texto).
-- `Gift` — empty state de la campana de notificaciones cuando no hay fechas próximas.
+- `Gift` — icono del botón "Ideas de regalo" (agenda y ficha de persona) y empty state de la campana de notificaciones.
 - **Nota tiendas**: los chips de tienda ya NO usan iconos Lucide. Usan logos PNG/SVG oficiales en `public/stores/`. Ver sección Chips de tienda.
 
 **Reglas:**
