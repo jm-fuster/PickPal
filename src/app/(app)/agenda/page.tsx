@@ -93,7 +93,7 @@ export default function DashboardPage() {
           </div>
 
           {selected && (
-            <div className="hidden lg:block min-w-0 lg:sticky lg:top-8 lg:self-start">
+            <div className="hidden lg:flex lg:flex-col min-w-0 sticky top-0 h-screen py-8">
               <GiftsPanel
                 key={`${selected.personId}-${selected.occasion}`}
                 personId={selected.personId}
