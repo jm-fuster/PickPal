@@ -446,6 +446,11 @@ Iconos en uso:
 - `CalendarX2` — evento de fecha única (no recurrente).
 - `Check` — indicador de guardado exitoso (pill fijo en perfil de persona).
 - `ArrowLeft` — enlace de retroceso ("← Seres queridos", "← [nombre]"). Siempre `size-3.5`.
+- `Star` — eyebrow de sección "Intereses" (ficha y formulario).
+- `NotebookPen` — eyebrow de sección "Notas" (ficha).
+- `CalendarDays` — eyebrow de sección "Eventos" (ficha y formulario) y nav "Agenda".
+- `Ruler` — eyebrow de sección "Datos prácticos" (ficha y formulario).
+- `Gift` — eyebrow de sección "Historial de regalos" (ficha), botón "Ideas de regalo" y empty state de la campana.
 - `ShoppingBag` — tipo de regalo "Producto físico".
 - `Ticket` — tipo de regalo "Experiencia".
 - `Heart` — tipo de regalo "Tiempo juntos".
