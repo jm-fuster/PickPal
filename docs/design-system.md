@@ -250,6 +250,14 @@ La altura del panel viene determinada por el contenedor `fixed` del dashboard (`
 ```
 Las dos últimas clases son para Firefox. El `overflow-hidden` del div exterior hace que el thumb quede recortado a las esquinas redondeadas de la card.
 
+**Cabecera fija en modo embebido**: el panel tiene dos zonas independientes:
+- **Header** (`shrink-0`, fuera del scroll): avatar + nombre + botón Regenerar + botón ✕. Siempre visible sin importar cuánto se haga scroll.
+- **Cuerpo** (`flex-1 overflow-y-auto`, ref `scrollContainerRef`): controles de ocasión + tipo + grid de ideas. Scroll interno con scrollbar estilizado.
+
+**Botón Regenerar en la cabecera**: siempre está en el DOM (para que la transición CSS funcione), pero con `opacity-0 pointer-events-none` cuando no debe verse. Cuando el usuario hace scroll y el panel de controles sale del área visible, pasa a `opacity-100` con `transition-opacity duration-200`. Al subir, desaparece con el mismo fade. Usa el botón `default` (verde) porque es una acción principal. **No usar `variant="outline"`** — el Regenerar de la cabecera es acción, no secundaria.
+
+La visibilidad se detecta con un listener de `scroll` en `scrollContainerRef` que compara `controlsRef.current.getBoundingClientRect().bottom` con `scrollContainerRef.current.getBoundingClientRect().top`. Cuando el bottom del panel de controles queda por encima del top del contenedor scroll, el panel ha salido de vista. **No usar `IntersectionObserver` sin `root`**: observa respecto al viewport, no al scroll container interno, y no detecta correctamente el scroll.
+
 **Remount limpio al cambiar de evento**: el dashboard pasa `key={personId + "-" + occasion}` al `GiftsPanel`. Esto fuerza un remount completo cuando cambia el evento seleccionado, reseteando todo el estado interno (ideas, loading, tipo de regalo). Sin el `key`, al cambiar de evento el panel reutiliza el estado del anterior.
 
 ### Inputs / Forms
