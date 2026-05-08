@@ -80,13 +80,13 @@ export default async function Home() {
           {STEPS.map(({ number, icon: Icon, title, body }) => (
             <Card key={title} className="border-border/60 shadow-sm">
               <CardContent className="space-y-4 p-6">
+                <Icon className="size-5 text-muted-foreground" aria-hidden />
                 <div className="flex items-center gap-3">
                   <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
                     {number}
                   </span>
-                  <Icon className="size-5 text-muted-foreground" aria-hidden />
+                  <h2 className="text-xl font-medium">{title}</h2>
                 </div>
-                <h2 className="text-xl font-medium">{title}</h2>
                 <p className="text-sm leading-relaxed text-muted-foreground">{body}</p>
               </CardContent>
             </Card>
