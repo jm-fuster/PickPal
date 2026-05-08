@@ -164,6 +164,7 @@ Visible a partir de `lg` (1024px). Implementado en `src/app/(app)/layout.tsx`.
 - **Hover · cards con acción interna** (la card no es link, pero contiene botón): `transition-shadow hover:shadow-md`. Sin translate ni cambio de fondo. Ejemplo: `GiftRecommendationCard`.
 - **Cards estáticas** (sin acción): solo `shadow-sm`, sin hover. Ejemplo: step cards de la landing.
 - **Card de urgencia** (UpcomingDateCard cuando `daysUntil <= 7`): `border-primary/60 shadow-sm bg-primary/5`. El tinte rosado del primary llama la atención sin chillar.
+- **UpcomingDateCard — layout responsive**: avatar `size-12` envuelto en `<Link>` a la ficha del ser querido (`hover:opacity-80` + focus-ring) — entrada redundante con el nombre, pero los usuarios pulsan la foto por instinto. El bloque central apila tres líneas (nombre `font-medium truncate`, etiqueta·relación `text-xs muted truncate`, presupuesto `text-xs muted truncate` si existe) — apilar en lugar de poner nombre y meta en la misma baseline evita que el nombre se trunque a nada cuando el botón come ancho. El botón "Ideas de regalo" muestra solo "Regalar" en mobile (`<span className="sm:hidden">`) y el texto completo a partir de `sm`; siempre lleva `aria-label="Ideas de regalo"`. En desktop con `xl:` aparece la variante `<button>` con `onClick` (panel embebido).
 - **Presupuesto en agenda**: `budgetLabel()` en `UpcomingDateCard` divide los valores entre 100 antes de mostrarlos — los presupuestos se almacenan en céntimos en Convex (1000 = 10 €). Cualquier otro componente que muestre presupuestos debe hacer lo mismo.
 - **Cards generadas por IA** (GiftRecommendationCard): layout fijo desde arriba — título (`font-medium`), badges de intereses (`variant="secondary"`, 1–3 según lo que devuelva la IA), descripción con altura mínima fija (`min-h-[5rem] line-clamp-4`) para que las cards del grid queden alineadas, separador `border-t border-border/50`, precio prominente (`text-lg font-medium`) + chips de tienda. Sin icono `Sparkles` (se eliminó — el contexto de la página ya comunica que son sugerencias IA). Stagger animation `animate-in fade-in slide-in-from-bottom-2 duration-500` con `animationDelay: index * 60ms` para que aparezcan en cascada. Los 9 skeletons de carga usan `h-52 rounded-2xl border-dashed bg-muted/40 animate-pulse`.
 
@@ -317,6 +318,13 @@ La sección "Eventos" en `/people/[id]` gestiona fechas importantes de esa perso
 - `BudgetRangeSlider`: slider dual de `@base-ui/react/slider` (0–500 €, paso 5) + dos inputs numéricos directos para valores exactos o >500.
 - Los thumbs del slider usan `bg-primary` (no `bg-background`) para ser visibles en ambos modos.
 - Los `<SliderThumb>` deben ser **hijos de `SliderControl`** (hermanos del `SliderTrack`), no anidados dentro del track. Si están dentro del track, `overflow-hidden` los recorta y no son clicables.
+
+**Fila de evento — modo vista (jerarquía):** la fila usa `flex items-start justify-between` con tres líneas apiladas en el bloque izquierdo:
+1. Título `font-medium` + badge de recurrencia (Anual/Única).
+2. Fecha (`text-xs text-muted-foreground`) — `15 mayo 1990`.
+3. Presupuesto (`text-xs text-muted-foreground`, solo si está definido) — `Presupuesto: 10€ – 50€`.
+
+Las acciones (`PencilLine`, `X`) van pegadas al borde derecho con `shrink-0`. **No** colapsar las tres piezas en una sola línea con `·` — el nombre del evento y la fecha son información de niveles distintos, separarlos en líneas distintas es lo que evita el "todo apelmazado". Mismo patrón en la fila de eventos del `PersonForm` (modo creación), reutilizando los mismos badges.
 
 **Edición inline:**
 - Cada evento tiene un botón `PencilLine` que expande `EditImportantDateInline` in situ (no dialog).
