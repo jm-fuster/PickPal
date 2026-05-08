@@ -62,7 +62,10 @@ export default function SettingsPage() {
     if (settings && !initializedRef.current) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setEmailEnabled(settings.emailNotificationsEnabled);
-      setEmailDays(settings.emailNotifyDaysBefore);
+      // Defensive: el backend puede devolver número (legacy) o array (nuevo)
+      // mientras se propagan los despliegues. Normalizamos siempre a array.
+      const raw = settings.emailNotifyDaysBefore as number | number[];
+      setEmailDays(typeof raw === "number" ? [raw] : Array.isArray(raw) ? raw : []);
       setFavoriteStores(sanitizeFavoriteStores(settings.favoriteStores));
       initializedRef.current = true;
     }
