@@ -82,7 +82,7 @@ export default async function Home() {
               <CardContent className="space-y-4 p-6">
                 <Icon className="size-5 text-muted-foreground" aria-hidden />
                 <div className="flex items-center gap-3">
-                  <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
+                  <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-secondary text-[11px] font-semibold text-secondary-foreground">
                     {number}
                   </span>
                   <h2 className="text-xl font-medium">{title}</h2>
