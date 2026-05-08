@@ -77,8 +77,8 @@ export default function DashboardPage() {
           </Link>
         </div>
       ) : (
-        <div className={selected ? "lg:grid lg:gap-6 lg:grid-cols-[480px_1fr] lg:items-start" : ""}>
-          <div className={`max-w-[480px] ${selected ? "lg:overflow-y-auto lg:max-h-[calc(100vh-11rem)] lg:px-1 lg:pb-1" : ""}`}>
+        <div className="lg:grid lg:gap-6 lg:grid-cols-[480px_1fr] lg:items-start">
+          <div className={selected ? "lg:overflow-y-auto lg:max-h-[calc(100vh-11rem)] lg:px-1 lg:pb-1" : ""}>
             <DateGroupedList
               entries={filtered}
               onSelect={(entry) =>
