@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Sparkles,
   RefreshCw,
@@ -60,8 +61,9 @@ export function GiftsPanel({
   initialOccasion,
   embedded = false,
   onClose,
-  backHref = "/agenda",
+  backHref: _backHref = "/agenda",
 }: GiftsPanelProps) {
+  const router = useRouter();
   const { isLoaded, isSignedIn } = useAuth();
   const ready = isLoaded && isSignedIn;
 
@@ -241,13 +243,13 @@ export function GiftsPanel({
     <div className="flex flex-col gap-6">
       {!embedded && (
         <div className="space-y-3">
-          <Link
-            href={backHref}
+          <button
+            onClick={() => router.back()}
             className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground w-fit"
           >
             <ArrowLeft className="size-3.5" aria-hidden />
-            {backHref === "/agenda" ? "Agenda" : "Volver"}
-          </Link>
+            Volver
+          </button>
           {person && (
             <Link
               href={`/seres-queridos/${personId}`}

@@ -41,9 +41,6 @@ export default async function Home() {
 
       <main className="flex flex-1 flex-col items-center justify-center gap-16 px-6 py-16">
         <section className="space-y-6 max-w-3xl text-center">
-          <p className="font-sans text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
-            Para las personas que te importan
-          </p>
           <h1 className="text-balance text-4xl font-medium leading-[1.05] sm:text-5xl md:text-6xl lg:text-7xl">
             El regalo perfecto para quien más te importa.
           </h1>

@@ -59,7 +59,7 @@ export function UpcomingDateCard({
     >
       <CardContent className="flex items-center gap-3 p-4 sm:gap-4">
         <Link
-          href={`/seres-queridos/${person._id}?from=agenda`}
+          href={`/seres-queridos/${person._id}`}
           aria-label={`Ver ficha de ${person.name}`}
           className="shrink-0 rounded-full transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
@@ -73,7 +73,7 @@ export function UpcomingDateCard({
 
         <div className="flex-1 min-w-0">
           <Link
-            href={`/seres-queridos/${person._id}?from=agenda`}
+            href={`/seres-queridos/${person._id}`}
             className="block font-medium truncate hover:underline transition-colors duration-150"
           >
             {person.name}

@@ -200,7 +200,7 @@ Ver lógica completa en [`docs/ia-regalos.md`](ia-regalos.md#multi-tienda) y la 
 Página de marketing, server component. Estructura:
 
 - **Header**: logo + "PickPal" a la izquierda, `UserButton` de Clerk a la derecha (solo si autenticado).
-- **Hero**: eyebrow (`font-sans text-xs uppercase tracking-[0.2em]`) + H1 serif escalado (`text-4xl → lg:text-7xl`) + subtítulo + CTAs.
+- **Hero**: H1 serif escalado (`text-4xl → lg:text-7xl`) + subtítulo + CTAs. Sin eyebrow — se eliminó "Para las personas que te importan".
   - Autenticado: un botón "Ir a la agenda" → `/agenda`.
   - No autenticado: "Empezar gratis" (primary) + "Iniciar sesión" (outline).
 - **Steps**: grid `grid-cols-1 sm:grid-cols-3`, tres `Card` estáticas (sin hover). Cada card tiene:
@@ -264,11 +264,7 @@ Padding de página responsive en todos los `<main>`: `p-4 sm:p-6 lg:p-8`. No usa
 | Grid de ideas | `sm:grid-cols-2 lg:grid-cols-3` | `grid-cols-1` |
 | Scroll | Scroll general de página | Scroll interno acotado |
 
-**Modo standalone**: usado por `/seres-queridos/[id]/gifts/page.tsx`, que es un thin wrapper. La ruta acepta `?occasion=...` para preseleccionar el evento y `?from=person` para indicar el origen. El back link es contextual:
-- Sin `from` (entrada desde agenda): "← Agenda", vuelve a `/agenda`.
-- Con `?from=person` (entrada desde la ficha): "← [nombre de la persona]", vuelve a `/seres-queridos/[id]`.
-
-El `backHref` lo calcula la página y lo pasa como prop a `GiftsPanel`. El label lo resuelve el panel: si `backHref === "/agenda"` muestra "Agenda", si no muestra `person?.name ?? "Volver"`.
+**Modo standalone**: usado por `/seres-queridos/[id]/gifts/page.tsx`, que es un thin wrapper. La ruta acepta `?occasion=...` para preseleccionar el evento. El back link usa `router.back()` y muestra "Volver" — siempre vuelve al paso anterior real del historial, sin importar desde dónde se llegó.
 
 **Modo embebido**: usado por el dashboard. La card exterior tiene `overflow-hidden rounded-2xl` — esto recorta el scrollbar nativo a las esquinas redondeadas. La card interior tiene `overflow-y-auto max-h-[calc(100vh-11rem)]` con el scroll real. **Nunca poner `overflow-y-auto` y `rounded-2xl` en el mismo div**: el scrollbar se renderiza fuera de las esquinas redondeadas en Chrome/Windows.
 
@@ -370,20 +366,22 @@ La sección "Historial de regalos" en `/people/[id]` registra regalos pasados pa
 Patrón para "volver a la sección anterior", visible en la parte superior de páginas de detalle o subpáginas.
 
 ```tsx
-<Link
-  href="/people"
+<button
+  onClick={() => router.back()}
   className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground w-fit"
 >
   <ArrowLeft className="size-3.5" aria-hidden />
-  Seres queridos
-</Link>
+  Volver
+</button>
 ```
 
 **Reglas:**
-- Icono `ArrowLeft` de lucide-react, `size-3.5`. Sin texto alternativo propio (`aria-hidden`) — el texto del link ya es descriptivo.
+- `router.back()` siempre — navega al paso anterior real del historial del navegador, sin importar desde dónde se llegó a la página. Nunca hardcodear un `href` fijo.
+- `<button>` con `onClick`, no `<Link>` — `router.back()` no tiene URL.
+- Icono `ArrowLeft` de lucide-react, `size-3.5`. `aria-hidden` — el texto del botón ya es descriptivo.
 - Color `text-muted-foreground` en reposo, `hover:text-foreground`. No usar `text-primary`.
 - `w-fit` para que el área de hover no se extienda a todo el ancho.
-- El texto es el nombre de la sección destino, no "Volver" — aporta contexto de a dónde se va.
+- Texto: "Volver" siempre — con navegación dinámica no se sabe el destino en tiempo de render.
 
 ### Avatars
 
