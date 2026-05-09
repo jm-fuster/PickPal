@@ -518,7 +518,7 @@ function PersonDetailContent({
           <div className="space-y-3">
             <div className="space-y-1.5">
               <Label>Reacción</Label>
-              <Select value={convertReaction} onValueChange={setConvertReaction}>
+              <Select value={convertReaction} onValueChange={(v) => setConvertReaction(v ?? "")}>
                 <SelectTrigger>
                   <SelectValue placeholder="¿Cómo le sentó?" />
                 </SelectTrigger>
