@@ -82,7 +82,7 @@ Aplícalo a cualquier mutation que:
 - Llame a APIs externas de pago (cuota).
 - Envíe notificaciones / emails.
 
-Buckets actuales: `create_person` (50/día), `create_date` (100/día), `recommendationUsage` (10/día, tabla aparte por motivos históricos).
+Buckets actuales: `create_person` (50/día), `create_date` (100/día), `save_idea` (50/día), `recommendationUsage` (10/día, tabla aparte por motivos históricos).
 
 No hace falta en `update`/`remove` (no son superficie de abuso de almacenamiento).
 
@@ -128,7 +128,7 @@ Toda cuenta de PickPal se puede borrar desde [`/settings`](../src/app/(app)/sett
 
 Flujo:
 1. UI llama `POST /api/account/delete` ([`src/app/api/account/delete/route.ts`](../src/app/api/account/delete/route.ts)).
-2. La ruta valida el token Clerk y llama a `api.account.deleteMyAccount` ([`convex/account.ts`](../convex/account.ts)), que con `requireUser(ctx)` purga en cascada todo lo del usuario en Convex: `people` (con sus `importantDates`, `giftHistory`, `recommendations`), `userSettings`, `emailNotifications`, `recommendationUsage`, `rateLimitBuckets`.
+2. La ruta valida el token Clerk y llama a `api.account.deleteMyAccount` ([`convex/account.ts`](../convex/account.ts)), que con `requireUser(ctx)` purga en cascada todo lo del usuario en Convex: `people` (con sus `importantDates`, `giftHistory`, `recommendations`, `savedIdeas`), `userSettings`, `emailNotifications`, `recommendationUsage`, `rateLimitBuckets`.
 3. Solo si el purge en Convex sale bien, se llama `clerkClient().users.deleteUser(userId)`.
 4. UI hace `signOut` y redirige a `/`.
 

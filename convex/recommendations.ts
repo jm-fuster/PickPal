@@ -44,8 +44,9 @@ export const removeIdea = mutation({
     occasionLabel: v.string(),
     giftType: v.string(),
     ideaTitle: v.string(),
+    ideaCategories: v.optional(v.array(v.string())),
   },
-  handler: async (ctx, { personId, occasionLabel, giftType, ideaTitle }) => {
+  handler: async (ctx, { personId, occasionLabel, giftType, ideaTitle, ideaCategories }) => {
     const clerkUserId = await requireUser(ctx);
     const person = await ctx.db.get(personId);
     if (!person || person.clerkUserId !== clerkUserId) throw new Error("No autorizado");
@@ -60,9 +61,18 @@ export const removeIdea = mutation({
       )
       .unique();
     if (!existing) return;
+
+    const MAX_DISLIKED = 100;
+    const newCats = (ideaCategories ?? []).filter((c) => c.trim().length > 0 && c.length <= 40);
+    const merged =
+      newCats.length > 0
+        ? [...new Set([...(existing.dislikedCategories ?? []), ...newCats])].slice(0, MAX_DISLIKED)
+        : existing.dislikedCategories;
+
     await ctx.db.patch(existing._id, {
       ideas: existing.ideas.filter((idea) => idea.title !== ideaTitle),
       discardedTitles: [...(existing.discardedTitles ?? []), ideaTitle],
+      dislikedCategories: merged,
     });
   },
 });

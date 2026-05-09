@@ -47,6 +47,7 @@ const buildPrompt = (
   occasionLabel: string,
   giftType: GiftType,
   history: Array<{ giftName: string; occasionLabel: string; year?: number; reaction: string }>,
+  dislikedCategories: string[],
 ) => {
   const relationshipLabel =
     RELATIONSHIPS.find((r) => r.value === person.relationship)?.label ??
@@ -112,6 +113,11 @@ ${storesGuide}`,
 ${storesGuide}`,
   };
 
+  const dislikedLine =
+    dislikedCategories.length > 0
+      ? `\nTipos de regalos que NO encajan con esta persona (no sugieras ideas de estas categorías):\n${dislikedCategories.map((c) => `- ${c}`).join("\n")}`
+      : "";
+
   return `Genera EXACTAMENTE 9 ideas de regalo para la siguiente persona.
 
 Persona:
@@ -121,7 +127,7 @@ Persona:
 - Notas: ${notesText}
 - Presupuesto: ${budgetText}
 - Ocasión: ${occasionLabel}
-${practicalLines ? practicalLines + "\n" : ""}${historyLines}
+${practicalLines ? practicalLines + "\n" : ""}${historyLines}${dislikedLine}
 
 Reglas:
 ${typeRules[giftType]}
@@ -192,10 +198,11 @@ export async function POST(req: NextRequest) {
   const personId = parsed.data.personId as Id<"people">;
   const { occasionLabel, giftType } = parsed.data;
 
-  const [person, matchingDate, history] = await Promise.all([
+  const [person, matchingDate, history, existingRec] = await Promise.all([
     fetchQuery(api.people.getById, { id: personId }, { token }),
     fetchQuery(api.importantDates.getByPersonAndLabel, { personId, label: occasionLabel }, { token }),
     fetchQuery(api.giftHistory.getByPerson, { personId }, { token }),
+    fetchQuery(api.recommendations.getByPersonOccasion, { personId, occasionLabel, giftType }, { token }),
   ]);
 
   if (!person) {
@@ -222,7 +229,8 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const prompt = buildPrompt(person, matchingDate?.budgetMin, matchingDate?.budgetMax, occasionLabel, giftType, history);
+  const dislikedCategories = existingRec?.dislikedCategories ?? [];
+  const prompt = buildPrompt(person, matchingDate?.budgetMin, matchingDate?.budgetMax, occasionLabel, giftType, history, dislikedCategories);
 
   const noStores = giftType === "experiencia" || giftType === "tiempo-juntos";
 

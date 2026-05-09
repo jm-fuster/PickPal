@@ -89,6 +89,7 @@ export default defineSchema({
       }),
     ),
     discardedTitles: v.optional(v.array(v.string())),
+    dislikedCategories: v.optional(v.array(v.string())),
   })
     .index("by_user_person_occasion_type", [
       "clerkUserId",
@@ -97,6 +98,19 @@ export default defineSchema({
       "giftType",
     ])
     .index("by_person", ["personId"]),
+
+  savedIdeas: defineTable({
+    clerkUserId: v.string(),
+    personId: v.id("people"),
+    occasionLabel: v.string(),
+    title: v.string(),
+    description: v.string(),
+    priceMinEuros: v.number(),
+    priceMaxEuros: v.number(),
+    category: v.union(v.string(), v.array(v.string())),
+    amazonQuery: v.string(),
+    suggestedStores: v.optional(v.array(v.string())),
+  }).index("by_person", ["personId"]),
 
   giftHistory: defineTable({
     clerkUserId: v.string(),

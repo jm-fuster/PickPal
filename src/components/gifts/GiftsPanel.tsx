@@ -85,6 +85,7 @@ export function GiftsPanel({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const removeIdea = useMutation(api.recommendations.removeIdea);
+  const saveIdea = useMutation(api.savedIdeas.save);
   const pendingDiscards = useRef<
     Map<
       string,
@@ -182,10 +183,31 @@ export function GiftsPanel({
   const hasCached = cached !== undefined && cached !== null;
   const showIdeas = ideas ?? (hasCached ? (cached!.ideas as GiftRecommendation[]) : null);
 
+  const handleSave = async (idea: GiftRecommendation) => {
+    if (!occasion) return;
+    try {
+      await saveIdea({
+        personId,
+        occasionLabel: occasion,
+        title: idea.title,
+        description: idea.description,
+        priceMinEuros: idea.priceMinEuros,
+        priceMaxEuros: idea.priceMaxEuros,
+        category: idea.category,
+        amazonQuery: idea.amazonQuery,
+        suggestedStores: idea.suggestedStores,
+      });
+      toast.success(`Idea guardada en la ficha de ${person?.name ?? "esta persona"}`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "No se pudo guardar la idea");
+    }
+  };
+
   const handleDiscard = (idea: GiftRecommendation, displayIndex: number) => {
     setIdeas((prev) => (prev ?? showIdeas ?? []).filter((_, i) => i !== displayIndex));
 
-    const args = { personId, occasionLabel: occasion, giftType, ideaTitle: idea.title };
+    const ideaCategories = Array.isArray(idea.category) ? idea.category : [idea.category];
+    const args = { personId, occasionLabel: occasion, giftType, ideaTitle: idea.title, ideaCategories };
     pendingDiscards.current.set(idea.title, { idea, insertAt: displayIndex, args });
 
     toast("Esta idea no se volverá a mostrar", {
@@ -349,6 +371,7 @@ export function GiftsPanel({
               index={i}
               giftType={giftType}
               favoriteStores={favoriteStores}
+              onSave={() => handleSave(idea)}
               onDiscard={() => handleDiscard(idea, i)}
             />
           ))}

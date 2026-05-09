@@ -1,4 +1,4 @@
-import { ExternalLink, X } from "lucide-react";
+import { ExternalLink, ThumbsDown, ThumbsUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
@@ -25,6 +25,7 @@ interface GiftRecommendationCardProps {
   index?: number;
   giftType?: GiftType;
   favoriteStores?: StoreId[];
+  onSave?: () => void;
   onDiscard?: () => void;
 }
 
@@ -33,6 +34,7 @@ export function GiftRecommendationCard({
   index = 0,
   giftType = "fisica",
   favoriteStores,
+  onSave,
   onDiscard,
 }: GiftRecommendationCardProps) {
   const isPhysical = giftType === "fisica";
@@ -59,15 +61,29 @@ export function GiftRecommendationCard({
       className="relative flex flex-col h-full border-border/60 shadow-sm transition-shadow hover:shadow-md animate-in fade-in slide-in-from-bottom-2 duration-500 fill-mode-both"
       style={{ animationDelay: `${index * 60}ms` }}
     >
-      {onDiscard && (
-        <button
-          type="button"
-          onClick={onDiscard}
-          aria-label="Descartar idea"
-          className="absolute top-2 right-2 z-10 rounded-full p-1 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
-        >
-          <X className="size-3.5" aria-hidden />
-        </button>
+      {(onSave || onDiscard) && (
+        <div className="absolute top-2 right-2 z-10 flex gap-0.5">
+          {onSave && (
+            <button
+              type="button"
+              onClick={onSave}
+              aria-label="Guardar idea"
+              className="rounded-full p-1 text-muted-foreground hover:text-emerald-500 hover:bg-muted/60 transition-colors"
+            >
+              <ThumbsUp className="size-3.5" aria-hidden />
+            </button>
+          )}
+          {onDiscard && (
+            <button
+              type="button"
+              onClick={onDiscard}
+              aria-label="No me interesa"
+              className="rounded-full p-1 text-muted-foreground hover:text-destructive hover:bg-muted/60 transition-colors"
+            >
+              <ThumbsDown className="size-3.5" aria-hidden />
+            </button>
+          )}
+        </div>
       )}
       <CardContent className="flex flex-1 flex-col gap-4 p-5">
         <div className="space-y-1.5">

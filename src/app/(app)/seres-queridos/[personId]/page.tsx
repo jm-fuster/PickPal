@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { use, useState } from "react";
 import {
-  ArrowLeft, CalendarDays, CalendarX2, Camera, Check, Gift, NotebookPen, PencilLine, Repeat2, Ruler, Star, Trash2, X,
+  ArrowLeft, CalendarDays, CalendarX2, Camera, Check, Gift, NotebookPen, PencilLine, Repeat2, Ruler, Star, Trash2, ThumbsUp, X,
 } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
@@ -33,10 +33,12 @@ import {
 } from "@/components/ui/select";
 import { EditImportantDateInline, ImportantDateForm } from "@/components/people/ImportantDateForm";
 import { EditGiftHistoryInline, GiftHistoryForm } from "@/components/people/GiftHistoryForm";
+import { Badge } from "@/components/ui/badge";
 import { LoadingFallback } from "@/components/layout/LoadingFallback";
 import { AvatarPicker } from "@/components/people/AvatarPicker";
 import { InterestTagInput } from "@/components/people/InterestTagInput";
 import { RELATIONSHIPS, REACTIONS } from "@/lib/schemas";
+import { SelectValue } from "@/components/ui/select";
 
 const MONTHS = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
 
@@ -45,15 +47,21 @@ const MONTHS = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov
 type Person = NonNullable<FunctionReturnType<typeof api.people.getById>>;
 type Dates = NonNullable<FunctionReturnType<typeof api.importantDates.getByPerson>>;
 type GiftHistory = NonNullable<FunctionReturnType<typeof api.giftHistory.getByPerson>>;
+type SavedIdeas = NonNullable<FunctionReturnType<typeof api.savedIdeas.getByPerson>>;
+
+const formatPriceRange = (min: number, max: number) =>
+  min === max ? `${Math.round(min)}€` : `${Math.round(min)}–${Math.round(max)}€`;
 
 function PersonDetailContent({
   person,
   dates,
   giftHistory,
+  savedIdeas,
 }: {
   person: Person;
   dates: Dates;
   giftHistory: GiftHistory;
+  savedIdeas: SavedIdeas;
 }) {
   const id = person._id as Id<"people">;
   const router = useRouter();
@@ -61,6 +69,8 @@ function PersonDetailContent({
   const removePerson = useMutation(api.people.remove);
   const removeDate = useMutation(api.importantDates.remove);
   const removeHistoryEntry = useMutation(api.giftHistory.remove);
+  const removeSavedIdea = useMutation(api.savedIdeas.remove);
+  const createHistoryEntry = useMutation(api.giftHistory.create);
 
   // ── Local state (mirrors DB, kept in sync on every autosave) ──
   const [headerName, setHeaderName] = useState(person.name);
@@ -84,6 +94,13 @@ function PersonDetailContent({
   const [editingDate, setEditingDate] = useState<Dates[number] | null>(null);
   const [editingGift, setEditingGift] = useState<GiftHistory[number] | null>(null);
 
+  // ── Convert saved idea to history ──
+  const [convertingIdea, setConvertingIdea] = useState<SavedIdeas[number] | null>(null);
+  const [convertReaction, setConvertReaction] = useState("");
+  const [convertYear, setConvertYear] = useState<string>("");
+  const [convertNotes, setConvertNotes] = useState("");
+  const [converting, setConverting] = useState(false);
+
   // ── Shared save (silent on success, toast on error) ──
   type SaveFields = {
     name?: string; relationship?: string; interests?: string[];
@@ -98,6 +115,32 @@ function PersonDetailContent({
       savedTimerRef.current = setTimeout(() => setSavedRecently(false), 2000);
     } catch {
       toast.error("No se pudo guardar");
+    }
+  };
+
+  const handleConvertToHistory = async () => {
+    if (!convertingIdea || !convertReaction) return;
+    setConverting(true);
+    try {
+      const year = convertYear ? parseInt(convertYear, 10) : undefined;
+      await createHistoryEntry({
+        personId: id,
+        giftName: convertingIdea.title,
+        occasionLabel: convertingIdea.occasionLabel,
+        year,
+        reaction: convertReaction as "loved" | "ok" | "bad",
+        notes: convertNotes || undefined,
+      });
+      await removeSavedIdea({ id: convertingIdea._id });
+      toast.success("Añadido al historial de regalos");
+      setConvertingIdea(null);
+      setConvertReaction("");
+      setConvertYear("");
+      setConvertNotes("");
+    } catch {
+      toast.error("No se pudo guardar en el historial");
+    } finally {
+      setConverting(false);
     }
   };
 
@@ -398,6 +441,128 @@ function PersonDetailContent({
         Guardado
       </div>
 
+      {/* ── Saved ideas card ── */}
+      <Card className="border-border/60 shadow-sm">
+        <CardContent className="space-y-4 p-5">
+          <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-1.5">
+            <ThumbsUp className="size-3.5" aria-hidden />
+            Ideas guardadas
+          </h2>
+          {savedIdeas.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Las ideas que guardes desde el panel de sugerencias aparecerán aquí para convertirlas en historial cuando las regales.
+            </p>
+          ) : (
+            <ul className="space-y-2">
+              {savedIdeas.map((s) => {
+                const cats = Array.isArray(s.category) ? s.category : [s.category];
+                return (
+                  <li key={s._id}>
+                    <div className="flex items-start justify-between gap-3 rounded-lg border border-border/60 bg-background/60 p-3 text-sm">
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <p className="font-medium leading-snug">{s.title}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {s.occasionLabel} · {formatPriceRange(s.priceMinEuros, s.priceMaxEuros)}
+                        </p>
+                        <div className="flex flex-wrap gap-1">
+                          {cats.map((c) => (
+                            <Badge key={c} variant="secondary" className="text-xs">{c}</Badge>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-0.5 shrink-0">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-xs h-7 px-2"
+                          onClick={() => {
+                            setConvertingIdea(s);
+                            setConvertReaction("");
+                            setConvertYear("");
+                            setConvertNotes("");
+                          }}
+                        >
+                          Lo regalé →
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          aria-label="Quitar idea guardada"
+                          onClick={async () => {
+                            try { await removeSavedIdea({ id: s._id }); }
+                            catch { toast.error("No se pudo eliminar la idea"); }
+                          }}
+                        >
+                          <X className="size-3.5" aria-hidden />
+                        </Button>
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* ── Convert saved idea to history dialog ── */}
+      <Dialog
+        open={convertingIdea !== null}
+        onOpenChange={(open) => { if (!open) setConvertingIdea(null); }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Añadir al historial de regalos</DialogTitle>
+            <DialogDescription>
+              {convertingIdea?.title} · {convertingIdea?.occasionLabel}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label>Reacción</Label>
+              <Select value={convertReaction} onValueChange={setConvertReaction}>
+                <SelectTrigger>
+                  <SelectValue placeholder="¿Cómo le sentó?" />
+                </SelectTrigger>
+                <SelectContent>
+                  {REACTIONS.map((r) => (
+                    <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="convert-year">Año (opcional)</Label>
+              <Input
+                id="convert-year"
+                type="number"
+                min={1900}
+                max={2100}
+                placeholder={String(new Date().getFullYear())}
+                value={convertYear}
+                onChange={(e) => setConvertYear(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="convert-notes">Notas (opcional)</Label>
+              <Textarea
+                id="convert-notes"
+                rows={2}
+                placeholder="Le encantó, pero la talla era pequeña…"
+                value={convertNotes}
+                onChange={(e) => setConvertNotes(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <DialogClose render={<Button variant="outline" disabled={converting}>Cancelar</Button>} />
+            <Button onClick={handleConvertToHistory} disabled={converting || !convertReaction}>
+              {converting ? "Guardando…" : "Añadir al historial"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* ── Gift history card ── */}
       <Card className="border-border/60 shadow-sm">
         <CardContent className="space-y-4 p-5">
@@ -470,8 +635,9 @@ export default function PersonDetailPage({
   const person = useQuery(api.people.getById, ready ? { id } : "skip");
   const dates = useQuery(api.importantDates.getByPerson, ready ? { personId: id } : "skip");
   const giftHistory = useQuery(api.giftHistory.getByPerson, ready ? { personId: id } : "skip");
+  const savedIdeas = useQuery(api.savedIdeas.getByPerson, ready ? { personId: id } : "skip");
 
-  if (!ready || person === undefined || dates === undefined || giftHistory === undefined) {
+  if (!ready || person === undefined || dates === undefined || giftHistory === undefined || savedIdeas === undefined) {
     return <LoadingFallback />;
   }
 
@@ -484,5 +650,5 @@ export default function PersonDetailPage({
     );
   }
 
-  return <PersonDetailContent person={person} dates={dates} giftHistory={giftHistory} />;
+  return <PersonDetailContent person={person} dates={dates} giftHistory={giftHistory} savedIdeas={savedIdeas} />;
 }

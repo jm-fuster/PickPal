@@ -198,6 +198,57 @@ export function validateRecommendationIdeas(
   }
 }
 
+export function validateSavedIdeaInput(input: {
+  occasionLabel: string;
+  title: string;
+  description: string;
+  priceMinEuros: number;
+  priceMaxEuros: number;
+  category: string | string[];
+  amazonQuery: string;
+  suggestedStores?: string[];
+}) {
+  const title = input.title.trim();
+  if (title.length === 0 || input.title.length > MAX_IDEA_TITLE) {
+    throw new Error("Título de idea inválido.");
+  }
+  const description = input.description.trim();
+  if (description.length === 0 || input.description.length > MAX_IDEA_DESCRIPTION) {
+    throw new Error("Descripción de idea inválida.");
+  }
+  const label = input.occasionLabel.trim();
+  if (label.length === 0 || input.occasionLabel.length > MAX_LABEL) {
+    throw new Error("Ocasión inválida.");
+  }
+  const categories = Array.isArray(input.category) ? input.category : [input.category];
+  if (
+    categories.length === 0 ||
+    categories.length > 3 ||
+    categories.some((c) => c.trim().length === 0 || c.length > MAX_IDEA_CATEGORY)
+  ) {
+    throw new Error("Categoría de idea inválida.");
+  }
+  const query = input.amazonQuery.trim();
+  if (query.length === 0 || input.amazonQuery.length > MAX_IDEA_QUERY) {
+    throw new Error("Query de búsqueda inválida.");
+  }
+  for (const value of [input.priceMinEuros, input.priceMaxEuros]) {
+    if (!Number.isFinite(value) || value < 0 || value > MAX_IDEA_PRICE_EUROS) {
+      throw new Error("Precio de idea fuera de rango.");
+    }
+  }
+  if (input.suggestedStores != null && input.suggestedStores.length > 0) {
+    if (input.suggestedStores.length > MAX_SUGGESTED_STORES) {
+      throw new Error("Cantidad de tiendas sugeridas inválida.");
+    }
+    for (const store of input.suggestedStores) {
+      if (!(ALLOWED_STORES as readonly string[]).includes(store)) {
+        throw new Error("Tienda sugerida inválida.");
+      }
+    }
+  }
+}
+
 export function validateDateInput(input: {
   label?: string;
   year?: number;

@@ -44,6 +44,12 @@ export const deleteMyAccount = mutation({
         .collect();
       for (const r of recs) await ctx.db.delete(r._id);
 
+      const saved = await ctx.db
+        .query("savedIdeas")
+        .withIndex("by_person", (q) => q.eq("personId", person._id))
+        .collect();
+      for (const s of saved) await ctx.db.delete(s._id);
+
       await ctx.db.delete(person._id);
     }
 
