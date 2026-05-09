@@ -88,8 +88,7 @@ export default async function Home() {
         </section>
       </main>
 
-      <footer className="flex flex-col items-center gap-2 px-6 py-8 text-center text-xs text-muted-foreground">
-        <p>PickPal · Hecho con cariño en Next.js, Convex y Gemini.</p>
+      <footer className="flex items-center justify-center px-6 py-8 text-xs text-muted-foreground">
         <Link href="/privacidad" className="hover:text-foreground">
           Privacidad
         </Link>
