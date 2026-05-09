@@ -126,6 +126,18 @@ export function GiftsPanel({
     return () => container.removeEventListener("scroll", check);
   }, [embedded, person]);
 
+  useEffect(() => {
+    if (embedded) return;
+    const check = () => {
+      const controls = controlsRef.current;
+      if (!controls) { setShowHeaderRegen(false); return; }
+      setShowHeaderRegen(controls.getBoundingClientRect().bottom < 0);
+    };
+    check();
+    window.addEventListener("scroll", check, { passive: true });
+    return () => window.removeEventListener("scroll", check);
+  }, [embedded, person]);
+
   const cached = useQuery(
     api.recommendations.getByPersonOccasion,
     ready && occasion
@@ -269,7 +281,7 @@ export function GiftsPanel({
         </div>
       )}
 
-      <div ref={embedded ? controlsRef : undefined} className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-5 space-y-5">
+      <div ref={controlsRef} className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-5 space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
           <div className="space-y-1.5">
             <Label>¿Para qué ocasión?</Label>
@@ -477,7 +489,37 @@ export function GiftsPanel({
   }
 
   return (
-    <main className="flex flex-1 flex-col gap-8 p-8 max-w-6xl">
+    <main className="flex flex-1 flex-col gap-8 p-4 sm:p-6 lg:p-8 max-w-6xl">
+      {/* Header fijo móvil — aparece con fade cuando los controles salen de pantalla */}
+      <div
+        aria-hidden={!showHeaderRegen}
+        className={[
+          "fixed top-0 left-0 right-0 z-40 lg:hidden",
+          "flex items-center justify-between gap-3 px-4 py-3",
+          "bg-background/90 backdrop-blur-sm border-b border-border/40",
+          "transition-all duration-200",
+          showHeaderRegen
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 -translate-y-1 pointer-events-none",
+        ].join(" ")}
+      >
+        <Link
+          href={`/seres-queridos/${personId}`}
+          className="flex items-center gap-2.5 min-w-0"
+        >
+          <Avatar className="size-8 shrink-0">
+            {person.avatarUrl ? <AvatarImage src={person.avatarUrl} alt={person.name} /> : null}
+            <AvatarFallback>{initials(person.name)}</AvatarFallback>
+          </Avatar>
+          <span className="font-medium text-sm truncate">{person.name}</span>
+        </Link>
+        {(hasCached || ideas) && (
+          <Button size="sm" onClick={generate} disabled={loading} className="shrink-0">
+            <RefreshCw className="size-3.5" aria-hidden />
+            {loading ? "Generando…" : "Regenerar"}
+          </Button>
+        )}
+      </div>
       {content}
     </main>
   );
