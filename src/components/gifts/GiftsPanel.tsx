@@ -240,14 +240,26 @@ export function GiftsPanel({
   const content = (
     <div className="flex flex-col gap-6">
       {!embedded && (
-        <div className="space-y-2">
+        <div className="space-y-3">
           <Link
             href={backHref}
             className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground w-fit"
           >
             <ArrowLeft className="size-3.5" aria-hidden />
-            {backHref === "/agenda" ? "Agenda" : (person?.name ?? "Volver")}
+            {backHref === "/agenda" ? "Agenda" : "Volver"}
           </Link>
+          {person && (
+            <Link
+              href={`/seres-queridos/${personId}`}
+              className="flex items-center gap-2.5 w-fit group"
+            >
+              <Avatar className="size-9 shrink-0">
+                {person.avatarUrl ? <AvatarImage src={person.avatarUrl} /> : null}
+                <AvatarFallback>{initials(person.name)}</AvatarFallback>
+              </Avatar>
+              <span className="font-medium group-hover:underline">{person.name}</span>
+            </Link>
+          )}
           <h1 className="text-4xl font-medium leading-tight">Ideas de regalo</h1>
           <p className="text-sm text-muted-foreground">
             Sugerencias personalizadas con sus intereses, notas y presupuesto.
