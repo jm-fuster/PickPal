@@ -27,6 +27,9 @@ export const metadata: Metadata = {
   title: "PickPal",
   description:
     "Recuerda fechas importantes y recibe ideas de regalo personalizadas con IA.",
+  icons: {
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({
