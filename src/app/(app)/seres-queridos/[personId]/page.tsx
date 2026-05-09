@@ -29,16 +29,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { EditImportantDateInline, ImportantDateForm } from "@/components/people/ImportantDateForm";
 import { EditGiftHistoryInline, GiftHistoryForm } from "@/components/people/GiftHistoryForm";
-import { Badge } from "@/components/ui/badge";
 import { LoadingFallback } from "@/components/layout/LoadingFallback";
 import { AvatarPicker } from "@/components/people/AvatarPicker";
 import { InterestTagInput } from "@/components/people/InterestTagInput";
 import { RELATIONSHIPS, REACTIONS } from "@/lib/schemas";
-import { SelectValue } from "@/components/ui/select";
 
 const MONTHS = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
 
