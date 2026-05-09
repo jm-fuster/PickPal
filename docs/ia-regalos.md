@@ -89,39 +89,71 @@ Si Gemini falla (saturación, error de modelo, etc.) el contador no se toca y el
 
 ---
 
-## Descartar ideas (botón X)
+## Reacciones 👍 / 👎
 
-Cada tarjeta tiene un botón X en la esquina superior derecha.
+Cada tarjeta tiene dos botones en la esquina superior derecha: pulgar arriba y pulgar abajo.
 
-### UX de descarte
+### 👎 Pulgar abajo — descartar
 
-1. Al pulsar X, la tarjeta desaparece inmediatamente de la pantalla (optimistic update en el state local).
-2. Aparece un **toast permanente** (sin temporizador de auto-cierre) con el mensaje "Esta idea no se volverá a mostrar" y un botón "Deshacer".
+1. La tarjeta desaparece inmediatamente (optimistic update en estado local).
+2. Aparece un **toast permanente** con el mensaje "Descartada — la IA evitará ideas parecidas" y un botón "Deshacer".
 3. La idea **no se elimina de Convex todavía** — queda en una cola de pendientes (`pendingDiscards` ref).
 
-### Cuándo se hace efectivo el descarte en Convex
+#### Cuándo se hace efectivo el descarte en Convex
 
 | Acción del usuario | Resultado |
 |---|---|
-| Cierra el toast manualmente (X del toast) | `removeIdea` se llama en `onDismiss` |
+| Cierra el toast manualmente | `removeIdea` se llama en `onDismiss` |
 | Navega fuera de la pantalla | El `useEffect` de cleanup llama `removeIdea` por cada pendiente |
-| Pulsa "Deshacer" | Se borra la entrada del mapa de pendientes; la idea vuelve a su posición original; `removeIdea` **no** se llama |
+| Pulsa "Deshacer" | La idea vuelve a su posición; `removeIdea` **no** se llama |
 
-### Por qué el descarte usa título (no índice)
+#### Campos `discardedTitles` y `dislikedCategories`
 
-La mutación `removeIdea` busca la idea por `ideaTitle`, no por posición en el array. Esto evita que descartes múltiples rápidos desajusten los índices entre el estado local y el array de Convex.
+`removeIdea` actualiza dos campos en el doc de `recommendations`:
 
 ```typescript
-// convex/recommendations.ts
 await ctx.db.patch(existing._id, {
   ideas: existing.ideas.filter((idea) => idea.title !== ideaTitle),
   discardedTitles: [...(existing.discardedTitles ?? []), ideaTitle],
+  dislikedCategories: merged, // categorías acumuladas de todas las ideas descartadas
 });
 ```
 
-### Campo `discardedTitles`
+- `discardedTitles` — títulos exactos; evitan que el upsert los sobrescriba al regenerar.
+- `dislikedCategories` — categorías de ideas descartadas (deduplicadas, cap 100). Se inyectan en `buildPrompt` como sección "Tipos de regalos que NO encajan con esta persona", para que la siguiente generación los evite a nivel semántico.
 
-Los títulos descartados se acumulan en `recommendations.discardedTitles` (array de strings). El propósito es que al regenerar, el prompt pueda excluirlos — **esta parte aún no está implementada en `buildPrompt`**, es una mejora pendiente.
+#### Por qué el descarte usa título (no índice)
+
+`removeIdea` filtra por `ideaTitle`, no por posición en el array. Esto evita que descartes múltiples rápidos desajusten los índices entre estado local y Convex.
+
+### 👍 Pulgar arriba — guardar idea
+
+1. Llama a `api.savedIdeas.save` (rate limit: 50 guardados/día).
+2. El icono pasa a `fill="currentColor"` como confirmación visual (estado local `savedTitles: Set<string>`; se resetea al regenerar).
+3. Toast: "Idea guardada en la ficha de [nombre]".
+
+La idea se persiste en la tabla `savedIdeas` vinculada a la persona y la ocasión.
+
+#### Tabla `savedIdeas`
+
+Almacena ideas que el usuario quiere recordar para cuando llegue el momento de comprar:
+
+```
+savedIdeas: {
+  clerkUserId, personId, occasionLabel,
+  title, description, priceMinEuros, priceMaxEuros,
+  category, amazonQuery, suggestedStores?
+}
+index: by_person
+```
+
+#### Conversión a historial de regalos
+
+Desde la ficha de la persona (sección "Ideas guardadas") el usuario puede:
+
+1. Ver todas las ideas guardadas con título, precio, categorías y ocasión.
+2. Pulsar **"Lo regalé →"** → se abre un diálogo con `giftName` y `occasionLabel` pre-rellenados; el usuario elige reacción (+ año y notas opcionales).
+3. Al confirmar: se crea una entrada en `giftHistory` y se borra la idea de `savedIdeas`.
 
 ---
 
@@ -337,22 +369,23 @@ La variable de entorno `GOOGLE_GENERATIVE_AI_API_KEY` debe configurarse en Verce
 | Archivo | Rol |
 |---|---|
 | [`src/app/(app)/people/[personId]/gifts/page.tsx`](../src/app/%28app%29/people/%5BpersonId%5D/gifts/page.tsx) | Página principal: selector de evento, tipo, generación, descarte con toast+undo |
-| [`src/components/gifts/GiftRecommendationCard.tsx`](../src/components/gifts/GiftRecommendationCard.tsx) | Tarjeta de idea: título, descripción, precio, categoría, botón de búsqueda, botón X |
-| [`src/app/api/recommendations/route.ts`](../src/app/api/recommendations/route.ts) | API route: fetches Convex, llama a Gemini, persiste resultado |
-| [`convex/recommendations.ts`](../convex/recommendations.ts) | `getByPersonOccasion`, `upsert`, `removeIdea` |
+| [`src/components/gifts/GiftRecommendationCard.tsx`](../src/components/gifts/GiftRecommendationCard.tsx) | Tarjeta de idea: título, descripción, precio, categoría, chips de tienda, botones 👍/👎 |
+| [`src/components/gifts/GiftsPanel.tsx`](../src/components/gifts/GiftsPanel.tsx) | Orquesta generación, caché, estado local de ideas, `handleSave` y `handleDiscard` |
+| [`src/app/api/recommendations/route.ts`](../src/app/api/recommendations/route.ts) | API route: fetches Convex, llama a Gemini, inyecta `dislikedCategories`, persiste resultado |
+| [`convex/recommendations.ts`](../convex/recommendations.ts) | `getByPersonOccasion`, `upsert`, `removeIdea` (actualiza `discardedTitles` + `dislikedCategories`) |
+| [`convex/savedIdeas.ts`](../convex/savedIdeas.ts) | `save`, `remove`, `getByPerson` — ideas que el usuario quiere recordar (👍) |
 | [`convex/recommendationUsage.ts`](../convex/recommendationUsage.ts) | Rate limit: `check` (query sin efecto) + `consume` (mutation, solo tras éxito) |
 | [`src/lib/gifts.ts`](../src/lib/gifts.ts) | Tipos `GiftType`, `GiftRecommendation`, schema Zod (incluye `suggestedStores`), constante `GIFT_TYPES` |
 | [`src/lib/stores.ts`](../src/lib/stores.ts) | `STORE_IDS`, `STORE_LABELS`, `generateStoreSearchUrl`, `pickEffectiveStores`, `sanitizeFavoriteStores` |
 | [`src/lib/stores.test.ts`](../src/lib/stores.test.ts) | Tests unitarios de URL building, sanitización y `pickEffectiveStores` |
 | [`convex/settings.ts`](../convex/settings.ts) | `getMine` y `setMine` con `favoriteStores`; importa `ALLOWED_STORES` de `validators.ts` |
-| [`convex/validators.ts`](../convex/validators.ts) | Allowlist `ALLOWED_STORES` y `validateRecommendationIdeas` (defensa en profundidad sobre `upsert`) |
+| [`convex/validators.ts`](../convex/validators.ts) | Allowlist `ALLOWED_STORES`, `validateRecommendationIdeas` y `validateSavedIdeaInput` |
 | [`src/app/(app)/settings/page.tsx`](../src/app/%28app%29/settings/page.tsx) | UI de selector de tiendas favoritas (4 checkboxes) |
 
 ---
 
 ## Mejoras pendientes
 
-- **Excluir `discardedTitles` en `buildPrompt`**: el campo ya se persiste, pero el prompt todavía no los inyecta para evitar que la IA repita ideas descartadas al regenerar.
 - **Afiliación**: añadir parámetros de afiliado por tienda en `generateStoreSearchUrl` cuando haya cuentas (Amazon Associates, AliExpress Affiliate, etc.).
 - **Recordatorios escalonados**: no relacionado con IA, pero la estructura de `importantDates` ya lo soporta.
 
@@ -367,10 +400,16 @@ La variable de entorno `GOOGLE_GENERATIVE_AI_API_KEY` debe configurarse en Verce
 - [ ] Click en "Generar" → aparecen 9 skeletons con fondo visible mientras carga
 - [ ] Aparecen 9 tarjetas con título, badge de categoría, precio y chips de tienda
 - [ ] Volver a la pantalla sin regenerar → las ideas cacheadas aparecen y el botón dice "Regenerar"
-- [ ] Pulsar X en una tarjeta → desaparece, toast permanente con "Deshacer"
+- [ ] Pulsar 👎 en una tarjeta → desaparece, toast "Descartada — la IA evitará ideas parecidas" con "Deshacer"
 - [ ] Pulsar "Deshacer" → la tarjeta vuelve a su posición
 - [ ] Cerrar el toast manualmente → la idea se elimina de Convex (verificar en dashboard de Convex)
 - [ ] Navegar fuera de la pantalla con toasts abiertos → las ideas pendientes se eliminan de Convex al desmontar
+- [ ] Pulsar 👍 en una tarjeta → el icono pasa a relleno (filled), toast "Idea guardada en la ficha de [nombre]"
+- [ ] Pulsar 👍 de nuevo en la misma idea (ya guardada) → no lanza error (rate limit no se toca al duplicar en mismo set)
+- [ ] Regenerar ideas → los iconos 👍 vuelven a hollow (estado `savedTitles` se resetea)
+- [ ] Ir a la ficha de la persona → aparece sección "Ideas guardadas" con las ideas marcadas con 👍
+- [ ] Pulsar "Lo regalé →" en una idea guardada → se abre el diálogo con nombre y ocasión pre-rellenados
+- [ ] Confirmar conversión → la idea desaparece de "Ideas guardadas" y aparece en el historial de regalos
 
 ### Multi-tienda
 - [ ] En `/settings` aparece la sección "Tiendas para recomendaciones" con 7 checkboxes (todas marcadas por defecto)
