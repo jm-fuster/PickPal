@@ -1,28 +1,23 @@
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
 import { UserButton } from "@clerk/nextjs";
-import { Bell, Gift, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { LogoMark } from "@/components/ui/LogoMark";
-import type { LucideIcon } from "lucide-react";
 
-const STEPS: { number: number; icon: LucideIcon; title: string; body: string }[] = [
+const STEPS: { number: number; title: string; body: string }[] = [
   {
     number: 1,
-    icon: Users,
     title: "Añade a tus seres queridos",
     body: "Sus gustos, notas, tallas y sus eventos — cada ocasión con su presupuesto.",
   },
   {
     number: 2,
-    icon: Bell,
     title: "Dile cuándo avisarte",
     body: "Elige con cuántos días de antelación quieres saber que se acerca una fecha. Sin sorpresas.",
   },
   {
     number: 3,
-    icon: Gift,
     title: "Genera ideas perfectas",
     body: "Un botón. Nueve sugerencias adaptadas a esa persona, a la ocasión y a tu presupuesto.",
   },
@@ -77,10 +72,9 @@ export default async function Home() {
         </section>
 
         <section className="grid w-full max-w-5xl gap-4 grid-cols-1 sm:grid-cols-3">
-          {STEPS.map(({ number, icon: Icon, title, body }) => (
+          {STEPS.map(({ number, title, body }) => (
             <Card key={title} className="border-border/60 shadow-sm">
               <CardContent className="space-y-4 p-6">
-                <Icon className="size-5 text-muted-foreground" aria-hidden />
                 <div className="flex items-center gap-3">
                   <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-secondary text-[11px] font-semibold text-secondary-foreground">
                     {number}
