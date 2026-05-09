@@ -60,38 +60,40 @@ export function GiftRecommendationCard({
 
   return (
     <Card
-      className="relative flex flex-col h-full border-border/60 shadow-sm transition-shadow hover:shadow-md animate-in fade-in slide-in-from-bottom-2 duration-500 fill-mode-both"
+      className="flex flex-col h-full border-border/60 shadow-sm transition-shadow hover:shadow-md animate-in fade-in slide-in-from-bottom-2 duration-500 fill-mode-both"
       style={{ animationDelay: `${index * 60}ms` }}
     >
-      {(onSave || onDiscard) && (
-        <div className="absolute top-2 right-2 z-10 flex gap-0.5">
-          {onSave && (
-            <button
-              type="button"
-              onClick={onSave}
-              aria-label="Guardar idea"
-              className="rounded-full p-1 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
-            >
-              <ThumbsUp className="size-3.5" aria-hidden fill={saved ? "currentColor" : "none"} />
-            </button>
-          )}
-          {onDiscard && (
-            <button
-              type="button"
-              onClick={onDiscard}
-              aria-label="No me interesa"
-              className="rounded-full p-1 text-muted-foreground hover:text-destructive hover:bg-muted/60 transition-colors"
-            >
-              <ThumbsDown className="size-3.5" aria-hidden />
-            </button>
-          )}
-        </div>
-      )}
       <CardContent className="flex flex-1 flex-col gap-4 p-5">
         <div className="space-y-1.5">
-          <h3 className="text-base font-medium leading-snug pr-6">
-            {idea.title}
-          </h3>
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="text-base font-medium leading-snug">
+              {idea.title}
+            </h3>
+            {(onSave || onDiscard) && (
+              <div className="flex gap-0.5 shrink-0">
+                {onSave && (
+                  <button
+                    type="button"
+                    onClick={onSave}
+                    aria-label="Guardar idea"
+                    className="rounded-full p-1 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+                  >
+                    <ThumbsUp className="size-3.5" aria-hidden fill={saved ? "currentColor" : "none"} />
+                  </button>
+                )}
+                {onDiscard && (
+                  <button
+                    type="button"
+                    onClick={onDiscard}
+                    aria-label="No me interesa"
+                    className="rounded-full p-1 text-muted-foreground hover:text-destructive hover:bg-muted/60 transition-colors"
+                  >
+                    <ThumbsDown className="size-3.5" aria-hidden />
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
           <div className="flex flex-wrap gap-1">
             {(Array.isArray(idea.category)
               ? idea.category
