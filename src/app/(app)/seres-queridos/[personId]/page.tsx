@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { use, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   ArrowLeft, CalendarDays, CalendarX2, Camera, Check, Gift, NotebookPen, PencilLine, Repeat2, Ruler, Star, Trash2, ThumbsUp, X,
 } from "lucide-react";
@@ -63,6 +64,9 @@ function PersonDetailContent({
 }) {
   const id = person._id as Id<"people">;
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const backHref = searchParams.get("from") === "agenda" ? "/agenda" : "/seres-queridos";
+  const backLabel = searchParams.get("from") === "agenda" ? "Agenda" : "Seres queridos";
   const updatePerson = useMutation(api.people.update);
   const removePerson = useMutation(api.people.remove);
   const removeDate = useMutation(api.importantDates.remove);
@@ -154,11 +158,11 @@ function PersonDetailContent({
   return (
     <main className="flex flex-1 flex-col gap-8 p-4 sm:p-6 lg:p-8 w-full max-w-6xl">
       <Link
-        href="/seres-queridos"
+        href={backHref}
         className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground w-fit"
       >
         <ArrowLeft className="size-3.5" aria-hidden />
-        Seres queridos
+        {backLabel}
       </Link>
 
       {/* ── Header ── */}
