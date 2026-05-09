@@ -130,8 +130,32 @@ ${typeRules[giftType]}
 - "description" en español, máximo 2 frases, explicando por qué encaja con esta persona.
 - "category" es un array JSON de 1 a 3 strings en español. Usa intereses concretos del perfil que justifiquen la idea (ej: ["Senderismo", "Fotografía"], ["Cocina japonesa"], ["Gaming", "Tecnología"]). Si la idea no encaja con ningún interés definido, usa una etiqueta descriptiva específica al regalo (ej: ["Accesorios viaje"], no ["Viajes"]). Nunca uses categorías genéricas sueltas como ["Tecnología"], ["Hogar"] o ["Libros"] si hay intereses más concretos disponibles.
 - "priceMinEuros" y "priceMaxEuros" en euros, valores enteros razonables.
-- Responde en español.`;
+- Responde en español. IMPORTANTE: escribe todos los textos con caracteres Unicode directos (á, é, í, ó, ú, ñ, ü, etc.). No uses secuencias de escape como \\u00e9; escribe directamente el carácter.`;
 };
+
+/** Decode \\uXXXX sequences that Gemini sometimes emits literally instead of actual chars. */
+function decodeEscapes(s: string): string {
+  return s.replace(/\\u([0-9a-fA-F]{4})/gi, (_, h) =>
+    String.fromCharCode(parseInt(h, 16)),
+  );
+}
+
+function sanitizeIdeas(
+  ideas: Array<Record<string, unknown>>,
+): Array<Record<string, unknown>> {
+  return ideas.map((idea) => {
+    const out: Record<string, unknown> = { ...idea };
+    for (const key of ["title", "description", "amazonQuery"] as const) {
+      if (typeof out[key] === "string") out[key] = decodeEscapes(out[key] as string);
+    }
+    if (Array.isArray(out.category)) {
+      out.category = (out.category as unknown[]).map((c) =>
+        typeof c === "string" ? decodeEscapes(c) : c,
+      );
+    }
+    return out;
+  });
+}
 
 export async function POST(req: NextRequest) {
   const { getToken } = await auth();
@@ -211,10 +235,11 @@ export async function POST(req: NextRequest) {
 
     // Guardar primero; consumir cuota solo si el upsert tiene éxito.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await fetchMutation(api.recommendations.upsert, { personId, occasionLabel, giftType, ideas: object.ideas as any }, { token });
+    const cleanIdeas = sanitizeIdeas(object.ideas as Array<Record<string, unknown>>);
+    await fetchMutation(api.recommendations.upsert, { personId, occasionLabel, giftType, ideas: cleanIdeas as any }, { token });
     await fetchMutation(api.recommendationUsage.consume, {}, { token });
 
-    return NextResponse.json(object);
+    return NextResponse.json({ ideas: cleanIdeas });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error("[recommendations] gemini:", message);
