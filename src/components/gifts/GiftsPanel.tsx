@@ -81,6 +81,7 @@ export function GiftsPanel({
   const [ideas, setIdeas] = useState<GiftRecommendation[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [showHeaderRegen, setShowHeaderRegen] = useState(false);
+  const [savedTitles, setSavedTitles] = useState<Set<string>>(new Set());
   const controlsRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -156,6 +157,7 @@ export function GiftsPanel({
   const generate = async () => {
     setLoading(true);
     setIdeas(null);
+    setSavedTitles(new Set());
     try {
       const res = await fetch("/api/recommendations", {
         method: "POST",
@@ -197,6 +199,7 @@ export function GiftsPanel({
         amazonQuery: idea.amazonQuery,
         suggestedStores: idea.suggestedStores,
       });
+      setSavedTitles((prev) => new Set(prev).add(idea.title));
       toast.success(`Idea guardada en la ficha de ${person?.name ?? "esta persona"}`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "No se pudo guardar la idea");
@@ -210,7 +213,7 @@ export function GiftsPanel({
     const args = { personId, occasionLabel: occasion, giftType, ideaTitle: idea.title, ideaCategories };
     pendingDiscards.current.set(idea.title, { idea, insertAt: displayIndex, args });
 
-    toast("Esta idea no se volverá a mostrar", {
+    toast("Descartada — la IA evitará ideas parecidas", {
       duration: Infinity,
       action: {
         label: "Deshacer",
@@ -371,6 +374,7 @@ export function GiftsPanel({
               index={i}
               giftType={giftType}
               favoriteStores={favoriteStores}
+              saved={savedTitles.has(idea.title)}
               onSave={() => handleSave(idea)}
               onDiscard={() => handleDiscard(idea, i)}
             />

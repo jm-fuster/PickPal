@@ -25,6 +25,7 @@ interface GiftRecommendationCardProps {
   index?: number;
   giftType?: GiftType;
   favoriteStores?: StoreId[];
+  saved?: boolean;
   onSave?: () => void;
   onDiscard?: () => void;
 }
@@ -34,6 +35,7 @@ export function GiftRecommendationCard({
   index = 0,
   giftType = "fisica",
   favoriteStores,
+  saved = false,
   onSave,
   onDiscard,
 }: GiftRecommendationCardProps) {
@@ -68,9 +70,9 @@ export function GiftRecommendationCard({
               type="button"
               onClick={onSave}
               aria-label="Guardar idea"
-              className="rounded-full p-1 text-muted-foreground hover:text-emerald-500 hover:bg-muted/60 transition-colors"
+              className="rounded-full p-1 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
             >
-              <ThumbsUp className="size-3.5" aria-hidden />
+              <ThumbsUp className="size-3.5" aria-hidden fill={saved ? "currentColor" : "none"} />
             </button>
           )}
           {onDiscard && (
