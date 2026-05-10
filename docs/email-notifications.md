@@ -73,7 +73,7 @@ Al entrar por primera vez a la app (cualquier ruta autenticada), el componente `
 | [`convex/schema.ts`](../convex/schema.ts) | Campos nuevos en `userSettings` y tabla `emailNotifications` con sus índices. |
 | [`convex/settings.ts`](../convex/settings.ts) | `getMine` devuelve los nuevos campos + email del JWT. `setMine` valida y los persiste. `ensureDefaults` inicializa la fila al primer acceso. Si se activa el toggle sin email en JWT, lanza error. |
 | [`src/components/layout/UserInitializer.tsx`](../src/components/layout/UserInitializer.tsx) | Componente cliente (renderizado en el app layout). Llama a `ensureDefaults` al montar, una vez por sesión autenticada. |
-| [`convex/notifications.ts`](../convex/notifications.ts) | Cálculo de próxima ocurrencia (recurrente / no recurrente), matching contra antelación, dedup vs. `emailNotifications`. Exporta el tipo `EventToNotify` (incluye `personId` para el CTA del email). |
+| [`convex/notifications.ts`](../convex/notifications.ts) | Cálculo de próxima ocurrencia (recurrente / no recurrente), matching contra antelación, dedup vs. `emailNotifications`. Exporta el tipo `EventToNotify` (incluye `personId` para el CTA y `personAvatarUrl` para el avatar en la tarjeta). |
 | [`convex/emails.ts`](../convex/emails.ts) | Llama a Resend (vía `fetch`, sin SDK) y orquesta el cron diario. Construye HTML inline en español con diseño visual propio (ver sección "Plantilla de email"). |
 | [`convex/crons.ts`](../convex/crons.ts) | `crons.cron("0 8 * * *", ...)` — diario a las 08:00 UTC. |
 | [`src/app/(app)/settings/page.tsx`](../src/app/%28app%29/settings/page.tsx) | UI: toggle + grid de checkboxes con las antelaciones (0/2/7/14) + email destino visible. |
@@ -89,15 +89,17 @@ El HTML se genera en `convex/emails.ts` (`buildHtml()`). No usa React Email ni n
 ```
 ┌─────────────────────────────────────────┐
 │  Header verde (#2D4033)                 │
-│  "PickPal"  ·  "Recordatorio de evento" │
+│  [logo 40px] PickPal                    │
+│              "Recordatorio de evento"   │
 ├─────────────────────────────────────────┤
 │  Fondo crema (#FBF7EE)                  │
 │  "Tienes un evento próximo:"            │
 │  ┌─ card por evento ─────────────────┐  │
-│  │  Nombre (negrita) · Etiqueta      │  │
-│  │  dd/mm · "en X días" (terracota)  │  │
+│  │  [avatar 44px]  Nombre (negrita)  │  │
+│  │                 Etiqueta · dd/mm  │  │
+│  │                 "en X días"       │  │
 │  └───────────────────────────────────┘  │
-│  [ Botón CTA ]                          │
+│  [ 🎁 Ideas para {nombre} ]             │
 ├─────────────────────────────────────────┤
 │  Footer crema · texto opt-out           │
 └─────────────────────────────────────────┘
@@ -115,15 +117,32 @@ Los tokens del design system se traducen a hex porque los clientes de correo no 
 | `--foreground` | `#3D2E1E` | Texto principal del body |
 | `--border` | `#E0D5C5` | Borde de cards y secciones |
 | muted | `#9A8A75` | Texto secundario, footer |
+| avatar fallback | `#D4C4A8` | Fondo círculo de inicial cuando no hay foto |
+
+### Logo en cabecera
+
+`icon-192.png` servido desde `APP_BASE_URL/icon-192.png` (Next.js public folder, siempre accesible). Se renderiza a 40 × 40 px con `border-radius:10px`. Los clientes de correo que bloqueen imágenes remotas mostrarán solo el texto "PickPal".
+
+### Avatar de la persona
+
+Cada tarjeta incluye el avatar circular de la persona (44 × 44 px):
+- Si `personAvatarUrl` está disponible: `<img>` con `border-radius:50%` y borde `#E0D5C5`.
+- Si no hay URL: círculo `#D4C4A8` con la inicial del nombre centrada mediante `line-height:44px`.
+
+El campo `personAvatarUrl` se propaga desde `person.avatarUrl` en `convex/notifications.ts` (`findEventsNeedingEmail`) y se declara como `v.optional(v.string())` en el validator de `sendBatchedReminderEmail`.
 
 ### Botón CTA
 
-- **1 evento** → `"Generar ideas de regalo para {personName}"` → `https://pickpal-app.vercel.app/people/{personId}`
-- **N eventos** → `"Ver mis eventos próximos"` → `https://pickpal-app.vercel.app/people`
+- **1 evento** → `🎁 Ideas para {personName}` → `…/seres-queridos/{personId}/gifts?occasion={label}`
+- **N eventos** → `🎁 Ver próximos eventos` → `…/agenda`
 
-El `personId` viene del tipo `EventToNotify` (campo añadido en `convex/notifications.ts`). El loop sobre personas ya tenía el ID disponible; solo había que propagarlo.
+`white-space:nowrap` garantiza que el botón nunca parte en dos líneas en móvil.
 
 La URL base está hardcodeada como constante `APP_BASE_URL = "https://pickpal-app.vercel.app"` en `emails.ts`. Si el dominio cambia, actualizar ahí.
+
+### Sender avatar (foto de perfil del emisor)
+
+El avatar que aparece junto al remitente en clientes como Gmail **no** lo controla el HTML del email — lo decide el cliente (Gravatar, sus propios índices, o BIMI). Para configurarlo en Gmail es necesario verificar dominio en Resend y publicar un registro DNS BIMI con un logo SVG. Fuera del alcance actual.
 
 ### Footer
 

@@ -2,10 +2,11 @@ import { v } from "convex/values";
 import { internalAction } from "./_generated/server";
 import { internal } from "./_generated/api";
 import type { UserToNotify, EventToNotify } from "./notifications";
-
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
 const DEFAULT_FROM = "PickPal <onboarding@resend.dev>";
 const APP_BASE_URL = "https://pickpal-app.vercel.app";
+const LOGO_DATA_URI = `${APP_BASE_URL}/logo-mark-email.png`;
+const GIFT_ICON_DATA_URI = `${APP_BASE_URL}/gift-icon-email.png`;
 
 function escapeHtml(s: string): string {
   return s
@@ -16,20 +17,58 @@ function escapeHtml(s: string): string {
     .replace(/'/g, "&#39;");
 }
 
+function avatarHtml(name: string, avatarUrl?: string): string {
+  if (avatarUrl) {
+    // Use background-image instead of <img> so Gmail dark mode doesn't apply image filters
+    return `<div role="img" aria-label="${escapeHtml(name)}"
+      style="width:44px;height:44px;border-radius:50%;overflow:hidden;
+      background-image:url('${escapeHtml(avatarUrl)}');background-size:cover;
+      background-position:center;border:2px solid #3D5040;box-sizing:border-box;
+      display:block;"></div>`;
+  }
+  const initial = escapeHtml(name.trim().charAt(0).toUpperCase());
+  return `<table cellpadding="0" cellspacing="0" width="44" height="44"
+    style="width:44px;height:44px;border-radius:50%;overflow:hidden;">
+    <tr>
+      <td width="44" height="44" bgcolor="#3D5040" align="center" valign="middle"
+        style="background-color:#3D5040;width:44px;height:44px;border-radius:50%;
+        font-size:18px;font-weight:700;color:#FBF7EE;text-align:center;
+        font-family:system-ui,-apple-system,sans-serif;">${initial}</td>
+    </tr>
+  </table>`;
+}
+
 function formatEventCard(e: EventToNotify): string {
   const dd = String(e.day).padStart(2, "0");
   const mm = String(e.month).padStart(2, "0");
   const daysText =
     e.daysUntil === 0
-      ? '<span style="color:#D97757;font-weight:600;">hoy</span>'
+      ? "hoy"
       : e.daysUntil === 1
-        ? '<span style="color:#D97757;font-weight:600;">mañana</span>'
-        : `<span style="color:#D97757;font-weight:600;">en ${e.daysUntil} días</span>`;
+        ? "mañana"
+        : `en ${e.daysUntil} días`;
+
   return `
-    <div style="background:#ffffff;border:1px solid #E0D5C5;border-radius:10px;padding:16px 20px;margin-bottom:12px;">
-      <div style="font-size:15px;font-weight:600;color:#3D2E1E;">${escapeHtml(e.personName)}</div>
-      <div style="font-size:13px;color:#9A8A75;margin-top:4px;">${escapeHtml(e.label)} · ${dd}/${mm} · ${daysText}</div>
-    </div>`;
+    <table cellpadding="0" cellspacing="0" width="100%"
+      style="background-color:#2D4033;border-radius:10px;margin-bottom:10px;">
+      <tr>
+        <td bgcolor="#2D4033"
+          style="padding:14px 18px;background-color:#2D4033;border-radius:10px;">
+          <table cellpadding="0" cellspacing="0" width="100%">
+            <tr>
+              <td style="width:44px;vertical-align:middle;padding-right:14px;">
+                ${avatarHtml(e.personName, e.personAvatarUrl)}
+              </td>
+              <td style="vertical-align:middle;">
+                <div style="font-size:15px;font-weight:600;color:#FBF7EE;">${escapeHtml(e.personName)}</div>
+                <div style="font-size:13px;color:#a8c0a0;margin-top:2px;">${escapeHtml(e.label)} &middot; ${dd}/${mm}</div>
+                <div style="font-size:12px;font-weight:600;color:#F1704B;margin-top:2px;">${daysText}</div>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>`;
 }
 
 function buildSubject(events: EventToNotify[]): string {
@@ -50,16 +89,22 @@ function buildCta(events: EventToNotify[]): string {
   const href =
     events.length === 1
       ? `${APP_BASE_URL}/seres-queridos/${events[0].personId}/gifts?occasion=${encodeURIComponent(events[0].label)}`
-      : `${APP_BASE_URL}/people`;
+      : `${APP_BASE_URL}/agenda`;
   const label =
     events.length === 1
-      ? `Generar ideas de regalo para ${escapeHtml(events[0].personName)}`
-      : "Ver mis eventos próximos";
+      ? `Ideas para ${escapeHtml(events[0].personName)}`
+      : "Ver próximos eventos";
   return `
     <div style="text-align:center;margin:28px 0 8px;">
       <a href="${href}"
-         style="display:inline-block;background:#2D4033;color:#FBF7EE;text-decoration:none;font-size:14px;font-weight:600;padding:12px 28px;border-radius:8px;letter-spacing:0.01em;">
-        ${label}
+         style="display:inline-block;background-color:#F1704B;color:#ffffff;text-decoration:none;
+                font-size:14px;font-weight:600;padding:12px 24px;border-radius:8px;
+                letter-spacing:0.01em;white-space:nowrap;">
+        <span aria-hidden="true"
+          style="display:inline-block;width:16px;height:16px;background-image:url('${GIFT_ICON_DATA_URI}');
+          background-size:16px 16px;background-repeat:no-repeat;background-position:center;
+          vertical-align:middle;margin-right:7px;position:relative;top:-1px;"></span
+        ><span style="vertical-align:middle;">${label}</span>
       </a>
     </div>`;
 }
@@ -77,25 +122,42 @@ function buildHtml(events: EventToNotify[]): string {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="supported-color-schemes" content="light">
 </head>
-<body style="margin:0;padding:0;background:#f0ebe2;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0ebe2;padding:32px 16px;">
+<body style="margin:0;padding:0;background-color:#141e17;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#141e17"
+    style="background-color:#141e17;padding:32px 16px;">
     <tr>
       <td align="center">
         <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
 
           <!-- Header -->
           <tr>
-            <td style="background:#2D4033;border-radius:12px 12px 0 0;padding:28px 32px 24px;">
-              <div style="font-size:22px;font-weight:700;color:#FBF7EE;letter-spacing:-0.01em;">PickPal</div>
-              <div style="font-size:13px;color:#a8c0a0;margin-top:4px;">Recordatorio de evento</div>
+            <td bgcolor="#2D4033"
+              style="background-color:#2D4033;border-radius:12px 12px 0 0;padding:24px 32px;">
+              <table cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="vertical-align:middle;padding-right:12px;">
+                    <div role="img" aria-label="PickPal"
+                      style="width:36px;height:36px;background-image:url('${LOGO_DATA_URI}');
+                      background-size:36px 36px;background-repeat:no-repeat;
+                      background-position:center;display:block;"></div>
+                  </td>
+                  <td style="vertical-align:middle;">
+                    <div style="font-size:20px;font-weight:700;color:#FBF7EE;letter-spacing:-0.01em;">PickPal</div>
+                    <div style="font-size:12px;color:#a8c0a0;margin-top:2px;">Recordatorio de evento</div>
+                  </td>
+                </tr>
+              </table>
             </td>
           </tr>
 
           <!-- Body -->
           <tr>
-            <td style="background:#FBF7EE;padding:28px 32px 8px;border-left:1px solid #E0D5C5;border-right:1px solid #E0D5C5;">
-              <p style="margin:0 0 20px;font-size:15px;color:#3D2E1E;">${intro}</p>
+            <td bgcolor="#1E2D24"
+              style="background-color:#1E2D24;padding:24px 24px 8px;">
+              <p style="margin:0 0 16px;font-size:15px;color:#a8c0a0;">${intro}</p>
               ${cards}
               ${cta}
             </td>
@@ -103,10 +165,11 @@ function buildHtml(events: EventToNotify[]): string {
 
           <!-- Footer -->
           <tr>
-            <td style="background:#FBF7EE;border-radius:0 0 12px 12px;border:1px solid #E0D5C5;border-top:none;padding:16px 32px 24px;">
-              <p style="margin:0;font-size:12px;color:#9A8A75;line-height:1.6;">
+            <td bgcolor="#1E2D24"
+              style="background-color:#1E2D24;border-radius:0 0 12px 12px;padding:12px 24px 24px;">
+              <p style="margin:0;font-size:12px;color:#5a7a5e;line-height:1.6;">
                 Si no quieres seguir recibiendo estos recordatorios, desactívalos en tus
-                <a href="${APP_BASE_URL}/settings" style="color:#9A8A75;text-decoration:underline;">ajustes</a>
+                <a href="${APP_BASE_URL}/settings" style="color:#5a7a5e;text-decoration:underline;">ajustes</a>
                 de PickPal.
               </p>
             </td>
@@ -130,6 +193,7 @@ export const sendBatchedReminderEmail = internalAction({
         occurrenceYear: v.number(),
         label: v.string(),
         personName: v.string(),
+        personAvatarUrl: v.optional(v.string()),
         month: v.number(),
         day: v.number(),
         daysUntil: v.number(),

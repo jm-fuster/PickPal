@@ -61,6 +61,7 @@ export type EventToNotify = {
   occurrenceYear: number;
   label: string;
   personName: string;
+  personAvatarUrl?: string;
   month: number;
   day: number;
   daysUntil: number;
@@ -126,6 +127,7 @@ export const findEventsNeedingEmail = internalQuery({
             occurrenceYear: next.occurrenceYear,
             label: date.label,
             personName: person.name,
+            personAvatarUrl: person.avatarUrl,
             month: date.month,
             day: date.day,
             daysUntil: next.daysUntil,
