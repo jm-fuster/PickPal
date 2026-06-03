@@ -31,7 +31,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { GiftRecommendationCard } from "@/components/gifts/GiftRecommendationCard";
 import { LoadingFallback } from "@/components/layout/LoadingFallback";
 import { GIFT_TYPES, type GiftType, type GiftRecommendation } from "@/lib/gifts";
-import { ALL_STORES, sanitizeFavoriteStores } from "@/lib/stores";
+import { ALL_STORES, pickEffectiveStores, sanitizeFavoriteStores } from "@/lib/stores";
 
 const formatBudget = (min?: number, max?: number) => {
   const toEur = (v: number) => Math.round(v / 100);
@@ -202,6 +202,13 @@ export function GiftsPanel({
   const handleSave = async (idea: GiftRecommendation) => {
     if (!occasion) return;
     try {
+      // Congelamos las tiendas EFECTIVAS que mostró la card (con el fallback a
+      // favoritas), no las crudas de la IA, para que la idea guardada enseñe
+      // exactamente lo mismo que se vio. Solo las físicas muestran tiendas.
+      const effectiveStores =
+        giftType === "fisica"
+          ? pickEffectiveStores(favoriteStores, idea.suggestedStores).stores
+          : undefined;
       await saveIdea({
         personId,
         occasionLabel: occasion,
@@ -211,7 +218,7 @@ export function GiftsPanel({
         priceMaxEuros: idea.priceMaxEuros,
         category: idea.category,
         amazonQuery: idea.amazonQuery,
-        suggestedStores: idea.suggestedStores,
+        suggestedStores: effectiveStores,
         giftType,
       });
       setSavedTitles((prev) => new Set(prev).add(idea.title));

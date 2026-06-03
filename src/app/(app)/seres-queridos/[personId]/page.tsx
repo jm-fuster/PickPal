@@ -460,16 +460,17 @@ function PersonDetailContent({
             <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {savedIdeas.map((s) => {
                 const cats = Array.isArray(s.category) ? s.category : [s.category];
-                // Tiendas: experiencias/planes → solo Google; sorpréndeme → solo
-                // lo que la IA sugirió; físicas (o ideas viejas sin tipo) →
-                // favoritas como fallback, igual que las cards de sugerencias.
-                const isExperienceLike =
-                  s.giftType === "experiencia" || s.giftType === "tiempo-juntos";
-                const storeChips = isExperienceLike
+                // Mismas tiendas que mostró la card al generar: solo las físicas
+                // (e ideas viejas sin tipo) muestran chips; experiencias, planes
+                // y sorpréndeme → Google. Las ideas nuevas ya guardan el snapshot
+                // de tiendas efectivas, así que se muestran tal cual; las viejas
+                // sin ese dato caen al fallback de favoritas.
+                const isPhysicalLike = !s.giftType || s.giftType === "fisica";
+                const storeChips = !isPhysicalLike
                   ? []
-                  : s.giftType === "sorprendeme"
-                    ? sanitizeFavoriteStores(s.suggestedStores ?? [])
-                    : pickEffectiveStores(favoriteStores, s.suggestedStores).stores;
+                  : s.suggestedStores && s.suggestedStores.length > 0
+                    ? sanitizeFavoriteStores(s.suggestedStores)
+                    : favoriteStores;
                 return (
                   <li key={s._id}>
                     <div className="flex h-full flex-col gap-2 rounded-lg border border-border/60 bg-background/60 p-3 text-sm">
