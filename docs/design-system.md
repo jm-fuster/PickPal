@@ -192,6 +192,7 @@ Las tarjetas de regalo físico muestran 1–N chips, uno por tienda relevante. L
 - **Etiqueta**: nombre legible de la tienda (`STORE_LABELS[store]`), no el ID. "El Corte Inglés", no "elcorteingles".
 - **Hint de fallback**: cuando la IA sugiere tiendas que no coinciden con las favoritas del usuario, debajo de la fila de chips aparece `<p className="text-[11px] text-muted-foreground">Búsqueda genérica — esta idea encaja mejor en otras tiendas.</p>`. Es el único caso en el que un texto explica el comportamiento del card.
 - **No mezclar con icon-only buttons**: si en algún momento se quiere reducir el espacio (más de 4 tiendas, móvil pequeño), usar un overflow menu en vez de quitar las labels — los logos de tienda sin texto son fáciles de confundir.
+- **Variante en lista (Ideas guardadas)**: en la sección "Ideas guardadas" de la ficha de persona, los enlaces de compra usan chips pequeños (`buttonVariants({ size: "sm" })` + `flex flex-wrap gap-1.5`) en lugar de la rejilla de 2 columnas — la lista es compacta y no justifica botones grandes. Misma composición (logo + nombre + `ExternalLink`). Si la idea guardada no tiene `suggestedStores` (p. ej. era no material), se muestra un único chip "Buscar" a Google con el `amazonQuery` guardado. La idea también muestra su `description` (`line-clamp-2`) bajo el título.
 
 Ver lógica completa en [`docs/ia-regalos.md`](ia-regalos.md#multi-tienda) y la implementación en [`src/components/gifts/GiftRecommendationCard.tsx`](../src/components/gifts/GiftRecommendationCard.tsx).
 
