@@ -483,7 +483,6 @@ function PersonDetailContent({
                         </div>
                         <div className="flex items-center gap-0.5 shrink-0">
                           <Button
-                            variant="outline"
                             size="sm"
                             className="text-xs h-7 px-2"
                             onClick={() => {
@@ -493,7 +492,7 @@ function PersonDetailContent({
                               setConvertNotes("");
                             }}
                           >
-                            Lo regalé →
+                            Lo regalé
                           </Button>
                           <Button
                             variant="ghost"
@@ -530,7 +529,7 @@ function PersonDetailContent({
                                 })}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className={buttonVariants({ size: "sm" })}
+                                className={buttonVariants({ size: "sm", variant: "outline" })}
                               >
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img src={STORE_ICONS[store]} alt="" className="size-3.5 shrink-0 rounded-sm object-contain bg-white p-px" aria-hidden />
@@ -543,7 +542,7 @@ function PersonDetailContent({
                               href={googleSearchUrl(s.amazonQuery)}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className={buttonVariants({ size: "sm" })}
+                              className={buttonVariants({ size: "sm", variant: "outline" })}
                             >
                               Buscar
                               <ExternalLink className="size-3 shrink-0" aria-hidden />

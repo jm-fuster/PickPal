@@ -137,7 +137,7 @@ export function GiftRecommendationCard({
                         target="_blank"
                         rel="noopener noreferrer"
                         className={cn(
-                          buttonVariants({ size: "default" }),
+                          buttonVariants({ size: "default", variant: "outline" }),
                           "min-w-0",
                           isLastOdd && "col-span-2",
                         )}
@@ -161,7 +161,7 @@ export function GiftRecommendationCard({
                 href={generateGoogleUrl(idea.amazonQuery)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={cn(buttonVariants({ size: "default" }), "w-full")}
+                className={cn(buttonVariants({ size: "default", variant: "outline" }), "w-full")}
               >
                 {nonPhysicalLabel}
                 <ExternalLink className="size-3.5" aria-hidden />
