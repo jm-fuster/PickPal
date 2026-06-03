@@ -239,6 +239,15 @@ export async function POST(req: NextRequest) {
       model: google("gemini-2.5-flash"),
       schema: noStores ? giftRecommendationsSchemaNoStores : giftRecommendationsSchema,
       prompt,
+      // Coste/cuota: desactivamos el "thinking" de Gemini 2.5 (sus tokens cuentan
+      // como salida) y limitamos los reintentos a 1, para no multiplicar peticiones
+      // contra la cuota cuando una respuesta no valida contra el schema.
+      maxRetries: 1,
+      providerOptions: {
+        google: {
+          thinkingConfig: { thinkingBudget: 0 },
+        },
+      },
     });
 
     // Guardar primero; consumir cuota solo si el upsert tiene éxito.

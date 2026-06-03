@@ -352,13 +352,14 @@ Si en algún momento futuro Gemini empieza a devolver datos hostiles (prompt inj
 
 ## Configuración de la API key de Google
 
-La variable de entorno `GOOGLE_GENERATIVE_AI_API_KEY` debe configurarse en Vercel.
+La variable de entorno `GOOGLE_GENERATIVE_AI_API_KEY` debe configurarse en Vercel (y en `.env.local` para desarrollo).
 
-**Requisitos para que funcione en producción:**
-1. Crear la API key en [aistudio.google.com/apikey](https://aistudio.google.com/apikey).
-2. El proyecto de Google Cloud asociado **debe tener facturación activada** — sin billing, la cuota del free tier es 0 y todas las llamadas fallan con 429.
-3. Configurar un **spending cap** en [ai.studio/spend](https://ai.studio/spend) (recomendado: 1–5 €) para no incurrir en costes inesperados. Con el volumen actual de PickPal el coste real es < 0,01 €/mes.
-4. Con billing activo y cap > 0, el free tier de `gemini-2.5-flash` (1 500 req/día, 15 RPM) es suficiente para cientos de usuarios activos diarios.
+**PickPal usa la capa gratuita (free tier) de la Gemini API:**
+1. Crear la API key en [aistudio.google.com/apikey](https://aistudio.google.com/apikey) sobre un proyecto de Google Cloud **SIN facturación activada**. El free tier no requiere método de pago y está disponible en la UE.
+2. Coste: **0 €**. A cambio, Google usa los datos enviados para mejorar sus modelos y revisores humanos pueden leerlos (ver el coste de privacidad en [`privacy.md`](privacy.md) §4.1).
+3. Los límites del free tier de `gemini-2.5-flash` (RPM/RPD) son suficientes para una beta privada, sobre todo con el rate limit interno de 10 generaciones/usuario/día. Para no malgastar cuota, el código desactiva el *thinking* y limita los reintentos (`maxRetries: 1`) en [`route.ts`](../src/app/api/recommendations/route.ts).
+
+> **Importante — activar billing elimina el free tier.** Si habilitas facturación en el proyecto, pierdes el free tier por completo: *toda* petición pasa a facturarse (no hay franja gratis dentro del paid tier) y un *spending cap* de 0 € hace que las llamadas fallen con "límite alcanzado". La única ventaja del paid tier es de privacidad: Google deja de usar los datos para entrenar. Si algún día se migra a paid tier, actualizar [`privacy.md`](privacy.md) y `/privacidad`.
 
 **Modelo actual:** `gemini-2.5-flash`. `gemini-2.0-flash` está retirado para API keys nuevas.
 

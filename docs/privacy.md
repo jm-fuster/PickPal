@@ -81,7 +81,11 @@ _Revisar antes de publicar:_ firmar / aceptar el DPA de cada proveedor (suelen e
 
 ### 4.1 Datos enviados a Google Gemini
 
-Cuando el usuario pide recomendaciones, enviamos a Gemini el nombre, intereses, notas, presupuesto y ocasión de la persona seleccionada. **Google no entrena modelos con peticiones a la API de pago**, según sus [términos](https://ai.google.dev/gemini-api/terms). Esto se debe verificar en cada renovación de los términos.
+Cuando el usuario pide recomendaciones, enviamos a Gemini el nombre, intereses, notas, presupuesto y ocasión de la persona seleccionada.
+
+Actualmente PickPal usa la **capa gratuita** de la Gemini API. Según los [términos de Google](https://ai.google.dev/gemini-api/terms), en los servicios *no* de pago **Google usa el contenido enviado y las respuestas para mejorar y desarrollar sus productos y sus modelos de machine learning**, y **revisores humanos pueden leer, anotar y procesar** las entradas y salidas de la API. Por eso advertimos al usuario (en la app y en la sección 7) de no introducir en las notas datos que no quiera compartir con Google.
+
+> Si en el futuro se migra a la **capa de pago** de Gemini, Google deja de usar los datos para mejorar sus productos (solo los retiene brevemente por seguridad/abuso). Si se hace ese cambio, **actualizar esta sección y la página `/privacidad`** para reflejarlo. Verificar en cada renovación de los términos.
 
 ---
 
@@ -100,7 +104,7 @@ Todos los proveedores anteriores tratan datos en EE. UU. La legitimación se bas
 |---|---|
 | Cuenta de usuario y datos asociados | Mientras la cuenta esté activa. Tras la baja, eliminación en `{{DIAS_BORRADO}}` días. |
 | Logs de seguridad (errores, rate limit) | `{{DIAS_LOGS}}` días |
-| Datos enviados a Gemini | No conservados por nosotros tras la respuesta. Política de retención de Google aplicable. |
+| Datos enviados a Gemini | No conservados por nosotros tras la respuesta. En la capa gratuita, Google puede usarlos para mejorar sus productos (ver §4.1); política de retención de Google aplicable. |
 
 _Revisar:_ implementar el flujo de borrado de cuenta en la app antes de publicar.
 

@@ -63,6 +63,7 @@ Las ideas de regalo se generan con un modelo de lenguaje (Google Gemini) a parti
 - Las sugerencias son **orientativas**: precios, disponibilidad y descripciones pueden no ser exactos.
 - Los enlaces a Amazon son búsquedas: no garantizan la existencia ni el precio del producto.
 - PickPal **no se hace responsable** de compras realizadas a partir de las recomendaciones.
+- Los datos necesarios para generar las ideas se envían a Google (Gemini). PickPal usa actualmente la capa gratuita de esa API, en la que Google puede usar esos datos para mejorar sus servicios; el detalle está en la [política de privacidad](privacy.md) (§4.1).
 
 ---
 

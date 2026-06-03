@@ -69,8 +69,10 @@ export default function PrivacyPage() {
               <span className="text-foreground">Google (Gemini)</span> — recibe
               los datos del ser querido y de la ocasión cada vez que pulsas
               &laquo;generar ideas&raquo;, para devolver sugerencias de
-              regalo. Google no entrena modelos con esos datos cuando se
-              accede vía la API que usamos.
+              regalo. Usamos la capa gratuita de su API: Google puede usar
+              esos datos para mejorar sus modelos y personal de Google podría
+              revisarlos. No escribas en las notas nada que no quieras
+              compartir con Google.
             </li>
             <li>
               <span className="text-foreground">Resend</span> — envía los
