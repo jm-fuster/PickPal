@@ -7,7 +7,7 @@ describe("giftRecommendationsSchema", () => {
     description: "Recetas mediterráneas para iniciados",
     priceMinEuros: 15,
     priceMaxEuros: 25,
-    category: "Libros",
+    category: ["Libros"],
     amazonQuery: "libro recetas mediterraneas",
   };
 

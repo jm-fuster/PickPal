@@ -57,8 +57,12 @@ describe("personFormSchema", () => {
   });
 
   it("rechaza presupuesto mínimo mayor que máximo", () => {
-    const result = personFormSchema.safeParse({
-      ...validPerson,
+    // El presupuesto vive en importantDateSchema (por ocasión), no en la persona.
+    const result = importantDateSchema.safeParse({
+      label: "Cumpleaños",
+      month: 5,
+      day: 10,
+      recurring: true,
       budgetMinEuros: 100,
       budgetMaxEuros: 50,
     });
