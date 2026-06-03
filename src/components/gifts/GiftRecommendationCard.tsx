@@ -61,13 +61,13 @@ export function GiftRecommendationCard({
 
   return (
     <Card
-      className="flex flex-col border-border/60 shadow-sm transition-shadow hover:shadow-md animate-in fade-in slide-in-from-bottom-2 duration-500 fill-mode-both"
+      className="flex flex-col h-full border-border/60 shadow-sm transition-shadow hover:shadow-md animate-in fade-in slide-in-from-bottom-2 duration-500 fill-mode-both"
       style={{ animationDelay: `${index * 60}ms` }}
     >
       {/* Layout fijo desde arriba: título (2 líneas) + descripción (4 líneas)
           tienen altura reservada para que el precio quede a la misma altura
           entre cards; los botones de tienda alargan la card hacia abajo. */}
-      <CardContent className="flex flex-col gap-4 p-5">
+      <CardContent className="flex flex-1 flex-col gap-4 p-5">
         <div className="space-y-1.5">
           <div className="flex items-start justify-between gap-2">
             <h3 className="text-base font-medium leading-snug line-clamp-2 min-h-[2.75rem]">
