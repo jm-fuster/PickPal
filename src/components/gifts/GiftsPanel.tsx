@@ -212,6 +212,7 @@ export function GiftsPanel({
         category: idea.category,
         amazonQuery: idea.amazonQuery,
         suggestedStores: idea.suggestedStores,
+        giftType,
       });
       setSavedTitles((prev) => new Set(prev).add(idea.title));
       toast.success(`Idea guardada en la ficha de ${person?.name ?? "esta persona"}`);

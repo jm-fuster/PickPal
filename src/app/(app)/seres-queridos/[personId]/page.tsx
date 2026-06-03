@@ -37,7 +37,7 @@ import { LoadingFallback } from "@/components/layout/LoadingFallback";
 import { AvatarPicker } from "@/components/people/AvatarPicker";
 import { InterestTagInput } from "@/components/people/InterestTagInput";
 import { RELATIONSHIPS, REACTIONS } from "@/lib/schemas";
-import { generateStoreSearchUrl, STORE_ICONS, STORE_LABELS, type StoreId } from "@/lib/stores";
+import { ALL_STORES, generateStoreSearchUrl, pickEffectiveStores, sanitizeFavoriteStores, STORE_ICONS, STORE_LABELS, type StoreId } from "@/lib/stores";
 
 const MONTHS = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
 
@@ -59,11 +59,13 @@ function PersonDetailContent({
   dates,
   giftHistory,
   savedIdeas,
+  favoriteStores,
 }: {
   person: Person;
   dates: Dates;
   giftHistory: GiftHistory;
   savedIdeas: SavedIdeas;
+  favoriteStores: StoreId[];
 }) {
   const id = person._id as Id<"people">;
   const router = useRouter();
@@ -455,92 +457,99 @@ function PersonDetailContent({
               Las ideas que guardes desde el panel de sugerencias aparecerán aquí para convertirlas en historial cuando las regales.
             </p>
           ) : (
-            <ul className="space-y-2">
+            <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {savedIdeas.map((s) => {
                 const cats = Array.isArray(s.category) ? s.category : [s.category];
-                const stores = (s.suggestedStores ?? []).filter(
-                  (st): st is StoreId => st in STORE_LABELS,
-                );
+                // Tiendas: experiencias/planes → solo Google; sorpréndeme → solo
+                // lo que la IA sugirió; físicas (o ideas viejas sin tipo) →
+                // favoritas como fallback, igual que las cards de sugerencias.
+                const isExperienceLike =
+                  s.giftType === "experiencia" || s.giftType === "tiempo-juntos";
+                const storeChips = isExperienceLike
+                  ? []
+                  : s.giftType === "sorprendeme"
+                    ? sanitizeFavoriteStores(s.suggestedStores ?? [])
+                    : pickEffectiveStores(favoriteStores, s.suggestedStores).stores;
                 return (
                   <li key={s._id}>
-                    <div className="flex items-start justify-between gap-3 rounded-lg border border-border/60 bg-background/60 p-3 text-sm">
-                      <div className="min-w-0 flex-1 space-y-2">
-                        <div className="space-y-1">
-                          <p className="font-medium leading-snug">{s.title}</p>
+                    <div className="flex h-full flex-col gap-2 rounded-lg border border-border/60 bg-background/60 p-3 text-sm">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 space-y-1">
+                          <p className="font-medium leading-snug line-clamp-2">{s.title}</p>
                           <p className="text-xs text-muted-foreground">
                             {s.occasionLabel} · {formatPriceRange(s.priceMinEuros, s.priceMaxEuros)}
                           </p>
-                          {s.description && (
-                            <p className="text-xs leading-relaxed text-muted-foreground line-clamp-2">
-                              {s.description}
-                            </p>
-                          )}
                         </div>
-                        <div className="flex flex-wrap gap-1">
-                          {cats.map((c) => (
-                            <Badge key={c} variant="secondary" className="text-xs">{c}</Badge>
-                          ))}
+                        <div className="flex items-center gap-0.5 shrink-0">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-xs h-7 px-2"
+                            onClick={() => {
+                              setConvertingIdea(s);
+                              setConvertReaction("");
+                              setConvertYear("");
+                              setConvertNotes("");
+                            }}
+                          >
+                            Lo regalé →
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            aria-label="Quitar idea guardada"
+                            onClick={async () => {
+                              try { await removeSavedIdea({ id: s._id }); }
+                              catch { toast.error("No se pudo eliminar la idea"); }
+                            }}
+                          >
+                            <X className="size-3.5" aria-hidden />
+                          </Button>
                         </div>
-                        {s.amazonQuery && (
-                          <div className="flex flex-wrap gap-1.5">
-                            {stores.length > 0 ? (
-                              stores.map((store) => (
-                                <a
-                                  key={store}
-                                  href={generateStoreSearchUrl(store, s.amazonQuery, {
-                                    minEuros: s.priceMinEuros,
-                                    maxEuros: s.priceMaxEuros,
-                                  })}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className={buttonVariants({ size: "sm" })}
-                                >
-                                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                                  <img src={STORE_ICONS[store]} alt="" className="size-3.5 shrink-0 rounded-sm object-contain bg-white p-px" aria-hidden />
-                                  {STORE_LABELS[store]}
-                                  <ExternalLink className="size-3 shrink-0" aria-hidden />
-                                </a>
-                              ))
-                            ) : (
+                      </div>
+                      {s.description && (
+                        <p className="text-xs leading-relaxed text-muted-foreground line-clamp-2">
+                          {s.description}
+                        </p>
+                      )}
+                      <div className="flex flex-wrap gap-1">
+                        {cats.map((c) => (
+                          <Badge key={c} variant="secondary" className="text-xs">{c}</Badge>
+                        ))}
+                      </div>
+                      {s.amazonQuery && (
+                        <div className="mt-auto flex flex-wrap gap-1.5 pt-1">
+                          {storeChips.length > 0 ? (
+                            storeChips.map((store) => (
                               <a
-                                href={googleSearchUrl(s.amazonQuery)}
+                                key={store}
+                                href={generateStoreSearchUrl(store, s.amazonQuery, {
+                                  minEuros: s.priceMinEuros,
+                                  maxEuros: s.priceMaxEuros,
+                                })}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className={buttonVariants({ size: "sm" })}
                               >
-                                Buscar
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={STORE_ICONS[store]} alt="" className="size-3.5 shrink-0 rounded-sm object-contain bg-white p-px" aria-hidden />
+                                {STORE_LABELS[store]}
                                 <ExternalLink className="size-3 shrink-0" aria-hidden />
                               </a>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-0.5 shrink-0">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-xs h-7 px-2"
-                          onClick={() => {
-                            setConvertingIdea(s);
-                            setConvertReaction("");
-                            setConvertYear("");
-                            setConvertNotes("");
-                          }}
-                        >
-                          Lo regalé →
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          aria-label="Quitar idea guardada"
-                          onClick={async () => {
-                            try { await removeSavedIdea({ id: s._id }); }
-                            catch { toast.error("No se pudo eliminar la idea"); }
-                          }}
-                        >
-                          <X className="size-3.5" aria-hidden />
-                        </Button>
-                      </div>
+                            ))
+                          ) : (
+                            <a
+                              href={googleSearchUrl(s.amazonQuery)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={buttonVariants({ size: "sm" })}
+                            >
+                              Buscar
+                              <ExternalLink className="size-3 shrink-0" aria-hidden />
+                            </a>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </li>
                 );
@@ -681,10 +690,16 @@ export default function PersonDetailPage({
   const dates = useQuery(api.importantDates.getByPerson, ready ? { personId: id } : "skip");
   const giftHistory = useQuery(api.giftHistory.getByPerson, ready ? { personId: id } : "skip");
   const savedIdeas = useQuery(api.savedIdeas.getByPerson, ready ? { personId: id } : "skip");
+  const settings = useQuery(api.settings.getMine, ready ? {} : "skip");
 
   if (!ready || person === undefined || dates === undefined || giftHistory === undefined || savedIdeas === undefined) {
     return <LoadingFallback />;
   }
+
+  const favoriteStores =
+    settings && settings.favoriteStores.length > 0
+      ? sanitizeFavoriteStores(settings.favoriteStores)
+      : [...ALL_STORES];
 
   if (person === null) {
     return (
@@ -695,5 +710,5 @@ export default function PersonDetailPage({
     );
   }
 
-  return <PersonDetailContent person={person} dates={dates} giftHistory={giftHistory} savedIdeas={savedIdeas} />;
+  return <PersonDetailContent person={person} dates={dates} giftHistory={giftHistory} savedIdeas={savedIdeas} favoriteStores={favoriteStores} />;
 }

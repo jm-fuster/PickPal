@@ -110,6 +110,10 @@ export default defineSchema({
     category: v.union(v.string(), v.array(v.string())),
     amazonQuery: v.string(),
     suggestedStores: v.optional(v.array(v.string())),
+    // Tipo de regalo (fisica/experiencia/tiempo-juntos/sorprendeme). Opcional:
+    // los documentos guardados antes de este campo no lo tienen y se tratan
+    // como físicos (fallback) en la UI.
+    giftType: v.optional(v.string()),
   }).index("by_person", ["personId"]),
 
   giftHistory: defineTable({

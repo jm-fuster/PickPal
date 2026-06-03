@@ -29,6 +29,14 @@ export const save = mutation({
     category: v.union(v.string(), v.array(v.string())),
     amazonQuery: v.string(),
     suggestedStores: v.optional(v.array(v.string())),
+    giftType: v.optional(
+      v.union(
+        v.literal("fisica"),
+        v.literal("experiencia"),
+        v.literal("tiempo-juntos"),
+        v.literal("sorprendeme"),
+      ),
+    ),
   },
   handler: async (ctx, args) => {
     const clerkUserId = await requireUser(ctx);
