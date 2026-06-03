@@ -173,7 +173,9 @@ Visible a partir de `lg` (1024px). Implementado en `src/app/(app)/layout.tsx`.
 
 - Variantes shadcn: `default` (terracota), `outline`, `ghost`, `destructive`.
 - Tamaños: `sm` para acciones secundarias inline, `default` por defecto, `lg` para CTAs principales.
-- **Links que parecen botón**: usar `<Link className={buttonVariants({ ... })}>`. El componente Button de esta app **no soporta `asChild`** porque usa `@base-ui/react` en vez de Radix Slot.
+- **Links que parecen botón**: usar `<Link className={cn(buttonVariants({ ... }))}>`. El componente Button de esta app **no soporta `asChild`** porque usa `@base-ui/react` en vez de Radix Slot. Dos gotchas al usar `buttonVariants` directamente en un `<a>`/`<Link>` (no en el componente `Button`):
+  - **Envuélvelo en `cn(...)`**: `buttonVariants` es `cva` puro y **no aplica tailwind-merge**; sin `cn`, las clases en conflicto coexisten — p. ej. `border-transparent` (base) y `border-border` (variant `outline`) — y el borde puede renderizarse **invisible**. El componente `Button` ya hace el `cn` por dentro; los `<a>` no.
+  - **El hover del variant `default` está bajo el selector `[a]:hover`**, así que un `<a>` lo recibe pero un `<button>`/`<Button>` filled queda estático. Para hover en un `<Button>` default, añade `hover:bg-primary/80` explícito en `className`.
 
 ### Badges
 

@@ -37,6 +37,7 @@ import { LoadingFallback } from "@/components/layout/LoadingFallback";
 import { AvatarPicker } from "@/components/people/AvatarPicker";
 import { InterestTagInput } from "@/components/people/InterestTagInput";
 import { RELATIONSHIPS, REACTIONS } from "@/lib/schemas";
+import { cn } from "@/lib/utils";
 import { ALL_STORES, generateStoreSearchUrl, pickEffectiveStores, sanitizeFavoriteStores, STORE_ICONS, STORE_LABELS, type StoreId } from "@/lib/stores";
 
 const MONTHS = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
@@ -484,7 +485,7 @@ function PersonDetailContent({
                         <div className="flex items-center gap-0.5 shrink-0">
                           <Button
                             size="sm"
-                            className="text-xs h-7 px-2"
+                            className="text-xs h-7 px-2 hover:bg-primary/80"
                             onClick={() => {
                               setConvertingIdea(s);
                               setConvertReaction("");
@@ -529,7 +530,7 @@ function PersonDetailContent({
                                 })}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className={buttonVariants({ size: "sm", variant: "outline" })}
+                                className={cn(buttonVariants({ size: "sm", variant: "outline" }))}
                               >
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img src={STORE_ICONS[store]} alt="" className="size-3.5 shrink-0 rounded-sm object-contain bg-white p-px" aria-hidden />
@@ -542,7 +543,7 @@ function PersonDetailContent({
                               href={googleSearchUrl(s.amazonQuery)}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className={buttonVariants({ size: "sm", variant: "outline" })}
+                              className={cn(buttonVariants({ size: "sm", variant: "outline" }))}
                             >
                               Buscar
                               <ExternalLink className="size-3 shrink-0" aria-hidden />
@@ -705,7 +706,7 @@ export default function PersonDetailPage({
     return (
       <main className="flex flex-1 flex-col gap-4 p-8">
         <p>Persona no encontrada.</p>
-        <Link href="/seres-queridos" className={buttonVariants({ variant: "outline" })}>Volver</Link>
+        <Link href="/seres-queridos" className={cn(buttonVariants({ variant: "outline" }))}>Volver</Link>
       </main>
     );
   }
