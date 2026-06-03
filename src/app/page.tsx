@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { UserButton } from "@clerk/nextjs";
 import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { LogoMark } from "@/components/ui/LogoMark";
 
 const STEPS: { number: number; title: string; body: string }[] = [
@@ -59,7 +60,7 @@ export default async function Home() {
                 </Link>
                 <Link
                   href="/sign-in"
-                  className={buttonVariants({ size: "lg", variant: "outline" })}
+                  className={cn(buttonVariants({ size: "lg", variant: "outline" }))}
                 >
                   Iniciar sesión
                 </Link>

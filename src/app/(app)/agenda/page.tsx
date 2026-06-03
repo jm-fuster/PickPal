@@ -9,6 +9,7 @@ import type { Id } from "../../../../convex/_generated/dataModel";
 import { DateGroupedList } from "@/components/dashboard/DateGroupedList";
 import { GiftsPanel } from "@/components/gifts/GiftsPanel";
 import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { computeDaysUntil } from "@/lib/dates";
 
 const WINDOW_DAYS = 120;
@@ -72,7 +73,7 @@ export default function DashboardPage() {
             </p>
             <Link
               href="/seres-queridos"
-              className={buttonVariants({ variant: "outline" })}
+              className={cn(buttonVariants({ variant: "outline" }))}
             >
               Ver seres queridos
             </Link>
@@ -88,7 +89,7 @@ export default function DashboardPage() {
             </p>
             <Link
               href="/seres-queridos/new"
-              className={buttonVariants({ variant: "outline" })}
+              className={cn(buttonVariants({ variant: "outline" }))}
             >
               Añadir ser querido
             </Link>

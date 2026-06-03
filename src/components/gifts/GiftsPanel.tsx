@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -160,7 +161,7 @@ export function GiftsPanel({
       <div className="p-8 space-y-3">
         <p>Persona no encontrada.</p>
         {!embedded && (
-          <Link href="/seres-queridos" className={buttonVariants({ variant: "outline" })}>
+          <Link href="/seres-queridos" className={cn(buttonVariants({ variant: "outline" }))}>
             Volver
           </Link>
         )}
@@ -427,7 +428,7 @@ export function GiftsPanel({
               </p>
               <Link
                 href={`/seres-queridos/${personId}`}
-                className={buttonVariants({ variant: "outline" })}
+                className={cn(buttonVariants({ variant: "outline" }))}
               >
                 Añadir evento a {person.name}
               </Link>
