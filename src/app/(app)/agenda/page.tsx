@@ -91,7 +91,7 @@ export default function DashboardPage() {
             </p>
             <Link
               href="/seres-queridos/new"
-              className={cn(buttonVariants({ variant: "outline" }))}
+              className={buttonVariants({ size: "lg" })}
             >
               Añadir ser querido
             </Link>
