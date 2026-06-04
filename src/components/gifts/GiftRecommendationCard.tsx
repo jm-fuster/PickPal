@@ -79,7 +79,8 @@ export function GiftRecommendationCard({
                   <button
                     type="button"
                     onClick={onSave}
-                    aria-label="Guardar idea"
+                    aria-label={saved ? "Idea guardada" : "Guardar idea"}
+                    aria-pressed={saved}
                     className="rounded-full p-1 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
                   >
                     <ThumbsUp className="size-3.5" aria-hidden fill={saved ? "currentColor" : "none"} />
@@ -136,6 +137,7 @@ export function GiftRecommendationCard({
                         })}
                         target="_blank"
                         rel="noopener noreferrer"
+                        aria-label={`Buscar ${idea.title} en ${STORE_LABELS[store]} (abre en una pestaña nueva)`}
                         className={cn(
                           buttonVariants({ size: "default", variant: "outline" }),
                           "min-w-0",
@@ -161,6 +163,7 @@ export function GiftRecommendationCard({
                 href={generateGoogleUrl(idea.amazonQuery)}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label={`${nonPhysicalLabel}: ${idea.title} (abre en una pestaña nueva)`}
                 className={cn(buttonVariants({ size: "default", variant: "outline" }), "w-full")}
               >
                 {nonPhysicalLabel}

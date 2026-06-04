@@ -6,7 +6,13 @@ import { useAuth } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { computeDaysUntil } from "@/lib/dates";
 
 export function NotificationBell() {
@@ -30,7 +36,11 @@ export function NotificationBell() {
     <Popover>
       <PopoverTrigger
         className="relative inline-flex items-center justify-center size-8 rounded-md hover:bg-muted transition-colors"
-        aria-label={`${count} fechas próximas`}
+        aria-label={
+          count === 0
+            ? "Notificaciones: sin fechas próximas"
+            : `Notificaciones: ${count} ${count === 1 ? "fecha próxima" : "fechas próximas"}`
+        }
       >
         <Bell className="size-4" aria-hidden />
         {count > 0 && (
@@ -44,10 +54,10 @@ export function NotificationBell() {
       </PopoverTrigger>
       <PopoverContent align="end" className="w-72 p-0 overflow-hidden">
         <div className="px-4 py-3 border-b border-border/60">
-          <p className="text-sm font-medium">Próximas fechas</p>
-          <p className="text-xs text-muted-foreground">
+          <PopoverTitle className="text-sm">Próximas fechas</PopoverTitle>
+          <PopoverDescription className="text-xs">
             Próximos {windowDays} días
-          </p>
+          </PopoverDescription>
         </div>
         {items.length === 0 ? (
           <div className="flex flex-col items-center gap-2 py-8 text-center text-muted-foreground">
@@ -66,12 +76,14 @@ export function NotificationBell() {
                     <p className="text-sm font-medium truncate">{person.name}</p>
                     <p className="text-xs text-muted-foreground truncate">{date.label}</p>
                   </div>
-                  <span className={[
+                  <span
+                    aria-label={days === 0 ? "Hoy" : days === 1 ? "Mañana" : `En ${days} días`}
+                    className={[
                     "text-xs font-medium shrink-0 tabular-nums",
                     days === 0
                       ? "text-destructive"
                       : days <= 7
-                        ? "text-amber-500"
+                        ? "text-amber-700 dark:text-amber-500"
                         : "text-muted-foreground",
                   ].join(" ")}>
                     {days === 0 ? "Hoy" : days === 1 ? "Mañana" : `${days}d`}

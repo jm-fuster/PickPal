@@ -89,10 +89,12 @@ export function GiftHistoryForm({ personId }: { personId: Id<"people"> }) {
           <Input
             id="gh-name"
             placeholder="Libro de recetas, auriculares…"
+            aria-invalid={errors.giftName ? true : undefined}
+            aria-describedby={errors.giftName ? "gh-name-error" : undefined}
             {...register("giftName")}
           />
           {errors.giftName ? (
-            <p className="text-xs text-destructive">{errors.giftName.message}</p>
+            <p id="gh-name-error" className="text-xs text-destructive">{errors.giftName.message}</p>
           ) : null}
         </div>
 
@@ -101,10 +103,12 @@ export function GiftHistoryForm({ personId }: { personId: Id<"people"> }) {
           <Input
             id="gh-occasion"
             placeholder="Cumpleaños, Navidad…"
+            aria-invalid={errors.occasionLabel ? true : undefined}
+            aria-describedby={errors.occasionLabel ? "gh-occasion-error" : undefined}
             {...register("occasionLabel")}
           />
           {errors.occasionLabel ? (
-            <p className="text-xs text-destructive">{errors.occasionLabel.message}</p>
+            <p id="gh-occasion-error" className="text-xs text-destructive">{errors.occasionLabel.message}</p>
           ) : null}
         </div>
       </div>
@@ -131,7 +135,7 @@ export function GiftHistoryForm({ personId }: { personId: Id<"people"> }) {
             control={control}
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger>
+                <SelectTrigger aria-label="Reacción">
                   <span className={!field.value ? "text-muted-foreground" : ""}>
                     {REACTIONS.find((r) => r.value === field.value)?.label ?? "Reacción…"}
                   </span>
@@ -228,10 +232,12 @@ export function EditGiftHistoryInline({
           <Input
             id="ghe-name"
             placeholder="Libro de recetas, auriculares…"
+            aria-invalid={errors.giftName ? true : undefined}
+            aria-describedby={errors.giftName ? "ghe-name-error" : undefined}
             {...register("giftName")}
           />
           {errors.giftName ? (
-            <p className="text-xs text-destructive">{errors.giftName.message}</p>
+            <p id="ghe-name-error" className="text-xs text-destructive">{errors.giftName.message}</p>
           ) : null}
         </div>
 
@@ -240,10 +246,12 @@ export function EditGiftHistoryInline({
           <Input
             id="ghe-occasion"
             placeholder="Cumpleaños, Navidad…"
+            aria-invalid={errors.occasionLabel ? true : undefined}
+            aria-describedby={errors.occasionLabel ? "ghe-occasion-error" : undefined}
             {...register("occasionLabel")}
           />
           {errors.occasionLabel ? (
-            <p className="text-xs text-destructive">{errors.occasionLabel.message}</p>
+            <p id="ghe-occasion-error" className="text-xs text-destructive">{errors.occasionLabel.message}</p>
           ) : null}
         </div>
       </div>
@@ -270,7 +278,7 @@ export function EditGiftHistoryInline({
             control={control}
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger>
+                <SelectTrigger aria-label="Reacción">
                   <span className={!field.value ? "text-muted-foreground" : ""}>
                     {REACTIONS.find((r) => r.value === field.value)?.label ?? "Reacción…"}
                   </span>

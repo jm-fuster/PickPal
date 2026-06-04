@@ -90,9 +90,15 @@ function AddEventForm({
       {/* Etiqueta */}
       <div className="space-y-1.5">
         <Label htmlFor="ae-label" className="text-xs">Etiqueta</Label>
-        <Input id="ae-label" placeholder="Cumpleaños, Aniversario…" {...register("label")} />
+        <Input
+          id="ae-label"
+          placeholder="Cumpleaños, Aniversario…"
+          aria-invalid={errors.label ? true : undefined}
+          aria-describedby={errors.label ? "ae-label-error" : undefined}
+          {...register("label")}
+        />
         {errors.label ? (
-          <p className="text-xs text-destructive">{errors.label.message}</p>
+          <p id="ae-label-error" className="text-xs text-destructive">{errors.label.message}</p>
         ) : null}
       </div>
 
@@ -116,6 +122,8 @@ function AddEventForm({
             min={1}
             max={31}
             placeholder="Día"
+            aria-invalid={errors.day ? true : undefined}
+            aria-describedby={errors.day ? "ae-day-error" : undefined}
             value={watchedDay ?? ""}
             onChange={(e) =>
               setValue("day", e.target.value ? Number(e.target.value) : 1, {
@@ -124,7 +132,7 @@ function AddEventForm({
             }
           />
           {errors.day ? (
-            <p className="text-xs text-destructive">{errors.day.message}</p>
+            <p id="ae-day-error" className="text-xs text-destructive">{errors.day.message}</p>
           ) : null}
         </div>
         <div className="space-y-1.5">
@@ -133,7 +141,7 @@ function AddEventForm({
             value={watchedMonth ? String(watchedMonth) : ""}
             onValueChange={(v) => { if (v) setValue("month", Number(v), { shouldValidate: true }); }}
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger aria-label="Mes" className="w-full">
               <span>{watchedMonth ? MONTHS[watchedMonth - 1] : "Mes"}</span>
             </SelectTrigger>
             <SelectContent>
@@ -154,13 +162,15 @@ function AddEventForm({
             min={1900}
             max={2100}
             placeholder="Año"
+            aria-invalid={errors.year ? true : undefined}
+            aria-describedby={errors.year ? "ae-year-error" : undefined}
             value={watchedYear ?? ""}
             onChange={(e) =>
               setValue("year", e.target.value ? Number(e.target.value) : undefined)
             }
           />
           {errors.year ? (
-            <p className="text-xs text-destructive">{errors.year.message}</p>
+            <p id="ae-year-error" className="text-xs text-destructive">{errors.year.message}</p>
           ) : null}
         </div>
       </div>
@@ -191,7 +201,7 @@ function AddEventForm({
           value={watchedRecurring === false ? "false" : "true"}
           onValueChange={(v) => { if (v) setValue("recurring", v === "true"); }}
         >
-          <SelectTrigger className="w-full">
+          <SelectTrigger aria-label="Recurrencia" className="w-full">
             <span>{watchedRecurring === false ? "Fecha única" : "Todos los años"}</span>
           </SelectTrigger>
           <SelectContent>
@@ -405,9 +415,14 @@ export function PersonForm({
 
           <div className="space-y-1.5">
             <Label htmlFor="name">Nombre</Label>
-            <Input id="name" {...register("name")} />
+            <Input
+              id="name"
+              aria-invalid={errors.name ? true : undefined}
+              aria-describedby={errors.name ? "name-error" : undefined}
+              {...register("name")}
+            />
             {errors.name ? (
-              <p className="text-xs text-destructive">{errors.name.message}</p>
+              <p id="name-error" className="text-xs text-destructive">{errors.name.message}</p>
             ) : null}
           </div>
 
@@ -418,7 +433,7 @@ export function PersonForm({
               control={control}
               render={({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger aria-label="Relación" className="w-full">
                     <span>
                       {RELATIONSHIPS.find((r) => r.value === field.value)?.label ?? "Selecciona relación"}
                     </span>

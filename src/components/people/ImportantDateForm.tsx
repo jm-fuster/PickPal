@@ -119,9 +119,15 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
         {/* Etiqueta — full width on both breakpoints */}
         <div className="space-y-1.5">
           <Label htmlFor="date-label">Etiqueta</Label>
-          <Input id="date-label" placeholder="Cumpleaños, Aniversario…" {...register("label")} />
+          <Input
+            id="date-label"
+            placeholder="Cumpleaños, Aniversario…"
+            aria-invalid={errors.label ? true : undefined}
+            aria-describedby={errors.label ? "date-label-error" : undefined}
+            {...register("label")}
+          />
           {errors.label ? (
-            <p className="text-xs text-destructive">{errors.label.message}</p>
+            <p id="date-label-error" className="text-xs text-destructive">{errors.label.message}</p>
           ) : null}
         </div>
 
@@ -362,8 +368,13 @@ export function EditImportantDateInline({
       {/* Etiqueta */}
       <div className="space-y-1.5">
         <Label htmlFor="edit-label">Etiqueta</Label>
-        <Input id="edit-label" {...register("label")} />
-        {errors.label && <p className="text-xs text-destructive">{errors.label.message}</p>}
+        <Input
+          id="edit-label"
+          aria-invalid={errors.label ? true : undefined}
+          aria-describedby={errors.label ? "edit-label-error" : undefined}
+          {...register("label")}
+        />
+        {errors.label && <p id="edit-label-error" className="text-xs text-destructive">{errors.label.message}</p>}
       </div>
 
       {/* Hidden RHF registrations */}
@@ -391,7 +402,7 @@ export function EditImportantDateInline({
             value={String(watchedMonth ?? 1)}
             onValueChange={(v) => { if (v) setValue("month", Number(v), { shouldValidate: true }); }}
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger aria-label="Mes" className="w-full">
               <span>{MONTHS[(watchedMonth ?? 1) - 1]}</span>
             </SelectTrigger>
             <SelectContent>
@@ -434,7 +445,7 @@ export function EditImportantDateInline({
           value={watchedRecurring === false ? "false" : "true"}
           onValueChange={(v) => { if (v) setValue("recurring", v === "true"); }}
         >
-          <SelectTrigger className="w-full">
+          <SelectTrigger aria-label="Recurrencia" className="w-full">
             <span>{watchedRecurring === false ? "Fecha única" : "Todos los años"}</span>
           </SelectTrigger>
           <SelectContent>

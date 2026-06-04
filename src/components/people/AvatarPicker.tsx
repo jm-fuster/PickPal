@@ -37,7 +37,7 @@ export function AvatarPicker({ value, onChange }: AvatarPickerProps) {
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-5 sm:grid-cols-6 gap-2 justify-items-center">
-        {options.map((url) => (
+        {options.map((url, i) => (
           <button
             key={url}
             type="button"
@@ -48,7 +48,7 @@ export function AvatarPicker({ value, onChange }: AvatarPickerProps) {
                 ? "border-primary ring-2 ring-primary ring-offset-2"
                 : "border-transparent hover:border-muted-foreground/40",
             )}
-            aria-label="Select avatar"
+            aria-label={`Avatar ${i + 1}`}
             aria-pressed={url === value}
           >
             <img

@@ -66,6 +66,7 @@ export function BudgetRangeSlider({
             min={0}
             step={1}
             placeholder="Mín."
+            aria-label="Presupuesto mínimo (€)"
             value={minValue ?? ""}
             onChange={(e) =>
               onMinChange(e.target.value !== "" ? Number(e.target.value) : undefined)
@@ -81,6 +82,7 @@ export function BudgetRangeSlider({
             min={0}
             step={1}
             placeholder="Máx."
+            aria-label="Presupuesto máximo (€)"
             value={maxValue ?? ""}
             onChange={(e) =>
               onMaxChange(e.target.value !== "" ? Number(e.target.value) : undefined)

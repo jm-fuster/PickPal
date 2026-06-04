@@ -56,10 +56,12 @@ export default function PeoplePage() {
       </div>
 
       {!isLoaded || people === undefined ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5" role="status">
+          <span className="sr-only">Cargando seres queridos…</span>
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
+              aria-hidden
               className="h-56 rounded-2xl border border-dashed border-border/60 animate-pulse"
             />
           ))}

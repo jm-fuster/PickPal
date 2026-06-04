@@ -439,7 +439,7 @@ Patrón para "volver a la sección anterior", visible en la parte superior de p�
 - **Formularios inline expand/collapse**: cuando un formulario aparece in situ tras pulsar un botón "Añadir/Editar X" (`ImportantDateForm`, `EditImportantDateInline`, `GiftHistoryForm`, `EditGiftHistoryInline`, `AddEventForm` de `PersonForm`), añadir `animate-in fade-in slide-in-from-top-1 duration-200` al elemento raíz del formulario. Es excepción legítima a la regla "no animar elementos individuales" porque hay continuidad espacial (el contenedor expande, no aparece de la nada). 200ms corto para no demorar la interacción.
   - **Riesgo:** la animación se replay si el componente se desmonta/remonta. Verificar que ningún ancestro tiene un `key` que cambie con datos de Convex. El toggle interno (`useState` de `showForm`) mantiene el elemento montado mientras esté abierto; sin riesgo en los formularios actuales.
 - **Selección de cards con cambio visual** (UpcomingDateCard cuando `isSelected`): `transition-[border-color,box-shadow] duration-150` para que el ring/border aparezca con fade en lugar de saltar. No usar `transition-all` con `hover:-translate-y` en cards con acción interna (regla 164).
-- **Hovers en chips/badges clicables** (`<span>` con `onClick`, ej. tags de interés): añadir explícitamente `hover:bg-secondary/80 transition-colors` (o equivalente). Las variantes shadcn de Badge tienen el hover bajo selector `[a]:hover:...`, que solo aplica a `<a>` — un `<span>` con cursor-pointer no recibe hover por defecto.
+- **Hovers en chips/badges clicables** (un `Badge` que no sea `<a>` — p. ej. los tags de interés, que son `<Badge render={<button>}>`; ver Accesibilidad): añadir explícitamente `hover:bg-secondary/80 transition-colors` (o equivalente). Las variantes shadcn de Badge tienen el hover bajo selector `[a]:hover:...`, que solo aplica a `<a>` — un `<span>`/`<button>` con cursor-pointer no recibe hover por defecto.
 - **No animar**: aparición de un único elemento espontáneo (es ruido), elementos que reaparecen tras refresh, headers, navegación, transiciones de página.
 - **`fill-mode-both`** es importante en stagger: sin él, las cards parpadean al inicio porque la animación no tiene estado inicial.
 - **`prefers-reduced-motion`**: Tailwind y `tw-animate-css` lo respetan por defecto. No añadir overrides manuales.
@@ -555,6 +555,32 @@ Persona gramatical: **tú** (singular, cercano). Nunca "nosotros" corporativo.
 ## Email transaccional
 
 El email de recordatorio de eventos traduce los tokens del design system a hex para compatibilidad con clientes de correo. La paleta, la estructura y las reglas del botón CTA están documentadas en [`docs/email-notifications.md`](email-notifications.md#plantilla-de-email). Si los tokens de color cambian, actualizar también las constantes hex de `convex/emails.ts`.
+
+---
+
+## Accesibilidad
+
+Convenciones obligatorias. Las primitivas de `components/ui` (base-ui) ya traen roles y `focus-visible`; estas reglas cubren cómo usarlas y los patrones propios.
+
+- **Skip link**: el shell autenticado (`src/app/(app)/layout.tsx`) abre con un `<a href="#contenido">Saltar al contenido</a>` oculto (`sr-only focus:not-sr-only`). El contenedor del contenido lleva `id="contenido" tabIndex={-1}`. Si se añade otro shell con navegación previa al contenido, replicar el patrón.
+- **Navegación activa**: el enlace activo lleva `aria-current="page"` además del estilo (sidebar y `MobileNav`). El color/peso por sí solo no comunica el estado a un lector. Cada `<nav>` lleva `aria-label` ("Principal").
+- **Selects sin `<Label htmlFor>`**: cuando el `<Label>` no está asociado al control (selects custom, o triggers con `<span>` manual), el `SelectTrigger` **debe** llevar `aria-label`. Si se puede asociar, mejor el patrón `htmlFor`+`id` (ejemplo: filtro de relación en `seres-queridos/page.tsx`).
+- **Errores de formulario**: el input con error lleva `aria-invalid` y `aria-describedby="<campo>-error"`, y el `<p>` del mensaje lleva ese mismo `id`. Sin esto el lector no anuncia el error al enfocar el campo. Patrón aplicado en `PersonForm`, `ImportantDateForm` y `GiftHistoryForm`.
+- **Chips/tags clicables**: si un chip ejecuta una acción (p. ej. eliminar un interés), debe ser un `<button>` real, no un `<span onClick>`. Usar `<Badge render={<button type="button" .../>} aria-label="Eliminar …">`. Los `<span onClick>` no son enfocables ni operables por teclado.
+- **Toggles**: botones que actúan como interruptor o selección única llevan `aria-pressed` (tipo de regalo en `GiftsPanel`, guardar idea en `GiftRecommendationCard`, opciones del `AvatarPicker`). Un grupo de selección única se envuelve en `role="group"` con `aria-labelledby`.
+- **Enlaces externos** (`target="_blank"`): `aria-label` descriptivo que incluya "(abre en una pestaña nueva)" — los chips de tienda solo "se llaman" como el nombre de la tienda y se repiten entre cards.
+- **Resultados asíncronos**: anunciar con una región `aria-live="polite"` (`role="status"`). La generación de ideas anuncia "Generando…" / "N ideas generadas"; el pill "Guardado" de autosave ya usa `aria-live`.
+- **Iconos decorativos** `aria-hidden`; **botones icon-only** con `aria-label` único y descriptivo (no repetir el mismo label N veces).
+- **Skeletons de carga**: el contenedor lleva `role="status"` + un `<span className="sr-only">Cargando…</span>`; los bloques `animate-pulse` van `aria-hidden`. `LoadingFallback` ya sigue este patrón.
+- **`DatePickerDialog` (rueda móvil)**: cada columna (`ScrollColumn`) es un `role="spinbutton"` enfocable (`tabIndex={0}`) con `aria-label` (Día/Mes/Año), `aria-valuemin/max/now` y `aria-valuetext` (mes en texto completo). Teclado: ↑/→ incrementa, ↓/← decrementa, Re/Av Pág ±5, Inicio/Fin a los extremos; el ítem central se resalta (`font-medium text-foreground`). Las tres columnas van en un `role="group" aria-label="Fecha"`. Mantiene el arrastre con puntero para móvil.
+
+### Contraste (WCAG AA)
+
+Medido con conversión OKLCH→sRGB (objetivo 4.5:1 texto normal, 3:1 texto grande/UI):
+
+- **`text-muted-foreground`** sobre `background`/`card`: ~5.6–7.0:1 en claro y oscuro → **pasa**. No oscurecer el token (la sensación de medido a ojo engaña: la `L` de OKLCH no es la luminancia relativa de sRGB).
+- **`text-amber-500`** sobre superficies claras: ~2.0:1 → **fallaba** (era el contador "≤7 días" de la campana). Corregido a **`text-amber-700 dark:text-amber-500`** (claro 4.91:1, oscuro 8.1:1). Para texto de aviso ámbar sobre fondo claro, usar `amber-700` (no `amber-500/600`).
+- **`text-destructive`** ("Hoy") sobre `card` claro: ~5.2:1 → pasa.
 
 ---
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, KeyboardEvent } from "react";
-import { Plus } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,19 +54,22 @@ export function InterestTagInput({
   return (
     <div className="space-y-2">
       {value.length > 0 ? (
-        <div className="flex flex-wrap gap-2">
+        <ul className="flex flex-wrap gap-2">
           {value.map((tag) => (
-            <Badge
-              key={tag}
-              variant="secondary"
-              className="cursor-pointer hover:bg-secondary/80"
-              onClick={() => removeTag(tag)}
-              title="Eliminar"
-            >
-              {tag} ×
-            </Badge>
+            <li key={tag}>
+              <Badge
+                variant="secondary"
+                className="cursor-pointer hover:bg-secondary/80"
+                title="Eliminar"
+                aria-label={`Eliminar ${tag}`}
+                render={<button type="button" onClick={() => removeTag(tag)} />}
+              >
+                {tag}
+                <X className="size-3" aria-hidden />
+              </Badge>
+            </li>
           ))}
-        </div>
+        </ul>
       ) : null}
       <div className="flex gap-2">
         <Input
@@ -76,6 +79,7 @@ export function InterestTagInput({
           onKeyDown={handleKeyDown}
           enterKeyHint="done"
           placeholder={placeholder}
+          aria-label="Nuevo interés"
         />
         <Button
           type="button"

@@ -53,10 +53,12 @@ export default function DashboardPage() {
       </div>
 
       {!ready || upcoming === undefined ? (
-        <div className="space-y-3">
+        <div className="space-y-3" role="status">
+          <span className="sr-only">Cargando agenda…</span>
           {Array.from({ length: 3 }).map((_, i) => (
             <div
               key={i}
+              aria-hidden
               className="h-20 rounded-2xl border border-dashed border-border/60 animate-pulse"
             />
           ))}

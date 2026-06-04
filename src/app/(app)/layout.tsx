@@ -16,6 +16,13 @@ export default function AppLayout({
   return (
     <div className="flex flex-1">
       <UserInitializer />
+      {/* Skip link — primer elemento enfocable, visible solo al recibir foco */}
+      <a
+        href="#contenido"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground focus:shadow-md focus:outline-none focus:ring-3 focus:ring-ring/50"
+      >
+        Saltar al contenido
+      </a>
       {/* Sidebar — lg+ */}
       <aside className="hidden lg:flex flex-col w-60 shrink-0 bg-background text-foreground border-r border-border h-screen sticky top-0">
         <div className="px-5 py-5 border-b border-border flex items-center justify-between">
@@ -28,7 +35,7 @@ export default function AppLayout({
           </Link>
           <SafeNotificationBell />
         </div>
-        <nav className="flex flex-col gap-1 p-3 flex-1 overflow-y-auto">
+        <nav aria-label="Principal" className="flex flex-col gap-1 p-3 flex-1 overflow-y-auto">
           <SidebarLink href="/agenda">
             <CalendarDays className="size-4" aria-hidden />
             Agenda
@@ -62,7 +69,9 @@ export default function AppLayout({
             <UserButton />
           </div>
         </header>
-        <div className="flex flex-1 flex-col">{children}</div>
+        <div id="contenido" tabIndex={-1} className="flex flex-1 flex-col outline-none">
+          {children}
+        </div>
       </div>
     </div>
   );

@@ -16,7 +16,7 @@ export default function AuthLayout({
         </Link>
         <ThemeToggle />
       </header>
-      {children}
+      <main className="flex flex-1 flex-col">{children}</main>
       <footer className="px-6 py-6 text-center text-xs text-muted-foreground">
         <Link href="/privacidad" className="hover:text-foreground">
           Privacidad

@@ -39,10 +39,27 @@ interface ScrollColumnProps {
   items: string[];
   initialIndex: number;
   onChange: (index: number) => void;
+  /** Nombre accesible de la columna (Día / Mes / Año). */
+  label: string;
+  /** Valor numérico real del primer item (1 para día/mes, YEAR_START para año). */
+  valueMin: number;
+  /** Texto legible por item para `aria-valuetext` (p. ej. meses completos). Si no, usa `items`. */
+  valueTextItems?: string[];
 }
 
-function ScrollColumn({ items, initialIndex, onChange }: ScrollColumnProps) {
+function ScrollColumn({
+  items,
+  initialIndex,
+  onChange,
+  label,
+  valueMin,
+  valueTextItems,
+}: ScrollColumnProps) {
   const ref = useRef<HTMLDivElement>(null);
+  // Índice seleccionado en estado: lo necesita el teclado y los atributos
+  // aria-value* para anunciarse a lectores de pantalla. Se sincroniza con el
+  // scroll/drag y con las flechas.
+  const [idx, setIdx] = useState(initialIndex);
   const dragging = useRef(false);
   const dragStartY = useRef(0);
   const dragStartTop = useRef(0);
@@ -53,9 +70,16 @@ function ScrollColumn({ items, initialIndex, onChange }: ScrollColumnProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  function commit(i: number) {
+    const clamped = Math.max(0, Math.min(items.length - 1, i));
+    setIdx(clamped);
+    onChange(clamped);
+    return clamped;
+  }
+
   function currentIndex() {
     const el = ref.current;
-    if (!el) return initialIndex;
+    if (!el) return idx;
     return Math.max(
       0,
       Math.min(items.length - 1, Math.round(el.scrollTop / ITEM_H)),
@@ -65,14 +89,14 @@ function ScrollColumn({ items, initialIndex, onChange }: ScrollColumnProps) {
   function snapToNearest() {
     const el = ref.current;
     if (!el) return;
-    const idx = currentIndex();
-    el.scrollTo({ top: idx * ITEM_H, behavior: "smooth" });
-    onChange(idx);
+    const i = currentIndex();
+    el.scrollTo({ top: i * ITEM_H, behavior: "smooth" });
+    commit(i);
   }
 
   function handleScroll() {
     if (dragging.current) return;
-    onChange(currentIndex());
+    commit(currentIndex());
     if (snapTimer.current) clearTimeout(snapTimer.current);
     snapTimer.current = setTimeout(snapToNearest, 120);
   }
@@ -88,7 +112,7 @@ function ScrollColumn({ items, initialIndex, onChange }: ScrollColumnProps) {
     if (!dragging.current || !ref.current) return;
     ref.current.scrollTop =
       dragStartTop.current + (dragStartY.current - e.clientY);
-    onChange(currentIndex());
+    commit(currentIndex());
   }
 
   function handleMouseUp() {
@@ -97,11 +121,40 @@ function ScrollColumn({ items, initialIndex, onChange }: ScrollColumnProps) {
     snapToNearest();
   }
 
+  // Teclado (rol spinbutton): ↑/→ sube el valor, ↓/← lo baja, Re/Av Pág ±5,
+  // Inicio/Fin a los extremos. Anima el scroll hasta el nuevo índice.
+  function handleKeyDown(e: React.KeyboardEvent) {
+    let next: number;
+    switch (e.key) {
+      case "ArrowUp":
+      case "ArrowRight": next = idx + 1; break;
+      case "ArrowDown":
+      case "ArrowLeft": next = idx - 1; break;
+      case "PageUp": next = idx + 5; break;
+      case "PageDown": next = idx - 5; break;
+      case "Home": next = 0; break;
+      case "End": next = items.length - 1; break;
+      default: return;
+    }
+    e.preventDefault();
+    next = Math.max(0, Math.min(items.length - 1, next));
+    ref.current?.scrollTo({ top: next * ITEM_H, behavior: "smooth" });
+    commit(next);
+  }
+
   return (
     <div className="relative flex-1 h-36 overflow-hidden">
       <div
         ref={ref}
-        className="h-full overflow-y-scroll cursor-grab active:cursor-grabbing select-none"
+        tabIndex={0}
+        role="spinbutton"
+        aria-label={label}
+        aria-valuemin={valueMin}
+        aria-valuemax={valueMin + items.length - 1}
+        aria-valuenow={valueMin + idx}
+        aria-valuetext={(valueTextItems ?? items)[idx]}
+        onKeyDown={handleKeyDown}
+        className="h-full overflow-y-scroll cursor-grab rounded-md outline-none select-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset active:cursor-grabbing"
         style={{ scrollbarWidth: "none" } as React.CSSProperties}
         onScroll={handleScroll}
         onMouseDown={handleMouseDown}
@@ -113,7 +166,10 @@ function ScrollColumn({ items, initialIndex, onChange }: ScrollColumnProps) {
           {items.map((item, i) => (
             <div
               key={i}
-              className="h-12 flex items-center justify-center text-lg select-none"
+              aria-hidden
+              className={`h-12 flex items-center justify-center text-lg select-none transition-colors ${
+                i === idx ? "font-medium text-foreground" : "text-muted-foreground"
+              }`}
             >
               {item}
             </div>
@@ -170,18 +226,23 @@ export function DatePickerDialog({
           {formatDate(tmpDay, tmpMonth, includeYear ? tmpYear : undefined)}
         </DialogTitle>
 
-        <div className="flex gap-1">
+        <div role="group" aria-label="Fecha" className="flex gap-1">
           <ScrollColumn
             key={`day-${openKey}`}
             items={DAYS}
             initialIndex={tmpDay - 1}
             onChange={(i) => setTmpDay(i + 1)}
+            label="Día"
+            valueMin={1}
           />
           <ScrollColumn
             key={`month-${openKey}`}
             items={MONTHS_SHORT}
             initialIndex={tmpMonth - 1}
             onChange={(i) => setTmpMonth(i + 1)}
+            label="Mes"
+            valueMin={1}
+            valueTextItems={MONTHS}
           />
           {includeYear && (
             <ScrollColumn
@@ -189,6 +250,8 @@ export function DatePickerDialog({
               items={YEARS}
               initialIndex={tmpYear - YEAR_START}
               onChange={(i) => setTmpYear(i + YEAR_START)}
+              label="Año"
+              valueMin={YEAR_START}
             />
           )}
         </div>

@@ -302,7 +302,7 @@ export function GiftsPanel({
                 setIdeas(null);
               }}
             >
-              <SelectTrigger className="w-full sm:w-56">
+              <SelectTrigger aria-label="Ocasión" className="w-full sm:w-56">
                 <SelectValue placeholder="Elige un evento" />
               </SelectTrigger>
               <SelectContent>
@@ -338,8 +338,8 @@ export function GiftsPanel({
         </div>
 
         <div className="space-y-2">
-          <p className="text-xs font-medium text-muted-foreground">Tipo de regalo</p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <p id="gift-type-label" className="text-xs font-medium text-muted-foreground">Tipo de regalo</p>
+          <div role="group" aria-labelledby="gift-type-label" className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {GIFT_TYPES.map((t) => {
               const selected = giftType === t.value;
               const Icon = { ShoppingBag, Ticket, Heart, Shuffle }[t.icon];
@@ -347,6 +347,7 @@ export function GiftsPanel({
                 <button
                   key={t.value}
                   type="button"
+                  aria-pressed={selected}
                   onClick={() => {
                     setGiftType(t.value);
                     setIdeas(null);
@@ -391,8 +392,17 @@ export function GiftsPanel({
         )}
       </div>
 
+      {/* Anuncio para lectores de pantalla del estado de la generación */}
+      <p role="status" aria-live="polite" className="sr-only">
+        {loading
+          ? "Generando ideas de regalo…"
+          : ideas
+            ? `${ideas.length} ideas de regalo generadas`
+            : ""}
+      </p>
+
       {loading ? (
-        <div className="grid gap-4 grid-cols-1">
+        <div className="grid gap-4 grid-cols-1" aria-hidden>
           {Array.from({ length: 9 }).map((_, i) => (
             <div
               key={i}

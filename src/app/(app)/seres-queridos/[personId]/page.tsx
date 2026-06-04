@@ -160,6 +160,8 @@ function PersonDetailContent({
 
   return (
     <main className="flex flex-1 flex-col gap-8 p-4 sm:p-6 lg:p-8 w-full max-w-6xl">
+      {/* Título de página para navegación por encabezados (el nombre visible es un input editable) */}
+      <h1 className="sr-only">{headerName}</h1>
       <button
         onClick={() => router.back()}
         className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground w-fit"
@@ -207,7 +209,7 @@ function PersonDetailContent({
               save({ relationship: v });
             }}
           >
-            <SelectTrigger className="w-fit">
+            <SelectTrigger aria-label="Relación" className="w-fit">
               <span>{RELATIONSHIPS.find((r) => r.value === headerRelationship)?.label ?? headerRelationship}</span>
             </SelectTrigger>
             <SelectContent>
@@ -530,6 +532,7 @@ function PersonDetailContent({
                                 })}
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                aria-label={`Buscar ${s.title} en ${STORE_LABELS[store]} (abre en una pestaña nueva)`}
                                 className={cn(buttonVariants({ size: "sm", variant: "outline" }))}
                               >
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -543,6 +546,7 @@ function PersonDetailContent({
                               href={googleSearchUrl(s.amazonQuery)}
                               target="_blank"
                               rel="noopener noreferrer"
+                              aria-label={`Buscar ${s.title} (abre en una pestaña nueva)`}
                               className={cn(buttonVariants({ size: "sm", variant: "outline" }))}
                             >
                               Buscar
@@ -576,7 +580,7 @@ function PersonDetailContent({
             <div className="space-y-1.5">
               <Label>Reacción</Label>
               <Select value={convertReaction} onValueChange={(v) => setConvertReaction(v ?? "")}>
-                <SelectTrigger>
+                <SelectTrigger aria-label="Reacción">
                   <SelectValue placeholder="¿Cómo le sentó?" />
                 </SelectTrigger>
                 <SelectContent>

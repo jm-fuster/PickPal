@@ -8,8 +8,8 @@ export default function manifest(): MetadataRoute.Manifest {
       "Recuerda fechas importantes y recibe ideas de regalo personalizadas con IA.",
     start_url: "/",
     display: "standalone",
-    background_color: "#ffffff",
-    theme_color: "#ffffff",
+    background_color: "#FBF7EE",
+    theme_color: "#FBF7EE",
     icons: [
       {
         src: "/icon-192.png",
