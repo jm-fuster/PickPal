@@ -267,11 +267,20 @@ export async function POST(req: NextRequest) {
     // La cuota ya quedó reservada antes de llamar a Gemini; aquí solo
     // persistimos. Sin `consume` posterior no existe el caso "ideas
     // guardadas pero el usuario ve un error".
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const cleanIdeas = sanitizeIdeas(object.ideas as Array<Record<string, unknown>>);
-    await fetchMutation(api.recommendations.upsert, { personId, occasionLabel, giftType, ideas: cleanIdeas as any }, { token });
+    // La UI y removeIdea usan el título como clave: si Gemini repite un
+    // título, conservamos solo la primera aparición.
+    const seenTitles = new Set<string>();
+    const uniqueIdeas = cleanIdeas.filter((idea) => {
+      const title = String(idea.title);
+      if (seenTitles.has(title)) return false;
+      seenTitles.add(title);
+      return true;
+    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await fetchMutation(api.recommendations.upsert, { personId, occasionLabel, giftType, ideas: uniqueIdeas as any }, { token });
 
-    return NextResponse.json({ ideas: cleanIdeas, remaining });
+    return NextResponse.json({ ideas: uniqueIdeas, remaining });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error("[recommendations] gemini:", message);

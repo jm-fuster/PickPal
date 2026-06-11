@@ -79,9 +79,10 @@ export function GiftRecommendationCard({
                   <button
                     type="button"
                     onClick={onSave}
+                    disabled={saved}
                     aria-label={saved ? "Idea guardada" : "Guardar idea"}
                     aria-pressed={saved}
-                    className="rounded-full p-1 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+                    className="rounded-full p-1 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors disabled:pointer-events-none"
                   >
                     <ThumbsUp className="size-3.5" aria-hidden fill={saved ? "currentColor" : "none"} />
                   </button>

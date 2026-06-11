@@ -205,6 +205,9 @@ export function GiftsPanel({
 
   const handleSave = async (idea: GiftRecommendation) => {
     if (!occasion) return;
+    // Guard contra doble clic: el botón ya se deshabilita al guardar, pero
+    // dos clics antes del primer render no deben crear dos filas.
+    if (savedTitles.has(idea.title)) return;
     try {
       // Congelamos las tiendas EFECTIVAS que mostró la card (con el fallback a
       // favoritas), no las crudas de la IA, para que la idea guardada enseñe

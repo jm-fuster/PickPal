@@ -147,9 +147,11 @@ type RecommendationIdea = {
 export function validateRecommendationIdeas(
   ideas: ReadonlyArray<RecommendationIdea>,
 ) {
-  if (ideas.length !== IDEAS_PER_GENERATION) {
+  // 1..9: la generación produce 9 ideas, pero la API descarta títulos
+  // duplicados de Gemini antes de persistir (la UI usa el título como clave).
+  if (ideas.length === 0 || ideas.length > IDEAS_PER_GENERATION) {
     throw new ConvexError(
-      `Una recomendación debe contener exactamente ${IDEAS_PER_GENERATION} ideas.`,
+      `Una recomendación debe contener entre 1 y ${IDEAS_PER_GENERATION} ideas.`,
     );
   }
   for (const idea of ideas) {

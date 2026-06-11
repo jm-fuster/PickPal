@@ -123,7 +123,7 @@
 
 **Commit:** `fix(account): make account deletion idempotent and always sign out on success`
 
-### - [ ] T8. Duplicados en ideas guardadas y títulos repetidos del LLM
+### - [x] T8. Duplicados en ideas guardadas y títulos repetidos del LLM
 
 1. **Guardado doble:** `src/components/gifts/GiftRecommendationCard.tsx` (~78): deshabilitar el pulgar arriba cuando `saved`; en `src/components/gifts/GiftsPanel.tsx` `handleSave` (~203) añadir guarda; en `convex/savedIdeas.ts` `save` (~21) deduplicar server-side (mismo `personId` + `title` + `occasionLabel` → no insertar segunda fila).
 2. **Títulos duplicados de Gemini:** en `src/app/api/recommendations/route.ts`, tras validar la respuesta, deduplicar ideas por `title` (conservar la primera) antes del `upsert`, ya que la UI y `removeIdea` usan el título como clave.

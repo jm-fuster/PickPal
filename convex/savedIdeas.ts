@@ -45,6 +45,17 @@ export const save = mutation({
       throw new ConvexError("No autorizado");
     }
     validateSavedIdeaInput(args);
+    // Dedupe server-side: guardar dos veces la misma idea para la misma
+    // ocasión (doble clic, doble pestaña) no crea una segunda fila ni
+    // consume rate limit.
+    const existing = await ctx.db
+      .query("savedIdeas")
+      .withIndex("by_person", (q) => q.eq("personId", args.personId))
+      .collect();
+    const duplicate = existing.find(
+      (s) => s.title === args.title && s.occasionLabel === args.occasionLabel,
+    );
+    if (duplicate) return duplicate._id;
     await checkAndIncrement(ctx, clerkUserId, "save_idea", 50);
     return ctx.db.insert("savedIdeas", { clerkUserId, ...args });
   },
