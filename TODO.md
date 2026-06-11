@@ -134,7 +134,7 @@
 
 ## F3 — Hardening
 
-### - [ ] T9. Cabeceras: CSP Report-Only + COOP + `poweredByHeader: false`
+### - [x] T9. Cabeceras: CSP Report-Only + COOP + `poweredByHeader: false`
 
 **Fichero:** `next.config.ts` (las cabeceras actuales viven en ~líneas 3-15: HSTS, XFO, nosniff, Referrer-Policy, Permissions-Policy).
 

@@ -197,7 +197,7 @@ Antes de mergear, verifica que el cambio no rompe ninguno de estos:
 
 Decisiones explícitas de "ahora no":
 
-- **CSP estricta**: pendiente. Next.js 16 + Clerk requiere nonces para inline scripts. Hacerlo mal rompe la app silenciosamente. PR aparte cuando haya tiempo de probar en staging.
+- **CSP enforcing**: la CSP vive en `Content-Security-Policy-Report-Only` ([`next.config.ts`](../next.config.ts)): registra violaciones en la consola del navegador sin bloquear nada. Motivo: Next.js 16 + Clerk requiere `'unsafe-inline'` en scripts (o nonces), y una CSP enforcing mal ajustada rompe la app silenciosamente. Antes de pasar a enforcing: ajustar el host de Clerk (`*.clerk.accounts.dev`) al dominio de producción y revisar los reports en staging. También se envía `Cross-Origin-Opener-Policy: same-origin-allow-popups` (aísla la ventana sin romper los popups OAuth de Clerk) y `poweredByHeader: false` (no anunciar Next.js).
 - **Rate limit por IP**: solo hay rate limit por usuario autenticado. Suficiente mientras no haya endpoints anónimos.
 - **Webhooks**: no existen. Cuando se añadan (Clerk, Stripe, etc.), **siempre verificar firma con el secret del proveedor antes de procesar**.
 - **Auditoría de acceso**: no se loguea quién leyó qué. Aceptable para una app personal; revisar si pasa a multi-tenant.

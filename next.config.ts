@@ -12,9 +12,30 @@ const securityHeaders = [
     key: "Permissions-Policy",
     value: "camera=(), microphone=(), geolocation=()",
   },
+  // same-origin-allow-popups: aísla la ventana sin romper los popups OAuth de Clerk.
+  { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
+  // CSP en Report-Only: registra violaciones sin bloquear. Antes de pasar a
+  // enforcing hay que ajustar el host de Clerk al dominio de producción y
+  // revisar los reports (ver docs/security.md).
+  {
+    key: "Content-Security-Policy-Report-Only",
+    value: [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' https://*.clerk.accounts.dev https://challenges.cloudflare.com https://va.vercel-scripts.com",
+      "connect-src 'self' https://*.clerk.accounts.dev https://*.convex.cloud wss://*.convex.cloud",
+      "img-src 'self' data: https://api.dicebear.com https://img.clerk.com",
+      "style-src 'self' 'unsafe-inline'",
+      "frame-src https://challenges.cloudflare.com",
+      "worker-src 'self' blob:",
+      "frame-ancestors 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+    ].join("; "),
+  },
 ];
 
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
   async redirects() {
     return [{ source: "/dashboard", destination: "/agenda", permanent: true }];
   },
