@@ -213,7 +213,7 @@ Consultar `docs/design-system.md` antes y actualizarlo si procede.
 
 **Commit:** `fix(a11y): announce form errors and autosave state, label delete controls`
 
-### - [ ] T14. Bugs de calendario
+### - [x] T14. Bugs de calendario
 
 1. `convex/importantDates.ts` `assertValidDate` (~10): hacerla consciente del mes — `const daysInMonth = new Date(year ?? 2024, month, 0).getDate(); if (day > daysInMonth) throw new ConvexError("Día inválido para ese mes.");` (2024 bisiesto permite 29-feb en fechas recurrentes sin año).
 2. `src/components/dashboard/DateGroupedList.tsx` (~10): la cabecera para 29-feb en año no bisiesto muestra "1 de marzo" mientras la cuenta atrás apunta a 28-feb. Reutilizar la lógica de fallback de `src/lib/dates.ts` (`computeDaysUntilNextOccurrence`) para derivar la fecha de la etiqueta en vez de `new Date(year, 1, 29)` naive.

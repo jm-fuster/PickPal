@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  computeDaysUntil,
   computeDaysUntilNextOccurrence,
   formatDayMonth,
   formatDaysUntil,
+  nextOccurrenceDate,
 } from "./dates";
 
 describe("computeDaysUntilNextOccurrence", () => {
@@ -55,6 +57,67 @@ describe("computeDaysUntilNextOccurrence", () => {
     // No regresión: el fix del 29-feb no debe afectar al 1 de marzo.
     const today = new Date(2028, 1, 28); // 28 feb 2028 (bisiesto)
     expect(computeDaysUntilNextOccurrence(3, 1, today)).toBe(2); // 29 feb + 1 mar = 2 días
+  });
+});
+
+describe("nextOccurrenceDate", () => {
+  it("devuelve la fecha de este año si aún no pasó", () => {
+    const today = new Date(2026, 5, 15); // 15 jun 2026
+    const d = nextOccurrenceDate(7, 4, today);
+    expect([d.getFullYear(), d.getMonth() + 1, d.getDate()]).toEqual([2026, 7, 4]);
+  });
+
+  it("salta al año siguiente si la fecha ya pasó", () => {
+    const today = new Date(2026, 5, 15);
+    const d = nextOccurrenceDate(1, 1, today);
+    expect([d.getFullYear(), d.getMonth() + 1, d.getDate()]).toEqual([2027, 1, 1]);
+  });
+
+  it("29-feb en año NO bisiesto cae en el 28 de febrero, no en el 1 de marzo", () => {
+    // El bug original: la cabecera de la agenda usaba new Date(2026, 1, 29)
+    // (= 1 mar) mientras la cuenta atrás apuntaba al 28-feb.
+    const today = new Date(2026, 1, 1); // 1 feb 2026 (no bisiesto)
+    const d = nextOccurrenceDate(2, 29, today);
+    expect([d.getFullYear(), d.getMonth() + 1, d.getDate()]).toEqual([2026, 2, 28]);
+  });
+
+  it("coincide siempre con la fecha que cuenta computeDaysUntilNextOccurrence", () => {
+    const today = new Date(2026, 1, 1);
+    const days = computeDaysUntilNextOccurrence(2, 29, today);
+    const d = nextOccurrenceDate(2, 29, today);
+    const expected = new Date(2026, 1, 1 + days);
+    expect(d.getTime()).toBe(expected.getTime());
+  });
+});
+
+describe("computeDaysUntil — fechas únicas (recurring=false)", () => {
+  it("devuelve los días hasta una fecha única futura", () => {
+    const today = new Date(2026, 5, 15); // 15 jun 2026
+    expect(
+      computeDaysUntil({ month: 6, day: 20, year: 2026, recurring: false }, today),
+    ).toBe(5);
+  });
+
+  it("devuelve null si la fecha única ya pasó", () => {
+    const today = new Date(2026, 5, 15);
+    expect(
+      computeDaysUntil({ month: 6, day: 10, year: 2026, recurring: false }, today),
+    ).toBeNull();
+  });
+
+  it("29-feb único en año NO bisiesto hace fallback al 28 de febrero", () => {
+    // Antes del fix: new Date(2026, 1, 29) = 1 mar 2026 → 28 días.
+    const today = new Date(2026, 1, 1); // 1 feb 2026 (no bisiesto)
+    expect(
+      computeDaysUntil({ month: 2, day: 29, year: 2026, recurring: false }, today),
+    ).toBe(27);
+  });
+
+  it("29-feb único en año bisiesto usa la fecha real", () => {
+    const today = new Date(2028, 1, 1); // 1 feb 2028 (bisiesto)
+    expect(
+      computeDaysUntil({ month: 2, day: 29, year: 2028, recurring: false }, today),
+    ).toBe(28);
   });
 });
 

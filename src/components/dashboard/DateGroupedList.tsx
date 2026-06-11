@@ -1,4 +1,5 @@
 import type { Doc } from "../../../convex/_generated/dataModel";
+import { nextOccurrenceDate } from "@/lib/dates";
 import { UpcomingDateCard } from "./UpcomingDateCard";
 
 type Entry = {
@@ -11,8 +12,10 @@ function dateLabel(daysUntil: number, month: number, day: number): string {
   if (daysUntil === 0) return "Hoy";
   if (daysUntil === 1) return "Mañana";
 
-  const year = new Date().getFullYear();
-  const d = new Date(year, month - 1, day);
+  // Misma lógica de ocurrencia que la cuenta atrás (fallback 29-feb→28-feb
+  // en años no bisiestos): la cabecera nunca debe decir "1 de marzo" mientras
+  // el contador apunta al 28 de febrero.
+  const d = nextOccurrenceDate(month, day);
   return d.toLocaleDateString("es-ES", { day: "numeric", month: "long" });
 }
 

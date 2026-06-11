@@ -33,6 +33,25 @@ function occurrenceInYear(year: number, month: number, day: number): Date {
 }
 
 /**
+ * Fecha (00:00 local) de la próxima ocurrencia anual de month/day desde
+ * `from`, con el fallback 29-feb→28-feb en años no bisiestos. Es la misma
+ * fecha a la que apunta la cuenta atrás: cualquier etiqueta visible debe
+ * derivarse de aquí, no de `new Date(year, month-1, day)` naive.
+ */
+export function nextOccurrenceDate(
+  month: number,
+  day: number,
+  from: Date = new Date(),
+): Date {
+  const today = startOfDay(from);
+  let next = occurrenceInYear(today.getFullYear(), month, day);
+  if (next.getTime() < today.getTime()) {
+    next = occurrenceInYear(today.getFullYear() + 1, month, day);
+  }
+  return next;
+}
+
+/**
  * Días enteros desde `from` (00:00 local) hasta la próxima ocurrencia anual
  * de month/day. Devuelve 0 si la fecha es hoy.
  */
@@ -42,10 +61,7 @@ export function computeDaysUntilNextOccurrence(
   from: Date = new Date(),
 ): number {
   const today = startOfDay(from);
-  let next = occurrenceInYear(today.getFullYear(), month, day);
-  if (next.getTime() < today.getTime()) {
-    next = occurrenceInYear(today.getFullYear() + 1, month, day);
-  }
+  const next = nextOccurrenceDate(month, day, from);
   return Math.round((next.getTime() - today.getTime()) / MS_PER_DAY);
 }
 
@@ -59,7 +75,10 @@ export function computeDaysUntil(
 ): number | null {
   if (date.recurring === false) {
     if (date.year === undefined) return null;
-    const target = new Date(date.year, date.month - 1, date.day);
+    // occurrenceInYear aplica el fallback 29-feb→28-feb también aquí: una
+    // fecha única guardada como 29-feb de un año no bisiesto no debe dar NaN
+    // ni saltar al 1 de marzo.
+    const target = occurrenceInYear(date.year, date.month, date.day);
     const today = startOfDay(from);
     const diff = Math.round((target.getTime() - today.getTime()) / MS_PER_DAY);
     return diff >= 0 ? diff : null;

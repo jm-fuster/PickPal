@@ -7,12 +7,19 @@ import { Doc, Id } from "./_generated/dataModel";
 
 const CREATE_DATE_DAILY_LIMIT = 100;
 
-function assertValidDate(month: number, day: number) {
+function assertValidDate(month: number, day: number, year?: number) {
   if (!Number.isInteger(month) || month < 1 || month > 12) {
     throw new ConvexError("Mes inválido (1-12).");
   }
   if (!Number.isInteger(day) || day < 1 || day > 31) {
     throw new ConvexError("Día inválido (1-31).");
+  }
+  // 2024 (bisiesto) como año base para fechas recurrentes sin año: permite
+  // 29-feb. Con año explícito se valida contra ese año (31-abr o 29-feb-2023
+  // se rechazan).
+  const daysInMonth = new Date(year ?? 2024, month, 0).getDate();
+  if (day > daysInMonth) {
+    throw new ConvexError("Día inválido para ese mes.");
   }
 }
 
@@ -92,7 +99,7 @@ export const create = mutation({
   handler: async (ctx, args) => {
     const clerkUserId = await requireUser(ctx);
     await assertOwnsPerson(ctx, args.personId, clerkUserId);
-    assertValidDate(args.month, args.day);
+    assertValidDate(args.month, args.day, args.year);
     validateDateInput({ label: args.label, year: args.year, recurring: args.recurring, budgetMin: args.budgetMin, budgetMax: args.budgetMax });
     await checkAndIncrement(
       ctx,
@@ -120,10 +127,15 @@ export const update = mutation({
     const existing = await ctx.db.get(id);
     if (!existing) throw new ConvexError("Fecha no encontrada.");
     await assertOwnsPerson(ctx, existing.personId, clerkUserId);
-    if (patch.month !== undefined || patch.day !== undefined) {
+    if (
+      patch.month !== undefined ||
+      patch.day !== undefined ||
+      patch.year !== undefined
+    ) {
       assertValidDate(
         patch.month ?? existing.month,
         patch.day ?? existing.day,
+        patch.year ?? existing.year,
       );
     }
     const mergedRecurring = patch.recurring ?? existing.recurring;
