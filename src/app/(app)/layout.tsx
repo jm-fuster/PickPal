@@ -7,6 +7,7 @@ import { SidebarUserInfo } from "@/components/layout/SidebarUserInfo";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { LogoMark } from "@/components/ui/LogoMark";
 import { UserInitializer } from "@/components/layout/UserInitializer";
+import { SessionGuard } from "@/components/layout/SessionGuard";
 
 export default function AppLayout({
   children,
@@ -15,6 +16,7 @@ export default function AppLayout({
 }) {
   return (
     <div className="flex flex-1">
+      <SessionGuard />
       <UserInitializer />
       {/* Skip link — primer elemento enfocable, visible solo al recibir foco */}
       <a

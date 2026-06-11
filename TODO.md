@@ -84,7 +84,7 @@
 
 **Commit:** `fix(api): atomic quota reserve, correct 4xx responses, stop echoing zod issues`
 
-### - [ ] T4. Sesión expirada: redirect en vez de skeletons infinitos
+### - [x] T4. Sesión expirada: redirect en vez de skeletons infinitos
 
 **Problema:** con `isLoaded && !isSignedIn` (sesión revocada en otra pestaña) todas las queries quedan en `"skip"` y cada página muestra skeleton para siempre.
 
