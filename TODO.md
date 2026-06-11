@@ -104,7 +104,7 @@
 
 **Commit:** `fix(people): remount person detail on navigation to prevent stale-state writes`
 
-### - [ ] T6. El alta de persona pierde los "Datos prácticos"
+### - [x] T6. El alta de persona pierde los "Datos prácticos"
 
 **Fichero:** `src/app/(app)/seres-queridos/new/page.tsx` (~línea 16). `PersonForm` recoge `shoeSize`, `clothingSize`, `allergies`, `dislikes` y `convex/people.ts` `create` los acepta, pero la página no los pasa a la mutación. **Fix:** incluirlos en la llamada a `create`.
 

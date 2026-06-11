@@ -18,6 +18,10 @@ export default function NewPersonPage() {
       relationship: values.relationship,
       interests: values.interests,
       notes: values.notes || undefined,
+      shoeSize: values.shoeSize || undefined,
+      clothingSize: values.clothingSize || undefined,
+      allergies: values.allergies || undefined,
+      dislikes: values.dislikes || undefined,
       avatarUrl: values.avatarUrl || undefined,
     });
 
