@@ -71,7 +71,7 @@
 
 **Commit:** `fix(errors): use ConvexError for user-facing errors and sanitize toast messages`
 
-### - [ ] T3. Endpoint de recomendaciones: 400/404 correctos y orden upsert/consume
+### - [x] T3. Endpoint de recomendaciones: 400/404 correctos y orden upsert/consume
 
 **Fichero:** `src/app/api/recommendations/route.ts`
 

@@ -79,13 +79,14 @@ Las ideas generadas se persisten en Convex (`tabla recommendations`) indexadas p
 
 ## Límite de uso (rate limit)
 
-10 generaciones por usuario por día (UTC). El flujo es en dos pasos para que los errores de la IA **no consuman cuota**:
+10 generaciones por usuario por día (UTC). El flujo es **reserva atómica + refund**:
 
-1. `api.recommendationUsage.check` (query, sin efecto): verifica que el usuario tiene cuota disponible. Si está agotada lanza `ConvexError` y la API devuelve `429`.
-2. Gemini se llama solo si el check pasa.
-3. `api.recommendationUsage.consume` (mutation): incrementa el contador **únicamente si Gemini devuelve éxito**. Se ejecuta en paralelo con `api.recommendations.upsert`.
+1. `api.recommendationUsage.reserve` (mutation): incrementa el contador **antes** de llamar a Gemini. Si la cuota está agotada lanza `ConvexError` y la API devuelve `429`. Al ser una transacción Convex, dos peticiones concurrentes en el límite no pueden superar las 10/día.
+2. Gemini se llama solo si la reserva tuvo éxito.
+3. Si Gemini falla de forma **retriable** (503 saturación / timeout), la API llama a `api.recommendationUsage.refund` para devolver la unidad: el usuario no pierde cuota por una caída del proveedor.
+4. Tras el éxito, `api.recommendations.upsert` persiste las ideas. No hay consumo posterior al guardado, así que no existe el caso "ideas guardadas pero el usuario ve un error de cuota".
 
-Si Gemini falla (saturación, error de modelo, etc.) el contador no se toca y el usuario puede volver a intentarlo sin perder cuota.
+La respuesta de la API incluye `remaining` (generaciones que quedan hoy).
 
 ---
 
@@ -160,31 +161,29 @@ Desde la ficha de la persona (sección "Ideas guardadas") el usuario puede:
 ## Implementación (`/api/recommendations/route.ts`)
 
 ```typescript
-// 1. Datos de contexto + check de cuota en paralelo
-const [[person, matchingDate, history]] = await Promise.all([
-  Promise.all([
-    fetchQuery(api.people.getById, { id: personId }, { token }),
-    fetchQuery(api.importantDates.getByPersonAndLabel, { personId, label: occasionLabel }, { token }),
-    fetchQuery(api.giftHistory.getByPerson, { personId }, { token }),
-  ]),
+// 1. Datos de contexto en paralelo. Si Convex lanza (personId malformado
+//    o de otro usuario), la API devuelve 404 — nunca un 500 genérico.
+const [person, matchingDate, history, existingRec] = await Promise.all([
+  fetchQuery(api.people.getById, { id: personId }, { token }),
+  fetchQuery(api.importantDates.getByPersonAndLabel, { personId, label: occasionLabel }, { token }),
+  fetchQuery(api.giftHistory.getByPerson, { personId }, { token }),
+  fetchQuery(api.recommendations.getByPersonOccasion, { personId, occasionLabel, giftType }, { token }),
 ]);
 
-// 2. Verificar cuota sin consumirla (lanza ConvexError si agotada)
-await fetchQuery(api.recommendationUsage.check, {}, { token });
+// 2. Reservar cuota atómicamente (lanza ConvexError si agotada → 429)
+const { remaining } = await fetchMutation(api.recommendationUsage.reserve, {}, { token });
 
-// 3. Llamar a Gemini — si falla aquí, la cuota no se toca
+// 3. Llamar a Gemini — si falla de forma retriable (503/timeout),
+//    se llama a api.recommendationUsage.refund en el catch
 const { object } = await generateObject({
   model: google("gemini-2.5-flash"),
   schema: giftRecommendationsSchema,   // definido en src/lib/gifts.ts
   prompt,
 });
 
-// 4. Solo si Gemini tuvo éxito: consumir cuota y persistir ideas
-await Promise.all([
-  fetchMutation(api.recommendationUsage.consume, {}, { token }),
-  fetchMutation(api.recommendations.upsert,
-    { personId, occasionLabel, giftType, ideas: object.ideas }, { token }),
-]);
+// 4. Persistir ideas (la cuota ya quedó reservada en el paso 2)
+await fetchMutation(api.recommendations.upsert,
+  { personId, occasionLabel, giftType, ideas: object.ideas }, { token });
 ```
 
 `generateObject` valida la respuesta contra el schema Zod automáticamente.

@@ -189,32 +189,46 @@ export async function POST(req: NextRequest) {
 
   const parsed = requestSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: "Parámetros inválidos", issues: parsed.error.issues },
-      { status: 400 },
-    );
+    // No devolvemos parsed.error.issues: expone la forma interna del schema.
+    return NextResponse.json({ error: "Parámetros inválidos" }, { status: 400 });
   }
 
   const personId = parsed.data.personId as Id<"people">;
   const { occasionLabel, giftType } = parsed.data;
 
-  const [person, matchingDate, history, existingRec] = await Promise.all([
-    fetchQuery(api.people.getById, { id: personId }, { token }),
-    fetchQuery(api.importantDates.getByPersonAndLabel, { personId, label: occasionLabel }, { token }),
-    fetchQuery(api.giftHistory.getByPerson, { personId }, { token }),
-    fetchQuery(api.recommendations.getByPersonOccasion, { personId, occasionLabel, giftType }, { token }),
-  ]);
-
-  if (!person) {
+  // Un personId malformado o de otro usuario hace que Convex lance
+  // (ArgumentValidationError / ownership): para el cliente ambos casos son
+  // el mismo 404, sin distinguir "no existe" de "no es tuyo".
+  let person, matchingDate, history, existingRec;
+  try {
+    [person, matchingDate, history, existingRec] = await Promise.all([
+      fetchQuery(api.people.getById, { id: personId }, { token }),
+      fetchQuery(api.importantDates.getByPersonAndLabel, { personId, label: occasionLabel }, { token }),
+      fetchQuery(api.giftHistory.getByPerson, { personId }, { token }),
+      fetchQuery(api.recommendations.getByPersonOccasion, { personId, occasionLabel, giftType }, { token }),
+    ]);
+  } catch (err) {
+    console.error("[recommendations] context queries:", err);
     return NextResponse.json(
-      { error: "Persona no encontrada" },
+      { error: "Persona no encontrada." },
       { status: 404 },
     );
   }
 
-  // Rate limit: verificar cuota sin consumirla aún.
+  if (!person) {
+    return NextResponse.json(
+      { error: "Persona no encontrada." },
+      { status: 404 },
+    );
+  }
+
+  // Cuota: reserva atómica ANTES de llamar a Gemini. Dos peticiones
+  // concurrentes en el límite no pueden pasar de 10/día; si el proveedor
+  // falla de forma retriable se devuelve la unidad con `refund` en el catch.
+  let remaining: number;
   try {
-    await fetchQuery(api.recommendationUsage.check, {}, { token });
+    const reserved = await fetchMutation(api.recommendationUsage.reserve, {}, { token });
+    remaining = reserved.remaining;
   } catch (err) {
     if (err instanceof ConvexError) {
       return NextResponse.json(
@@ -222,7 +236,7 @@ export async function POST(req: NextRequest) {
         { status: 429 },
       );
     }
-    console.error("[recommendations] rate limit check:", err);
+    console.error("[recommendations] quota reserve:", err);
     return NextResponse.json(
       { error: "Error interno al verificar el límite de uso." },
       { status: 500 },
@@ -250,13 +264,14 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Guardar primero; consumir cuota solo si el upsert tiene éxito.
+    // La cuota ya quedó reservada antes de llamar a Gemini; aquí solo
+    // persistimos. Sin `consume` posterior no existe el caso "ideas
+    // guardadas pero el usuario ve un error".
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const cleanIdeas = sanitizeIdeas(object.ideas as Array<Record<string, unknown>>);
     await fetchMutation(api.recommendations.upsert, { personId, occasionLabel, giftType, ideas: cleanIdeas as any }, { token });
-    await fetchMutation(api.recommendationUsage.consume, {}, { token });
 
-    return NextResponse.json({ ideas: cleanIdeas });
+    return NextResponse.json({ ideas: cleanIdeas, remaining });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error("[recommendations] gemini:", message);
@@ -271,6 +286,15 @@ export async function POST(req: NextRequest) {
           )?.statusCode
         : undefined;
     const isOverloaded = statusCode === 503;
+    const isTimeout = /timeout|timed out|aborted/i.test(message);
+    if (isOverloaded || isTimeout) {
+      // Fallo retriable del proveedor: devolvemos la unidad reservada.
+      try {
+        await fetchMutation(api.recommendationUsage.refund, {}, { token });
+      } catch (refundErr) {
+        console.error("[recommendations] quota refund:", refundErr);
+      }
+    }
     return NextResponse.json(
       {
         error: isOverloaded

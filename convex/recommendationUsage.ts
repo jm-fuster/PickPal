@@ -38,11 +38,15 @@ export const check = query({
 });
 
 /**
- * Consume una unidad de la cuota diaria de recomendaciones del usuario.
- * Solo llamar tras una generación exitosa.
- * Devuelve { count, limit, remaining } tras incrementar.
+ * Reserva atómicamente una unidad de cuota ANTES de llamar al proveedor de IA.
+ * Lanza ConvexError si el usuario ya alcanzó el límite diario.
+ *
+ * Al incrementar dentro de la mutation (transacción Convex), dos peticiones
+ * concurrentes en el límite no pueden superar las 10 generaciones/día — la
+ * pareja check+consume anterior dejaba una ventana entre verificar y consumir.
+ * Devuelve { count, limit, remaining } tras reservar.
  */
-export const consume = mutation({
+export const reserve = mutation({
   args: {},
   handler: async (ctx) => {
     const clerkUserId = await requireUser(ctx);
@@ -55,25 +59,52 @@ export const consume = mutation({
       )
       .unique();
 
-    if (existing) {
-      if (existing.count >= DAILY_LIMIT) {
-        throw new ConvexError(
-          `Has alcanzado el límite diario de ${DAILY_LIMIT} recomendaciones. Vuelve mañana.`,
-        );
-      }
-      await ctx.db.patch(existing._id, { count: existing.count + 1 });
-      return {
-        count: existing.count + 1,
-        limit: DAILY_LIMIT,
-        remaining: DAILY_LIMIT - (existing.count + 1),
-      };
+    const count = existing?.count ?? 0;
+    if (count >= DAILY_LIMIT) {
+      throw new ConvexError(
+        `Has alcanzado el límite diario de ${DAILY_LIMIT} recomendaciones. Vuelve mañana.`,
+      );
     }
 
-    await ctx.db.insert("recommendationUsage", {
-      clerkUserId,
-      day,
-      count: 1,
-    });
-    return { count: 1, limit: DAILY_LIMIT, remaining: DAILY_LIMIT - 1 };
+    if (existing) {
+      await ctx.db.patch(existing._id, { count: count + 1 });
+    } else {
+      await ctx.db.insert("recommendationUsage", {
+        clerkUserId,
+        day,
+        count: 1,
+      });
+    }
+    return {
+      count: count + 1,
+      limit: DAILY_LIMIT,
+      remaining: DAILY_LIMIT - (count + 1),
+    };
+  },
+});
+
+/**
+ * Devuelve una unidad reservada con `reserve`. Solo se llama desde la API
+ * route cuando el proveedor falla de forma retriable (503/timeout) y no se
+ * generó nada: el usuario no pierde cuota por una caída ajena. Nunca baja
+ * el contador de 0.
+ */
+export const refund = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const clerkUserId = await requireUser(ctx);
+    const day = todayUTC();
+
+    const existing = await ctx.db
+      .query("recommendationUsage")
+      .withIndex("by_user_day", (q) =>
+        q.eq("clerkUserId", clerkUserId).eq("day", day),
+      )
+      .unique();
+
+    if (existing && existing.count > 0) {
+      await ctx.db.patch(existing._id, { count: existing.count - 1 });
+    }
+    return null;
   },
 });
