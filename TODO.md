@@ -179,7 +179,7 @@ Adaptar al shape real del middleware existente (no sobrescribir la lógica actua
 
 **Commit:** `feat(security): reject cross-site mutating API requests via sec-fetch-site`
 
-### - [ ] T11. Cerrar gaps de validación en la frontera Convex
+### - [x] T11. Cerrar gaps de validación en la frontera Convex
 
 1. `convex/recommendations.ts` `upsert` (~80): validar `occasionLabel` (trim no vacío, ≤ 40 chars) y `giftType` contra la allowlist `["fisica", "experiencia", "tiempo-juntos", "sorprendeme"]` (verificar los valores reales en el código antes de copiar).
 2. `convex/recommendations.ts` `removeIdea` (~41): caps `ideaTitle ≤ 80`, `occasionLabel ≤ 40`, `giftType ≤ 20`; y acotar el array: `discardedTitles: [...(existing.discardedTitles ?? []), ideaTitle].slice(-200)`.

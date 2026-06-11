@@ -102,6 +102,11 @@ export const setMine = mutation({
       favoriteStores,
     },
   ) => {
+    // Auth SIEMPRE primero: ninguna validación debe ejecutarse (ni filtrar
+    // información en sus errores) para peticiones sin sesión.
+    const clerkUserId = await requireUser(ctx);
+    const identity = await ctx.auth.getUserIdentity();
+
     if (notifyDaysBefore !== undefined) {
       if (
         !Number.isInteger(notifyDaysBefore) ||
@@ -134,9 +139,6 @@ export const setMine = mutation({
         throw new ConvexError("Selecciona al menos una tienda.");
       }
     }
-
-    const clerkUserId = await requireUser(ctx);
-    const identity = await ctx.auth.getUserIdentity();
 
     if (emailNotificationsEnabled === true && !identity?.email) {
       throw new ConvexError(

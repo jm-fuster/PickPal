@@ -1,7 +1,10 @@
 import { mutation, query } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
 import { requireUser } from "./auth";
-import { validateRecommendationIdeas } from "./validators";
+import {
+  validateRecommendationIdeas,
+  validateRecommendationKey,
+} from "./validators";
 
 const ideaValidator = v.object({
   title: v.string(),
@@ -50,6 +53,15 @@ export const removeIdea = mutation({
     const clerkUserId = await requireUser(ctx);
     const person = await ctx.db.get(personId);
     if (!person || person.clerkUserId !== clerkUserId) throw new ConvexError("No autorizado");
+    // Caps espejo de los tamaños que genera la app; sin ellos un cliente
+    // directo puede inflar el documento con strings arbitrarios.
+    if (
+      ideaTitle.length > 80 ||
+      occasionLabel.length > 40 ||
+      giftType.length > 20
+    ) {
+      throw new ConvexError("Parámetros inválidos.");
+    }
     const existing = await ctx.db
       .query("recommendations")
       .withIndex("by_user_person_occasion_type", (q) =>
@@ -71,7 +83,9 @@ export const removeIdea = mutation({
 
     await ctx.db.patch(existing._id, {
       ideas: existing.ideas.filter((idea) => idea.title !== ideaTitle),
-      discardedTitles: [...(existing.discardedTitles ?? []), ideaTitle],
+      // Acotado a los últimos 200: evita que el array crezca sin límite
+      // hacia el cap de tamaño de documento de Convex.
+      discardedTitles: [...(existing.discardedTitles ?? []), ideaTitle].slice(-200),
       dislikedCategories: merged,
     });
   },
@@ -87,6 +101,7 @@ export const upsert = mutation({
   handler: async (ctx, { personId, occasionLabel, giftType, ideas }) => {
     const clerkUserId = await requireUser(ctx);
 
+    validateRecommendationKey(occasionLabel, giftType);
     validateRecommendationIdeas(ideas);
 
     const person = await ctx.db.get(personId);

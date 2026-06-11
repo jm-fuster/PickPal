@@ -55,6 +55,32 @@ const ALLOWED_RELATIONSHIPS = [
   "other",
 ];
 
+// Espejo de GIFT_TYPES en src/lib/gifts.ts (cliente).
+export const ALLOWED_GIFT_TYPES = [
+  "fisica",
+  "experiencia",
+  "tiempo-juntos",
+  "sorprendeme",
+] as const;
+
+/**
+ * Valida la clave (ocasión, tipo) bajo la que se indexan las recomendaciones.
+ * Sin esto un cliente que llame directamente a `api.recommendations.upsert`
+ * puede crear filas con claves arbitrarias de cualquier tamaño.
+ */
+export function validateRecommendationKey(
+  occasionLabel: string,
+  giftType: string,
+) {
+  const label = occasionLabel.trim();
+  if (label.length === 0 || occasionLabel.length > MAX_LABEL) {
+    throw new ConvexError("Ocasión inválida.");
+  }
+  if (!(ALLOWED_GIFT_TYPES as readonly string[]).includes(giftType)) {
+    throw new ConvexError("Tipo de regalo inválido.");
+  }
+}
+
 export function validatePersonInput(input: {
   name?: string;
   relationship?: string;
