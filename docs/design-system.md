@@ -527,6 +527,10 @@ Cuando `events.length === 0` (la persona existe pero no tiene ningún evento gua
 
 Cuando hay eventos pero no se ha generado aún, muestra el placeholder informativo habitual ("A medida para [nombre]") sin CTA.
 
+Cuando el usuario **descarta todas las ideas** de una tanda, se muestra otro empty state contextual ("Has descartado todas las ideas") con CTA filled "Generar de nuevo" (`Button` default + `hover:bg-primary/80` explícito, icono `RefreshCw`) — nunca un grid en blanco.
+
+**Cuota visible**: tras cada generación, bajo los controles aparece `Te quedan N generaciones hoy` (`text-xs text-muted-foreground`), con el `remaining` que devuelve la API de recomendaciones.
+
 ---
 
 ## Voz y copy

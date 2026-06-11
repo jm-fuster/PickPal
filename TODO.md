@@ -222,7 +222,7 @@ Consultar `docs/design-system.md` antes y actualizarlo si procede.
 
 **Commit:** `fix(dates): month-aware validation and leap-day handling in labels and countdowns`
 
-### - [ ] T15. Pulido restante
+### - [x] T15. Pulido restante
 
 1. `src/app/(app)/seres-queridos/[personId]/page.tsx` (~94): `savedTimerRef` es un objeto literal recreado en cada render → usar `useRef` como hace `settings/page.tsx` (~61).
 2. `src/components/gifts/GiftsPanel.tsx` (~413): si el usuario descarta las 9 ideas, mostrar estado vacío con CTA "Generar de nuevo" en vez de grid en blanco.

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { use, useState } from "react";
+import { use, useRef, useState } from "react";
 import {
   ArrowLeft, CalendarDays, CalendarX2, Camera, Check, ExternalLink, Gift, NotebookPen, PencilLine, Repeat2, Ruler, Star, Trash2, ThumbsUp, X,
 } from "lucide-react";
@@ -91,7 +91,7 @@ function PersonDetailContent({
 
   // ── Saved indicator ──
   const [savedRecently, setSavedRecently] = useState(false);
-  const savedTimerRef = { current: undefined as ReturnType<typeof setTimeout> | undefined };
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   // ── Delete / inline edit ──
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);

@@ -83,6 +83,7 @@ export function GiftsPanel({
   const [occasion, setOccasion] = useState(initialOccasion ?? "");
   const [giftType, setGiftType] = useState<GiftType>("fisica");
   const [ideas, setIdeas] = useState<GiftRecommendation[] | null>(null);
+  const [remaining, setRemaining] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [showHeaderRegen, setShowHeaderRegen] = useState(false);
   const [savedTitles, setSavedTitles] = useState<Set<string>>(new Set());
@@ -191,8 +192,12 @@ export function GiftsPanel({
         );
         return;
       }
-      const data = (await res.json()) as { ideas: GiftRecommendation[] };
+      const data = (await res.json()) as {
+        ideas: GiftRecommendation[];
+        remaining?: number;
+      };
       setIdeas(data.ideas);
+      if (typeof data.remaining === "number") setRemaining(data.remaining);
     } catch {
       toast.error("No se pudieron generar ideas, inténtalo de nuevo");
     } finally {
@@ -396,6 +401,11 @@ export function GiftsPanel({
             Tienes ideas guardadas para esta combinación. Regenerar consume cuota diaria.
           </p>
         )}
+        {remaining !== null && !loading && (
+          <p className="text-xs text-muted-foreground">
+            Te quedan {remaining} {remaining === 1 ? "generación" : "generaciones"} hoy.
+          </p>
+        )}
       </div>
 
       {/* Anuncio para lectores de pantalla del estado de la generación */}
@@ -416,7 +426,7 @@ export function GiftsPanel({
             />
           ))}
         </div>
-      ) : showIdeas ? (
+      ) : showIdeas && showIdeas.length > 0 ? (
         <div className={`grid gap-4 ${embedded ? "grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-3"}`}>
           {showIdeas.map((idea, i) => (
             <GiftRecommendationCard
@@ -430,6 +440,21 @@ export function GiftsPanel({
               onDiscard={() => handleDiscard(idea, i)}
             />
           ))}
+        </div>
+      ) : showIdeas ? (
+        /* El usuario descartó las 9 ideas: estado vacío con CTA, no un grid en blanco */
+        <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-14 text-center">
+          <div className="text-4xl mb-3" aria-hidden>
+            ✨
+          </div>
+          <h2 className="text-2xl font-medium mb-2">Has descartado todas las ideas</h2>
+          <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-6">
+            La próxima tanda evitará sugerencias parecidas a las que has descartado.
+          </p>
+          <Button onClick={generate} disabled={loading} className="hover:bg-primary/80">
+            <RefreshCw className="size-4" aria-hidden />
+            Generar de nuevo
+          </Button>
         </div>
       ) : (
         <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-14 text-center">
