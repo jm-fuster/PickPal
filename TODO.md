@@ -235,9 +235,9 @@ Consultar `docs/design-system.md` antes y actualizarlo si procede.
 
 ## Verificación final (tras completar todas las fases)
 
-- [ ] `npx vitest run` en verde.
-- [ ] `npx convex dev --once` sin errores de schema.
-- [ ] `npm run build` (Next) sin errores ni warnings nuevos.
-- [ ] Smoke manual: crear persona con datos prácticos → generar ideas → guardar/descartar → borrar persona → borrar cuenta. Verificar en el dashboard de Convex que no quedan filas del usuario.
-- [ ] `docs/security.md` refleja: patrón ConvexError, reserva atómica de cuota, Sec-Fetch-Site, CSP report-only.
-- [ ] Push a `main` (https://github.com/JMFusterr/PickPal.git).
+- [x] `npx vitest run` en verde (76 tests).
+- [x] `npx convex dev --once` sin errores de schema.
+- [x] `npm run build` (Next) sin errores ni warnings nuevos.
+- [ ] Smoke manual: crear persona con datos prácticos → generar ideas → guardar/descartar → borrar persona → borrar cuenta. Verificar en el dashboard de Convex que no quedan filas del usuario. *(Pendiente de hacer a mano: requiere sesión Clerk real y borra la cuenta — no automatizable sin una cuenta de prueba. Verificado en local: cabeceras T9 presentes, `Sec-Fetch-Site: cross-site` → 403.)*
+- [x] `docs/security.md` refleja: patrón ConvexError, reserva atómica de cuota, Sec-Fetch-Site, CSP report-only.
+- [x] Push a `main` (https://github.com/JMFusterr/PickPal.git).
