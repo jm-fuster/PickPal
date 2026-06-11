@@ -201,7 +201,7 @@ Mantener `allergies` (funcionalmente necesario). Revisar `src/app/privacidad/pag
 
 ## F4 — QA: bugs menores y a11y
 
-### - [ ] T13. A11y de formularios y estados (gaps concretos, no auditoría genérica)
+### - [x] T13. A11y de formularios y estados (gaps concretos, no auditoría genérica)
 
 1. `src/components/people/GiftHistoryForm.tsx`: renderizar `errors.reaction` y `errors.year` (hoy el submit falla en silencio total); añadir `aria-invalid` al `SelectTrigger` de reacción (~138). Aplicar lo mismo en `EditGiftHistoryInline`.
 2. `src/components/people/BudgetRangeSlider.tsx` (~64-98): ligar el `<p>` de error a los inputs min/max con `aria-describedby` + `aria-invalid`.

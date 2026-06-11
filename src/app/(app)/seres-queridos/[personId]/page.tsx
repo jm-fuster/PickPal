@@ -229,7 +229,7 @@ function PersonDetailContent({
             variant="ghost"
             size="icon"
             onClick={() => setConfirmDeleteOpen(true)}
-            aria-label="Eliminar"
+            aria-label={`Eliminar a ${person.name}`}
             className="text-destructive hover:text-destructive"
           >
             <Trash2 className="size-4" aria-hidden />
@@ -437,15 +437,21 @@ function PersonDetailContent({
         </CardContent>
       </Card>
 
-      {/* ── Autosave indicator (fixed, always visible) ── */}
+      {/* ── Autosave indicator (fixed, always visible) ──
+          El texto se renderiza condicionalmente DENTRO de la región aria-live:
+          un cambio de opacidad no se anuncia; la inserción de contenido sí. */}
       <div
         aria-live="polite"
         className={`fixed bottom-6 right-6 z-50 flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground shadow-md transition-all duration-300 ${
           savedRecently ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"
         }`}
       >
-        <Check className="size-3" aria-hidden />
-        Guardado
+        {savedRecently ? (
+          <>
+            <Check className="size-3" aria-hidden />
+            Guardado
+          </>
+        ) : null}
       </div>
 
       {/* ── Saved ideas card ── */}

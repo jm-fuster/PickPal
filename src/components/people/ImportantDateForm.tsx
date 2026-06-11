@@ -173,7 +173,12 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
                 if (v) setValue("month", Number(v), { shouldValidate: true });
               }}
             >
-              <SelectTrigger id="date-month-desktop" className="w-full">
+              <SelectTrigger
+                id="date-month-desktop"
+                aria-invalid={errors.month ? true : undefined}
+                aria-describedby={errors.month ? "date-dmy-error" : undefined}
+                className="w-full"
+              >
                 <span>{watchedMonth ? MONTHS[watchedMonth - 1] : "Mes"}</span>
               </SelectTrigger>
               <SelectContent>
@@ -198,7 +203,7 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
             />
           </div>
           {errors.day || errors.month || errors.year ? (
-            <p className="text-xs text-destructive md:col-span-3">
+            <p id="date-dmy-error" className="text-xs text-destructive md:col-span-3">
               {errors.day?.message ?? errors.month?.message ?? errors.year?.message}
             </p>
           ) : null}
@@ -403,7 +408,12 @@ export function EditImportantDateInline({
             value={String(watchedMonth ?? 1)}
             onValueChange={(v) => { if (v) setValue("month", Number(v), { shouldValidate: true }); }}
           >
-            <SelectTrigger aria-label="Mes" className="w-full">
+            <SelectTrigger
+              aria-label="Mes"
+              aria-invalid={errors.month ? true : undefined}
+              aria-describedby={errors.month ? "edit-dmy-error" : undefined}
+              className="w-full"
+            >
               <span>{MONTHS[(watchedMonth ?? 1) - 1]}</span>
             </SelectTrigger>
             <SelectContent>
@@ -433,7 +443,7 @@ export function EditImportantDateInline({
             : "Selecciona fecha"}
         </button>
         {(errors.day || errors.month || errors.year) && (
-          <p className="text-xs text-destructive">
+          <p id="edit-dmy-error" className="text-xs text-destructive">
             {errors.day?.message ?? errors.month?.message ?? errors.year?.message}
           </p>
         )}

@@ -142,7 +142,12 @@ function AddEventForm({
             value={watchedMonth ? String(watchedMonth) : ""}
             onValueChange={(v) => { if (v) setValue("month", Number(v), { shouldValidate: true }); }}
           >
-            <SelectTrigger aria-label="Mes" className="w-full">
+            <SelectTrigger
+              aria-label="Mes"
+              aria-invalid={errors.month ? true : undefined}
+              aria-describedby={errors.month ? "ae-month-error" : undefined}
+              className="w-full"
+            >
               <span>{watchedMonth ? MONTHS[watchedMonth - 1] : "Mes"}</span>
             </SelectTrigger>
             <SelectContent>
@@ -152,7 +157,7 @@ function AddEventForm({
             </SelectContent>
           </Select>
           {errors.month ? (
-            <p className="text-xs text-destructive">{errors.month.message}</p>
+            <p id="ae-month-error" className="text-xs text-destructive">{errors.month.message}</p>
           ) : null}
         </div>
         <div className="space-y-1.5">

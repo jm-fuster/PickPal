@@ -385,7 +385,9 @@ export default function SettingsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Pill flotante "Guardado" — mismo patrón que la ficha de persona */}
+      {/* Pill flotante "Guardado" — mismo patrón que la ficha de persona.
+          El texto va condicional DENTRO de la región aria-live: un cambio de
+          opacidad no se anuncia; la inserción de contenido sí. */}
       <div
         aria-live="polite"
         className={`fixed bottom-6 right-6 z-50 flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground shadow-md transition-all duration-300 ${
@@ -394,8 +396,12 @@ export default function SettingsPage() {
             : "opacity-0 translate-y-2 pointer-events-none"
         }`}
       >
-        <Check className="size-3" aria-hidden />
-        Guardado
+        {savedRecently ? (
+          <>
+            <Check className="size-3" aria-hidden />
+            Guardado
+          </>
+        ) : null}
       </div>
     </main>
   );

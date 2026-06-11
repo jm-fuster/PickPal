@@ -123,10 +123,15 @@ export function GiftHistoryForm({ personId }: { personId: Id<"people"> }) {
             min={1900}
             max={2100}
             placeholder="2023"
+            aria-invalid={errors.year ? true : undefined}
+            aria-describedby={errors.year ? "gh-year-error" : undefined}
             {...register("year", {
               setValueAs: (v) => (v === "" || v === null ? undefined : Number(v)),
             })}
           />
+          {errors.year ? (
+            <p id="gh-year-error" className="text-xs text-destructive">{errors.year.message}</p>
+          ) : null}
         </div>
 
         <div className="space-y-1.5">
@@ -136,7 +141,11 @@ export function GiftHistoryForm({ personId }: { personId: Id<"people"> }) {
             control={control}
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger aria-label="Reacción">
+                <SelectTrigger
+                  aria-label="Reacción"
+                  aria-invalid={errors.reaction ? true : undefined}
+                  aria-describedby={errors.reaction ? "gh-reaction-error" : undefined}
+                >
                   <span className={!field.value ? "text-muted-foreground" : ""}>
                     {REACTIONS.find((r) => r.value === field.value)?.label ?? "Reacción…"}
                   </span>
@@ -151,6 +160,9 @@ export function GiftHistoryForm({ personId }: { personId: Id<"people"> }) {
               </Select>
             )}
           />
+          {errors.reaction ? (
+            <p id="gh-reaction-error" className="text-xs text-destructive">{errors.reaction.message}</p>
+          ) : null}
         </div>
       </div>
 
@@ -266,10 +278,15 @@ export function EditGiftHistoryInline({
             min={1900}
             max={2100}
             placeholder="2023"
+            aria-invalid={errors.year ? true : undefined}
+            aria-describedby={errors.year ? "ghe-year-error" : undefined}
             {...register("year", {
               setValueAs: (v) => (v === "" || v === null ? undefined : Number(v)),
             })}
           />
+          {errors.year ? (
+            <p id="ghe-year-error" className="text-xs text-destructive">{errors.year.message}</p>
+          ) : null}
         </div>
 
         <div className="space-y-1.5">
@@ -279,7 +296,11 @@ export function EditGiftHistoryInline({
             control={control}
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger aria-label="Reacción">
+                <SelectTrigger
+                  aria-label="Reacción"
+                  aria-invalid={errors.reaction ? true : undefined}
+                  aria-describedby={errors.reaction ? "ghe-reaction-error" : undefined}
+                >
                   <span className={!field.value ? "text-muted-foreground" : ""}>
                     {REACTIONS.find((r) => r.value === field.value)?.label ?? "Reacción…"}
                   </span>
@@ -294,6 +315,9 @@ export function EditGiftHistoryInline({
               </Select>
             )}
           />
+          {errors.reaction ? (
+            <p id="ghe-reaction-error" className="text-xs text-destructive">{errors.reaction.message}</p>
+          ) : null}
         </div>
       </div>
 

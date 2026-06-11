@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -32,6 +33,10 @@ export function BudgetRangeSlider({
 }: BudgetRangeSliderProps) {
   const sliderMin = Math.min(Math.max(minValue ?? 0, 0), BUDGET_MAX);
   const sliderMax = Math.min(Math.max(maxValue ?? BUDGET_MAX, 0), BUDGET_MAX);
+  // useId: el componente se monta varias veces en la misma página
+  // (alta + ediciones inline), un id estático colisionaría.
+  const errorId = useId();
+  const hasError = Boolean(minError || maxError);
 
   return (
     <div className="space-y-3">
@@ -67,6 +72,8 @@ export function BudgetRangeSlider({
             step={1}
             placeholder="Mín."
             aria-label="Presupuesto mínimo (€)"
+            aria-invalid={minError ? true : undefined}
+            aria-describedby={hasError ? errorId : undefined}
             value={minValue ?? ""}
             onChange={(e) =>
               onMinChange(e.target.value !== "" ? Number(e.target.value) : undefined)
@@ -83,6 +90,8 @@ export function BudgetRangeSlider({
             step={1}
             placeholder="Máx."
             aria-label="Presupuesto máximo (€)"
+            aria-invalid={maxError ? true : undefined}
+            aria-describedby={hasError ? errorId : undefined}
             value={maxValue ?? ""}
             onChange={(e) =>
               onMaxChange(e.target.value !== "" ? Number(e.target.value) : undefined)
@@ -93,8 +102,8 @@ export function BudgetRangeSlider({
         </div>
       </div>
 
-      {minError || maxError ? (
-        <p className="text-xs text-destructive">{minError ?? maxError}</p>
+      {hasError ? (
+        <p id={errorId} className="text-xs text-destructive">{minError ?? maxError}</p>
       ) : null}
     </div>
   );
