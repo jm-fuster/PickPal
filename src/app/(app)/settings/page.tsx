@@ -7,6 +7,7 @@ import { useMutation, useQuery } from "convex/react";
 import { useTheme } from "next-themes";
 import { Check, Moon, Sun } from "lucide-react";
 import { toast } from "sonner";
+import { userErrorMessage } from "@/lib/errors";
 import { api } from "../../../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import {
@@ -106,7 +107,7 @@ export default function SettingsPage() {
       savedTimerRef.current = setTimeout(() => setSavedRecently(false), 2000);
     } catch (err) {
       revert();
-      toast.error(err instanceof Error ? err.message : "No se pudo guardar");
+      toast.error(userErrorMessage(err, "No se pudo guardar"));
     }
   };
 

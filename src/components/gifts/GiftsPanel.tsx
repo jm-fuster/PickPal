@@ -20,6 +20,7 @@ import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { userErrorMessage } from "@/lib/errors";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -180,18 +181,20 @@ export function GiftsPanel({
         body: JSON.stringify({ personId, occasionLabel: occasion, giftType }),
       });
       if (!res.ok) {
+        // `error` viene ya saneado por nuestra API route; nunca enseñamos
+        // detalles internos del proveedor ni el status crudo.
         const data = await res.json().catch(() => ({}));
-        const detail = data.detail ? ` (${data.detail})` : "";
-        throw new Error((data.error ?? `Error ${res.status}`) + detail);
+        toast.error(
+          typeof data.error === "string"
+            ? data.error
+            : "No se pudieron generar ideas, inténtalo de nuevo",
+        );
+        return;
       }
       const data = (await res.json()) as { ideas: GiftRecommendation[] };
       setIdeas(data.ideas);
-    } catch (err) {
-      toast.error(
-        err instanceof Error
-          ? err.message
-          : "No se pudieron generar ideas, inténtalo de nuevo",
-      );
+    } catch {
+      toast.error("No se pudieron generar ideas, inténtalo de nuevo");
     } finally {
       setLoading(false);
     }
@@ -225,7 +228,7 @@ export function GiftsPanel({
       setSavedTitles((prev) => new Set(prev).add(idea.title));
       toast.success(`Idea guardada en la ficha de ${person?.name ?? "esta persona"}`);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "No se pudo guardar la idea");
+      toast.error(userErrorMessage(err, "No se pudo guardar la idea"));
     }
   };
 

@@ -1,4 +1,4 @@
-import { v } from "convex/values";
+import { v, ConvexError } from "convex/values";
 import { mutation, query, MutationCtx } from "./_generated/server";
 import { Id } from "./_generated/dataModel";
 import { requireUser } from "./auth";
@@ -109,7 +109,7 @@ export const update = mutation({
     const clerkUserId = await requireUser(ctx);
     const existing = await ctx.db.get(id);
     if (!existing || existing.clerkUserId !== clerkUserId) {
-      throw new Error("Persona no encontrada.");
+      throw new ConvexError("Persona no encontrada.");
     }
     const merged = { ...existing, ...patch };
     validatePersonInput({
@@ -133,7 +133,7 @@ export const remove = mutation({
     const clerkUserId = await requireUser(ctx);
     const existing = await ctx.db.get(id);
     if (!existing || existing.clerkUserId !== clerkUserId) {
-      throw new Error("Persona no encontrada.");
+      throw new ConvexError("Persona no encontrada.");
     }
     await deletePersonCascade(ctx, id);
   },

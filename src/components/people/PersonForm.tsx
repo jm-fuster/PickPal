@@ -11,6 +11,7 @@ import {
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { userErrorMessage } from "@/lib/errors";
 import { CalendarDays, CalendarX2, Plus, Repeat2, Ruler, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -391,7 +392,7 @@ export function PersonForm({
     try {
       await onSubmit(values);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "No se pudo guardar");
+      toast.error(userErrorMessage(err, "No se pudo guardar"));
     } finally {
       setSubmitting(false);
     }

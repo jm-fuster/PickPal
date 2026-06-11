@@ -1,6 +1,8 @@
 // Límites espejados de src/lib/schemas.ts y src/lib/gifts.ts. La validación
 // cliente es UX; estas comprobaciones son la frontera de confianza del servidor.
 
+import { ConvexError } from "convex/values";
+
 const MAX_NAME = 80;
 const MAX_NOTES = 1000;
 const MAX_INTEREST = 80;
@@ -66,48 +68,48 @@ export function validatePersonInput(input: {
 }) {
   if (input.name !== undefined) {
     const trimmed = input.name.trim();
-    if (trimmed.length === 0) throw new Error("El nombre es obligatorio.");
-    if (trimmed.length > MAX_NAME) throw new Error("Nombre demasiado largo.");
+    if (trimmed.length === 0) throw new ConvexError("El nombre es obligatorio.");
+    if (trimmed.length > MAX_NAME) throw new ConvexError("Nombre demasiado largo.");
   }
   if (input.relationship !== undefined) {
     if (!ALLOWED_RELATIONSHIPS.includes(input.relationship)) {
-      throw new Error("Relación inválida.");
+      throw new ConvexError("Relación inválida.");
     }
     if (input.relationship.length > MAX_RELATIONSHIP) {
-      throw new Error("Relación inválida.");
+      throw new ConvexError("Relación inválida.");
     }
   }
   if (input.notes !== undefined && input.notes.length > MAX_NOTES) {
-    throw new Error("Notas demasiado largas.");
+    throw new ConvexError("Notas demasiado largas.");
   }
   if (input.interests !== undefined) {
     if (input.interests.length > MAX_INTERESTS) {
-      throw new Error("Demasiados intereses.");
+      throw new ConvexError("Demasiados intereses.");
     }
     for (const interest of input.interests) {
       if (interest.length > MAX_INTEREST) {
-        throw new Error("Interés demasiado largo.");
+        throw new ConvexError("Interés demasiado largo.");
       }
     }
   }
   if (input.shoeSize !== undefined && input.shoeSize.length > MAX_SIZE) {
-    throw new Error("Talla de zapato demasiado larga.");
+    throw new ConvexError("Talla de zapato demasiado larga.");
   }
   if (input.clothingSize !== undefined && input.clothingSize.length > MAX_SIZE) {
-    throw new Error("Talla de ropa demasiado larga.");
+    throw new ConvexError("Talla de ropa demasiado larga.");
   }
   if (input.allergies !== undefined && input.allergies.length > MAX_QUIRK) {
-    throw new Error("Campo alergias demasiado largo.");
+    throw new ConvexError("Campo alergias demasiado largo.");
   }
   if (input.dislikes !== undefined && input.dislikes.length > MAX_QUIRK) {
-    throw new Error("Campo no le gusta demasiado largo.");
+    throw new ConvexError("Campo no le gusta demasiado largo.");
   }
   if (input.avatarUrl !== undefined) {
     if (
       input.avatarUrl.length > MAX_AVATAR_URL ||
       !input.avatarUrl.startsWith(DICEBEAR_PREFIX)
     ) {
-      throw new Error("URL de avatar inválida.");
+      throw new ConvexError("URL de avatar inválida.");
     }
   }
 }
@@ -119,11 +121,11 @@ export function validateBudget(min?: number, max?: number) {
   ] as const) {
     if (value === undefined) continue;
     if (!Number.isFinite(value) || value < 0 || value > MAX_BUDGET_CENTS) {
-      throw new Error(`Presupuesto inválido (${name}).`);
+      throw new ConvexError(`Presupuesto inválido (${name}).`);
     }
   }
   if (min !== undefined && max !== undefined && min > max) {
-    throw new Error("Presupuesto mínimo mayor que el máximo.");
+    throw new ConvexError("Presupuesto mínimo mayor que el máximo.");
   }
 }
 
@@ -146,30 +148,30 @@ export function validateRecommendationIdeas(
   ideas: ReadonlyArray<RecommendationIdea>,
 ) {
   if (ideas.length !== IDEAS_PER_GENERATION) {
-    throw new Error(
+    throw new ConvexError(
       `Una recomendación debe contener exactamente ${IDEAS_PER_GENERATION} ideas.`,
     );
   }
   for (const idea of ideas) {
     const title = idea.title.trim();
     if (title.length === 0 || idea.title.length > MAX_IDEA_TITLE) {
-      throw new Error("Título de idea inválido.");
+      throw new ConvexError("Título de idea inválido.");
     }
     const description = idea.description.trim();
     if (
       description.length === 0 ||
       idea.description.length > MAX_IDEA_DESCRIPTION
     ) {
-      throw new Error("Descripción de idea inválida.");
+      throw new ConvexError("Descripción de idea inválida.");
     }
     const categories = Array.isArray(idea.category) ? idea.category : [idea.category];
     if (categories.length === 0 || categories.length > 3 ||
         categories.some(c => c.trim().length === 0 || c.length > MAX_IDEA_CATEGORY)) {
-      throw new Error("Categoría de idea inválida.");
+      throw new ConvexError("Categoría de idea inválida.");
     }
     const query = idea.amazonQuery.trim();
     if (query.length === 0 || idea.amazonQuery.length > MAX_IDEA_QUERY) {
-      throw new Error("Query de búsqueda inválida.");
+      throw new ConvexError("Query de búsqueda inválida.");
     }
     for (const value of [idea.priceMinEuros, idea.priceMaxEuros]) {
       if (
@@ -177,20 +179,20 @@ export function validateRecommendationIdeas(
         value < 0 ||
         value > MAX_IDEA_PRICE_EUROS
       ) {
-        throw new Error("Precio de idea fuera de rango.");
+        throw new ConvexError("Precio de idea fuera de rango.");
       }
     }
     if (idea.suggestedStores != null && idea.suggestedStores.length > 0) {
       if (idea.suggestedStores.length > MAX_SUGGESTED_STORES) {
-        throw new Error("Cantidad de tiendas sugeridas inválida.");
+        throw new ConvexError("Cantidad de tiendas sugeridas inválida.");
       }
       const seen = new Set<string>();
       for (const store of idea.suggestedStores) {
         if (!(ALLOWED_STORES as readonly string[]).includes(store)) {
-          throw new Error("Tienda sugerida inválida.");
+          throw new ConvexError("Tienda sugerida inválida.");
         }
         if (seen.has(store)) {
-          throw new Error("Tiendas sugeridas duplicadas.");
+          throw new ConvexError("Tiendas sugeridas duplicadas.");
         }
         seen.add(store);
       }
@@ -210,15 +212,15 @@ export function validateSavedIdeaInput(input: {
 }) {
   const title = input.title.trim();
   if (title.length === 0 || input.title.length > MAX_IDEA_TITLE) {
-    throw new Error("Título de idea inválido.");
+    throw new ConvexError("Título de idea inválido.");
   }
   const description = input.description.trim();
   if (description.length === 0 || input.description.length > MAX_IDEA_DESCRIPTION) {
-    throw new Error("Descripción de idea inválida.");
+    throw new ConvexError("Descripción de idea inválida.");
   }
   const label = input.occasionLabel.trim();
   if (label.length === 0 || input.occasionLabel.length > MAX_LABEL) {
-    throw new Error("Ocasión inválida.");
+    throw new ConvexError("Ocasión inválida.");
   }
   const categories = Array.isArray(input.category) ? input.category : [input.category];
   if (
@@ -226,24 +228,24 @@ export function validateSavedIdeaInput(input: {
     categories.length > 3 ||
     categories.some((c) => c.trim().length === 0 || c.length > MAX_IDEA_CATEGORY)
   ) {
-    throw new Error("Categoría de idea inválida.");
+    throw new ConvexError("Categoría de idea inválida.");
   }
   const query = input.amazonQuery.trim();
   if (query.length === 0 || input.amazonQuery.length > MAX_IDEA_QUERY) {
-    throw new Error("Query de búsqueda inválida.");
+    throw new ConvexError("Query de búsqueda inválida.");
   }
   for (const value of [input.priceMinEuros, input.priceMaxEuros]) {
     if (!Number.isFinite(value) || value < 0 || value > MAX_IDEA_PRICE_EUROS) {
-      throw new Error("Precio de idea fuera de rango.");
+      throw new ConvexError("Precio de idea fuera de rango.");
     }
   }
   if (input.suggestedStores != null && input.suggestedStores.length > 0) {
     if (input.suggestedStores.length > MAX_SUGGESTED_STORES) {
-      throw new Error("Cantidad de tiendas sugeridas inválida.");
+      throw new ConvexError("Cantidad de tiendas sugeridas inválida.");
     }
     for (const store of input.suggestedStores) {
       if (!(ALLOWED_STORES as readonly string[]).includes(store)) {
-        throw new Error("Tienda sugerida inválida.");
+        throw new ConvexError("Tienda sugerida inválida.");
       }
     }
   }
@@ -258,11 +260,11 @@ export function validateDateInput(input: {
 }) {
   if (input.label !== undefined) {
     const trimmed = input.label.trim();
-    if (trimmed.length === 0) throw new Error("La etiqueta es obligatoria.");
-    if (trimmed.length > MAX_LABEL) throw new Error("Etiqueta demasiado larga.");
+    if (trimmed.length === 0) throw new ConvexError("La etiqueta es obligatoria.");
+    if (trimmed.length > MAX_LABEL) throw new ConvexError("Etiqueta demasiado larga.");
   }
   if (input.recurring === false && input.year === undefined) {
-    throw new Error("Las fechas únicas requieren un año.");
+    throw new ConvexError("Las fechas únicas requieren un año.");
   }
   if (input.year !== undefined) {
     if (
@@ -270,7 +272,7 @@ export function validateDateInput(input: {
       input.year < MIN_YEAR ||
       input.year > MAX_YEAR
     ) {
-      throw new Error("Año inválido.");
+      throw new ConvexError("Año inválido.");
     }
   }
   validateBudget(input.budgetMin, input.budgetMax);

@@ -1,5 +1,5 @@
 import { mutation, query } from "./_generated/server";
-import { v } from "convex/values";
+import { v, ConvexError } from "convex/values";
 import { requireUser } from "./auth";
 import { validateRecommendationIdeas } from "./validators";
 
@@ -49,7 +49,7 @@ export const removeIdea = mutation({
   handler: async (ctx, { personId, occasionLabel, giftType, ideaTitle, ideaCategories }) => {
     const clerkUserId = await requireUser(ctx);
     const person = await ctx.db.get(personId);
-    if (!person || person.clerkUserId !== clerkUserId) throw new Error("No autorizado");
+    if (!person || person.clerkUserId !== clerkUserId) throw new ConvexError("No autorizado");
     const existing = await ctx.db
       .query("recommendations")
       .withIndex("by_user_person_occasion_type", (q) =>
@@ -91,7 +91,7 @@ export const upsert = mutation({
 
     const person = await ctx.db.get(personId);
     if (!person || person.clerkUserId !== clerkUserId) {
-      throw new Error("Persona no encontrada.");
+      throw new ConvexError("Persona no encontrada.");
     }
 
     const existing = await ctx.db

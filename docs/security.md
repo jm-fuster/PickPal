@@ -110,6 +110,17 @@ try {
 
 **Nunca** propagar `err.message` al cliente: filtra estructura interna (Convex, Gemini, env vars) que ayuda a un atacante a mapear el sistema.
 
+**Errores en `convex/**` → `ConvexError` + `userErrorMessage`.** Todo error pensado para que lo lea el usuario (validación, rate limit, ownership) se lanza como `throw new ConvexError("<mensaje en español>")` (import de `convex/values`). Motivo: en prod Convex redacta los `Error` planos a `[CONVEX M(modulo:funcion)] Server Error` — el mensaje nunca llega y el toast filtra identificadores internos. Solo los `ConvexError` conservan su `data` en el cliente. Los errores puramente internos (p. ej. `convex/emails.ts`) siguen siendo `Error`.
+
+En el cliente, los catch con toast usan el helper [`src/lib/errors.ts`](../src/lib/errors.ts):
+
+```ts
+import { userErrorMessage } from "@/lib/errors";
+toast.error(userErrorMessage(err, "No se pudo guardar"));
+```
+
+Nunca se renderiza `err.message` crudo en la UI.
+
 ### 6. Proxy default-deny
 
 [`src/proxy.ts`](../src/proxy.ts) protege **todo** salvo lo que esté en `isPublicRoute`. Si añades una página o endpoint:

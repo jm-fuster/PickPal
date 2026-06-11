@@ -1,4 +1,4 @@
-import { v } from "convex/values";
+import { v, ConvexError } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireUser } from "./auth";
 import { validateDateInput } from "./validators";
@@ -9,10 +9,10 @@ const CREATE_DATE_DAILY_LIMIT = 100;
 
 function assertValidDate(month: number, day: number) {
   if (!Number.isInteger(month) || month < 1 || month > 12) {
-    throw new Error("Mes inválido (1-12).");
+    throw new ConvexError("Mes inválido (1-12).");
   }
   if (!Number.isInteger(day) || day < 1 || day > 31) {
-    throw new Error("Día inválido (1-31).");
+    throw new ConvexError("Día inválido (1-31).");
   }
 }
 
@@ -23,7 +23,7 @@ async function assertOwnsPerson(
 ): Promise<Doc<"people">> {
   const person = await ctx.db.get(personId);
   if (!person || person.clerkUserId !== clerkUserId) {
-    throw new Error("Persona no encontrada.");
+    throw new ConvexError("Persona no encontrada.");
   }
   return person;
 }
@@ -118,7 +118,7 @@ export const update = mutation({
   handler: async (ctx, { id, ...patch }) => {
     const clerkUserId = await requireUser(ctx);
     const existing = await ctx.db.get(id);
-    if (!existing) throw new Error("Fecha no encontrada.");
+    if (!existing) throw new ConvexError("Fecha no encontrada.");
     await assertOwnsPerson(ctx, existing.personId, clerkUserId);
     if (patch.month !== undefined || patch.day !== undefined) {
       assertValidDate(
@@ -157,7 +157,7 @@ export const remove = mutation({
   handler: async (ctx, { id }) => {
     const clerkUserId = await requireUser(ctx);
     const existing = await ctx.db.get(id);
-    if (!existing) throw new Error("Fecha no encontrada.");
+    if (!existing) throw new ConvexError("Fecha no encontrada.");
     await assertOwnsPerson(ctx, existing.personId, clerkUserId);
     await ctx.db.delete(id);
   },

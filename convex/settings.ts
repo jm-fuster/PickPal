@@ -1,4 +1,4 @@
-import { v } from "convex/values";
+import { v, ConvexError } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireUser } from "./auth";
 import { ALLOWED_STORES, type AllowedStore } from "./validators";
@@ -108,7 +108,7 @@ export const setMine = mutation({
         notifyDaysBefore < 1 ||
         notifyDaysBefore > 365
       ) {
-        throw new Error("Días de aviso fuera de rango (1–365).");
+        throw new ConvexError("Días de aviso fuera de rango (1–365).");
       }
     }
     let cleanedLeadDays: number[] | undefined;
@@ -117,12 +117,12 @@ export const setMine = mutation({
       const seen = new Set<number>();
       for (const d of emailNotifyDaysBefore) {
         if (!Number.isInteger(d) || !allowed.has(d)) {
-          throw new Error("Antelación de correo no válida.");
+          throw new ConvexError("Antelación de correo no válida.");
         }
         seen.add(d);
       }
       if (seen.size === 0) {
-        throw new Error("Selecciona al menos una antelación.");
+        throw new ConvexError("Selecciona al menos una antelación.");
       }
       cleanedLeadDays = [...seen].sort((a, b) => a - b);
     }
@@ -131,7 +131,7 @@ export const setMine = mutation({
     if (favoriteStores !== undefined) {
       cleanedStores = sanitizeStores(favoriteStores);
       if (cleanedStores.length === 0) {
-        throw new Error("Selecciona al menos una tienda.");
+        throw new ConvexError("Selecciona al menos una tienda.");
       }
     }
 
@@ -139,7 +139,7 @@ export const setMine = mutation({
     const identity = await ctx.auth.getUserIdentity();
 
     if (emailNotificationsEnabled === true && !identity?.email) {
-      throw new Error(
+      throw new ConvexError(
         "No encontramos tu email. Verifícalo en tu cuenta para activar las notificaciones.",
       );
     }

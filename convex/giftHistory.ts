@@ -1,5 +1,5 @@
 import { mutation, query } from "./_generated/server";
-import { v } from "convex/values";
+import { v, ConvexError } from "convex/values";
 import { requireUser } from "./auth";
 
 const MAX_GIFT_NAME = 120;
@@ -39,27 +39,27 @@ export const create = mutation({
 
     const person = await ctx.db.get(args.personId);
     if (!person || person.clerkUserId !== clerkUserId) {
-      throw new Error("Persona no encontrada.");
+      throw new ConvexError("Persona no encontrada.");
     }
 
     const name = args.giftName.trim();
-    if (name.length === 0) throw new Error("El nombre del regalo es obligatorio.");
-    if (name.length > MAX_GIFT_NAME) throw new Error("Nombre del regalo demasiado largo.");
+    if (name.length === 0) throw new ConvexError("El nombre del regalo es obligatorio.");
+    if (name.length > MAX_GIFT_NAME) throw new ConvexError("Nombre del regalo demasiado largo.");
 
     const occasion = args.occasionLabel.trim();
-    if (occasion.length === 0) throw new Error("La ocasión es obligatoria.");
-    if (occasion.length > MAX_OCCASION) throw new Error("Ocasión demasiado larga.");
+    if (occasion.length === 0) throw new ConvexError("La ocasión es obligatoria.");
+    if (occasion.length > MAX_OCCASION) throw new ConvexError("Ocasión demasiado larga.");
 
     if (args.notes !== undefined && args.notes.length > MAX_NOTES) {
-      throw new Error("Notas demasiado largas.");
+      throw new ConvexError("Notas demasiado largas.");
     }
     if (args.year !== undefined) {
       if (!Number.isInteger(args.year) || args.year < MIN_YEAR || args.year > MAX_YEAR) {
-        throw new Error("Año inválido.");
+        throw new ConvexError("Año inválido.");
       }
     }
     if (!ALLOWED_REACTIONS.includes(args.reaction)) {
-      throw new Error("Reacción inválida.");
+      throw new ConvexError("Reacción inválida.");
     }
 
     await ctx.db.insert("giftHistory", {
@@ -87,23 +87,23 @@ export const update = mutation({
     const clerkUserId = await requireUser(ctx);
     const entry = await ctx.db.get(id);
     if (!entry || entry.clerkUserId !== clerkUserId) {
-      throw new Error("Entrada no encontrada.");
+      throw new ConvexError("Entrada no encontrada.");
     }
 
     const name = fields.giftName.trim();
-    if (name.length === 0) throw new Error("El nombre del regalo es obligatorio.");
-    if (name.length > MAX_GIFT_NAME) throw new Error("Nombre del regalo demasiado largo.");
+    if (name.length === 0) throw new ConvexError("El nombre del regalo es obligatorio.");
+    if (name.length > MAX_GIFT_NAME) throw new ConvexError("Nombre del regalo demasiado largo.");
 
     const occasion = fields.occasionLabel.trim();
-    if (occasion.length === 0) throw new Error("La ocasión es obligatoria.");
-    if (occasion.length > MAX_OCCASION) throw new Error("Ocasión demasiado larga.");
+    if (occasion.length === 0) throw new ConvexError("La ocasión es obligatoria.");
+    if (occasion.length > MAX_OCCASION) throw new ConvexError("Ocasión demasiado larga.");
 
     if (fields.notes !== undefined && fields.notes.length > MAX_NOTES) {
-      throw new Error("Notas demasiado largas.");
+      throw new ConvexError("Notas demasiado largas.");
     }
     if (fields.year !== undefined) {
       if (!Number.isInteger(fields.year) || fields.year < MIN_YEAR || fields.year > MAX_YEAR) {
-        throw new Error("Año inválido.");
+        throw new ConvexError("Año inválido.");
       }
     }
 
@@ -117,7 +117,7 @@ export const remove = mutation({
     const clerkUserId = await requireUser(ctx);
     const entry = await ctx.db.get(id);
     if (!entry || entry.clerkUserId !== clerkUserId) {
-      throw new Error("Entrada no encontrada.");
+      throw new ConvexError("Entrada no encontrada.");
     }
     await ctx.db.delete(id);
   },

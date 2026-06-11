@@ -50,7 +50,7 @@
 
 ## F1 — Seguridad-UX y errores (alto valor, bajo riesgo)
 
-### - [ ] T2. `ConvexError` para todos los errores de cara a usuario + toasts saneados
+### - [x] T2. `ConvexError` para todos los errores de cara a usuario + toasts saneados
 
 **Problema:** los guardarraíles de `convex/**` lanzan `Error` plano. En prod Convex lo redacta a `[CONVEX M(people:create)] [Request ID: …] Server Error`, así que (a) los toasts filtran identificadores internos `módulo:función` y (b) los mensajes en español nunca llegan al usuario. El único flujo correcto hoy es `convex/recommendationUsage.ts` (ya usa `ConvexError`).
 

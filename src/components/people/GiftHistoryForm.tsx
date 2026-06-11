@@ -5,6 +5,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "convex/react";
 import { toast } from "sonner";
+import { userErrorMessage } from "@/lib/errors";
 import { Plus } from "lucide-react";
 import { api } from "../../../convex/_generated/api";
 import type { Doc, Id } from "../../../convex/_generated/dataModel";
@@ -52,7 +53,7 @@ export function GiftHistoryForm({ personId }: { personId: Id<"people"> }) {
       reset(DEFAULT_VALUES);
       setShowForm(false);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "No se pudo añadir el regalo");
+      toast.error(userErrorMessage(err, "No se pudo añadir el regalo"));
     }
   };
 
@@ -213,7 +214,7 @@ export function EditGiftHistoryInline({
       toast.success("Regalo actualizado");
       onClose();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "No se pudo actualizar el regalo");
+      toast.error(userErrorMessage(err, "No se pudo actualizar el regalo"));
     }
   };
 

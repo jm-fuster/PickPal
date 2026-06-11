@@ -1,5 +1,5 @@
 import { mutation, query } from "./_generated/server";
-import { v } from "convex/values";
+import { v, ConvexError } from "convex/values";
 import { requireUser } from "./auth";
 import { checkAndIncrement } from "./rateLimit";
 import { validateSavedIdeaInput } from "./validators";
@@ -42,7 +42,7 @@ export const save = mutation({
     const clerkUserId = await requireUser(ctx);
     const person = await ctx.db.get(args.personId);
     if (!person || person.clerkUserId !== clerkUserId) {
-      throw new Error("No autorizado");
+      throw new ConvexError("No autorizado");
     }
     validateSavedIdeaInput(args);
     await checkAndIncrement(ctx, clerkUserId, "save_idea", 50);
@@ -56,7 +56,7 @@ export const remove = mutation({
     const clerkUserId = await requireUser(ctx);
     const entry = await ctx.db.get(id);
     if (!entry || entry.clerkUserId !== clerkUserId) {
-      throw new Error("No autorizado");
+      throw new ConvexError("No autorizado");
     }
     await ctx.db.delete(id);
   },

@@ -1,3 +1,4 @@
+import { ConvexError } from "convex/values";
 import { MutationCtx } from "./_generated/server";
 
 const todayUTC = (): string => {
@@ -29,7 +30,7 @@ export async function checkAndIncrement(
 
   if (existing) {
     if (existing.count >= limitPerDay) {
-      throw new Error(
+      throw new ConvexError(
         `Límite diario alcanzado (${limitPerDay}). Vuelve mañana.`,
       );
     }

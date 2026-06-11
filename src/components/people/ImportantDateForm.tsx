@@ -5,6 +5,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "convex/react";
 import { toast } from "sonner";
+import { userErrorMessage } from "@/lib/errors";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import {
@@ -70,7 +71,7 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
       reset(defaultValues);
       setShowForm(false);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "No se pudo añadir el evento");
+      toast.error(userErrorMessage(err, "No se pudo añadir el evento"));
     }
   };
 
@@ -342,7 +343,7 @@ export function EditImportantDateInline({
       toast.success("Evento actualizado");
       onClose();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "No se pudo actualizar el evento");
+      toast.error(userErrorMessage(err, "No se pudo actualizar el evento"));
     }
   };
 
