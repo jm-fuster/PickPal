@@ -715,5 +715,8 @@ export default function PersonDetailPage({
     );
   }
 
-  return <PersonDetailContent person={person} dates={dates} giftHistory={giftHistory} savedIdeas={savedIdeas} favoriteStores={favoriteStores} />;
+  // key fuerza el remount al navegar entre fichas (back/forward): el estado
+  // local se siembra desde props una sola vez y, sin remount, la ficha B
+  // mostraría datos de A y un blur de autosave los escribiría en B.
+  return <PersonDetailContent key={person._id} person={person} dates={dates} giftHistory={giftHistory} savedIdeas={savedIdeas} favoriteStores={favoriteStores} />;
 }

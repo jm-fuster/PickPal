@@ -98,7 +98,7 @@
 
 ## F2 — Bugs lógicos con riesgo de datos
 
-### - [ ] T5. `key={person._id}` en la ficha de persona (riesgo de escribir datos de A en B)
+### - [x] T5. `key={person._id}` en la ficha de persona (riesgo de escribir datos de A en B)
 
 **Fichero:** `src/app/(app)/seres-queridos/[personId]/page.tsx` (~línea 718). `PersonDetailContent` siembra estado local desde props una vez y el App Router no remonta al cambiar solo `params` (back/forward entre fichas): la ficha B puede mostrar datos de A y un blur de autosave los escribiría en B. **Fix:** añadir `key={person._id}` al render de `PersonDetailContent`.
 
