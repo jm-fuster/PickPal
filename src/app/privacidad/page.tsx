@@ -67,7 +67,8 @@ export default function PrivacyPage() {
             </li>
             <li>
               <span className="text-foreground">Google (Gemini)</span> — recibe
-              los datos del ser querido y de la ocasión cada vez que pulsas
+              los datos del ser querido (solo su nombre de pila, nunca los
+              apellidos) y de la ocasión cada vez que pulsas
               &laquo;generar ideas&raquo;, para devolver sugerencias de
               regalo. Usamos la capa gratuita de su API: Google puede usar
               esos datos para mejorar sus modelos y personal de Google podría

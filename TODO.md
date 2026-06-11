@@ -187,7 +187,7 @@ Adaptar al shape real del middleware existente (no sobrescribir la lógica actua
 
 **Commit:** `fix(convex): mirror validation caps at the Convex boundary and auth-first handlers`
 
-### - [ ] T12. Minimización de PII hacia Gemini
+### - [x] T12. Minimización de PII hacia Gemini
 
 **Fichero:** `src/app/api/recommendations/route.ts`, `buildPrompt` (~121-130). El prompt envía nombre completo + alergias a Google. Enviar solo el nombre de pila:
 ```ts

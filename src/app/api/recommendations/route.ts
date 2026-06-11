@@ -121,7 +121,7 @@ ${storesGuide}`,
   return `Genera EXACTAMENTE 9 ideas de regalo para la siguiente persona.
 
 Persona:
-- Nombre: ${person.name}
+- Nombre: ${person.name.split(/\s+/)[0]}
 - Relación con quien regala: ${relationshipLabel}
 - Intereses: ${interestsText}
 - Notas: ${notesText}
