@@ -28,14 +28,19 @@ export async function POST() {
     const client = await clerkClient();
     await client.users.deleteUser(userId);
   } catch (err) {
-    console.error("[account/delete] clerk delete:", err);
-    return NextResponse.json(
-      {
-        error:
-          "Tus datos se han borrado pero no hemos podido cerrar tu cuenta. Contacta con soporte.",
-      },
-      { status: 500 },
-    );
+    // Idempotencia: si el usuario ya no existe en Clerk (doble submit o
+    // reintento tras un borrado parcial), el objetivo está cumplido.
+    const status = (err as { status?: number } | null)?.status;
+    if (status !== 404) {
+      console.error("[account/delete] clerk delete:", err);
+      return NextResponse.json(
+        {
+          error:
+            "Tus datos se han borrado pero no hemos podido cerrar tu cuenta. Contacta con soporte.",
+        },
+        { status: 500 },
+      );
+    }
   }
 
   return NextResponse.json({ ok: true });

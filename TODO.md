@@ -112,7 +112,7 @@
 
 **Commit:** `fix(people): persist practical data fields when creating a person`
 
-### - [ ] T7. Doble-submit al borrar cuenta deja sesión colgante
+### - [x] T7. Doble-submit al borrar cuenta deja sesión colgante
 
 **Ficheros:** `src/app/api/account/delete/route.ts` (~17-39), `src/app/(app)/settings/page.tsx` (~148).
 

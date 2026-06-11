@@ -145,20 +145,29 @@ export default function SettingsPage() {
 
   const handleDeleteAccount = async () => {
     setDeleting(true);
+    let res: Response;
     try {
-      const res = await fetch("/api/account/delete", { method: "POST" });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        toast.error(data.error ?? "No se pudo eliminar la cuenta");
-        setDeleting(false);
-        return;
-      }
-      await signOut({ redirectUrl: "/" });
-      router.push("/");
+      res = await fetch("/api/account/delete", { method: "POST" });
     } catch {
       toast.error("No se pudo eliminar la cuenta");
       setDeleting(false);
+      return;
     }
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      toast.error(data.error ?? "No se pudo eliminar la cuenta");
+      setDeleting(false);
+      return;
+    }
+    // Tras un OK la cuenta ya no existe: nunca mostramos un error falso.
+    // signOut puede lanzar si Clerk ya invalidó la sesión al borrar el
+    // usuario; en ese caso basta con volver a la landing.
+    try {
+      await signOut({ redirectUrl: "/" });
+    } catch {
+      // sesión ya invalidada
+    }
+    router.push("/");
   };
 
   const handleStoreToggle = (store: StoreId) => {
