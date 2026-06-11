@@ -163,7 +163,7 @@ Ajustar el host de Clerk al dominio de producción antes de pasar de Report-Only
 
 **Commit:** `feat(security): add CSP report-only, COOP header, drop x-powered-by`
 
-### - [ ] T10. Defensa CSRF en profundidad vía `Sec-Fetch-Site`
+### - [x] T10. Defensa CSRF en profundidad vía `Sec-Fetch-Site`
 
 **Fichero:** `src/proxy.ts` (hoy la única barrera CSRF es `SameSite=Lax` de Clerk):
 ```ts

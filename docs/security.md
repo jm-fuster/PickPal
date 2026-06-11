@@ -127,6 +127,8 @@ Nunca se renderiza `err.message` crudo en la UI.
 
 [`src/proxy.ts`](../src/proxy.ts) protege **todo** salvo lo que esté en `isPublicRoute`. Si añades una página o endpoint:
 
+**CSRF en profundidad:** además del `SameSite=Lax` de las cookies de Clerk, el proxy rechaza con `403` cualquier petición **no-GET** a `/api/*` cuya cabecera `Sec-Fetch-Site` exista y no sea `same-origin`. Los navegadores la añaden automáticamente y un sitio cruzado no puede falsificarla; las peticiones sin la cabecera (clientes antiguos) no se bloquean. Si algún día un endpoint debe aceptar POSTs cross-site legítimos (webhooks), exceptúalo explícitamente y verifica la firma del proveedor.
+
 - Si requiere sesión (caso por defecto): no toques nada, ya está protegido.
 - Si debe ser público: añádelo explícitamente a `isPublicRoute`. **Justifica por qué en el commit.**
 

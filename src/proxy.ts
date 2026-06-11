@@ -13,6 +13,16 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
+  // Defensa CSRF en profundidad (además del SameSite=Lax de Clerk): los
+  // navegadores modernos envían Sec-Fetch-Site y un sitio cruzado no puede
+  // falsificarla. Solo se rechaza cuando la cabecera existe y no es
+  // same-origin, así que clientes antiguos sin la cabecera siguen funcionando.
+  if (req.method !== "GET" && req.nextUrl.pathname.startsWith("/api")) {
+    const site = req.headers.get("sec-fetch-site");
+    if (site && site !== "same-origin") {
+      return new Response("Forbidden", { status: 403 });
+    }
+  }
   if (!isPublicRoute(req)) {
     await auth.protect();
   }
