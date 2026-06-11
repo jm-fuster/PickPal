@@ -114,7 +114,9 @@ export default defineSchema({
     // los documentos guardados antes de este campo no lo tienen y se tratan
     // como físicos (fallback) en la UI.
     giftType: v.optional(v.string()),
-  }).index("by_person", ["personId"]),
+  })
+    .index("by_person", ["personId"])
+    .index("by_user", ["clerkUserId"]),
 
   giftHistory: defineTable({
     clerkUserId: v.string(),

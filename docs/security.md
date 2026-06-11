@@ -128,9 +128,11 @@ Toda cuenta de PickPal se puede borrar desde [`/settings`](../src/app/(app)/sett
 
 Flujo:
 1. UI llama `POST /api/account/delete` ([`src/app/api/account/delete/route.ts`](../src/app/api/account/delete/route.ts)).
-2. La ruta valida el token Clerk y llama a `api.account.deleteMyAccount` ([`convex/account.ts`](../convex/account.ts)), que con `requireUser(ctx)` purga en cascada todo lo del usuario en Convex: `people` (con sus `importantDates`, `giftHistory`, `recommendations`, `savedIdeas`), `userSettings`, `emailNotifications`, `recommendationUsage`, `rateLimitBuckets`.
+2. La ruta valida el token Clerk y llama a `api.account.deleteMyAccount` ([`convex/account.ts`](../convex/account.ts)), que con `requireUser(ctx)` purga en cascada todo lo del usuario en Convex: `people` (con sus `importantDates`, `giftHistory`, `recommendations`, `savedIdeas`), `userSettings`, `emailNotifications`, `recommendationUsage`, `rateLimitBuckets`. Además barre `savedIdeas` huérfanas vía el índice `by_user` (filas cuya persona ya no existe).
 3. Solo si el purge en Convex sale bien, se llama `clerkClient().users.deleteUser(userId)`.
 4. UI hace `signOut` y redirige a `/`.
+
+**Cascada de borrado de persona:** el helper `deletePersonCascade(ctx, personId)` ([`convex/people.ts`](../convex/people.ts)) borra `importantDates`, `giftHistory`, `recommendations` y `savedIdeas` de una persona y después la persona. Es el **único** camino válido para borrar una persona: lo usan `people.remove` y `account.deleteMyAccount`. Si añades una tabla anidada bajo `people`, añádela al helper (no a los call sites).
 
 **Reglas al añadir tablas nuevas:** si guardas datos vinculados a un usuario, añade su limpieza a `deleteMyAccount`. La regla aplica también si la tabla no tiene un campo `clerkUserId` directo: el borrado debe alcanzarla por relación (ej. `importantDates` se borra siguiendo `people` → `by_person`). Si una tabla nueva no se puede asociar a un usuario, no se puede exponer.
 

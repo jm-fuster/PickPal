@@ -1,10 +1,48 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, MutationCtx } from "./_generated/server";
+import { Id } from "./_generated/dataModel";
 import { requireUser } from "./auth";
 import { validatePersonInput } from "./validators";
 import { checkAndIncrement } from "./rateLimit";
 
 const CREATE_PERSON_DAILY_LIMIT = 50;
+
+/**
+ * Borra todos los recursos anidados de una persona (fechas, historial,
+ * recomendaciones e ideas guardadas) y después la propia persona.
+ * Compartido entre `people.remove` y `account.deleteMyAccount` para que
+ * ningún camino de borrado deje filas huérfanas.
+ */
+export async function deletePersonCascade(
+  ctx: MutationCtx,
+  personId: Id<"people">,
+) {
+  const dates = await ctx.db
+    .query("importantDates")
+    .withIndex("by_person", (q) => q.eq("personId", personId))
+    .collect();
+  for (const d of dates) await ctx.db.delete(d._id);
+
+  const history = await ctx.db
+    .query("giftHistory")
+    .withIndex("by_person", (q) => q.eq("personId", personId))
+    .collect();
+  for (const h of history) await ctx.db.delete(h._id);
+
+  const recs = await ctx.db
+    .query("recommendations")
+    .withIndex("by_person", (q) => q.eq("personId", personId))
+    .collect();
+  for (const r of recs) await ctx.db.delete(r._id);
+
+  const saved = await ctx.db
+    .query("savedIdeas")
+    .withIndex("by_person", (q) => q.eq("personId", personId))
+    .collect();
+  for (const s of saved) await ctx.db.delete(s._id);
+
+  await ctx.db.delete(personId);
+}
 
 export const getAll = query({
   args: {},
@@ -97,30 +135,6 @@ export const remove = mutation({
     if (!existing || existing.clerkUserId !== clerkUserId) {
       throw new Error("Persona no encontrada.");
     }
-    const dates = await ctx.db
-      .query("importantDates")
-      .withIndex("by_person", (q) => q.eq("personId", id))
-      .collect();
-    for (const d of dates) {
-      await ctx.db.delete(d._id);
-    }
-
-    const history = await ctx.db
-      .query("giftHistory")
-      .withIndex("by_person", (q) => q.eq("personId", id))
-      .collect();
-    for (const h of history) {
-      await ctx.db.delete(h._id);
-    }
-
-    const recs = await ctx.db
-      .query("recommendations")
-      .withIndex("by_person", (q) => q.eq("personId", id))
-      .collect();
-    for (const r of recs) {
-      await ctx.db.delete(r._id);
-    }
-
-    await ctx.db.delete(id);
+    await deletePersonCascade(ctx, id);
   },
 });

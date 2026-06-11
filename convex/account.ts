@@ -1,5 +1,6 @@
 import { mutation } from "./_generated/server";
 import { requireUser } from "./auth";
+import { deletePersonCascade } from "./people";
 
 /**
  * Borra todos los datos del usuario autenticado en Convex.
@@ -9,7 +10,10 @@ import { requireUser } from "./auth";
  * obtiene el `clerkUserId` del JWT — nunca se acepta como argumento.
  *
  * Tablas que limpia:
- * - `people` y, en cascada, sus `importantDates`, `giftHistory`, `recommendations`.
+ * - `people` y, en cascada (vía `deletePersonCascade`), sus `importantDates`,
+ *   `giftHistory`, `recommendations` y `savedIdeas`.
+ * - `savedIdeas` huérfanas (de personas borradas antes de que la cascada
+ *   las cubriera), vía índice `by_user`.
  * - `userSettings`, `emailNotifications`, `recommendationUsage`, `rateLimitBuckets`.
  *
  * No expone `clerkUserId` como argumento ni acepta un `userId` distinto al
@@ -26,32 +30,14 @@ export const deleteMyAccount = mutation({
       .collect();
 
     for (const person of people) {
-      const dates = await ctx.db
-        .query("importantDates")
-        .withIndex("by_person", (q) => q.eq("personId", person._id))
-        .collect();
-      for (const d of dates) await ctx.db.delete(d._id);
-
-      const history = await ctx.db
-        .query("giftHistory")
-        .withIndex("by_person", (q) => q.eq("personId", person._id))
-        .collect();
-      for (const h of history) await ctx.db.delete(h._id);
-
-      const recs = await ctx.db
-        .query("recommendations")
-        .withIndex("by_person", (q) => q.eq("personId", person._id))
-        .collect();
-      for (const r of recs) await ctx.db.delete(r._id);
-
-      const saved = await ctx.db
-        .query("savedIdeas")
-        .withIndex("by_person", (q) => q.eq("personId", person._id))
-        .collect();
-      for (const s of saved) await ctx.db.delete(s._id);
-
-      await ctx.db.delete(person._id);
+      await deletePersonCascade(ctx, person._id);
     }
+
+    const orphanSaved = await ctx.db
+      .query("savedIdeas")
+      .withIndex("by_user", (q) => q.eq("clerkUserId", clerkUserId))
+      .collect();
+    for (const s of orphanSaved) await ctx.db.delete(s._id);
 
     const settings = await ctx.db
       .query("userSettings")
