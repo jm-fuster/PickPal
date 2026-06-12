@@ -143,7 +143,7 @@ Almacena ideas que el usuario quiere recordar para cuando llegue el momento de c
 savedIdeas: {
   clerkUserId, personId, occasionLabel,
   title, description, priceMinEuros, priceMaxEuros,
-  category, amazonQuery, suggestedStores?
+  category, amazonQuery, suggestedStores?, giftType?, imageKey?
 }
 index: by_person
 ```
@@ -332,6 +332,15 @@ Para evitar mostrar chips a tiendas que claramente no tienen el producto (miel a
 
 El orden de los chips es siempre el canónico de `ALL_STORES` (Amazon, AliExpress, Miravia, El Corte Inglés), sin importar el orden en que llegan los inputs.
 
+### Clave visual por idea (`imageKey`)
+
+Cada card lleva una cabecera visual genérica (tinte plano + icono lucide) que representa la **categoría** del regalo, no el producto concreto. Se decidió explícitamente contra fotos reales (stock APIs dan matches engañosos; generación de imágenes con IA cuesta ~0,35 €/tirada y añade latencia) — ver decisión en `docs/design-system.md` · "Cards generadas por IA".
+
+- **Schema**: la IA elige una clave de un catálogo cerrado de 30 (`GIFT_IMAGE_KEYS` en [`src/lib/gifts.ts`](../src/lib/gifts.ts)). En los schemas de generación el campo es **obligatorio** (`z.enum(...)` — un enum opcional hace fallar a Gemini al omitirlo, mismo gotcha que `suggestedStores`); en el tipo de cara a la UI es opcional por compatibilidad con ideas cacheadas anteriores.
+- **Persistencia**: `recommendations.ideas[].imageKey` y `savedIdeas.imageKey`, ambos `v.optional(v.string())` con allowlist `ALLOWED_IMAGE_KEYS` en [`convex/validators.ts`](../convex/validators.ts).
+- **Prompt**: una sola regla pide la clave más específica disponible ("audio" antes que "tecnologia") y reserva "regalo-generico" como último recurso. Coste en tokens: despreciable.
+- **Renderizado**: `resolveGiftImage(imageKey, giftType)` en [`src/lib/giftImages.ts`](../src/lib/giftImages.ts) mapea clave → icono + tinte. Ideas sin clave (cacheadas/guardadas antes del campo) caen al icono del tipo de regalo (`ShoppingBag`/`Ticket`/`Heart`/`Shuffle`).
+
 ### Defensa en profundidad
 
 La salida de un LLM se trata como input no confiable. El flujo de validación tiene 3 capas:
@@ -342,7 +351,7 @@ Gemini  →  generateObject + Zod (giftRecommendationSchema)  →  fetchMutation
 ```
 
 1. **Zod** rechaza cualquier idea con campos fuera de tipo o tienda no listada (`z.enum(STORE_IDS)`).
-2. **`validateRecommendationIdeas`** se ejecuta dentro de la mutation Convex y revalida tamaños, rangos numéricos, allowlist de tiendas, no-duplicados, y exactamente 9 ideas. Cierra el agujero de "atacante autenticado llama a `api.recommendations.upsert` directamente saltándose la API route" (ver [`docs/security.md`](security.md) sección "Validar tamaños y rangos en el servidor").
+2. **`validateRecommendationIdeas`** se ejecuta dentro de la mutation Convex y revalida tamaños, rangos numéricos, allowlists de tiendas y de claves visuales (`ALLOWED_IMAGE_KEYS`), no-duplicados, y exactamente 9 ideas. Cierra el agujero de "atacante autenticado llama a `api.recommendations.upsert` directamente saltándose la API route" (ver [`docs/security.md`](security.md) sección "Validar tamaños y rangos en el servidor").
 3. **`encodeURIComponent`** al construir la URL impide cualquier inyección desde la query string al path/dominio.
 
 Si en algún momento futuro Gemini empieza a devolver datos hostiles (prompt injection vía `notes`/`interests` del usuario), el daño máximo es: query de búsqueda rara que el propio usuario abriría en su navegador. Sin amplificación cross-user, sin escape a otros endpoints.

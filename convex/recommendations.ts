@@ -14,6 +14,7 @@ const ideaValidator = v.object({
   category: v.union(v.string(), v.array(v.string())),
   amazonQuery: v.string(),
   suggestedStores: v.optional(v.array(v.string())),
+  imageKey: v.optional(v.string()),
 });
 
 export const getByPersonOccasion = query({

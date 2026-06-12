@@ -37,6 +37,8 @@ export const save = mutation({
         v.literal("sorprendeme"),
       ),
     ),
+    // Allowlist verificada en validateSavedIdeaInput (ALLOWED_IMAGE_KEYS).
+    imageKey: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const clerkUserId = await requireUser(ctx);

@@ -86,6 +86,9 @@ export default defineSchema({
         category: v.union(v.string(), v.array(v.string())),
         amazonQuery: v.string(),
         suggestedStores: v.optional(v.array(v.string())),
+        // Clave del catálogo visual de la card (allowlist en validators.ts).
+        // Opcional: las ideas generadas antes de este campo no lo tienen.
+        imageKey: v.optional(v.string()),
       }),
     ),
     discardedTitles: v.optional(v.array(v.string())),
@@ -114,6 +117,9 @@ export default defineSchema({
     // los documentos guardados antes de este campo no lo tienen y se tratan
     // como físicos (fallback) en la UI.
     giftType: v.optional(v.string()),
+    // Clave del catálogo visual (allowlist en validators.ts). Opcional: las
+    // ideas guardadas antes de este campo caen al fallback por tipo de regalo.
+    imageKey: v.optional(v.string()),
   })
     .index("by_person", ["personId"])
     .index("by_user", ["clerkUserId"]),

@@ -47,6 +47,42 @@ export type AllowedStore = (typeof ALLOWED_STORES)[number];
 
 const MAX_SUGGESTED_STORES = ALLOWED_STORES.length;
 
+// Claves del catálogo visual de las cards de ideas. Espejadas de
+// GIFT_IMAGE_KEYS en src/lib/gifts.ts (cliente) — si añades una clave,
+// actualiza ambos sitios.
+export const ALLOWED_IMAGE_KEYS = [
+  "tecnologia",
+  "audio",
+  "gaming",
+  "fotografia",
+  "libros",
+  "musica",
+  "arte-manualidades",
+  "juegos-mesa",
+  "papeleria",
+  "bricolaje",
+  "joyeria-relojes",
+  "moda",
+  "belleza",
+  "cocina",
+  "gourmet",
+  "vino-bebidas",
+  "cafe-te",
+  "hogar-decoracion",
+  "plantas",
+  "mascotas",
+  "deporte",
+  "aire-libre",
+  "viajes",
+  "experiencia-gastronomica",
+  "experiencia-cultural",
+  "experiencia-aventura",
+  "experiencia-bienestar",
+  "taller-curso",
+  "plan-casero",
+  "regalo-generico",
+] as const;
+
 const ALLOWED_RELATIONSHIPS = [
   "friend",
   "family",
@@ -163,6 +199,7 @@ type RecommendationIdea = {
   category: string | string[];
   amazonQuery: string;
   suggestedStores?: string[];
+  imageKey?: string;
 };
 
 /**
@@ -225,6 +262,12 @@ export function validateRecommendationIdeas(
         seen.add(store);
       }
     }
+    if (
+      idea.imageKey !== undefined &&
+      !(ALLOWED_IMAGE_KEYS as readonly string[]).includes(idea.imageKey)
+    ) {
+      throw new ConvexError("Clave de imagen inválida.");
+    }
   }
 }
 
@@ -237,6 +280,7 @@ export function validateSavedIdeaInput(input: {
   category: string | string[];
   amazonQuery: string;
   suggestedStores?: string[];
+  imageKey?: string;
 }) {
   const title = input.title.trim();
   if (title.length === 0 || input.title.length > MAX_IDEA_TITLE) {
@@ -276,6 +320,12 @@ export function validateSavedIdeaInput(input: {
         throw new ConvexError("Tienda sugerida inválida.");
       }
     }
+  }
+  if (
+    input.imageKey !== undefined &&
+    !(ALLOWED_IMAGE_KEYS as readonly string[]).includes(input.imageKey)
+  ) {
+    throw new ConvexError("Clave de imagen inválida.");
   }
 }
 

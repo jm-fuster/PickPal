@@ -232,6 +232,7 @@ export function GiftsPanel({
         amazonQuery: idea.amazonQuery,
         suggestedStores: effectiveStores,
         giftType,
+        imageKey: idea.imageKey,
       });
       setSavedTitles((prev) => new Set(prev).add(idea.title));
       toast.success(`Idea guardada en la ficha de ${person?.name ?? "esta persona"}`);
@@ -422,7 +423,7 @@ export function GiftsPanel({
           {Array.from({ length: 9 }).map((_, i) => (
             <div
               key={i}
-              className="h-52 rounded-2xl border border-dashed border-border/60 bg-muted/40 animate-pulse"
+              className="h-80 rounded-2xl border border-dashed border-border/60 bg-muted/40 animate-pulse"
             />
           ))}
         </div>

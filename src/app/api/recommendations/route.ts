@@ -135,6 +135,7 @@ ${typeRules[giftType]}
 - Varía las categorías (no todas del mismo tipo).
 - "description" en español, máximo 2 frases, explicando por qué encaja con esta persona.
 - "category" es un array JSON de 1 a 3 strings en español. Usa intereses concretos del perfil que justifiquen la idea (ej: ["Senderismo", "Fotografía"], ["Cocina japonesa"], ["Gaming", "Tecnología"]). Si la idea no encaja con ningún interés definido, usa una etiqueta descriptiva específica al regalo (ej: ["Accesorios viaje"], no ["Viajes"]). Nunca uses categorías genéricas sueltas como ["Tecnología"], ["Hogar"] o ["Libros"] si hay intereses más concretos disponibles.
+- "imageKey": la clave del catálogo visual que mejor representa la idea. Elige siempre la más específica disponible (ej. "audio" para unos auriculares, no "tecnologia"; "experiencia-gastronomica" para una cena, no "gourmet"). Usa "regalo-generico" solo si ninguna otra encaja.
 - "priceMinEuros" y "priceMaxEuros" en euros, valores enteros razonables.
 - Responde en español. IMPORTANTE: escribe todos los textos con caracteres Unicode directos (á, é, í, ó, ú, ñ, ü, etc.). No uses secuencias de escape como \\u00e9; escribe directamente el carácter.`;
 };

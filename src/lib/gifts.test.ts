@@ -9,6 +9,7 @@ describe("giftRecommendationsSchema", () => {
     priceMaxEuros: 25,
     category: ["Libros"],
     amazonQuery: "libro recetas mediterraneas",
+    imageKey: "libros",
   };
 
   const nineIdeas = Array.from({ length: 9 }, () => validIdea);
@@ -53,6 +54,24 @@ describe("giftRecommendationsSchema", () => {
   it("rechaza descripción demasiado larga", () => {
     const broken = [...nineIdeas];
     broken[0] = { ...validIdea, description: "x".repeat(281) };
+    expect(
+      giftRecommendationsSchema.safeParse({ ideas: broken }).success,
+    ).toBe(false);
+  });
+
+  it("rechaza idea sin imageKey", () => {
+    const broken = [...nineIdeas];
+    const withoutImageKey: Record<string, unknown> = { ...validIdea };
+    delete withoutImageKey.imageKey;
+    broken[0] = withoutImageKey as typeof validIdea;
+    expect(
+      giftRecommendationsSchema.safeParse({ ideas: broken }).success,
+    ).toBe(false);
+  });
+
+  it("rechaza imageKey fuera del catálogo", () => {
+    const broken = [...nineIdeas];
+    broken[0] = { ...validIdea, imageKey: "fotos-de-stock" };
     expect(
       giftRecommendationsSchema.safeParse({ ideas: broken }).success,
     ).toBe(false);

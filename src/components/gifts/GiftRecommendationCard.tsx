@@ -11,6 +11,7 @@ import {
   pickEffectiveStores,
   type StoreId,
 } from "@/lib/stores";
+import { resolveGiftImage } from "@/lib/giftImages";
 import type { GiftRecommendation, GiftType } from "@/lib/gifts";
 
 const formatRange = (min: number, max: number) =>
@@ -59,6 +60,9 @@ export function GiftRecommendationCard({
       ? "Ideas"
       : "Buscar";
 
+  const visual = resolveGiftImage(idea.imageKey, giftType);
+  const VisualIcon = visual.icon;
+
   return (
     <Card
       className="flex flex-col h-full border-border/60 shadow-sm transition-shadow hover:shadow-md animate-in fade-in slide-in-from-bottom-2 duration-500 fill-mode-both"
@@ -68,6 +72,22 @@ export function GiftRecommendationCard({
           tienen altura reservada para que el precio quede a la misma altura
           entre cards; los botones de tienda alargan la card hacia abajo. */}
       <CardContent className="flex flex-1 flex-col gap-4 p-5">
+        {/* Cabecera visual: tinte plano + icono lucide del catálogo de claves
+            (imageKey). Genérica a propósito — representa la categoría, no el
+            producto concreto. Ideas antiguas sin imageKey caen al icono del
+            tipo de regalo. */}
+        <div
+          className={cn(
+            "flex h-24 shrink-0 items-center justify-center rounded-xl",
+            visual.container,
+          )}
+        >
+          <VisualIcon
+            className={cn("size-9", visual.iconClass)}
+            strokeWidth={1.5}
+            aria-hidden
+          />
+        </div>
         <div className="space-y-1.5">
           <div className="flex items-start justify-between gap-2">
             <h3 className="text-base font-medium leading-snug line-clamp-2 min-h-[2.75rem]">
