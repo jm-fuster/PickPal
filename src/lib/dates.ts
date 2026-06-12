@@ -86,6 +86,26 @@ export function computeDaysUntil(
   return computeDaysUntilNextOccurrence(date.month, date.day, from);
 }
 
+/**
+ * Días enteros desde `from` (00:00 local) hasta la misma fecha `months` meses
+ * después. Es el ancho real de una ventana "los próximos N meses": 4 meses
+ * naturales son 120–123 días según los meses que se crucen, así que comparar
+ * la cuenta atrás contra un 120 fijo deja fuera fechas que sí caen dentro de
+ * la ventana (p. ej. un cumpleaños justo a 4 meses vista).
+ */
+export function monthsWindowDays(
+  months: number,
+  from: Date = new Date(),
+): number {
+  const today = startOfDay(from);
+  const end = new Date(
+    today.getFullYear(),
+    today.getMonth() + months,
+    today.getDate(),
+  );
+  return Math.round((end.getTime() - today.getTime()) / MS_PER_DAY);
+}
+
 export function formatDayMonth(month: number, day: number): string {
   return `${day} de ${MONTHS_ES[month - 1]}`;
 }

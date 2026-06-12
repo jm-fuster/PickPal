@@ -10,9 +10,9 @@ import { DateGroupedList } from "@/components/dashboard/DateGroupedList";
 import { GiftsPanel } from "@/components/gifts/GiftsPanel";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { computeDaysUntil } from "@/lib/dates";
+import { computeDaysUntil, monthsWindowDays } from "@/lib/dates";
 
-const WINDOW_DAYS = 120;
+const WINDOW_MONTHS = 4;
 
 type SelectedEvent = {
   personId: Id<"people">;
@@ -34,12 +34,13 @@ export default function DashboardPage() {
   const filtered = useMemo(() => {
     if (!upcoming) return [];
     const today = new Date();
+    const windowDays = monthsWindowDays(WINDOW_MONTHS, today);
     return upcoming
       .map(({ date, person }) => {
         const daysUntil = computeDaysUntil(date, today);
         return daysUntil === null ? null : { date, person, daysUntil };
       })
-      .filter((e): e is NonNullable<typeof e> => e !== null && e.daysUntil <= WINDOW_DAYS)
+      .filter((e): e is NonNullable<typeof e> => e !== null && e.daysUntil <= windowDays)
       .sort((a, b) => a.daysUntil - b.daysUntil);
   }, [upcoming]);
 

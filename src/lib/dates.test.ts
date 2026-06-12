@@ -4,6 +4,7 @@ import {
   computeDaysUntilNextOccurrence,
   formatDayMonth,
   formatDaysUntil,
+  monthsWindowDays,
   nextOccurrenceDate,
 } from "./dates";
 
@@ -118,6 +119,35 @@ describe("computeDaysUntil — fechas únicas (recurring=false)", () => {
     expect(
       computeDaysUntil({ month: 2, day: 29, year: 2028, recurring: false }, today),
     ).toBe(28);
+  });
+});
+
+describe("monthsWindowDays", () => {
+  it("4 meses desde el 12 jun 2026 son 122 días (no 120)", () => {
+    // Regresión: la agenda usaba un fijo de 120 días, así que un evento a
+    // 121–122 días (dentro de los 4 meses reales) no aparecía.
+    const today = new Date(2026, 5, 12); // 12 jun 2026
+    expect(monthsWindowDays(4, today)).toBe(122);
+  });
+
+  it("incluye una fecha que cae justo a 4 meses vista", () => {
+    const today = new Date(2026, 5, 12); // 12 jun 2026
+    const windowDays = monthsWindowDays(4, today);
+    // 12 oct 2026 = 4 meses exactos.
+    const daysUntil = computeDaysUntilNextOccurrence(10, 12, today);
+    expect(daysUntil).toBe(122);
+    expect(daysUntil <= windowDays).toBe(true);
+  });
+
+  it("excluye una fecha justo después de la ventana", () => {
+    const today = new Date(2026, 5, 12);
+    const windowDays = monthsWindowDays(4, today);
+    expect(computeDaysUntilNextOccurrence(10, 13, today) <= windowDays).toBe(false);
+  });
+
+  it("cruza el fin de año correctamente", () => {
+    const today = new Date(2026, 10, 15); // 15 nov 2026 → +4 meses = 15 mar 2027
+    expect(monthsWindowDays(4, today)).toBe(120);
   });
 });
 
