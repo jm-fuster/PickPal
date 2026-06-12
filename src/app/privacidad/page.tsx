@@ -79,6 +79,21 @@ export default function PrivacyPage() {
               <span className="text-foreground">Resend</span> — envía los
               correos de aviso si activas las notificaciones.
             </li>
+            <li>
+              <span className="text-foreground">Pexels</span> — pone las
+              fotos que ilustran las ideas de regalo. Solo recibe búsquedas
+              genéricas en inglés (p. ej. &laquo;wireless headphones&raquo;),
+              nunca el nombre ni los datos de tu ser querido. Al mostrar las
+              fotos, tu navegador las descarga directamente de sus
+              servidores, que ven tu IP — como al cargar cualquier imagen
+              externa.
+            </li>
+            <li>
+              <span className="text-foreground">DiceBear</span> — genera los
+              avatares ilustrados. Tu navegador los carga directamente de
+              sus servidores (ven tu IP); el avatar no lleva asociado ningún
+              dato de la persona.
+            </li>
           </ul>
         </section>
 

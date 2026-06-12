@@ -76,6 +76,8 @@ Compartimos datos con los siguientes proveedores que actúan como encargados:
 | [Convex](https://convex.dev) | Base de datos y backend | EE. UU. | DPA + SCCs / EU-US DPF |
 | [Google (Gemini API)](https://ai.google.dev) | Generación de recomendaciones | EE. UU. | DPA + SCCs / EU-US DPF |
 | `{{HOSTING_PROVIDER}}` _(p. ej. Vercel)_ | Hosting de la web | EE. UU. | DPA + SCCs / EU-US DPF |
+| [Pexels](https://www.pexels.com) | Fotos de stock que ilustran las ideas de regalo | EE. UU. | Solo recibe búsquedas genéricas en inglés (server-side) y la IP del navegador al cargar las fotos (ver 4.2) |
+| [DiceBear](https://www.dicebear.com) | Avatares ilustrados de los seres queridos | UE | Solo recibe la IP del navegador al cargar el avatar (ver 4.2) |
 
 _Revisar antes de publicar:_ firmar / aceptar el DPA de cada proveedor (suelen estar en su panel) y confirmar que están en la lista DPF vigente.
 
@@ -87,11 +89,19 @@ Actualmente PickPal usa la **capa gratuita** de la Gemini API. Según los [térm
 
 > Si en el futuro se migra a la **capa de pago** de Gemini, Google deja de usar los datos para mejorar sus productos (solo los retiene brevemente por seguridad/abuso). Si se hace ese cambio, **actualizar esta sección y la página `/privacidad`** para reflejarlo. Verificar en cada renovación de los términos.
 
+### 4.2 Imágenes de terceros (Pexels y DiceBear)
+
+Las fotos de las ideas de regalo y los avatares se cargan por *hotlink* directo desde los CDNs de Pexels y DiceBear: el navegador del usuario se conecta a esos dominios, que ven su **dirección IP**, user-agent y el dominio de origen (solo el origen, no la ruta, por la `Referrer-Policy` del sitio — `strict-origin-when-cross-origin`).
+
+En el lado servidor, PickPal envía a Pexels únicamente la búsqueda genérica en inglés que genera la IA por cada idea (p. ej. "wireless headphones") — **nunca** nombres, intereses en bruto ni ningún dato del perfil del ser querido. A DiceBear se le envía una semilla aleatoria, no derivada del nombre.
+
+> Alternativa evaluada y descartada por ahora: proxear las imágenes a través del propio servidor (ocultaría la IP del usuario a cambio de tráfico, latencia y complejidad en el hosting). Si la app sale de beta, reevaluar.
+
 ---
 
 ## 5. Transferencias internacionales
 
-Todos los proveedores anteriores tratan datos en EE. UU. La legitimación se basa en:
+La mayoría de los proveedores anteriores tratan datos en EE. UU. (DiceBear opera en la UE). La legitimación se basa en:
 
 - Cláusulas Contractuales Tipo (SCCs) aprobadas por la Comisión Europea, y/o
 - Adhesión al **EU-US Data Privacy Framework**.
