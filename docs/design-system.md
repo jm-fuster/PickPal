@@ -303,6 +303,16 @@ La visibilidad se detecta con un listener de `scroll` en `scrollContainerRef` qu
 - Espaciado entre campos: `space-y-1.5` dentro de un grupo (label + input + error), `space-y-5` entre grupos.
 - **Selects**: usar siempre el componente shadcn `Select` (`SelectTrigger` + `SelectContent` + `SelectItem`). **Nunca `<select>` nativo** — el aspecto del navegador rompe la consistencia visual con el resto de la UI. En selects controlados con valor inicial, renderizar el label manualmente dentro del `SelectTrigger` con `<span>` (ver patrón en "Select con valor inicial controlado").
 
+### Intereses — autocompletado y sugerencias (`InterestTagInput`)
+
+`src/components/people/InterestTagInput.tsx`. Se usa en `PersonForm` (creación) y en la ficha de persona (autosave). Dos capas de ayuda sobre el input libre de tags:
+
+- **Desplegable al escribir**: filtra un catálogo local de intereses (`src/lib/interests.ts`, ~150 items en categorías) ignorando mayúsculas y acentos, priorizando prefijo > inicio de palabra > subcadena. Máximo 7 opciones. **Deliberadamente local, sin IA**: las opciones deben aparecer en cada pulsación — una llamada al LLM por keystroke sería lenta, gastaría la cuota diaria (10/día) y enviaría datos fuera sin necesidad.
+- **Chips "Sugerencias"**: bajo el input, hasta 6 chips con intereses relacionados con los ya añadidos (items de las mismas categorías del catálogo, round-robin entre categorías para variedad; con la ficha vacía, un set de arranque diverso). Botón `RefreshCw` (`ghost icon-xs`) rota la ventana sobre el pool completo. Los chips son `Badge variant="outline"` con icono `Plus` y `render={<button type="button">}` + `aria-label="Añadir X"` (mismo patrón a11y que los chips de eliminar). Hover explícito `hover:bg-muted transition-colors` (regla de chips clicables).
+- **Desplegable — estilo y a11y**: panel `absolute` bajo el input (`rounded-lg bg-popover shadow-md ring-1 ring-foreground/10 p-1`, mismo registro que `SelectContent`), entrada `animate-in fade-in-0 slide-in-from-top-2 duration-100`. Patrón ARIA combobox completo: input con `role="combobox"`, `aria-expanded`, `aria-controls`, `aria-autocomplete="list"` y `aria-activedescendant`; lista `role="listbox"` con `role="option"` + `aria-selected`. Teclado: ↑/↓ navegan, Enter añade la opción resaltada (o el texto libre si no hay ninguna resaltada — Enter conserva su comportamiento de siempre), Escape cierra. Las opciones usan `onMouseDown={e => e.preventDefault()}` para que el blur del input no cierre la lista antes de que llegue el click.
+- **Dedupe sin acentos**: añadir "futbol" cuando ya existe "Fútbol" no crea duplicado (comparación normalizada).
+- **Tope de 20**: al llegar a `MAX_INTERESTS` (espejo del validador del servidor) desaparecen desplegable y sugerencias.
+
 ### Sección Eventos (detalle de persona)
 
 La sección "Eventos" en `/people/[id]` gestiona fechas importantes de esa persona. Terminología: **evento** (no "fecha importante").

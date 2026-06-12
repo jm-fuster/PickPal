@@ -1,10 +1,19 @@
 "use client";
 
-import { useRef, useState, KeyboardEvent } from "react";
-import { Plus, X } from "lucide-react";
+import { useId, useMemo, useRef, useState, KeyboardEvent } from "react";
+import { Plus, RefreshCw, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import {
+  MAX_INTERESTS,
+  normalizeInterest,
+  searchInterests,
+  suggestInterests,
+} from "@/lib/interests";
+
+const SUGGESTIONS_SHOWN = 6;
 
 interface InterestTagInputProps {
   value: string[];
@@ -18,17 +27,47 @@ export function InterestTagInput({
   placeholder = "Añade un interés y pulsa +",
 }: InterestTagInputProps) {
   const [draft, setDraft] = useState("");
+  const [open, setOpen] = useState(false);
+  const [highlighted, setHighlighted] = useState(-1);
+  const [suggestionOffset, setSuggestionOffset] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const listboxId = useId();
 
-  const addTag = () => {
-    const tag = draft.trim();
+  const atCap = value.length >= MAX_INTERESTS;
+
+  const matches = useMemo(
+    () => (atCap ? [] : searchInterests(draft, value)),
+    [draft, value, atCap],
+  );
+  const showDropdown = open && matches.length > 0;
+
+  const suggestionPool = useMemo(
+    () => (atCap ? [] : suggestInterests(value)),
+    [value, atCap],
+  );
+  const suggestions = useMemo(() => {
+    if (suggestionPool.length <= SUGGESTIONS_SHOWN) return suggestionPool;
+    const start = suggestionOffset % suggestionPool.length;
+    return Array.from(
+      { length: SUGGESTIONS_SHOWN },
+      (_, i) => suggestionPool[(start + i) % suggestionPool.length],
+    );
+  }, [suggestionPool, suggestionOffset]);
+
+  const closeDropdown = () => {
+    setOpen(false);
+    setHighlighted(-1);
+  };
+
+  const addTag = (raw: string) => {
+    const tag = raw.trim();
     if (!tag) return;
-    if (value.includes(tag)) {
-      setDraft("");
-      return;
+    const normalized = normalizeInterest(tag);
+    if (!value.some((t) => normalizeInterest(t) === normalized)) {
+      onChange([...value, tag]);
     }
-    onChange([...value, tag]);
     setDraft("");
+    closeDropdown();
   };
 
   const removeTag = (tag: string) => {
@@ -36,9 +75,23 @@ export function InterestTagInput({
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" || e.key === ",") {
+    if (e.key === "ArrowDown" && matches.length > 0) {
       e.preventDefault();
-      addTag();
+      setOpen(true);
+      setHighlighted((h) => (h + 1 >= matches.length ? 0 : h + 1));
+    } else if (e.key === "ArrowUp" && showDropdown) {
+      e.preventDefault();
+      setHighlighted((h) => (h <= 0 ? matches.length - 1 : h - 1));
+    } else if (e.key === "Escape" && showDropdown) {
+      e.preventDefault();
+      closeDropdown();
+    } else if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      if (showDropdown && highlighted >= 0 && matches[highlighted]) {
+        addTag(matches[highlighted]);
+      } else {
+        addTag(draft);
+      }
       // Keep the input focused so the user can keep typing tags on mobile.
       inputRef.current?.focus();
     } else if (e.key === "Backspace" && !draft && value.length > 0) {
@@ -47,7 +100,7 @@ export function InterestTagInput({
   };
 
   const handleAddClick = () => {
-    addTag();
+    addTag(draft);
     inputRef.current?.focus();
   };
 
@@ -71,27 +124,107 @@ export function InterestTagInput({
           ))}
         </ul>
       ) : null}
-      <div className="flex gap-2">
-        <Input
-          ref={inputRef}
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={handleKeyDown}
-          enterKeyHint="done"
-          placeholder={placeholder}
-          aria-label="Nuevo interés"
-        />
-        <Button
-          type="button"
-          size="icon"
-          variant="outline"
-          onClick={handleAddClick}
-          disabled={!draft.trim()}
-          aria-label="Añadir interés"
-        >
-          <Plus className="size-4" aria-hidden />
-        </Button>
+      <div className="relative">
+        <div className="flex gap-2">
+          <Input
+            ref={inputRef}
+            value={draft}
+            onChange={(e) => {
+              setDraft(e.target.value);
+              setOpen(true);
+              setHighlighted(-1);
+            }}
+            onFocus={() => setOpen(true)}
+            onBlur={closeDropdown}
+            onKeyDown={handleKeyDown}
+            enterKeyHint="done"
+            placeholder={placeholder}
+            aria-label="Nuevo interés"
+            role="combobox"
+            aria-expanded={showDropdown}
+            aria-controls={listboxId}
+            aria-autocomplete="list"
+            aria-activedescendant={
+              showDropdown && highlighted >= 0
+                ? `${listboxId}-${highlighted}`
+                : undefined
+            }
+          />
+          <Button
+            type="button"
+            size="icon"
+            variant="outline"
+            onClick={handleAddClick}
+            disabled={!draft.trim()}
+            aria-label="Añadir interés"
+          >
+            <Plus className="size-4" aria-hidden />
+          </Button>
+        </div>
+        {showDropdown ? (
+          <ul
+            id={listboxId}
+            role="listbox"
+            aria-label="Intereses sugeridos"
+            className="absolute top-full right-0 left-0 z-50 mt-1 max-h-64 overflow-y-auto rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 animate-in fade-in-0 slide-in-from-top-2 duration-100"
+          >
+            {matches.map((match, i) => (
+              <li
+                key={match}
+                id={`${listboxId}-${i}`}
+                role="option"
+                aria-selected={i === highlighted}
+                className={cn(
+                  "cursor-pointer rounded-md px-2 py-1.5 text-sm",
+                  i === highlighted && "bg-accent text-accent-foreground",
+                )}
+                // preventDefault keeps focus on the input so blur doesn't
+                // close the list before the click lands.
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => {
+                  addTag(match);
+                  inputRef.current?.focus();
+                }}
+                onMouseEnter={() => setHighlighted(i)}
+              >
+                {match}
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </div>
+      {suggestions.length > 0 ? (
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-xs text-muted-foreground">Sugerencias:</span>
+          {suggestions.map((suggestion) => (
+            <Badge
+              key={suggestion}
+              variant="outline"
+              className="cursor-pointer transition-colors hover:bg-muted"
+              title={`Añadir ${suggestion}`}
+              aria-label={`Añadir ${suggestion}`}
+              render={
+                <button type="button" onClick={() => addTag(suggestion)} />
+              }
+            >
+              <Plus className="size-3" aria-hidden />
+              {suggestion}
+            </Badge>
+          ))}
+          {suggestionPool.length > SUGGESTIONS_SHOWN ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xs"
+              onClick={() => setSuggestionOffset((o) => o + SUGGESTIONS_SHOWN)}
+              aria-label="Ver otras sugerencias"
+              title="Ver otras sugerencias"
+            >
+              <RefreshCw aria-hidden />
+            </Button>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }
