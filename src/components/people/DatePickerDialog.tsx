@@ -195,6 +195,86 @@ interface DatePickerDialogProps {
   onClose: () => void;
 }
 
+// Estado temporal del picker. Vive en un componente propio que se inicializa
+// desde props al montar: la `key` que le pone DatePickerDialog (open + fecha
+// entrante) lo remonta en cada apertura, sin resetear estado en un efecto.
+function DatePickerDialogBody({
+  day,
+  month,
+  year,
+  onChange,
+  onClose,
+}: Omit<DatePickerDialogProps, "open">) {
+  const [tmpDay, setTmpDay] = useState(day);
+  const [tmpMonth, setTmpMonth] = useState(month);
+  const [includeYear, setIncludeYear] = useState(year !== undefined);
+  const [tmpYear, setTmpYear] = useState(year ?? new Date().getFullYear());
+
+  return (
+    <>
+      <DialogTitle className="text-2xl font-light text-center tracking-tight">
+        {formatDate(tmpDay, tmpMonth, includeYear ? tmpYear : undefined)}
+      </DialogTitle>
+
+      <div role="group" aria-label="Fecha" className="flex gap-1">
+        <ScrollColumn
+          items={DAYS}
+          initialIndex={tmpDay - 1}
+          onChange={(i) => setTmpDay(i + 1)}
+          label="Día"
+          valueMin={1}
+        />
+        <ScrollColumn
+          items={MONTHS_SHORT}
+          initialIndex={tmpMonth - 1}
+          onChange={(i) => setTmpMonth(i + 1)}
+          label="Mes"
+          valueMin={1}
+          valueTextItems={MONTHS}
+        />
+        {includeYear && (
+          <ScrollColumn
+            items={YEARS}
+            initialIndex={tmpYear - YEAR_START}
+            onChange={(i) => setTmpYear(i + YEAR_START)}
+            label="Año"
+            valueMin={YEAR_START}
+          />
+        )}
+      </div>
+
+      <div className="flex items-center gap-3">
+        <Switch
+          checked={includeYear}
+          onCheckedChange={setIncludeYear}
+          id="picker-include-year"
+        />
+        <label
+          htmlFor="picker-include-year"
+          className="text-sm cursor-pointer select-none"
+        >
+          Incluir año
+        </label>
+      </div>
+
+      <DialogFooter>
+        <Button variant="ghost" size="sm" onClick={onClose}>
+          Cancelar
+        </Button>
+        <Button
+          size="sm"
+          onClick={() => {
+            onChange(tmpDay, tmpMonth, includeYear ? tmpYear : undefined);
+            onClose();
+          }}
+        >
+          Aceptar
+        </Button>
+      </DialogFooter>
+    </>
+  );
+}
+
 export function DatePickerDialog({
   open,
   day,
@@ -203,87 +283,17 @@ export function DatePickerDialog({
   onChange,
   onClose,
 }: DatePickerDialogProps) {
-  const [tmpDay, setTmpDay] = useState(day);
-  const [tmpMonth, setTmpMonth] = useState(month);
-  const [includeYear, setIncludeYear] = useState(year !== undefined);
-  const [tmpYear, setTmpYear] = useState(year ?? new Date().getFullYear());
-
-  useEffect(() => {
-    if (open) {
-      setTmpDay(day);
-      setTmpMonth(month);
-      setIncludeYear(year !== undefined);
-      setTmpYear(year ?? new Date().getFullYear());
-    }
-  }, [open, day, month, year]);
-
-  const openKey = open ? "open" : "closed";
-
   return (
     <Dialog open={open} onOpenChange={(o: boolean) => { if (!o) onClose(); }}>
       <DialogContent showCloseButton={false}>
-        <DialogTitle className="text-2xl font-light text-center tracking-tight">
-          {formatDate(tmpDay, tmpMonth, includeYear ? tmpYear : undefined)}
-        </DialogTitle>
-
-        <div role="group" aria-label="Fecha" className="flex gap-1">
-          <ScrollColumn
-            key={`day-${openKey}`}
-            items={DAYS}
-            initialIndex={tmpDay - 1}
-            onChange={(i) => setTmpDay(i + 1)}
-            label="Día"
-            valueMin={1}
-          />
-          <ScrollColumn
-            key={`month-${openKey}`}
-            items={MONTHS_SHORT}
-            initialIndex={tmpMonth - 1}
-            onChange={(i) => setTmpMonth(i + 1)}
-            label="Mes"
-            valueMin={1}
-            valueTextItems={MONTHS}
-          />
-          {includeYear && (
-            <ScrollColumn
-              key={`year-${openKey}`}
-              items={YEARS}
-              initialIndex={tmpYear - YEAR_START}
-              onChange={(i) => setTmpYear(i + YEAR_START)}
-              label="Año"
-              valueMin={YEAR_START}
-            />
-          )}
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Switch
-            checked={includeYear}
-            onCheckedChange={setIncludeYear}
-            id="picker-include-year"
-          />
-          <label
-            htmlFor="picker-include-year"
-            className="text-sm cursor-pointer select-none"
-          >
-            Incluir año
-          </label>
-        </div>
-
-        <DialogFooter>
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            Cancelar
-          </Button>
-          <Button
-            size="sm"
-            onClick={() => {
-              onChange(tmpDay, tmpMonth, includeYear ? tmpYear : undefined);
-              onClose();
-            }}
-          >
-            Aceptar
-          </Button>
-        </DialogFooter>
+        <DatePickerDialogBody
+          key={`${open}-${day}-${month}-${year ?? "sin-año"}`}
+          day={day}
+          month={month}
+          year={year}
+          onChange={onChange}
+          onClose={onClose}
+        />
       </DialogContent>
     </Dialog>
   );
