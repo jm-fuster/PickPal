@@ -162,13 +162,13 @@ function PersonDetailContent({
     <main className="flex flex-1 flex-col gap-8 p-4 sm:p-6 lg:p-8 w-full max-w-6xl">
       {/* Título de página para navegación por encabezados (el nombre visible es un input editable) */}
       <h1 className="sr-only">{headerName}</h1>
-      <button
-        onClick={() => router.back()}
+      <Link
+        href="/seres-queridos"
         className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground w-fit"
       >
         <ArrowLeft className="size-3.5" aria-hidden />
         Volver
-      </button>
+      </Link>
 
       {/* ── Header ── */}
       <header className="flex flex-col gap-6 sm:flex-row sm:items-start">

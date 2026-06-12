@@ -42,13 +42,13 @@ export default function NewPersonPage() {
         toast.warning(
           `Persona creada, pero ${failed} fecha${failed === 1 ? "" : "s"} no se guardó.`,
         );
-        router.push(`/seres-queridos/${id}`);
+        router.replace(`/seres-queridos/${id}`);
         return;
       }
     }
 
     toast.success("Persona creada");
-    router.push(`/seres-queridos/${id}`);
+    router.replace(`/seres-queridos/${id}`);
   };
 
   return (
