@@ -136,6 +136,7 @@ ${typeRules[giftType]}
 - "description" en español, máximo 2 frases, explicando por qué encaja con esta persona.
 - "category" es un array JSON de 1 a 3 strings en español. Usa intereses concretos del perfil que justifiquen la idea (ej: ["Senderismo", "Fotografía"], ["Cocina japonesa"], ["Gaming", "Tecnología"]). Si la idea no encaja con ningún interés definido, usa una etiqueta descriptiva específica al regalo (ej: ["Accesorios viaje"], no ["Viajes"]). Nunca uses categorías genéricas sueltas como ["Tecnología"], ["Hogar"] o ["Libros"] si hay intereses más concretos disponibles.
 - "imageKey": la clave del catálogo visual que mejor representa la idea. Elige siempre la más específica disponible (ej. "audio" para unos auriculares, no "tecnologia"; "experiencia-gastronomica" para una cena, no "gourmet"). Usa "regalo-generico" solo si ninguna otra encaja.
+- "imageQuery": búsqueda EN INGLÉS de 2-4 palabras para encontrar una foto de stock que ilustre el regalo (ej: "wireless headphones", "pottery workshop", "hiking boots trail"). Describe el objeto o la escena de forma genérica y visual — sin marcas, sin tallas, sin adjetivos de marketing.
 - "priceMinEuros" y "priceMaxEuros" en euros, valores enteros razonables.
 - Responde en español. IMPORTANTE: escribe todos los textos con caracteres Unicode directos (á, é, í, ó, ú, ñ, ü, etc.). No uses secuencias de escape como \\u00e9; escribe directamente el carácter.`;
 };
@@ -144,6 +145,75 @@ ${typeRules[giftType]}
 function decodeEscapes(s: string): string {
   return s.replace(/\\u([0-9a-fA-F]{4})/gi, (_, h) =>
     String.fromCharCode(parseInt(h, 16)),
+  );
+}
+
+type PexelsPhoto = {
+  src?: { medium?: string };
+  photographer?: string;
+  photographer_url?: string;
+};
+
+/**
+ * Busca en Pexels una foto de stock por idea y la adjunta como `image`,
+ * eliminando siempre `imageQuery` (solo existe durante la generación; el
+ * validador de Convex rechaza campos desconocidos). Mejora progresiva:
+ * sin PEXELS_API_KEY, sin resultados o con error/timeout, la idea sale sin
+ * `image` y la card usa la cabecera de icono (imageKey). Nunca lanza.
+ */
+async function attachStockImages(
+  ideas: Array<Record<string, unknown>>,
+): Promise<Array<Record<string, unknown>>> {
+  const apiKey = process.env.PEXELS_API_KEY;
+  const stripped = ideas.map((idea) => {
+    const rest = { ...idea };
+    delete rest.imageQuery;
+    return rest;
+  });
+  if (!apiKey) return stripped;
+
+  const images = await Promise.all(
+    ideas.map(async (idea): Promise<Record<string, unknown> | undefined> => {
+      const query = typeof idea.imageQuery === "string" ? idea.imageQuery.trim() : "";
+      if (!query) return undefined;
+      try {
+        const res = await fetch(
+          `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=1&orientation=landscape`,
+          {
+            headers: { Authorization: apiKey },
+            // La foto es decorativa: si Pexels va lento, la generación no espera.
+            signal: AbortSignal.timeout(4000),
+          },
+        );
+        if (!res.ok) return undefined;
+        const data = (await res.json()) as { photos?: PexelsPhoto[] };
+        const photo = data.photos?.[0];
+        const url = photo?.src?.medium;
+        // Espejo de la validación server-side de Convex (prefijo + tamaños):
+        // no persistimos nada que la mutation fuera a rechazar.
+        if (!url || !url.startsWith("https://images.pexels.com/") || url.length > 512) {
+          return undefined;
+        }
+        const image: Record<string, unknown> = { url };
+        if (photo?.photographer && photo.photographer.length <= 120) {
+          image.photographer = photo.photographer;
+        }
+        if (
+          photo?.photographer_url &&
+          photo.photographer_url.startsWith("https://www.pexels.com/") &&
+          photo.photographer_url.length <= 512
+        ) {
+          image.photographerUrl = photo.photographer_url;
+        }
+        return image;
+      } catch {
+        return undefined;
+      }
+    }),
+  );
+
+  return stripped.map((idea, i) =>
+    images[i] ? { ...idea, image: images[i] } : idea,
   );
 }
 
@@ -278,10 +348,11 @@ export async function POST(req: NextRequest) {
       seenTitles.add(title);
       return true;
     });
+    const ideasWithImages = await attachStockImages(uniqueIdeas);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await fetchMutation(api.recommendations.upsert, { personId, occasionLabel, giftType, ideas: uniqueIdeas as any }, { token });
+    await fetchMutation(api.recommendations.upsert, { personId, occasionLabel, giftType, ideas: ideasWithImages as any }, { token });
 
-    return NextResponse.json({ ideas: uniqueIdeas, remaining });
+    return NextResponse.json({ ideas: ideasWithImages, remaining });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error("[recommendations] gemini:", message);

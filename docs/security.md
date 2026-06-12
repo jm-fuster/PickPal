@@ -156,7 +156,8 @@ El `clerkUserId` siempre se lee de la sesión vía `requireUser` — la mutation
 ### 8. Variables de entorno
 
 - `NEXT_PUBLIC_*` se inyecta en el bundle cliente. **Nunca** poner secrets ahí.
-- Secrets server-only: `CLERK_SECRET_KEY`, `GOOGLE_GENERATIVE_AI_API_KEY`, `CONVEX_DEPLOYMENT`, `RESEND_API_KEY`. `RESEND_API_KEY` y `EMAIL_FROM` viven en el entorno de **Convex** (`npx convex env set ...`), no en Next.js, porque solo los consume el cron del backend.
+- Secrets server-only: `CLERK_SECRET_KEY`, `GOOGLE_GENERATIVE_AI_API_KEY`, `PEXELS_API_KEY`, `CONVEX_DEPLOYMENT`, `RESEND_API_KEY`. `RESEND_API_KEY` y `EMAIL_FROM` viven en el entorno de **Convex** (`npx convex env set ...`), no en Next.js, porque solo los consume el cron del backend.
+- `PEXELS_API_KEY` (fotos de stock en `/api/recommendations`) es **opcional**: sin ella la feature degrada a la cabecera de icono. Las URLs de imagen que devuelve Pexels se validan por prefijo (`https://images.pexels.com/`) en `convex/validators.ts` antes de persistir — mismo patrón de allowlist que el avatar de DiceBear. El volumen de llamadas a Pexels queda acotado por la cuota existente de generaciones (10/usuario/día × 9 fotos por tirada).
 - Nuevo secret → añádelo a `.env.example` como placeholder vacío y documenta dónde se obtiene.
 
 ---

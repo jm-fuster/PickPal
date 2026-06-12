@@ -15,6 +15,14 @@ const ideaValidator = v.object({
   amazonQuery: v.string(),
   suggestedStores: v.optional(v.array(v.string())),
   imageKey: v.optional(v.string()),
+  // Foto de stock Pexels; prefijo de URL verificado en validateRecommendationIdeas.
+  image: v.optional(
+    v.object({
+      url: v.string(),
+      photographer: v.optional(v.string()),
+      photographerUrl: v.optional(v.string()),
+    }),
+  ),
 });
 
 export const getByPersonOccasion = query({

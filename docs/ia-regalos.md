@@ -332,14 +332,20 @@ Para evitar mostrar chips a tiendas que claramente no tienen el producto (miel a
 
 El orden de los chips es siempre el canónico de `ALL_STORES` (Amazon, AliExpress, Miravia, El Corte Inglés), sin importar el orden en que llegan los inputs.
 
-### Clave visual por idea (`imageKey`)
+### Cabecera visual por idea (`image` + `imageKey`)
 
-Cada card lleva una cabecera visual genérica (tinte plano + icono lucide) que representa la **categoría** del regalo, no el producto concreto. Se decidió explícitamente contra fotos reales (stock APIs dan matches engañosos; generación de imágenes con IA cuesta ~0,35 €/tirada y añade latencia) — ver decisión en `docs/design-system.md` · "Cards generadas por IA".
+Cada card lleva una cabecera visual con dos niveles, de mejor a peor:
 
-- **Schema**: la IA elige una clave de un catálogo cerrado de 30 (`GIFT_IMAGE_KEYS` en [`src/lib/gifts.ts`](../src/lib/gifts.ts)). En los schemas de generación el campo es **obligatorio** (`z.enum(...)` — un enum opcional hace fallar a Gemini al omitirlo, mismo gotcha que `suggestedStores`); en el tipo de cara a la UI es opcional por compatibilidad con ideas cacheadas anteriores.
-- **Persistencia**: `recommendations.ideas[].imageKey` y `savedIdeas.imageKey`, ambos `v.optional(v.string())` con allowlist `ALLOWED_IMAGE_KEYS` en [`convex/validators.ts`](../convex/validators.ts).
-- **Prompt**: una sola regla pide la clave más específica disponible ("audio" antes que "tecnologia") y reserva "regalo-generico" como último recurso. Coste en tokens: despreciable.
-- **Renderizado**: `resolveGiftImage(imageKey, giftType)` en [`src/lib/giftImages.ts`](../src/lib/giftImages.ts) mapea clave → icono + tinte. Ideas sin clave (cacheadas/guardadas antes del campo) caen al icono del tipo de regalo (`ShoppingBag`/`Ticket`/`Heart`/`Shuffle`).
+1. **Foto de stock (Pexels)** — `image: { url, photographer?, photographerUrl? }`. Se busca server-side en `/api/recommendations` tras la generación, con una query EN INGLÉS de 2-4 palabras (`imageQuery`) que Gemini produce por idea. `attachStockImages` lanza las 9 búsquedas en paralelo con timeout de 4 s por foto y **nunca falla la generación**: sin `PEXELS_API_KEY`, sin resultados, con error o timeout, la idea sale sin `image`. `imageQuery` se elimina siempre antes de persistir.
+2. **Icono por categoría (fallback)** — tinte plano + icono lucide elegido vía `imageKey`, un catálogo cerrado de 30 claves (`GIFT_IMAGE_KEYS` en [`src/lib/gifts.ts`](../src/lib/gifts.ts)). También cubre fotos que fallan al cargar en cliente (`onError` → estado `photoFailed`) e ideas persistidas antes de estos campos.
+
+La foto ilustra la **categoría**, no el producto exacto — el matching semántico de un buscador de stock no es perfecto y no se verifica (hacerlo requeriría visión por IA, descartado por coste). Generación de imágenes con IA descartada también (~0,35 €/tirada + latencia) — ver decisión en `docs/design-system.md` · "Cards generadas por IA".
+
+- **Schema**: en generación, `imageKey` (enum) e `imageQuery` son **obligatorios** (un enum opcional hace fallar a Gemini al omitirlo, mismo gotcha que `suggestedStores`); en el tipo de cara a la UI `imageKey`/`image` son opcionales y `imageQuery` no existe.
+- **Persistencia**: `recommendations.ideas[].{imageKey,image}` y `savedIdeas.{imageKey,image}`, opcionales. Allowlists en [`convex/validators.ts`](../convex/validators.ts): `ALLOWED_IMAGE_KEYS` para la clave, prefijo `https://images.pexels.com/` para `image.url` y `https://www.pexels.com/` para `image.photographerUrl` (mismo patrón que el avatar DiceBear). CSP `img-src` incluye `images.pexels.com` ([`next.config.ts`](../next.config.ts)).
+- **Prompt**: una regla pide la clave más específica disponible ("audio" antes que "tecnologia", "regalo-generico" como último recurso) y otra pide la query de foto genérica y visual, sin marcas. Coste en tokens: despreciable.
+- **Renderizado**: la card pinta `image.url` (`object-cover`, `h-24`, `alt=""` decorativo) si existe; si no, `resolveGiftImage(imageKey, giftType)` en [`src/lib/giftImages.ts`](../src/lib/giftImages.ts) mapea clave → icono + tinte. Ideas sin nada caen al icono del tipo de regalo (`ShoppingBag`/`Ticket`/`Heart`/`Shuffle`).
+- **Cuota Pexels**: free tier 200 req/hora · 20k/mes. Acotado por la cuota de generaciones: 10/usuario/día × 9 fotos. La atribución (fotógrafo + enlace) se persiste por si se decide mostrarla; Pexels la recomienda pero no la exige.
 
 ### Defensa en profundidad
 

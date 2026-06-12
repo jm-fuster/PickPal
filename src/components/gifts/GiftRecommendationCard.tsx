@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { ExternalLink, ThumbsDown, ThumbsUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -62,6 +65,9 @@ export function GiftRecommendationCard({
 
   const visual = resolveGiftImage(idea.imageKey, giftType);
   const VisualIcon = visual.icon;
+  // Foto de stock rota (CDN caducado, red): cae a la cabecera de icono.
+  const [photoFailed, setPhotoFailed] = useState(false);
+  const photo = !photoFailed && idea.image?.url ? idea.image : null;
 
   return (
     <Card
@@ -72,22 +78,34 @@ export function GiftRecommendationCard({
           tienen altura reservada para que el precio quede a la misma altura
           entre cards; los botones de tienda alargan la card hacia abajo. */}
       <CardContent className="flex flex-1 flex-col gap-4 p-5">
-        {/* Cabecera visual: tinte plano + icono lucide del catálogo de claves
-            (imageKey). Genérica a propósito — representa la categoría, no el
-            producto concreto. Ideas antiguas sin imageKey caen al icono del
-            tipo de regalo. */}
-        <div
-          className={cn(
-            "flex h-24 shrink-0 items-center justify-center rounded-xl",
-            visual.container,
-          )}
-        >
-          <VisualIcon
-            className={cn("size-9", visual.iconClass)}
-            strokeWidth={1.5}
+        {/* Cabecera visual: foto de stock (Pexels) si la generación encontró
+            una; si no hay foto o falla su carga, tinte plano + icono lucide
+            del catálogo de claves (imageKey). La imagen es ilustrativa de la
+            categoría, no del producto exacto — decorativa para lectores. */}
+        {photo ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={photo.url}
+            alt=""
             aria-hidden
+            loading="lazy"
+            onError={() => setPhotoFailed(true)}
+            className="h-24 w-full shrink-0 rounded-xl bg-muted/40 object-cover"
           />
-        </div>
+        ) : (
+          <div
+            className={cn(
+              "flex h-24 shrink-0 items-center justify-center rounded-xl",
+              visual.container,
+            )}
+          >
+            <VisualIcon
+              className={cn("size-9", visual.iconClass)}
+              strokeWidth={1.5}
+              aria-hidden
+            />
+          </div>
+        )}
         <div className="space-y-1.5">
           <div className="flex items-start justify-between gap-2">
             <h3 className="text-base font-medium leading-snug line-clamp-2 min-h-[2.75rem]">

@@ -47,6 +47,42 @@ export type AllowedStore = (typeof ALLOWED_STORES)[number];
 
 const MAX_SUGGESTED_STORES = ALLOWED_STORES.length;
 
+// Foto de stock adjuntada a una idea (Pexels). Solo aceptamos URLs del CDN
+// de Pexels — mismo patrón de allowlist por prefijo que DICEBEAR_PREFIX.
+const PEXELS_IMAGE_PREFIX = "https://images.pexels.com/";
+const PEXELS_PROFILE_PREFIX = "https://www.pexels.com/";
+const MAX_IMAGE_URL = 512;
+const MAX_PHOTOGRAPHER = 120;
+
+type IdeaImage = {
+  url: string;
+  photographer?: string;
+  photographerUrl?: string;
+};
+
+function validateIdeaImage(image: IdeaImage | undefined) {
+  if (image === undefined) return;
+  if (
+    image.url.length > MAX_IMAGE_URL ||
+    !image.url.startsWith(PEXELS_IMAGE_PREFIX)
+  ) {
+    throw new ConvexError("URL de imagen inválida.");
+  }
+  if (
+    image.photographer !== undefined &&
+    image.photographer.length > MAX_PHOTOGRAPHER
+  ) {
+    throw new ConvexError("Atribución de imagen inválida.");
+  }
+  if (
+    image.photographerUrl !== undefined &&
+    (image.photographerUrl.length > MAX_IMAGE_URL ||
+      !image.photographerUrl.startsWith(PEXELS_PROFILE_PREFIX))
+  ) {
+    throw new ConvexError("Atribución de imagen inválida.");
+  }
+}
+
 // Claves del catálogo visual de las cards de ideas. Espejadas de
 // GIFT_IMAGE_KEYS en src/lib/gifts.ts (cliente) — si añades una clave,
 // actualiza ambos sitios.
@@ -200,6 +236,7 @@ type RecommendationIdea = {
   amazonQuery: string;
   suggestedStores?: string[];
   imageKey?: string;
+  image?: IdeaImage;
 };
 
 /**
@@ -268,6 +305,7 @@ export function validateRecommendationIdeas(
     ) {
       throw new ConvexError("Clave de imagen inválida.");
     }
+    validateIdeaImage(idea.image);
   }
 }
 
@@ -281,6 +319,7 @@ export function validateSavedIdeaInput(input: {
   amazonQuery: string;
   suggestedStores?: string[];
   imageKey?: string;
+  image?: IdeaImage;
 }) {
   const title = input.title.trim();
   if (title.length === 0 || input.title.length > MAX_IDEA_TITLE) {
@@ -327,6 +366,7 @@ export function validateSavedIdeaInput(input: {
   ) {
     throw new ConvexError("Clave de imagen inválida.");
   }
+  validateIdeaImage(input.image);
 }
 
 export function validateDateInput(input: {

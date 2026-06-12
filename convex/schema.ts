@@ -1,6 +1,14 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
+// Foto de stock (Pexels) adjuntada server-side a una idea. Opcional en todos
+// los documentos: sin foto, la card usa la cabecera de icono (imageKey).
+const ideaImageValidator = v.object({
+  url: v.string(),
+  photographer: v.optional(v.string()),
+  photographerUrl: v.optional(v.string()),
+});
+
 export default defineSchema({
   people: defineTable({
     clerkUserId: v.string(),
@@ -89,6 +97,7 @@ export default defineSchema({
         // Clave del catálogo visual de la card (allowlist en validators.ts).
         // Opcional: las ideas generadas antes de este campo no lo tienen.
         imageKey: v.optional(v.string()),
+        image: v.optional(ideaImageValidator),
       }),
     ),
     discardedTitles: v.optional(v.array(v.string())),
@@ -120,6 +129,7 @@ export default defineSchema({
     // Clave del catálogo visual (allowlist en validators.ts). Opcional: las
     // ideas guardadas antes de este campo caen al fallback por tipo de regalo.
     imageKey: v.optional(v.string()),
+    image: v.optional(ideaImageValidator),
   })
     .index("by_person", ["personId"])
     .index("by_user", ["clerkUserId"]),

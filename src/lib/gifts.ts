@@ -61,8 +61,11 @@ const baseRecommendationSchema = z.object({
 
 // En generación imageKey es obligatorio: un enum opcional hace fallar a
 // Gemini cuando intenta omitirlo (mismo motivo que suggestedStores abajo).
+// imageQuery alimenta la búsqueda de foto de stock en Pexels (server-side,
+// en /api/recommendations); se elimina antes de persistir la idea.
 const generatedIdeaSchema = baseRecommendationSchema.extend({
   imageKey: z.enum(GIFT_IMAGE_KEYS),
+  imageQuery: z.string().min(1).max(60),
 });
 
 // Para tipos sin tiendas (experiencia, tiempo-juntos): campo ausente del schema
@@ -71,11 +74,24 @@ const recommendationWithStoresSchema = generatedIdeaSchema.extend({
   suggestedStores: z.array(z.enum(STORE_IDS)).min(1).max(STORE_IDS.length).optional(),
 });
 
-// Tipo de cara a la UI: imageKey opcional porque las ideas persistidas antes
-// de este campo no lo tienen (la card cae al fallback por tipo de regalo).
+// Foto de stock (Pexels) adjuntada server-side tras la generación. Opcional
+// en todos los niveles: sin PEXELS_API_KEY, sin resultados o con carga rota,
+// la card cae a la cabecera de icono (imageKey).
+export const giftStockImageSchema = z.object({
+  url: z.string().url().max(512),
+  photographer: z.string().max(120).optional(),
+  photographerUrl: z.string().url().max(512).optional(),
+});
+
+export type GiftStockImage = z.infer<typeof giftStockImageSchema>;
+
+// Tipo de cara a la UI: imageKey/image opcionales porque las ideas
+// persistidas antes de estos campos no los tienen (la card cae al fallback
+// por tipo de regalo). Sin imageQuery: solo existe durante la generación.
 export const giftRecommendationSchema = baseRecommendationSchema.extend({
   suggestedStores: z.array(z.enum(STORE_IDS)).max(STORE_IDS.length).optional(),
   imageKey: z.enum(GIFT_IMAGE_KEYS).optional(),
+  image: giftStockImageSchema.optional(),
 });
 
 export const giftRecommendationsSchema = z.object({

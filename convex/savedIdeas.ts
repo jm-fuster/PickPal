@@ -39,6 +39,14 @@ export const save = mutation({
     ),
     // Allowlist verificada en validateSavedIdeaInput (ALLOWED_IMAGE_KEYS).
     imageKey: v.optional(v.string()),
+    // Foto de stock Pexels; prefijo de URL verificado en validateSavedIdeaInput.
+    image: v.optional(
+      v.object({
+        url: v.string(),
+        photographer: v.optional(v.string()),
+        photographerUrl: v.optional(v.string()),
+      }),
+    ),
   },
   handler: async (ctx, args) => {
     const clerkUserId = await requireUser(ctx);

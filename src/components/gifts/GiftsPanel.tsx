@@ -233,6 +233,7 @@ export function GiftsPanel({
         suggestedStores: effectiveStores,
         giftType,
         imageKey: idea.imageKey,
+        image: idea.image,
       });
       setSavedTitles((prev) => new Set(prev).add(idea.title));
       toast.success(`Idea guardada en la ficha de ${person?.name ?? "esta persona"}`);
