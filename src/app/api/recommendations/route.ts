@@ -378,20 +378,22 @@ export async function POST(req: NextRequest) {
           )?.statusCode
         : undefined;
     const isOverloaded = statusCode === 503;
-    const isTimeout = /timeout|timed out|aborted/i.test(message);
-    if (isOverloaded || isTimeout) {
-      // Fallo retriable del proveedor: devolvemos la unidad reservada.
-      try {
-        await fetchMutation(api.recommendationUsage.refund, {}, { token });
-      } catch (refundErr) {
-        console.error("[recommendations] quota refund:", refundErr);
-      }
+    // La cuota se reservó ANTES de llamar a Gemini. Si llegamos al catch no se
+    // persistió ninguna idea (el `return` de éxito va dentro del try, tras el
+    // upsert), así que SIEMPRE devolvemos la unidad: ni un fallo retriable del
+    // proveedor (503/timeout) ni uno de validación del schema (Gemini devuelve
+    // ≠9 ideas, bloqueo de seguridad, JSON inválido) deben costarle al usuario
+    // una de sus generaciones diarias.
+    try {
+      await fetchMutation(api.recommendationUsage.refund, {}, { token });
+    } catch (refundErr) {
+      console.error("[recommendations] quota refund:", refundErr);
     }
     return NextResponse.json(
       {
         error: isOverloaded
           ? "La IA está saturada ahora mismo — no se ha consumido cuota. Inténtalo en unos minutos."
-          : "No hemos podido conectar con la IA en este momento, inténtalo de nuevo.",
+          : "No hemos podido generar ideas en este momento — no se ha consumido cuota. Inténtalo de nuevo.",
       },
       { status: isOverloaded ? 503 : 500 },
     );

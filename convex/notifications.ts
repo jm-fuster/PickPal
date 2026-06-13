@@ -21,6 +21,23 @@ function daysFromTodayUTC(target: Date): number {
   return Math.round((t - today) / 86_400_000);
 }
 
+const isLeapYear = (year: number) =>
+  (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+
+/**
+ * Date (UTC, hora 0) de month/day en `year`, con el mismo fallback
+ * 29-feb→28-feb en años no bisiestos que `src/lib/dates.ts`. Sin él,
+ * `Date.UTC(year, 1, 29)` rueda al 1-mar y el recordatorio de un cumpleaños
+ * 29-feb se programaría/etiquetaría un día tarde respecto a la cuenta atrás
+ * que ve el usuario en la app.
+ */
+function occurrenceInYearUTC(year: number, month: number, day: number): Date {
+  if (month === 2 && day === 29 && !isLeapYear(year)) {
+    return new Date(Date.UTC(year, 1, 28));
+  }
+  return new Date(Date.UTC(year, month - 1, day));
+}
+
 /**
  * Para una fecha importante, calcula `{ daysUntil, occurrenceYear }` de la
  * próxima ocurrencia. Devuelve null si no hay (no recurrente y ya pasó).
@@ -39,18 +56,18 @@ function nextOccurrence(
 
   if (date.recurring === false) {
     if (date.year === undefined) return null;
-    const target = new Date(Date.UTC(date.year, date.month - 1, date.day));
+    const target = occurrenceInYearUTC(date.year, date.month, date.day);
     const daysUntil = daysFromTodayUTC(target);
     if (daysUntil < 0) return null;
     return { daysUntil, occurrenceYear: date.year };
   }
 
   const thisYear = todayUTC.getUTCFullYear();
-  let target = new Date(Date.UTC(thisYear, date.month - 1, date.day));
+  let target = occurrenceInYearUTC(thisYear, date.month, date.day);
   let occurrenceYear = thisYear;
   if (daysFromTodayUTC(target) < 0) {
     occurrenceYear = thisYear + 1;
-    target = new Date(Date.UTC(occurrenceYear, date.month - 1, date.day));
+    target = occurrenceInYearUTC(occurrenceYear, date.month, date.day);
   }
   return { daysUntil: daysFromTodayUTC(target), occurrenceYear };
 }

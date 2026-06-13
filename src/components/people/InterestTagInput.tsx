@@ -61,7 +61,10 @@ export function InterestTagInput({
 
   const addTag = (raw: string) => {
     const tag = raw.trim();
-    if (!tag) return;
+    // `atCap` también: sin este guard el input deja añadir el interés 21 y el
+    // autosave de la ficha falla luego con un toast genérico (el server tope
+    // a MAX_INTERESTS). Mismo patrón que BrandTagInput.
+    if (!tag || atCap) return;
     const normalized = normalizeInterest(tag);
     if (!value.some((t) => normalizeInterest(t) === normalized)) {
       onChange([...value, tag]);
@@ -138,7 +141,8 @@ export function InterestTagInput({
             onBlur={closeDropdown}
             onKeyDown={handleKeyDown}
             enterKeyHint="done"
-            placeholder={placeholder}
+            placeholder={atCap ? "Máximo alcanzado" : placeholder}
+            disabled={atCap}
             aria-label="Nuevo interés"
             role="combobox"
             aria-expanded={showDropdown}
@@ -155,7 +159,7 @@ export function InterestTagInput({
             size="icon"
             variant="outline"
             onClick={handleAddClick}
-            disabled={!draft.trim()}
+            disabled={!draft.trim() || atCap}
             aria-label="Añadir interés"
           >
             <Plus className="size-4" aria-hidden />

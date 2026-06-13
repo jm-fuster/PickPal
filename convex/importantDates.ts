@@ -1,5 +1,5 @@
 import { v, ConvexError } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, MutationCtx } from "./_generated/server";
 import { requireUser } from "./auth";
 import { validateDateInput } from "./validators";
 import { checkAndIncrement } from "./rateLimit";
@@ -33,6 +33,78 @@ async function assertOwnsPerson(
     throw new ConvexError("Persona no encontrada.");
   }
   return person;
+}
+
+// Comparación tolerante a mayúsculas/espacios para la unicidad de etiquetas.
+const normalizeLabel = (label: string) => label.trim().toLowerCase();
+
+/**
+ * Las recomendaciones se indexan por `occasionLabel` (texto del evento), no por
+ * `dateId`. Sin esta unicidad, dos eventos con la misma etiqueta para la misma
+ * persona colapsan en una sola fila de recomendación y `getByPersonAndLabel`
+ * (presupuesto del prompt) resuelve al primero por orden de inserción.
+ */
+async function assertLabelUnique(
+  ctx: MutationCtx,
+  personId: Id<"people">,
+  label: string,
+  excludeId: Id<"importantDates"> | null,
+) {
+  const norm = normalizeLabel(label);
+  const siblings = await ctx.db
+    .query("importantDates")
+    .withIndex("by_person", (q) => q.eq("personId", personId))
+    .collect();
+  if (
+    siblings.some(
+      (d) => d._id !== excludeId && normalizeLabel(d.label) === norm,
+    )
+  ) {
+    throw new ConvexError(
+      "Ya existe un evento con esa etiqueta para esta persona.",
+    );
+  }
+}
+
+/**
+ * Reapunta las recomendaciones cacheadas del evento de `oldLabel` a `newLabel`
+ * cuando se renombra. Sin esto, renombrar una etiqueta deja las ideas generadas
+ * huérfanas bajo la etiqueta vieja (invisibles y nunca limpiadas). Como la clave
+ * es exacta, migramos siempre que cambie el string literal (incluido un cambio
+ * solo de mayúsculas/espacios).
+ */
+async function migrateRecommendationLabel(
+  ctx: MutationCtx,
+  clerkUserId: string,
+  personId: Id<"people">,
+  oldLabel: string,
+  newLabel: string,
+) {
+  const recs = await ctx.db
+    .query("recommendations")
+    .withIndex("by_user_person_occasion_type", (q) =>
+      q
+        .eq("clerkUserId", clerkUserId)
+        .eq("personId", personId)
+        .eq("occasionLabel", oldLabel),
+    )
+    .collect();
+  for (const rec of recs) {
+    // Una rec huérfana previa bajo (newLabel, mismo giftType) rompería el
+    // `.unique()` de getByPersonOccasion: la eliminamos antes de migrar.
+    const clash = await ctx.db
+      .query("recommendations")
+      .withIndex("by_user_person_occasion_type", (q) =>
+        q
+          .eq("clerkUserId", clerkUserId)
+          .eq("personId", personId)
+          .eq("occasionLabel", newLabel)
+          .eq("giftType", rec.giftType),
+      )
+      .unique();
+    if (clash) await ctx.db.delete(clash._id);
+    await ctx.db.patch(rec._id, { occasionLabel: newLabel });
+  }
 }
 
 export const getByPerson = query({
@@ -101,6 +173,7 @@ export const create = mutation({
     await assertOwnsPerson(ctx, args.personId, clerkUserId);
     assertValidDate(args.month, args.day, args.year);
     validateDateInput({ label: args.label, year: args.year, recurring: args.recurring, budgetMin: args.budgetMin, budgetMax: args.budgetMax });
+    await assertLabelUnique(ctx, args.personId, args.label, null);
     await checkAndIncrement(
       ctx,
       clerkUserId,
@@ -147,6 +220,24 @@ export const update = mutation({
       budgetMin: patch.budgetMin ?? existing.budgetMin,
       budgetMax: patch.budgetMax ?? existing.budgetMax,
     });
+    if (patch.label !== undefined) {
+      // Unicidad solo si la etiqueta normalizada cambia: reguardar el mismo
+      // label (p. ej. al editar solo el presupuesto) no debe bloquearse aunque
+      // existan duplicados heredados. Migración si cambia el string literal,
+      // porque la clave de las recomendaciones es exacta.
+      if (normalizeLabel(patch.label) !== normalizeLabel(existing.label)) {
+        await assertLabelUnique(ctx, existing.personId, patch.label, id);
+      }
+      if (patch.label !== existing.label) {
+        await migrateRecommendationLabel(
+          ctx,
+          clerkUserId,
+          existing.personId,
+          existing.label,
+          patch.label,
+        );
+      }
+    }
     await ctx.db.patch(id, patch);
   },
 });

@@ -27,7 +27,12 @@ function daysLabel(daysUntil: number): string {
 function groupEntries(entries: Entry[]): { key: string; label: string; badge: string; items: Entry[] }[] {
   const map = new Map<string, { label: string; badge: string; items: Entry[] }>();
   for (const entry of entries) {
-    const key = `${entry.date.month}-${entry.date.day}`;
+    // Agrupamos por la cuenta atrás real (daysUntil), no por mes-día: dos
+    // eventos en el mismo mes-día pero con distinto daysUntil (recurrente vs
+    // única de otro año) deben ir en grupos separados, cada uno con su etiqueta
+    // y badge correctos. Dentro de un mismo daysUntil todos los eventos caen el
+    // mismo día real, así que comparten etiqueta sin ambigüedad.
+    const key = String(entry.daysUntil);
     if (!map.has(key)) {
       map.set(key, {
         label: dateLabel(entry.daysUntil, entry.date.month, entry.date.day),

@@ -313,6 +313,10 @@ export function GiftsPanel({
                 if (!v) return;
                 setOccasion(v);
                 setIdeas(null);
+                // savedTitles solo guarda títulos, no (ocasión, título): sin
+                // resetearlo, una idea con el mismo título en la ocasión nueva
+                // saldría como "guardada" (pulgar relleno) sin estarlo.
+                setSavedTitles(new Set());
               }}
             >
               <SelectTrigger aria-label="Ocasión" className="w-full sm:w-56">
@@ -364,6 +368,7 @@ export function GiftsPanel({
                   onClick={() => {
                     setGiftType(t.value);
                     setIdeas(null);
+                    setSavedTitles(new Set());
                   }}
                   className={[
                     "flex flex-col items-start gap-1 rounded-xl px-3 py-2.5 text-left text-sm transition-colors",

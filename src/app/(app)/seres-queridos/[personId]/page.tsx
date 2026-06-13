@@ -128,9 +128,16 @@ function PersonDetailContent({
 
   const handleConvertToHistory = async () => {
     if (!convertingIdea || !convertReaction) return;
+    // El <input type=number> no impide teclear años fuera de [1900, 2100]; sin
+    // este guard el server los rechaza con un toast genérico. Validamos antes
+    // para dar un mensaje preciso.
+    const year = convertYear ? parseInt(convertYear, 10) : undefined;
+    if (year !== undefined && (!Number.isInteger(year) || year < 1900 || year > 2100)) {
+      toast.error("El año debe estar entre 1900 y 2100.");
+      return;
+    }
     setConverting(true);
     try {
-      const year = convertYear ? parseInt(convertYear, 10) : undefined;
       await createHistoryEntry({
         personId: id,
         giftName: convertingIdea.title,
