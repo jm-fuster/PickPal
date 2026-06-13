@@ -6,9 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { normalizeInterest } from "@/lib/interests";
-
-// Espejo de MAX_BRANDS en convex/validators.ts — si cambia allí, cambiar aquí.
-export const MAX_BRANDS = 10;
+import { MAX_BRANDS } from "@/lib/brands";
 
 interface BrandTagInputProps {
   value: string[];

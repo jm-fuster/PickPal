@@ -226,6 +226,8 @@ Cuando la persona tiene marcas, el prompt añade dos cosas:
 
 Por qué campo propio y no un chip en intereses: el prompt instruye a que `category` referencie los intereses, así que un interés "Nike" acabaría como badge/categoría y contaminaría la semántica del descarte. Las **tiendas** del destinatario no tienen campo: se expresan como marca en texto libre ("Decathlon") y el sistema de `suggestedStores` ya muestra esa tienda cuando la idea encaja.
 
+**Cierre del círculo en la card**: cuando una idea menciona de verdad una marca favorita (en su título o `amazonQuery`), `GiftRecommendationCard` muestra un badge `Tags` con el nombre de la marca junto a las categorías. La detección es `matchFavoriteBrands` en [`src/lib/brands.ts`](../src/lib/brands.ts) (pura, testeada): match normalizado sin acentos/mayúsculas y con límite de palabra para no casar marcas cortas dentro de otra palabra. Es una heurística sobre el texto que ya devolvió la IA — no se le pide al modelo que marque nada. Así el usuario *ve* que el campo funcionó, no solo confía en ello.
+
 ---
 
 ## Pre-selección de ocasión por query param

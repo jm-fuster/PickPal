@@ -301,6 +301,9 @@ function PersonDetailContent({
               <Tags className="size-3.5" aria-hidden />
               Marcas favoritas
             </h2>
+            <p className="text-xs text-muted-foreground">
+              Si tiene predilección por alguna marca, la IA la tendrá en cuenta al sugerir.
+            </p>
             {/* Favorite brands — autosave on each tag change */}
             <BrandTagInput
               value={localBrands}

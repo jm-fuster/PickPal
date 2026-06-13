@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { ExternalLink, ThumbsDown, ThumbsUp } from "lucide-react";
+import { ExternalLink, Tags, ThumbsDown, ThumbsUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { matchFavoriteBrands } from "@/lib/brands";
 import {
   ALL_STORES,
   STORE_ICONS,
@@ -30,6 +31,7 @@ interface GiftRecommendationCardProps {
   index?: number;
   giftType?: GiftType;
   favoriteStores?: StoreId[];
+  favoriteBrands?: string[];
   saved?: boolean;
   onSave?: () => void;
   onDiscard?: () => void;
@@ -40,12 +42,17 @@ export function GiftRecommendationCard({
   index = 0,
   giftType = "fisica",
   favoriteStores,
+  favoriteBrands,
   saved = false,
   onSave,
   onDiscard,
 }: GiftRecommendationCardProps) {
   const isPhysical = giftType === "fisica";
   const isSurprise = giftType === "sorprendeme";
+
+  // Cierra el círculo: si la IA usó de verdad una marca favorita, la card lo
+  // muestra (heurística sobre el texto que ya devolvió, sin pedirle nada extra).
+  const matchedBrands = matchFavoriteBrands(idea, favoriteBrands);
 
   const userFavorites =
     favoriteStores && favoriteStores.length > 0
@@ -139,6 +146,17 @@ export function GiftRecommendationCard({
             )}
           </div>
           <div className="flex flex-wrap gap-1">
+            {matchedBrands.map((brand) => (
+              <Badge
+                key={`brand-${brand}`}
+                variant="outline"
+                className="gap-1 text-xs text-secondary border-secondary/40"
+              >
+                <Tags className="size-3" aria-hidden />
+                <span className="sr-only">Marca favorita: </span>
+                {brand}
+              </Badge>
+            ))}
             {(Array.isArray(idea.category)
               ? idea.category
               : (idea.category as unknown as string).split(" · ")

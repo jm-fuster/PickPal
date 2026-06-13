@@ -437,6 +437,7 @@ export function GiftsPanel({
               index={i}
               giftType={giftType}
               favoriteStores={favoriteStores}
+              favoriteBrands={person.favoriteBrands}
               saved={savedTitles.has(idea.title)}
               onSave={() => handleSave(idea)}
               onDiscard={() => handleDiscard(idea, i)}
