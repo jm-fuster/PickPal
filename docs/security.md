@@ -57,7 +57,7 @@ Por qué importa: sin esto un usuario autenticado puede insertar `notes` de 100 
 
 **Validators actuales:**
 
-- `validatePersonInput` — campos de `people` (nombre, intereses, notas, tallas, alergias, dislikes, avatar).
+- `validatePersonInput` — campos de `people` (nombre, intereses, marcas favoritas — máx. 10 × 40 chars —, notas, tallas, alergias, dislikes, avatar).
 - `validateBudget` — `budgetMin`/`budgetMax` en `importantDates` (cap 100.000€, min ≤ max).
 - `validateDateInput` — campos de `importantDates` (label, año, recurring + budget).
 - `validateRecommendationIdeas` — el array `ideas` que `api.recommendations.upsert` persiste tras una llamada a Gemini. Aplica:

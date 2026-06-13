@@ -36,6 +36,7 @@ const buildPrompt = (
     name: string;
     relationship: string;
     interests: string[];
+    favoriteBrands?: string[];
     notes?: string;
     shoeSize?: string;
     clothingSize?: string;
@@ -55,6 +56,11 @@ const buildPrompt = (
   const budgetText = formatBudget(budgetMin, budgetMax);
   const interestsText =
     person.interests.length > 0 ? person.interests.join(", ") : "sin definir";
+  const brands = (person.favoriteBrands ?? [])
+    .map((b) => b.trim())
+    .filter(Boolean);
+  const brandsLine =
+    brands.length > 0 ? `- Marcas favoritas: ${brands.join(", ")}` : "";
   const notesText = person.notes?.trim() || "ninguna";
 
   const practicalLines = [
@@ -118,19 +124,24 @@ ${storesGuide}`,
       ? `\nTipos de regalos que NO encajan con esta persona (no sugieras ideas de estas categorías):\n${dislikedCategories.map((c) => `- ${c}`).join("\n")}`
       : "";
 
+  const brandsRule =
+    brands.length > 0
+      ? `\n- Marcas favoritas: cuando una idea encaje de forma natural con una de las marcas favoritas de la persona, prioriza un producto de esa marca e incluye el nombre de la marca en "amazonQuery" (ej: "zapatillas Nike running talla 42"). No las fuerces: úsalas como máximo en 3-4 de las 9 ideas para mantener la variedad, y nunca uses una marca como "category".`
+      : "";
+
   return `Genera EXACTAMENTE 9 ideas de regalo para la siguiente persona.
 
 Persona:
 - Nombre: ${person.name.split(/\s+/)[0]}
 - Relación con quien regala: ${relationshipLabel}
 - Intereses: ${interestsText}
-- Notas: ${notesText}
+${brandsLine ? brandsLine + "\n" : ""}- Notas: ${notesText}
 - Presupuesto: ${budgetText}
 - Ocasión: ${occasionLabel}
 ${practicalLines ? practicalLines + "\n" : ""}${historyLines}${dislikedLine}
 
 Reglas:
-${typeRules[giftType]}
+${typeRules[giftType]}${brandsRule}
 - Los precios deben respetar el presupuesto indicado cuando sea posible.
 - Varía las categorías (no todas del mismo tipo).
 - "description" en español, máximo 2 frases, explicando por qué encaja con esta persona.

@@ -7,7 +7,7 @@ Usuario → selecciona un evento del perfil (Select)
   → elige tipo de regalo (tarjeta de tipo)
   → click "Generar 9 ideas"
     → POST /api/recommendations { personId, occasionLabel, giftType }
-    → Busca persona en Convex (intereses, notas, tallas, alergias, dislikes)
+    → Busca persona en Convex (intereses, marcas favoritas, notas, tallas, alergias, dislikes)
     → Busca la importantDate cuyo label == occasionLabel (presupuesto)
     → Busca historial de regalos anteriores (para no repetir)
     → Llama a Gemini 2.5 Flash vía AI SDK con generateObject
@@ -199,6 +199,7 @@ Persona:
 - Nombre: {name}
 - Relación: {relationship}
 - Intereses: {interests} | sin definir
+[Marcas favoritas: {favoriteBrands} — solo si están definidas]
 - Notas: {notes} | ninguna
 - Presupuesto: entre Xmin€ y Xmax€ | sin límite definido
 - Ocasión: {occasionLabel}
@@ -207,11 +208,23 @@ Persona:
 
 Reglas:
 [según giftType: física / experiencia / tiempo-juntos / sorprendeme]
+[Regla de marcas favoritas — solo si hay marcas definidas]
 - Los precios deben respetar el presupuesto indicado cuando sea posible.
 - "description" en español, máximo 2 frases, explicando por qué encaja con esta persona.
 - "category" array JSON de 1-3 intereses concretos del perfil (ej: ["Senderismo","Fotografía"]).
 - Responde en español.
 ```
+
+### Marcas favoritas (`favoriteBrands`)
+
+Campo opcional por persona (`people.favoriteBrands: string[]`, máx. 10 marcas × 40 chars, texto libre). Se edita como chips en `PersonForm` y en la ficha (`BrandTagInput`, sin catálogo de sugerencias — el vocabulario de marcas es abierto).
+
+Cuando la persona tiene marcas, el prompt añade dos cosas:
+
+1. La línea `- Marcas favoritas: LEGO, Nike` en el bloque Persona.
+2. Una regla que pide a Gemini priorizar productos de esas marcas **cuando encajen de forma natural** e incluir el nombre de la marca en `amazonQuery` (mejora directa de los resultados de búsqueda en tienda). Guardarraíles: máximo 3-4 de las 9 ideas con marca (variedad) y **nunca usar una marca como `category`** — las categorías siguen siendo intereses, y así el feedback 👎 (`dislikedCategories`) no acumula nombres de marca.
+
+Por qué campo propio y no un chip en intereses: el prompt instruye a que `category` referencie los intereses, así que un interés "Nike" acabaría como badge/categoría y contaminaría la semántica del descarte. Las **tiendas** del destinatario no tienen campo: se expresan como marca en texto libre ("Decathlon") y el sistema de `suggestedStores` ya muestra esa tienda cuando la idea encaja.
 
 ---
 
@@ -410,6 +423,7 @@ La variable de entorno `GOOGLE_GENERATIVE_AI_API_KEY` debe configurarse en Verce
 
 ### Flujo base
 - [ ] Crear persona con intereses y **añadir una fecha con presupuesto definido**
+- [ ] Añadir 1-2 marcas favoritas (en el alta o en la ficha) → al generar ideas físicas, algunas (no todas) mencionan la marca y su `amazonQuery` la incluye; ninguna marca aparece como badge de categoría
 - [ ] Ir a `/people/[id]/gifts`, el `<Select>` muestra los eventos con presupuesto
 - [ ] Seleccionar evento → botón "Generar" se activa
 - [ ] Click en "Generar" → aparecen 9 skeletons con fondo visible mientras carga

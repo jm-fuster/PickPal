@@ -79,6 +79,7 @@ export const personFormSchema = z
       RELATIONSHIPS.map((r) => r.value) as [string, ...string[]],
     ),
     interests: z.array(z.string().trim().min(1)).max(20),
+    favoriteBrands: z.array(z.string().trim().min(1).max(40)).max(10),
     notes: z.string().max(1000).optional(),
     dates: z.array(importantDateSchema).max(10),
     shoeSize: z.string().max(20).optional(),

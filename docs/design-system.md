@@ -248,7 +248,7 @@ Padding de página responsive en todos los `<main>`: `p-4 sm:p-6 lg:p-8`. No usa
 
 **PersonForm — layout dos columnas en desktop:**
 - A partir de `lg`: `grid grid-cols-2 items-start gap-6`.
-- Columna izquierda: avatar, nombre, relación, intereses, notas.
+- Columna izquierda: avatar, nombre, relación, intereses, marcas favoritas, notas.
 - Columna derecha: card "Datos prácticos" (talla zapato, talla ropa, alergias, no le gusta) + `EventsSection` (si `includeDates` es `true`).
 - Cada bloque semántico usa `space-y-5` entre grupos y `space-y-1.5` label–input–error.
 
@@ -316,6 +316,10 @@ La visibilidad se detecta con un listener de `scroll` en `scrollContainerRef` qu
 - **Desplegable — estilo y a11y**: panel `absolute` bajo el input (`rounded-lg bg-popover shadow-md ring-1 ring-foreground/10 p-1`, mismo registro que `SelectContent`), entrada `animate-in fade-in-0 slide-in-from-top-2 duration-100`. Patrón ARIA combobox completo: input con `role="combobox"`, `aria-expanded`, `aria-controls`, `aria-autocomplete="list"` y `aria-activedescendant`; lista `role="listbox"` con `role="option"` + `aria-selected`. Teclado: ↑/↓ navegan, Enter añade la opción resaltada (o el texto libre si no hay ninguna resaltada — Enter conserva su comportamiento de siempre), Escape cierra. Las opciones usan `onMouseDown={e => e.preventDefault()}` para que el blur del input no cierre la lista antes de que llegue el click.
 - **Dedupe sin acentos**: añadir "futbol" cuando ya existe "Fútbol" no crea duplicado (comparación normalizada).
 - **Tope de 20**: al llegar a `MAX_INTERESTS` (espejo del validador del servidor) desaparecen desplegable y sugerencias.
+
+### Marcas favoritas (`BrandTagInput`)
+
+`src/components/people/BrandTagInput.tsx`. Mismo patrón de chips que `InterestTagInput` (Badge `secondary` con `X`, input + botón `Plus`, dedupe normalizado sin acentos, Enter/coma añade, Backspace con input vacío quita la última) pero **sin desplegable ni sugerencias**: las marcas son un vocabulario abierto (LEGO, Nike, Lush…) que no tiene sentido autocompletar con un catálogo local. Tope de 10 (`MAX_BRANDS`, espejo del validador del servidor); al alcanzarlo el input se deshabilita con placeholder "Máximo alcanzado". Se usa en `PersonForm` (creación, bajo Intereses, con hint de una línea) y en la ficha de persona (autosave en cada cambio, eyebrow `Tags`). El campo alimenta el prompt de la IA — ver `docs/ia-regalos.md` · "Marcas favoritas".
 
 ### Sección Eventos (detalle de persona)
 
@@ -420,6 +424,7 @@ Patrón para "volver a la sección anterior", visible en la parte superior de p�
 | Header — relación | relationship | `onValueChange` del Select (inmediato) |
 | Header — avatar | avatarUrl | Al elegir en el Dialog (inmediato) |
 | Intereses | interests | `onChange` del tag input (cada add/remove) |
+| Marcas favoritas | favoriteBrands | `onChange` del tag input (cada add/remove) |
 | Notas | notes | `onBlur` del textarea |
 | Datos prácticos | shoeSize, clothingSize, allergies, dislikes | `onBlur` de cada campo |
 
@@ -478,6 +483,7 @@ Iconos en uso:
 - `Check` — indicador de guardado exitoso (pill fijo en perfil de persona).
 - `ArrowLeft` — enlace de retroceso ("← Seres queridos", "← [nombre]"). Siempre `size-3.5`.
 - `Star` — eyebrow de sección "Intereses" (ficha y formulario).
+- `Tags` — eyebrow de sección "Marcas favoritas" (ficha).
 - `NotebookPen` — eyebrow de sección "Notas" (ficha).
 - `CalendarDays` — eyebrow de sección "Eventos" (ficha y formulario) y nav "Agenda".
 - `Ruler` — eyebrow de sección "Datos prácticos" (ficha y formulario).

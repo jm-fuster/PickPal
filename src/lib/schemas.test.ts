@@ -6,6 +6,7 @@ describe("personFormSchema", () => {
     name: "María",
     relationship: "friend" as const,
     interests: ["lectura"],
+    favoriteBrands: ["LEGO"],
     notes: "Le gusta el café",
     budgetMinEuros: 20,
     budgetMaxEuros: 50,
@@ -22,6 +23,7 @@ describe("personFormSchema", () => {
         name: "Pedro",
         relationship: "family",
         interests: [],
+        favoriteBrands: [],
         dates: [],
       }).success,
     ).toBe(true);
@@ -87,6 +89,31 @@ describe("personFormSchema", () => {
     const result = personFormSchema.safeParse({
       ...validPerson,
       interests: Array.from({ length: 21 }, (_, i) => `interés ${i}`),
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("acepta marcas favoritas válidas", () => {
+    expect(
+      personFormSchema.safeParse({
+        ...validPerson,
+        favoriteBrands: ["LEGO", "Nike"],
+      }).success,
+    ).toBe(true);
+  });
+
+  it("rechaza más de 10 marcas favoritas", () => {
+    const result = personFormSchema.safeParse({
+      ...validPerson,
+      favoriteBrands: Array.from({ length: 11 }, (_, i) => `Marca ${i}`),
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rechaza una marca de más de 40 caracteres", () => {
+    const result = personFormSchema.safeParse({
+      ...validPerson,
+      favoriteBrands: ["x".repeat(41)],
     });
     expect(result.success).toBe(false);
   });

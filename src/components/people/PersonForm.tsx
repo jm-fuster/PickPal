@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/select";
 
 import { InterestTagInput } from "./InterestTagInput";
+import { BrandTagInput } from "./BrandTagInput";
 import { AvatarPicker } from "./AvatarPicker";
 import { BudgetRangeSlider } from "./BudgetRangeSlider";
 import { DatePickerDialog, MONTHS, formatDate as formatEventDate } from "./DatePickerDialog";
@@ -385,6 +386,7 @@ export function PersonForm({
       name: "",
       relationship: "friend",
       interests: [],
+      favoriteBrands: [],
       notes: "",
       dates: [],
       avatarUrl: undefined,
@@ -468,6 +470,25 @@ export function PersonForm({
             {errors.interests ? (
               <p className="text-xs text-destructive">
                 {errors.interests.message as string}
+              </p>
+            ) : null}
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>Marcas favoritas</Label>
+            <Controller
+              name="favoriteBrands"
+              control={control}
+              render={({ field }) => (
+                <BrandTagInput value={field.value} onChange={field.onChange} />
+              )}
+            />
+            <p className="text-xs text-muted-foreground">
+              Si tiene predilección por alguna marca, la IA la tendrá en cuenta al sugerir.
+            </p>
+            {errors.favoriteBrands ? (
+              <p className="text-xs text-destructive">
+                {errors.favoriteBrands.message as string}
               </p>
             ) : null}
           </div>

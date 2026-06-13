@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { use, useRef, useState } from "react";
 import {
-  ArrowLeft, CalendarDays, CalendarX2, Camera, Check, ExternalLink, Gift, NotebookPen, PencilLine, Repeat2, Ruler, Star, Trash2, ThumbsUp, X,
+  ArrowLeft, CalendarDays, CalendarX2, Camera, Check, ExternalLink, Gift, NotebookPen, PencilLine, Repeat2, Ruler, Star, Tags, Trash2, ThumbsUp, X,
 } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
@@ -36,6 +36,7 @@ import { EditGiftHistoryInline, GiftHistoryForm } from "@/components/people/Gift
 import { LoadingFallback } from "@/components/layout/LoadingFallback";
 import { AvatarPicker } from "@/components/people/AvatarPicker";
 import { InterestTagInput } from "@/components/people/InterestTagInput";
+import { BrandTagInput } from "@/components/people/BrandTagInput";
 import { RELATIONSHIPS, REACTIONS } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import { ALL_STORES, generateStoreSearchUrl, pickEffectiveStores, sanitizeFavoriteStores, STORE_ICONS, STORE_LABELS, type StoreId } from "@/lib/stores";
@@ -83,6 +84,7 @@ function PersonDetailContent({
   const [headerAvatar, setHeaderAvatar] = useState<string | undefined>(person.avatarUrl);
   const [avatarDialogOpen, setAvatarDialogOpen] = useState(false);
   const [localInterests, setLocalInterests] = useState<string[]>(person.interests);
+  const [localBrands, setLocalBrands] = useState<string[]>(person.favoriteBrands ?? []);
   const [localNotes, setLocalNotes] = useState(person.notes ?? "");
   const [localShoeSize, setLocalShoeSize] = useState(person.shoeSize ?? "");
   const [localClothingSize, setLocalClothingSize] = useState(person.clothingSize ?? "");
@@ -109,6 +111,7 @@ function PersonDetailContent({
   // ── Shared save (silent on success, toast on error) ──
   type SaveFields = {
     name?: string; relationship?: string; interests?: string[];
+    favoriteBrands?: string[];
     notes?: string; shoeSize?: string; clothingSize?: string;
     allergies?: string; dislikes?: string; avatarUrl?: string;
   };
@@ -291,6 +294,19 @@ function PersonDetailContent({
               onChange={(tags) => {
                 setLocalInterests(tags);
                 save({ interests: tags });
+              }}
+            />
+
+            <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-1.5 pt-2">
+              <Tags className="size-3.5" aria-hidden />
+              Marcas favoritas
+            </h2>
+            {/* Favorite brands — autosave on each tag change */}
+            <BrandTagInput
+              value={localBrands}
+              onChange={(tags) => {
+                setLocalBrands(tags);
+                save({ favoriteBrands: tags });
               }}
             />
 

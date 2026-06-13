@@ -17,6 +17,7 @@ export default function NewPersonPage() {
       name: values.name,
       relationship: values.relationship,
       interests: values.interests,
+      favoriteBrands: values.favoriteBrands.length > 0 ? values.favoriteBrands : undefined,
       notes: values.notes || undefined,
       shoeSize: values.shoeSize || undefined,
       clothingSize: values.clothingSize || undefined,

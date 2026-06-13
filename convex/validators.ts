@@ -7,6 +7,8 @@ const MAX_NAME = 80;
 const MAX_NOTES = 1000;
 const MAX_INTEREST = 80;
 const MAX_INTERESTS = 20;
+const MAX_BRAND = 40;
+const MAX_BRANDS = 10;
 const MAX_LABEL = 40;
 const MAX_RELATIONSHIP = 32;
 // Convex almacena el presupuesto en céntimos; el form lo expone en euros (0–100.000€).
@@ -157,6 +159,7 @@ export function validatePersonInput(input: {
   name?: string;
   relationship?: string;
   interests?: string[];
+  favoriteBrands?: string[];
   notes?: string;
   shoeSize?: string;
   clothingSize?: string;
@@ -187,6 +190,16 @@ export function validatePersonInput(input: {
     for (const interest of input.interests) {
       if (interest.length > MAX_INTEREST) {
         throw new ConvexError("Interés demasiado largo.");
+      }
+    }
+  }
+  if (input.favoriteBrands !== undefined) {
+    if (input.favoriteBrands.length > MAX_BRANDS) {
+      throw new ConvexError("Demasiadas marcas favoritas.");
+    }
+    for (const brand of input.favoriteBrands) {
+      if (brand.trim().length === 0 || brand.length > MAX_BRAND) {
+        throw new ConvexError("Marca favorita inválida.");
       }
     }
   }

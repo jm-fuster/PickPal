@@ -15,6 +15,7 @@ export default defineSchema({
     name: v.string(),
     relationship: v.string(),
     interests: v.array(v.string()),
+    favoriteBrands: v.optional(v.array(v.string())),
     notes: v.optional(v.string()),
     budgetMin: v.optional(v.number()),
     budgetMax: v.optional(v.number()),
