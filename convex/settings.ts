@@ -49,12 +49,17 @@ export const getMine = query({
     const leadDays =
       normalizeLeadDays(existing?.emailNotifyDaysBefore) ??
       [...DEFAULT_EMAIL_NOTIFY_DAYS_BEFORE];
+    const resolvedEmail = existing?.email ?? identity?.email ?? null;
     return {
       notifyDaysBefore: existing?.notifyDaysBefore ?? DEFAULT_NOTIFY_DAYS_BEFORE,
+      // Sin doc todavía, el default debe reflejar lo que persistirá
+      // `ensureDefaults` (activado solo si hay email). Si no, un usuario sin
+      // email vería el toggle en ON junto al aviso "no encontramos tu email".
       emailNotificationsEnabled:
-        existing?.emailNotificationsEnabled ?? DEFAULT_EMAIL_NOTIFICATIONS_ENABLED,
+        existing?.emailNotificationsEnabled ??
+        (resolvedEmail !== null && DEFAULT_EMAIL_NOTIFICATIONS_ENABLED),
       emailNotifyDaysBefore: leadDays,
-      email: existing?.email ?? identity?.email ?? null,
+      email: resolvedEmail,
       favoriteStores,
     };
   },
@@ -71,10 +76,19 @@ export const ensureDefaults = mutation({
       .withIndex("by_user", (q) => q.eq("clerkUserId", clerkUserId))
       .unique();
 
-    if (existing) return;
-
     const identity = await ctx.auth.getUserIdentity();
     const email = identity?.email ?? null;
+
+    if (existing) {
+      // El email se sella al crear el doc; el cron de avisos usa ese valor. Si
+      // el usuario lo cambia en Clerk y no vuelve a tocar /settings, los correos
+      // irían al antiguo. `ensureDefaults` corre en cada carga, así que lo
+      // resincronizamos aquí cuando hay un email actual y difiere del guardado.
+      if (email !== null && existing.email !== email) {
+        await ctx.db.patch(existing._id, { email });
+      }
+      return;
+    }
 
     await ctx.db.insert("userSettings", {
       clerkUserId,
