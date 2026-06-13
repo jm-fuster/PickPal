@@ -81,9 +81,9 @@ Las ideas generadas se persisten en Convex (`tabla recommendations`) indexadas p
 
 10 generaciones por usuario por día (UTC). El flujo es **reserva atómica + refund**:
 
-1. `api.recommendationUsage.reserve` (mutation): incrementa el contador **antes** de llamar a Gemini. Si la cuota está agotada lanza `ConvexError` y la API devuelve `429`. Al ser una transacción Convex, dos peticiones concurrentes en el límite no pueden superar las 10/día.
+1. `api.recommendationUsage.reserve` (mutation): incrementa el contador **antes** de llamar a Gemini. Si la cuota está agotada lanza `ConvexError` y la API devuelve `429`. Al ser una transacción Convex, dos peticiones concurrentes en el límite no pueden superar las 10/día. `reserve`/`refund` exigen el secreto server-only `CONVEX_SERVER_SECRET` para no ser invocables desde el navegador (ver `docs/security.md` §4).
 2. Gemini se llama solo si la reserva tuvo éxito.
-3. Si Gemini falla de forma **retriable** (503 saturación / timeout), la API llama a `api.recommendationUsage.refund` para devolver la unidad: el usuario no pierde cuota por una caída del proveedor.
+3. Si la generación falla (saturación, timeout, o el JSON de Gemini no valida contra el schema), la API llama a `api.recommendationUsage.refund` para devolver la unidad: como las ideas se persisten solo tras una generación correcta, un fallo nunca cuesta cuota. `refund` recibe el `day` UTC que devolvió `reserve`, así que devuelve la unidad al bucket correcto aunque el fallo cruce la medianoche.
 4. Tras el éxito, `api.recommendations.upsert` persiste las ideas. No hay consumo posterior al guardado, así que no existe el caso "ideas guardadas pero el usuario ve un error de cuota".
 
 La respuesta de la API incluye `remaining` (generaciones que quedan hoy).
@@ -170,11 +170,13 @@ const [person, matchingDate, history, existingRec] = await Promise.all([
   fetchQuery(api.recommendations.getByPersonOccasion, { personId, occasionLabel, giftType }, { token }),
 ]);
 
-// 2. Reservar cuota atómicamente (lanza ConvexError si agotada → 429)
-const { remaining } = await fetchMutation(api.recommendationUsage.reserve, {}, { token });
+// 2. Reservar cuota atómicamente (lanza ConvexError si agotada → 429).
+//    `secret` (CONVEX_SERVER_SECRET) marca la llamada como server-side.
+const { remaining, day } = await fetchMutation(
+  api.recommendationUsage.reserve, { secret: serverSecret }, { token });
 
-// 3. Llamar a Gemini — si falla de forma retriable (503/timeout),
-//    se llama a api.recommendationUsage.refund en el catch
+// 3. Llamar a Gemini — si la generación falla (saturación/timeout/schema),
+//    se llama a api.recommendationUsage.refund({ day, secret }) en el catch
 const { object } = await generateObject({
   model: google("gemini-2.5-flash"),
   schema: giftRecommendationsSchema,   // definido en src/lib/gifts.ts

@@ -262,6 +262,20 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Secreto compartido que autoriza las mutations de cuota (reserve/refund) como
+  // llamadas server-side. Sin él, esas mutations rechazan: prefijo de fallo
+  // claro en logs en vez de un ArgumentValidationError opaco.
+  const serverSecret = process.env.CONVEX_SERVER_SECRET;
+  if (!serverSecret) {
+    console.error(
+      "[recommendations] Falta CONVEX_SERVER_SECRET en el entorno del servidor.",
+    );
+    return NextResponse.json(
+      { error: "Servicio temporalmente no disponible." },
+      { status: 503 },
+    );
+  }
+
   let body: unknown;
   try {
     body = await req.json();
@@ -308,9 +322,11 @@ export async function POST(req: NextRequest) {
   // concurrentes en el límite no pueden pasar de 10/día; si el proveedor
   // falla de forma retriable se devuelve la unidad con `refund` en el catch.
   let remaining: number;
+  let reservedDay: string | undefined;
   try {
-    const reserved = await fetchMutation(api.recommendationUsage.reserve, {}, { token });
+    const reserved = await fetchMutation(api.recommendationUsage.reserve, { secret: serverSecret }, { token });
     remaining = reserved.remaining;
+    reservedDay = reserved.day;
   } catch (err) {
     if (err instanceof ConvexError) {
       return NextResponse.json(
@@ -385,7 +401,7 @@ export async function POST(req: NextRequest) {
     // ≠9 ideas, bloqueo de seguridad, JSON inválido) deben costarle al usuario
     // una de sus generaciones diarias.
     try {
-      await fetchMutation(api.recommendationUsage.refund, {}, { token });
+      await fetchMutation(api.recommendationUsage.refund, { day: reservedDay, secret: serverSecret }, { token });
     } catch (refundErr) {
       console.error("[recommendations] quota refund:", refundErr);
     }

@@ -1,4 +1,4 @@
-import { ConvexError } from "convex/values";
+import { v, ConvexError } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireUser } from "./auth";
 
@@ -11,6 +11,23 @@ const todayUTC = (): string => {
   const dd = String(now.getUTCDate()).padStart(2, "0");
   return `${yyyy}-${mm}-${dd}`;
 };
+
+/**
+ * `reserve`/`refund` modifican la cuota diaria y deben invocarse SOLO desde la
+ * API route server-side (`/api/recommendations`), nunca desde el navegador: un
+ * cliente autenticado que llamara a `refund` directamente podría decrementar su
+ * propio contador y saltarse el límite de 10/día. Como la route las invoca con
+ * `fetchMutation` —que solo alcanza funciones públicas, no `internal*`— las
+ * dejamos públicas pero exigimos un secreto compartido server-only. El valor de
+ * `CONVEX_SERVER_SECRET` debe ser idéntico en el entorno de Convex y en el de
+ * Next. Fail-closed: si no está configurado, se rechaza.
+ */
+function assertServerCaller(secret: string) {
+  const expected = process.env.CONVEX_SERVER_SECRET;
+  if (!expected || secret !== expected) {
+    throw new ConvexError("No autorizado.");
+  }
+}
 
 /**
  * Comprueba si el usuario tiene cuota disponible sin consumirla.
@@ -47,9 +64,10 @@ export const check = query({
  * Devuelve { count, limit, remaining } tras reservar.
  */
 export const reserve = mutation({
-  args: {},
-  handler: async (ctx) => {
+  args: { secret: v.string() },
+  handler: async (ctx, { secret }) => {
     const clerkUserId = await requireUser(ctx);
+    assertServerCaller(secret);
     const day = todayUTC();
 
     const existing = await ctx.db
@@ -76,6 +94,9 @@ export const reserve = mutation({
       });
     }
     return {
+      // Día UTC del bucket reservado. `refund` lo recibe para no fallar si el
+      // fallo del proveedor cruza la medianoche UTC entre reservar y reembolsar.
+      day,
       count: count + 1,
       limit: DAILY_LIMIT,
       remaining: DAILY_LIMIT - (count + 1),
@@ -90,10 +111,13 @@ export const reserve = mutation({
  * el contador de 0.
  */
 export const refund = mutation({
-  args: {},
-  handler: async (ctx) => {
+  // `day` es el bucket que devolvió `reserve`. Opcional por compatibilidad: si
+  // no se pasa, cae al día UTC actual (comportamiento previo).
+  args: { day: v.optional(v.string()), secret: v.string() },
+  handler: async (ctx, { day: providedDay, secret }) => {
     const clerkUserId = await requireUser(ctx);
-    const day = todayUTC();
+    assertServerCaller(secret);
+    const day = providedDay ?? todayUTC();
 
     const existing = await ctx.db
       .query("recommendationUsage")
