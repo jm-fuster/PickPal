@@ -90,15 +90,29 @@ export function GiftRecommendationCard({
             del catálogo de claves (imageKey). La imagen es ilustrativa de la
             categoría, no del producto exacto — decorativa para lectores. */}
         {photo ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={photo.url}
-            alt=""
-            aria-hidden
-            loading="lazy"
-            onError={() => setPhotoFailed(true)}
-            className="h-24 w-full shrink-0 rounded-xl bg-muted/40 object-cover"
-          />
+          <div className="relative h-24 w-full shrink-0 overflow-hidden rounded-xl bg-muted/40">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={photo.url}
+              alt=""
+              aria-hidden
+              loading="lazy"
+              onError={() => setPhotoFailed(true)}
+              className="h-full w-full object-cover"
+            />
+            {/* Atribución Pexels (sus directrices de API piden crédito legible al
+                autor + enlace a Pexels). Overlay para no alterar las alturas fijas
+                de la card. Enlaza al perfil del autor si lo tenemos, si no a Pexels. */}
+            <a
+              href={photo.photographerUrl ?? "https://www.pexels.com"}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${photo.photographer ? `Foto de ${photo.photographer}` : "Foto"} en Pexels (abre en una pestaña nueva)`}
+              className="absolute bottom-0 right-0 max-w-full truncate rounded-tl-md bg-black/45 px-1.5 py-0.5 text-[10px] leading-tight text-white/85 transition-colors hover:text-white"
+            >
+              {photo.photographer ? `Foto: ${photo.photographer} · Pexels` : "Foto: Pexels"}
+            </a>
+          </div>
         ) : (
           <div
             className={cn(

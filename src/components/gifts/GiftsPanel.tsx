@@ -175,6 +175,17 @@ export function GiftsPanel({
     setLoading(true);
     setIdeas(null);
     setSavedTitles(new Set());
+    // Persistimos los descartes pendientes ANTES de regenerar para que el prompt
+    // del servidor incluya las categorías recién descartadas (lee
+    // `dislikedCategories` de la recomendación). El toast de deshacer deja de
+    // aplicar una vez regeneramos. Limpiamos el mapa antes de cerrar los toasts
+    // para que su `onDismiss` no vuelva a llamar a removeIdea.
+    const pending = [...pendingDiscards.current.values()];
+    if (pending.length > 0) {
+      pendingDiscards.current.clear();
+      toast.dismiss();
+      await Promise.all(pending.map((p) => removeIdea(p.args).catch(() => {})));
+    }
     try {
       const res = await fetch("/api/recommendations", {
         method: "POST",
