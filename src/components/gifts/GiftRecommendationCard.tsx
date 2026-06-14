@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import {
   findBrandStore,
   generateBrandSearchUrl,
-  generateBrandStoreSearchUrl,
+  generateBrandStoreUrl,
   matchFavoriteBrands,
 } from "@/lib/brands";
 import {
@@ -33,11 +33,11 @@ const generateGoogleUrl = (query: string) =>
 
 /**
  * Botón de marca favorita matcheada. Si la idea trae la tienda oficial resuelta
- * (`matchedBrandStores`, vía Brandfetch), muestra su logo y enlaza a la tienda
- * (búsqueda acotada con `site:`). Si no se resolvió, cae al botón de búsqueda
- * de marca en Google (Capa 0) con el icono `Tags`. Logo con `bg-white` para que
- * se vea en modo oscuro (igual que los logos de tienda) y fallback al icono si
- * la imagen falla.
+ * (`matchedBrandStores`, vía Brandfetch), muestra su logo y enlaza directo a la
+ * web de la marca. Si no se resolvió, cae al botón de búsqueda de marca en
+ * Google (Capa 0) con el icono `Tags`. Logo con `bg-white` para que se vea en
+ * modo oscuro (igual que los logos de tienda) y fallback al icono si la imagen
+ * falla.
  */
 function BrandStoreLink({
   brand,
@@ -49,7 +49,7 @@ function BrandStoreLink({
   const [logoFailed, setLogoFailed] = useState(false);
   const store = findBrandStore(brand, idea.matchedBrandStores);
   const href = store
-    ? generateBrandStoreSearchUrl(idea.amazonQuery, store.domain)
+    ? generateBrandStoreUrl(store.domain)
     : generateBrandSearchUrl(idea.amazonQuery, brand);
   const logo = store?.logoUrl && !logoFailed ? store.logoUrl : null;
   return (
@@ -57,7 +57,11 @@ function BrandStoreLink({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label={`Buscar ${idea.title} en ${brand} (abre en una pestaña nueva)`}
+      aria-label={
+        store
+          ? `Ir a la tienda de ${brand} (abre en una pestaña nueva)`
+          : `Buscar ${idea.title} en ${brand} (abre en una pestaña nueva)`
+      }
       className={cn(
         buttonVariants({ size: "default", variant: "outline" }),
         "col-span-2 min-w-0 border-secondary/40 text-secondary hover:text-secondary",

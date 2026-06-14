@@ -81,17 +81,13 @@ export function normalizeBrandDomain(raw: string): string | null {
 }
 
 /**
- * Búsqueda del producto acotada a la tienda oficial de la marca
- * (`{producto} site:{dominio}`). Google indexa la web de la marca, así que el
- * resultado aterriza en sus páginas de producto sin depender del buscador
- * propio de cada tienda (que varía y a menudo no es enlazable).
+ * Enlace directo a la web oficial de la marca. El dominio ya viene saneado por
+ * `normalizeBrandDomain` (hostname sin protocolo/path/www), así que es seguro
+ * componer la URL. Lleva a la tienda directamente — no a una búsqueda — porque
+ * es lo que el usuario espera al pulsar el botón de una marca con su logo.
  */
-export function generateBrandStoreSearchUrl(
-  query: string,
-  domain: string,
-): string {
-  const q = `${query.trim()} site:${domain}`.trim();
-  return `https://www.google.com/search?q=${encodeURIComponent(q)}`;
+export function generateBrandStoreUrl(domain: string): string {
+  return `https://${domain}`;
 }
 
 /**

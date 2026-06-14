@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   findBrandStore,
   generateBrandSearchUrl,
-  generateBrandStoreSearchUrl,
+  generateBrandStoreUrl,
   matchFavoriteBrands,
   normalizeBrandDomain,
 } from "./brands";
@@ -104,10 +104,10 @@ describe("normalizeBrandDomain", () => {
   });
 });
 
-describe("generateBrandStoreSearchUrl", () => {
-  it("acota la búsqueda del producto al dominio de la tienda con site:", () => {
-    expect(generateBrandStoreSearchUrl("top blanco", "brandymelville.com")).toBe(
-      "https://www.google.com/search?q=top%20blanco%20site%3Abrandymelville.com",
+describe("generateBrandStoreUrl", () => {
+  it("enlaza directo a la web oficial de la marca", () => {
+    expect(generateBrandStoreUrl("brandymelville.com")).toBe(
+      "https://brandymelville.com",
     );
   });
 });
