@@ -230,6 +230,8 @@ Por qué campo propio y no un chip en intereses: el prompt instruye a que `categ
 
 **Cierre del círculo en la card**: cuando una idea menciona de verdad una marca favorita (en su título o `amazonQuery`), `GiftRecommendationCard` muestra un badge `Tags` con el nombre de la marca junto a las categorías. La detección es `matchFavoriteBrands` en [`src/lib/brands.ts`](../src/lib/brands.ts) (pura, testeada): match normalizado sin acentos/mayúsculas y con límite de palabra para no casar marcas cortas dentro de otra palabra. Es una heurística sobre el texto que ya devolvió la IA — no se le pide al modelo que marque nada. Así el usuario *ve* que el campo funcionó, no solo confía en ello.
 
+**Botón de marca accionable** (regalos físicos): además del badge, por cada marca matcheada se muestra un botón a ancho completo, *encima* de los chips de tienda, que enlaza a una búsqueda en Google acotada a la marca (`generateBrandSearchUrl`, mismo `src/lib/brands.ts`). Motivo: el badge solo decoraba; el botón de compra seguía apuntando a un marketplace (Amazon) que **a menudo no vende la marca** — el caso típico son marcas DTC de distribución propia (p. ej. Brandy Melville), que solo venden en su web. Buscar `"{producto} {marca}"` en Google coloca la tienda oficial como primer resultado, así que el botón lleva a un sitio con stock real en vez de a una búsqueda de marketplace vacía. Es la misma vía determinista que el botón a Google de los regalos no físicos: no añade APIs, claves ni endpoints. Los chips de tienda se mantienen debajo (algunas marcas sí están en Amazon). Un resolver marca→tienda oficial (tipo Brandfetch) para enlazar directo a la tienda con su logo queda como mejora futura.
+
 ---
 
 ## Pre-selección de ocasión por query param

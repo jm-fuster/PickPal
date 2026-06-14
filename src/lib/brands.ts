@@ -36,3 +36,26 @@ export function matchFavoriteBrands(
   }
   return matched;
 }
+
+/**
+ * URL de búsqueda acotada a una marca favorita. Cuando una idea encaja con una
+ * marca (p. ej. "Brandy Melville"), esa marca a menudo NO vende en los
+ * marketplaces genéricos (Amazon, El Corte Inglés…) porque es de distribución
+ * propia (DTC). Buscar en Google "{producto} {marca}" coloca la tienda oficial
+ * de la marca como primer resultado, así que el botón de marca lleva ahí en
+ * vez de a una búsqueda de marketplace que saldría vacía.
+ *
+ * Misma vía que el botón a Google de los regalos no físicos: no añade APIs,
+ * claves ni endpoints — solo construye una URL de búsqueda determinista.
+ *
+ * Si la query del producto ya contiene la marca (la IA la metió en
+ * `amazonQuery`), no la duplica.
+ */
+export function generateBrandSearchUrl(query: string, brand: string): string {
+  const q = query.trim();
+  const b = brand.trim();
+  const alreadyHasBrand =
+    b !== "" && normalizeInterest(q).includes(normalizeInterest(b));
+  const search = b === "" || alreadyHasBrand ? q : `${q} ${b}`;
+  return `https://www.google.com/search?q=${encodeURIComponent(search.trim())}`;
+}

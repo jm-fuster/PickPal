@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { matchFavoriteBrands } from "./brands";
+import { generateBrandSearchUrl, matchFavoriteBrands } from "./brands";
 
 const idea = (title: string, amazonQuery: string) => ({ title, amazonQuery });
 
@@ -53,5 +53,31 @@ describe("matchFavoriteBrands", () => {
     expect(
       matchFavoriteBrands(idea("Libro de cocina", "libro cocina italiana"), ["Apple", "Nike"]),
     ).toEqual([]);
+  });
+});
+
+describe("generateBrandSearchUrl", () => {
+  it("añade la marca a la query del producto y apunta a Google", () => {
+    expect(generateBrandSearchUrl("top blanco", "Brandy Melville")).toBe(
+      "https://www.google.com/search?q=top%20blanco%20Brandy%20Melville",
+    );
+  });
+
+  it("no duplica la marca si la query ya la contiene", () => {
+    expect(generateBrandSearchUrl("top brandy melville blanco", "Brandy Melville")).toBe(
+      "https://www.google.com/search?q=top%20brandy%20melville%20blanco",
+    );
+  });
+
+  it("ignora acentos y mayúsculas al deduplicar la marca", () => {
+    expect(generateBrandSearchUrl("zapatillas Núñez", "nunez")).toBe(
+      "https://www.google.com/search?q=zapatillas%20N%C3%BA%C3%B1ez",
+    );
+  });
+
+  it("cae a solo la query cuando la marca está vacía", () => {
+    expect(generateBrandSearchUrl("vela aromática", "")).toBe(
+      "https://www.google.com/search?q=vela%20arom%C3%A1tica",
+    );
   });
 });

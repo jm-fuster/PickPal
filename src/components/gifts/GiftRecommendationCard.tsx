@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { matchFavoriteBrands } from "@/lib/brands";
+import { generateBrandSearchUrl, matchFavoriteBrands } from "@/lib/brands";
 import {
   ALL_STORES,
   STORE_ICONS,
@@ -195,6 +195,29 @@ export function GiftRecommendationCard({
             isPhysical ? (
               <div className="space-y-1.5">
                 <div className="grid grid-cols-2 gap-2">
+                  {/* Marcas favoritas matcheadas: van primero y a ancho completo
+                      porque son la vía que de verdad funciona. Muchas marcas
+                      (DTC tipo Brandy Melville) no están en los marketplaces, así
+                      que su botón busca en Google acotado a la marca en vez de
+                      caer en una búsqueda de marketplace vacía. Tinte secondary
+                      + icono Tags para hermanarlo con el badge de marca. */}
+                  {matchedBrands.map((brand) => (
+                    <a
+                      key={`brand-${brand}`}
+                      href={generateBrandSearchUrl(idea.amazonQuery, brand)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Buscar ${idea.title} en ${brand} (abre en una pestaña nueva)`}
+                      className={cn(
+                        buttonVariants({ size: "default", variant: "outline" }),
+                        "col-span-2 min-w-0 border-secondary/40 text-secondary hover:text-secondary",
+                      )}
+                    >
+                      <Tags className="size-4 shrink-0" aria-hidden />
+                      <span className="truncate">{brand}</span>
+                      <ExternalLink className="size-3.5 shrink-0" aria-hidden />
+                    </a>
+                  ))}
                   {storesToRender.map((store, i) => {
                     const isLastOdd =
                       storesToRender.length % 2 === 1 &&
