@@ -504,7 +504,7 @@ Iconos en uso:
 - **Botones icon-only** necesitan `aria-label` y `title`. Usar variant `ghost` y size `icon` o `icon-sm`.
 - **Botones con icono + texto**: el icono va antes del texto, separado por el gap nativo del botón. No añadir `mr-2`.
 - **No mezclar sets**: no usar Heroicons / Phosphor / SVG inline. Si lucide no tiene un icono concreto, abrir issue en pendientes antes de meter algo ad-hoc.
-- **No usar emojis en botones, chips ni tarjetas de acción**: los emojis son solo para empty states. En su lugar usar el icono de lucide más cercano.
+- **NADA de emojis en ningún sitio de la UI** (botones, chips, tarjetas, headers, navegación y también empty states). Siempre el icono de lucide más cercano. Equivalencias usadas en empty states: libreta → `Notebook`, café/calma → `Coffee`, ideas/destellos → `Sparkles`.
 - **Iconos decorativos**: `aria-hidden`. Solo los que aportan información llevan label.
 
 ---
@@ -515,7 +515,9 @@ Patrón consolidado. Vivo en [`src/app/(app)/people/page.tsx`](../src/app/(app)/
 
 ```tsx
 <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-14 text-center">
-  <div className="text-4xl mb-3" aria-hidden>📓</div>
+  <div className="mb-3 flex justify-center" aria-hidden>
+    <Notebook className="size-9 text-muted-foreground" />
+  </div>
   <h2 className="text-2xl font-medium mb-2">Una libreta en blanco</h2>
   <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
     Texto invitador, 1-2 frases, voz humana, sugiere acción concreta.
@@ -527,7 +529,7 @@ Patrón consolidado. Vivo en [`src/app/(app)/people/page.tsx`](../src/app/(app)/
 ```
 
 **Reglas:**
-- Emoji decorativo (📓 ☕ ✨) **solo aquí**. Nunca en navegación, headers, badges ni step cards.
+- Icono decorativo lucide (`Notebook`, `Coffee`, `Sparkles`) con `size-9 text-muted-foreground`, centrado con `flex justify-center` y `aria-hidden`. **NADA de emojis** (ni aquí ni en navegación, headers, badges o step cards).
 - Título h2 en serif (heredado del base layer), **frase con voz**, no etiqueta funcional. "Una libreta en blanco" sí; "Sin datos" no.
 - Container: `rounded-2xl border-dashed`. Punteado refuerza "este sitio está esperando algo".
 - **El CTA debe ir al destino más directo**: el empty state del dashboard lleva a `/people/new` ("Añadir ser querido"), no a `/people`. El usuario ya sabe que necesita crear una persona — no hay que darle un paso intermedio.
@@ -535,10 +537,10 @@ Patrón consolidado. Vivo en [`src/app/(app)/people/page.tsx`](../src/app/(app)/
 
 **Agenda — dos empty states** (`src/app/(app)/agenda/page.tsx`):
 
-| Situación | Emoji | Título | CTA |
+| Situación | Icono | Título | CTA |
 |---|---|---|---|
-| Sin personas (`people.length === 0`) | ☕ | "Empieza aquí" | "Añadir ser querido" → `/seres-queridos/new` |
-| Hay personas pero sin eventos próximos | ☕ | "Todo tranquilo" | "Ver seres queridos" → `/seres-queridos` |
+| Sin personas (`people.length === 0`) | `Coffee` | "Empieza aquí" | "Añadir ser querido" → `/seres-queridos/new` |
+| Hay personas pero sin eventos próximos | `Coffee` | "Todo tranquilo" | "Ver seres queridos" → `/seres-queridos` |
 
 La página hace dos queries en paralelo: `api.importantDates.getUpcoming` y `api.people.getAll`. Si `filtered.length === 0`, se comprueba `people.length` para decidir qué empty state mostrar. Si `people` todavía carga, se muestra el skeleton (no el empty state) para evitar un flash.
 

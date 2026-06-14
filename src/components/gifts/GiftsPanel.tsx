@@ -463,8 +463,8 @@ export function GiftsPanel({
       ) : showIdeas ? (
         /* El usuario descartó las 9 ideas: estado vacío con CTA, no un grid en blanco */
         <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-14 text-center">
-          <div className="text-4xl mb-3" aria-hidden>
-            ✨
+          <div className="mb-3 flex justify-center" aria-hidden>
+            <Sparkles className="size-9 text-muted-foreground" />
           </div>
           <h2 className="text-2xl font-medium mb-2">Has descartado todas las ideas</h2>
           <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-6">
@@ -477,8 +477,8 @@ export function GiftsPanel({
         </div>
       ) : (
         <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-14 text-center">
-          <div className="text-4xl mb-3" aria-hidden>
-            ✨
+          <div className="mb-3 flex justify-center" aria-hidden>
+            <Sparkles className="size-9 text-muted-foreground" />
           </div>
           {events && events.length === 0 ? (
             <>

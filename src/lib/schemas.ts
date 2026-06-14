@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+// Mensajes de validación por defecto en español (campos sin mensaje propio:
+// `.max()`, `.url()`, `.min()`, etc.). Sin esto Zod emite textos en inglés.
+z.config(z.locales.es());
+
 export const REACTIONS = [
   { value: "loved", label: "Le encantó" },
   { value: "ok", label: "Le dio igual" },

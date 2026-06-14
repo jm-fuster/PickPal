@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { Coffee } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
@@ -67,8 +68,8 @@ export default function DashboardPage() {
       ) : filtered.length === 0 ? (
         people && people.length > 0 ? (
           <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-14 text-center">
-            <div className="text-4xl mb-3" aria-hidden>
-              ☕
+            <div className="mb-3 flex justify-center" aria-hidden>
+              <Coffee className="size-9 text-muted-foreground" />
             </div>
             <h2 className="text-2xl font-medium mb-2">Todo tranquilo</h2>
             <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
@@ -83,8 +84,8 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-14 text-center">
-            <div className="text-4xl mb-3" aria-hidden>
-              ☕
+            <div className="mb-3 flex justify-center" aria-hidden>
+              <Coffee className="size-9 text-muted-foreground" />
             </div>
             <h2 className="text-2xl font-medium mb-2">Empieza aquí</h2>
             <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
