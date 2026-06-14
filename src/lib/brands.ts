@@ -91,6 +91,20 @@ export function generateBrandStoreUrl(domain: string): string {
 }
 
 /**
+ * Búsqueda del producto DENTRO de la web de la marca, usando la ruta de
+ * búsqueda estándar `/search?q=` (Shopify y muchas otras). Solo se usa cuando
+ * la resolución confirmó que la tienda la admite (`supportsSearch`), para no
+ * enlazar a una ruta inventada que daría 404. El dominio ya viene saneado por
+ * `normalizeBrandDomain`.
+ */
+export function generateBrandProductSearchUrl(
+  domain: string,
+  query: string,
+): string {
+  return `https://${domain}/search?q=${encodeURIComponent(query.trim())}`;
+}
+
+/**
  * Tienda resuelta para una marca matcheada, comparando el nombre de forma
  * normalizada (sin acentos/mayúsculas). Devuelve undefined si esa marca no se
  * resolvió — la card cae al botón de búsqueda (Capa 0).

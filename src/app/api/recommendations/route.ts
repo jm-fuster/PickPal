@@ -232,14 +232,46 @@ async function attachStockImages(
 
 const BRANDFETCH_LOGO_PREFIX = "https://cdn.brandfetch.io/";
 
-type BrandStoreResolution = { brand: string; domain: string; logoUrl?: string };
+type BrandStoreResolution = {
+  brand: string;
+  domain: string;
+  logoUrl?: string;
+  supportsSearch?: boolean;
+};
+
+/**
+ * Detecta si una tienda es Shopify sondeando `/products.json`, que en Shopify
+ * devuelve 200 + JSON con `products`. Es la huella estándar de Shopify y la
+ * señal usada para saber que la ruta `/search?q=` existe. Conservador: solo
+ * devuelve true ante un 200 JSON con `products` (sin seguir redirecciones, que
+ * indicarían password/checkout), así que nunca da un falso positivo que
+ * enlazaría a una búsqueda rota. Best-effort: ante cualquier duda, false (la
+ * card cae a la home de la marca). El dominio ya viene saneado como hostname.
+ */
+async function storeSupportsSearch(domain: string): Promise<boolean> {
+  try {
+    const res = await fetch(`https://${domain}/products.json?limit=1`, {
+      signal: AbortSignal.timeout(2500),
+      redirect: "manual",
+    });
+    if (res.status !== 200) return false;
+    if (!(res.headers.get("content-type") ?? "").includes("application/json")) {
+      return false;
+    }
+    const data = (await res.json()) as { products?: unknown };
+    return Array.isArray(data.products);
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Resuelve una marca a su tienda oficial vía Brandfetch Search: una sola
- * llamada devuelve dominio + logo (`icon`). Best-effort: sin clave, sin
- * resultado, timeout o error → undefined, y la card cae al botón de búsqueda
- * de marca (Capa 0). Nunca lanza. El logo se acota al CDN de Brandfetch (mismo
- * patrón de allowlist por prefijo que las fotos de Pexels).
+ * llamada devuelve dominio + logo (`icon`). Tras resolver, sondea si la tienda
+ * admite búsqueda (`/search?q=`) para poder enlazar al producto dentro de la
+ * web. Best-effort: sin clave, sin resultado, timeout o error → undefined, y la
+ * card cae al botón de búsqueda de marca (Capa 0). Nunca lanza. El logo se
+ * acota al CDN de Brandfetch (mismo patrón de allowlist por prefijo que Pexels).
  */
 async function resolveBrandStore(
   clientId: string,
@@ -264,6 +296,9 @@ async function resolveBrandStore(
       first.icon.length <= 512
     ) {
       resolution.logoUrl = first.icon;
+    }
+    if (await storeSupportsSearch(domain)) {
+      resolution.supportsSearch = true;
     }
     return resolution;
   } catch {

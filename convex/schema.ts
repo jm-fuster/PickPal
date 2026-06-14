@@ -108,6 +108,7 @@ export default defineSchema({
               brand: v.string(),
               domain: v.string(),
               logoUrl: v.optional(v.string()),
+              supportsSearch: v.optional(v.boolean()),
             }),
           ),
         ),

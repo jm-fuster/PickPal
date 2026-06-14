@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   findBrandStore,
+  generateBrandProductSearchUrl,
   generateBrandSearchUrl,
   generateBrandStoreUrl,
   matchFavoriteBrands,
@@ -109,6 +110,14 @@ describe("generateBrandStoreUrl", () => {
     expect(generateBrandStoreUrl("brandymelville.com")).toBe(
       "https://brandymelville.com",
     );
+  });
+});
+
+describe("generateBrandProductSearchUrl", () => {
+  it("busca el producto dentro de la web de la marca (ruta /search?q=)", () => {
+    expect(
+      generateBrandProductSearchUrl("brandymelville.com", "top blanco"),
+    ).toBe("https://brandymelville.com/search?q=top%20blanco");
   });
 });
 

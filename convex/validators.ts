@@ -67,6 +67,9 @@ type MatchedBrandStore = {
   brand: string;
   domain: string;
   logoUrl?: string;
+  // Bool sin riesgo de tamaño/contenido: Convex ya valida el tipo en el
+  // ideaValidator; no necesita comprobación adicional aquí.
+  supportsSearch?: boolean;
 };
 
 function validateMatchedBrandStores(

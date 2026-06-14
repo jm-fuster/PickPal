@@ -95,6 +95,11 @@ export const matchedBrandStoreSchema = z.object({
   brand: z.string().min(1).max(40),
   domain: z.string().min(1).max(253),
   logoUrl: z.string().url().max(512).optional(),
+  // true si la tienda admite la ruta de búsqueda estándar `/search?q=`
+  // (detectado como Shopify al generar). Permite enlazar a la búsqueda del
+  // producto dentro de la web de la marca en vez de a su home. Sin esto (o
+  // false), el botón cae a la home — nunca a una ruta de búsqueda inventada.
+  supportsSearch: z.boolean().optional(),
 });
 
 export type MatchedBrandStore = z.infer<typeof matchedBrandStoreSchema>;
