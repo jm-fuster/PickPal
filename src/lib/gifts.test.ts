@@ -15,15 +15,19 @@ describe("giftRecommendationsSchema", () => {
 
   const nineIdeas = Array.from({ length: 9 }, () => validIdea);
 
-  it("acepta exactamente 9 ideas", () => {
+  it("acepta entre 6 y 9 ideas", () => {
     expect(
       giftRecommendationsSchema.safeParse({ ideas: nineIdeas }).success,
     ).toBe(true);
+    expect(
+      giftRecommendationsSchema.safeParse({ ideas: nineIdeas.slice(0, 6) })
+        .success,
+    ).toBe(true);
   });
 
-  it("rechaza menos de 9 ideas", () => {
+  it("rechaza menos de 6 ideas", () => {
     expect(
-      giftRecommendationsSchema.safeParse({ ideas: nineIdeas.slice(0, 8) })
+      giftRecommendationsSchema.safeParse({ ideas: nineIdeas.slice(0, 5) })
         .success,
     ).toBe(false);
   });

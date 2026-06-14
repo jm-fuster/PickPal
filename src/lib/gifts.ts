@@ -94,12 +94,16 @@ export const giftRecommendationSchema = baseRecommendationSchema.extend({
   image: giftStockImageSchema.optional(),
 });
 
+// El prompt pide 9 ideas, pero aceptamos 6–9: una tanda con alguna idea de
+// menos no debe tirarse entera (antes `.length(9)` exacto fallaba toda la
+// generación). El validador server-side (`validateRecommendationIdeas`) y la UI
+// ya toleran < 9.
 export const giftRecommendationsSchema = z.object({
-  ideas: z.array(recommendationWithStoresSchema).length(9),
+  ideas: z.array(recommendationWithStoresSchema).min(6).max(9),
 });
 
 export const giftRecommendationsSchemaNoStores = z.object({
-  ideas: z.array(generatedIdeaSchema).length(9),
+  ideas: z.array(generatedIdeaSchema).min(6).max(9),
 });
 
 export type GiftRecommendation = z.infer<typeof giftRecommendationSchema>;

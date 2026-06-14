@@ -351,15 +351,12 @@ export async function POST(req: NextRequest) {
       model: google("gemini-2.5-flash"),
       schema: noStores ? giftRecommendationsSchemaNoStores : giftRecommendationsSchema,
       prompt,
-      // Coste/cuota: desactivamos el "thinking" de Gemini 2.5 (sus tokens cuentan
-      // como salida) y limitamos los reintentos a 1, para no multiplicar peticiones
-      // contra la cuota cuando una respuesta no valida contra el schema.
-      maxRetries: 1,
-      providerOptions: {
-        google: {
-          thinkingConfig: { thinkingBudget: 0 },
-        },
-      },
+      // Thinking dinámico (default de Gemini 2.5): desactivarlo con
+      // `thinkingBudget: 0` degradaba la fiabilidad del structured output
+      // (9 objetos con enums/arrays) y provocaba "response did not match schema".
+      // `maxRetries: 2` da margen ante una tanda que no valide. El coste extra de
+      // tokens es asumible en free tier con el tope de 10 generaciones/día.
+      maxRetries: 2,
     });
 
     // La cuota ya quedó reservada antes de llamar a Gemini; aquí solo
