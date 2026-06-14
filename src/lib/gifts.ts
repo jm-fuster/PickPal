@@ -85,13 +85,28 @@ export const giftStockImageSchema = z.object({
 
 export type GiftStockImage = z.infer<typeof giftStockImageSchema>;
 
-// Tipo de cara a la UI: imageKey/image opcionales porque las ideas
-// persistidas antes de estos campos no los tienen (la card cae al fallback
-// por tipo de regalo). Sin imageQuery: solo existe durante la generación.
+// Tienda oficial de una marca favorita, resuelta server-side (Brandfetch) tras
+// la generación y adjuntada a la idea — igual que `image` (Pexels). Opcional en
+// todos los niveles: sin BRANDFETCH_CLIENT_ID, sin match o sin resolución, la
+// card cae al botón de búsqueda de marca (Capa 0). `domain` validado como
+// hostname y `logoUrl` por prefijo del CDN de Brandfetch en convex/validators.ts
+// antes de persistir.
+export const matchedBrandStoreSchema = z.object({
+  brand: z.string().min(1).max(40),
+  domain: z.string().min(1).max(253),
+  logoUrl: z.string().url().max(512).optional(),
+});
+
+export type MatchedBrandStore = z.infer<typeof matchedBrandStoreSchema>;
+
+// Tipo de cara a la UI: imageKey/image/matchedBrandStores opcionales porque las
+// ideas persistidas antes de estos campos no los tienen (la card cae al
+// fallback correspondiente). Sin imageQuery: solo existe durante la generación.
 export const giftRecommendationSchema = baseRecommendationSchema.extend({
   suggestedStores: z.array(z.enum(STORE_IDS)).max(STORE_IDS.length).optional(),
   imageKey: z.enum(GIFT_IMAGE_KEYS).optional(),
   image: giftStockImageSchema.optional(),
+  matchedBrandStores: z.array(matchedBrandStoreSchema).max(10).optional(),
 });
 
 // El prompt pide 9 ideas, pero aceptamos 6–9: una tanda con alguna idea de

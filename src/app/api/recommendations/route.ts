@@ -10,6 +10,8 @@ import type { Id } from "../../../../convex/_generated/dataModel";
 import { giftRecommendationsSchema, giftRecommendationsSchemaNoStores, GIFT_TYPES, type GiftType } from "@/lib/gifts";
 import { RELATIONSHIPS, REACTIONS } from "@/lib/schemas";
 import { STORE_IDS } from "@/lib/stores";
+import { matchFavoriteBrands, normalizeBrandDomain } from "@/lib/brands";
+import { normalizeInterest } from "@/lib/interests";
 
 const GIFT_TYPE_VALUES = GIFT_TYPES.map((t) => t.value) as [GiftType, ...GiftType[]];
 
@@ -228,6 +230,97 @@ async function attachStockImages(
   );
 }
 
+const BRANDFETCH_LOGO_PREFIX = "https://cdn.brandfetch.io/";
+
+type BrandStoreResolution = { brand: string; domain: string; logoUrl?: string };
+
+/**
+ * Resuelve una marca a su tienda oficial vía Brandfetch Search: una sola
+ * llamada devuelve dominio + logo (`icon`). Best-effort: sin clave, sin
+ * resultado, timeout o error → undefined, y la card cae al botón de búsqueda
+ * de marca (Capa 0). Nunca lanza. El logo se acota al CDN de Brandfetch (mismo
+ * patrón de allowlist por prefijo que las fotos de Pexels).
+ */
+async function resolveBrandStore(
+  clientId: string,
+  brand: string,
+): Promise<BrandStoreResolution | undefined> {
+  try {
+    const res = await fetch(
+      `https://api.brandfetch.io/v2/search/${encodeURIComponent(brand)}?c=${encodeURIComponent(clientId)}`,
+      // La resolución es decorativa: si Brandfetch va lento, no bloquea la tanda.
+      { signal: AbortSignal.timeout(4000) },
+    );
+    if (!res.ok) return undefined;
+    const data = (await res.json()) as Array<{ domain?: string; icon?: string }>;
+    const first = Array.isArray(data) ? data[0] : undefined;
+    if (!first?.domain) return undefined;
+    const domain = normalizeBrandDomain(first.domain);
+    if (!domain) return undefined;
+    const resolution: BrandStoreResolution = { brand: brand.trim(), domain };
+    if (
+      typeof first.icon === "string" &&
+      first.icon.startsWith(BRANDFETCH_LOGO_PREFIX) &&
+      first.icon.length <= 512
+    ) {
+      resolution.logoUrl = first.icon;
+    }
+    return resolution;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Adjunta a cada idea las tiendas oficiales (`matchedBrandStores`) de las
+ * marcas favoritas que menciona, resueltas vía Brandfetch. Mejora progresiva,
+ * igual que las fotos de Pexels: sin BRANDFETCH_CLIENT_ID, sin marcas o sin
+ * resolución, las ideas salen sin el campo y la card usa el botón de búsqueda
+ * de marca (Capa 0). Nunca lanza. Sin caché: el volumen está acotado por la
+ * cuota de 10 generaciones/día × las pocas marcas que matchea una tanda.
+ */
+async function attachBrandStores(
+  ideas: Array<Record<string, unknown>>,
+  favoriteBrands: string[] | undefined,
+): Promise<Array<Record<string, unknown>>> {
+  const clientId = process.env.BRANDFETCH_CLIENT_ID;
+  const brands = (favoriteBrands ?? []).map((b) => b.trim()).filter(Boolean);
+  if (!clientId || brands.length === 0) return ideas;
+
+  const perIdeaMatched = ideas.map((idea) =>
+    matchFavoriteBrands(
+      {
+        title: typeof idea.title === "string" ? idea.title : "",
+        amazonQuery: typeof idea.amazonQuery === "string" ? idea.amazonQuery : "",
+      },
+      brands,
+    ),
+  );
+
+  // Set único de marcas realmente mencionadas en esta tanda (normalizada → display).
+  const unique = new Map<string, string>();
+  for (const matched of perIdeaMatched) {
+    for (const b of matched) unique.set(normalizeInterest(b), b);
+  }
+  if (unique.size === 0) return ideas;
+
+  const resolved = new Map<string, BrandStoreResolution>();
+  await Promise.all(
+    [...unique].map(async ([key, display]) => {
+      const r = await resolveBrandStore(clientId, display);
+      if (r) resolved.set(key, r);
+    }),
+  );
+  if (resolved.size === 0) return ideas;
+
+  return ideas.map((idea, i) => {
+    const stores = perIdeaMatched[i]
+      .map((b) => resolved.get(normalizeInterest(b)))
+      .filter((r): r is BrandStoreResolution => Boolean(r));
+    return stores.length > 0 ? { ...idea, matchedBrandStores: stores } : idea;
+  });
+}
+
 function sanitizeIdeas(
   ideas: Array<Record<string, unknown>>,
 ): Array<Record<string, unknown>> {
@@ -373,10 +466,13 @@ export async function POST(req: NextRequest) {
       return true;
     });
     const ideasWithImages = await attachStockImages(uniqueIdeas);
+    // Resuelve la tienda oficial de las marcas favoritas matcheadas (Brandfetch).
+    // Best-effort: degrada al botón de búsqueda de marca si no hay clave/resolución.
+    const ideasWithBrands = await attachBrandStores(ideasWithImages, person.favoriteBrands);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await fetchMutation(api.recommendations.upsert, { personId, occasionLabel, giftType, ideas: ideasWithImages as any }, { token });
+    await fetchMutation(api.recommendations.upsert, { personId, occasionLabel, giftType, ideas: ideasWithBrands as any }, { token });
 
-    return NextResponse.json({ ideas: ideasWithImages, remaining });
+    return NextResponse.json({ ideas: ideasWithBrands, remaining });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error("[recommendations] gemini:", message);

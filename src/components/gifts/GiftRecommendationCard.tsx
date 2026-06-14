@@ -6,7 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { generateBrandSearchUrl, matchFavoriteBrands } from "@/lib/brands";
+import {
+  findBrandStore,
+  generateBrandSearchUrl,
+  generateBrandStoreSearchUrl,
+  matchFavoriteBrands,
+} from "@/lib/brands";
 import {
   ALL_STORES,
   STORE_ICONS,
@@ -25,6 +30,57 @@ const formatRange = (min: number, max: number) =>
 
 const generateGoogleUrl = (query: string) =>
   `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+
+/**
+ * Botón de marca favorita matcheada. Si la idea trae la tienda oficial resuelta
+ * (`matchedBrandStores`, vía Brandfetch), muestra su logo y enlaza a la tienda
+ * (búsqueda acotada con `site:`). Si no se resolvió, cae al botón de búsqueda
+ * de marca en Google (Capa 0) con el icono `Tags`. Logo con `bg-white` para que
+ * se vea en modo oscuro (igual que los logos de tienda) y fallback al icono si
+ * la imagen falla.
+ */
+function BrandStoreLink({
+  brand,
+  idea,
+}: {
+  brand: string;
+  idea: GiftRecommendation;
+}) {
+  const [logoFailed, setLogoFailed] = useState(false);
+  const store = findBrandStore(brand, idea.matchedBrandStores);
+  const href = store
+    ? generateBrandStoreSearchUrl(idea.amazonQuery, store.domain)
+    : generateBrandSearchUrl(idea.amazonQuery, brand);
+  const logo = store?.logoUrl && !logoFailed ? store.logoUrl : null;
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`Buscar ${idea.title} en ${brand} (abre en una pestaña nueva)`}
+      className={cn(
+        buttonVariants({ size: "default", variant: "outline" }),
+        "col-span-2 min-w-0 border-secondary/40 text-secondary hover:text-secondary",
+      )}
+    >
+      {logo ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={logo}
+          alt=""
+          aria-hidden
+          loading="lazy"
+          onError={() => setLogoFailed(true)}
+          className="size-4 shrink-0 rounded-sm object-contain bg-white p-px"
+        />
+      ) : (
+        <Tags className="size-4 shrink-0" aria-hidden />
+      )}
+      <span className="truncate">{brand}</span>
+      <ExternalLink className="size-3.5 shrink-0" aria-hidden />
+    </a>
+  );
+}
 
 interface GiftRecommendationCardProps {
   idea: GiftRecommendation;
@@ -197,26 +253,12 @@ export function GiftRecommendationCard({
                 <div className="grid grid-cols-2 gap-2">
                   {/* Marcas favoritas matcheadas: van primero y a ancho completo
                       porque son la vía que de verdad funciona. Muchas marcas
-                      (DTC tipo Brandy Melville) no están en los marketplaces, así
-                      que su botón busca en Google acotado a la marca en vez de
-                      caer en una búsqueda de marketplace vacía. Tinte secondary
-                      + icono Tags para hermanarlo con el badge de marca. */}
+                      (DTC tipo Brandy Melville) no están en los marketplaces. Si
+                      se resolvió su tienda oficial (Brandfetch), el botón lleva
+                      ahí con su logo; si no, cae a una búsqueda de Google acotada
+                      a la marca. */}
                   {matchedBrands.map((brand) => (
-                    <a
-                      key={`brand-${brand}`}
-                      href={generateBrandSearchUrl(idea.amazonQuery, brand)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`Buscar ${idea.title} en ${brand} (abre en una pestaña nueva)`}
-                      className={cn(
-                        buttonVariants({ size: "default", variant: "outline" }),
-                        "col-span-2 min-w-0 border-secondary/40 text-secondary hover:text-secondary",
-                      )}
-                    >
-                      <Tags className="size-4 shrink-0" aria-hidden />
-                      <span className="truncate">{brand}</span>
-                      <ExternalLink className="size-3.5 shrink-0" aria-hidden />
-                    </a>
+                    <BrandStoreLink key={`brand-${brand}`} brand={brand} idea={idea} />
                   ))}
                   {storesToRender.map((store, i) => {
                     const isLastOdd =

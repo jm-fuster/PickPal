@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { generateBrandSearchUrl, matchFavoriteBrands } from "./brands";
+import {
+  findBrandStore,
+  generateBrandSearchUrl,
+  generateBrandStoreSearchUrl,
+  matchFavoriteBrands,
+  normalizeBrandDomain,
+} from "./brands";
 
 const idea = (title: string, amazonQuery: string) => ({ title, amazonQuery });
 
@@ -79,5 +85,47 @@ describe("generateBrandSearchUrl", () => {
     expect(generateBrandSearchUrl("vela aromática", "")).toBe(
       "https://www.google.com/search?q=vela%20arom%C3%A1tica",
     );
+  });
+});
+
+describe("normalizeBrandDomain", () => {
+  it("limpia protocolo, www y path a un hostname", () => {
+    expect(normalizeBrandDomain("https://www.brandymelville.com/shop")).toBe(
+      "brandymelville.com",
+    );
+    expect(normalizeBrandDomain("Brandymelville.com")).toBe("brandymelville.com");
+  });
+
+  it("devuelve null para entradas que no son dominio", () => {
+    expect(normalizeBrandDomain("not a domain")).toBeNull();
+    expect(normalizeBrandDomain("javascript:alert(1)")).toBeNull();
+    expect(normalizeBrandDomain("")).toBeNull();
+    expect(normalizeBrandDomain("localhost")).toBeNull();
+  });
+});
+
+describe("generateBrandStoreSearchUrl", () => {
+  it("acota la búsqueda del producto al dominio de la tienda con site:", () => {
+    expect(generateBrandStoreSearchUrl("top blanco", "brandymelville.com")).toBe(
+      "https://www.google.com/search?q=top%20blanco%20site%3Abrandymelville.com",
+    );
+  });
+});
+
+describe("findBrandStore", () => {
+  const stores = [
+    { brand: "Brandy Melville", domain: "brandymelville.com" },
+    { brand: "Nike", domain: "nike.com", logoUrl: "https://cdn.brandfetch.io/nike.com/icon" },
+  ];
+
+  it("encuentra la tienda comparando sin acentos ni mayúsculas", () => {
+    expect(findBrandStore("brandy melville", stores)?.domain).toBe("brandymelville.com");
+    expect(findBrandStore("NIKE", stores)?.domain).toBe("nike.com");
+  });
+
+  it("devuelve undefined si la marca no se resolvió", () => {
+    expect(findBrandStore("Adidas", stores)).toBeUndefined();
+    expect(findBrandStore("Nike", undefined)).toBeUndefined();
+    expect(findBrandStore("Nike", [])).toBeUndefined();
   });
 });

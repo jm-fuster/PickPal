@@ -56,6 +56,43 @@ const PEXELS_PROFILE_PREFIX = "https://www.pexels.com/";
 const MAX_IMAGE_URL = 512;
 const MAX_PHOTOGRAPHER = 120;
 
+// Tienda oficial de marca resuelta vía Brandfetch. El logo se acota al CDN de
+// Brandfetch (allowlist por prefijo, como Pexels/DiceBear) y el dominio se
+// valida como hostname. Espejo de `normalizeBrandDomain` en src/lib/brands.ts.
+const BRANDFETCH_LOGO_PREFIX = "https://cdn.brandfetch.io/";
+const MAX_DOMAIN = 253;
+const BRAND_DOMAIN_RE = /^[a-z0-9.-]+\.[a-z]{2,}$/i;
+
+type MatchedBrandStore = {
+  brand: string;
+  domain: string;
+  logoUrl?: string;
+};
+
+function validateMatchedBrandStores(
+  stores: MatchedBrandStore[] | undefined,
+) {
+  if (stores == null || stores.length === 0) return;
+  if (stores.length > MAX_BRANDS) {
+    throw new ConvexError("Demasiadas tiendas de marca.");
+  }
+  for (const store of stores) {
+    if (store.brand.trim().length === 0 || store.brand.length > MAX_BRAND) {
+      throw new ConvexError("Marca de tienda inválida.");
+    }
+    if (store.domain.length > MAX_DOMAIN || !BRAND_DOMAIN_RE.test(store.domain)) {
+      throw new ConvexError("Dominio de marca inválido.");
+    }
+    if (
+      store.logoUrl !== undefined &&
+      (store.logoUrl.length > MAX_IMAGE_URL ||
+        !store.logoUrl.startsWith(BRANDFETCH_LOGO_PREFIX))
+    ) {
+      throw new ConvexError("Logo de marca inválido.");
+    }
+  }
+}
+
 type IdeaImage = {
   url: string;
   photographer?: string;
@@ -250,6 +287,7 @@ type RecommendationIdea = {
   suggestedStores?: string[];
   imageKey?: string;
   image?: IdeaImage;
+  matchedBrandStores?: MatchedBrandStore[];
 };
 
 /**
@@ -319,6 +357,7 @@ export function validateRecommendationIdeas(
       throw new ConvexError("Clave de imagen inválida.");
     }
     validateIdeaImage(idea.image);
+    validateMatchedBrandStores(idea.matchedBrandStores);
   }
 }
 

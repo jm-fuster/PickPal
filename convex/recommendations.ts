@@ -23,6 +23,17 @@ const ideaValidator = v.object({
       photographerUrl: v.optional(v.string()),
     }),
   ),
+  // Tienda oficial de marca (Brandfetch); dominio + prefijo de logo verificados
+  // en validateRecommendationIdeas.
+  matchedBrandStores: v.optional(
+    v.array(
+      v.object({
+        brand: v.string(),
+        domain: v.string(),
+        logoUrl: v.optional(v.string()),
+      }),
+    ),
+  ),
 });
 
 export const getByPersonOccasion = query({

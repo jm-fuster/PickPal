@@ -1,4 +1,5 @@
 import { normalizeInterest } from "./interests";
+import type { MatchedBrandStore } from "./gifts";
 
 // Espejo de MAX_BRANDS en convex/validators.ts — si cambia allí, cambiar aquí.
 export const MAX_BRANDS = 10;
@@ -58,4 +59,51 @@ export function generateBrandSearchUrl(query: string, brand: string): string {
     b !== "" && normalizeInterest(q).includes(normalizeInterest(b));
   const search = b === "" || alreadyHasBrand ? q : `${q} ${b}`;
   return `https://www.google.com/search?q=${encodeURIComponent(search.trim())}`;
+}
+
+/**
+ * Normaliza el dominio que devuelve Brandfetch a un hostname limpio
+ * ("https://www.brandymelville.com/shop" → "brandymelville.com"). Devuelve
+ * null si no parece un dominio válido — la marca cae entonces al botón de
+ * búsqueda de marca (Capa 0). La validación del servidor en
+ * `convex/validators.ts` espeja esta regla (regex + tope de longitud).
+ */
+export function normalizeBrandDomain(raw: string): string | null {
+  const d = raw
+    .trim()
+    .toLowerCase()
+    .replace(/^https?:\/\//, "")
+    .replace(/\/.*$/, "")
+    .replace(/^www\./, "");
+  if (d.length === 0 || d.length > 253) return null;
+  if (!/^[a-z0-9.-]+\.[a-z]{2,}$/.test(d)) return null;
+  return d;
+}
+
+/**
+ * Búsqueda del producto acotada a la tienda oficial de la marca
+ * (`{producto} site:{dominio}`). Google indexa la web de la marca, así que el
+ * resultado aterriza en sus páginas de producto sin depender del buscador
+ * propio de cada tienda (que varía y a menudo no es enlazable).
+ */
+export function generateBrandStoreSearchUrl(
+  query: string,
+  domain: string,
+): string {
+  const q = `${query.trim()} site:${domain}`.trim();
+  return `https://www.google.com/search?q=${encodeURIComponent(q)}`;
+}
+
+/**
+ * Tienda resuelta para una marca matcheada, comparando el nombre de forma
+ * normalizada (sin acentos/mayúsculas). Devuelve undefined si esa marca no se
+ * resolvió — la card cae al botón de búsqueda (Capa 0).
+ */
+export function findBrandStore(
+  brand: string,
+  stores: readonly MatchedBrandStore[] | undefined,
+): MatchedBrandStore | undefined {
+  if (!stores || stores.length === 0) return undefined;
+  const needle = normalizeInterest(brand);
+  return stores.find((s) => normalizeInterest(s.brand) === needle);
 }

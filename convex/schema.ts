@@ -99,6 +99,18 @@ export default defineSchema({
         // Opcional: las ideas generadas antes de este campo no lo tienen.
         imageKey: v.optional(v.string()),
         image: v.optional(ideaImageValidator),
+        // Tienda oficial de cada marca favorita matcheada, resuelta vía
+        // Brandfetch (dominio + logo). Opcional: ideas previas a este campo o
+        // sin marca resuelta no lo tienen. Validado en validateRecommendationIdeas.
+        matchedBrandStores: v.optional(
+          v.array(
+            v.object({
+              brand: v.string(),
+              domain: v.string(),
+              logoUrl: v.optional(v.string()),
+            }),
+          ),
+        ),
       }),
     ),
     discardedTitles: v.optional(v.array(v.string())),
