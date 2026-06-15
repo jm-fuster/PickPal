@@ -146,7 +146,7 @@ Reglas:
 ${typeRules[giftType]}${brandsRule}
 - Los precios deben respetar el presupuesto indicado cuando sea posible.
 - Varía las categorías (no todas del mismo tipo).
-- "description" en español, máximo 2 frases, explicando por qué encaja con esta persona.
+- "description" en español, UNA sola frase breve (máximo ~140 caracteres), explicando por qué encaja con esta persona. Concisa: debe leerse entera de un vistazo.
 - "category" es un array JSON de 1 a 3 strings en español. Usa intereses concretos del perfil que justifiquen la idea (ej: ["Senderismo", "Fotografía"], ["Cocina japonesa"], ["Gaming", "Tecnología"]). Si la idea no encaja con ningún interés definido, usa una etiqueta descriptiva específica al regalo (ej: ["Accesorios viaje"], no ["Viajes"]). Nunca uses categorías genéricas sueltas como ["Tecnología"], ["Hogar"] o ["Libros"] si hay intereses más concretos disponibles.
 - "imageKey": la clave del catálogo visual que mejor representa la idea. Elige siempre la más específica disponible (ej. "audio" para unos auriculares, no "tecnologia"; "experiencia-gastronomica" para una cena, no "gourmet"). Usa "regalo-generico" solo si ninguna otra encaja.
 - "imageQuery": búsqueda EN INGLÉS de 2-4 palabras para encontrar una foto de stock que ilustre el regalo (ej: "wireless headphones", "pottery workshop", "hiking boots trail"). Describe el objeto o la escena de forma genérica y visual — sin marcas, sin tallas, sin adjetivos de marketing.

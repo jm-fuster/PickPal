@@ -212,8 +212,8 @@ Reglas:
 [según giftType: física / experiencia / tiempo-juntos / sorprendeme]
 [Regla de marcas favoritas — solo si hay marcas definidas]
 - Los precios deben respetar el presupuesto indicado cuando sea posible.
-- "description" en español, máximo 2 frases, explicando por qué encaja con esta persona.
-- "category" array JSON de 1-3 intereses concretos del perfil (ej: ["Senderismo","Fotografía"]).
+- "description" en español, UNA frase breve (≤ ~140 car.) — debe caber entera en la card (3 líneas) sin truncarse con "…".
+- "category" array JSON de 1-3 intereses concretos del perfil (ej: ["Senderismo","Fotografía"]). La card muestra como máx. 3 chips en total (marca + categorías).
 - Responde en español.
 ```
 

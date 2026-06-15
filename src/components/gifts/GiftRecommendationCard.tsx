@@ -125,6 +125,18 @@ export function GiftRecommendationCard({
   // muestra (heurística sobre el texto que ya devolvió, sin pedirle nada extra).
   const matchedBrands = matchFavoriteBrands(idea, favoriteBrands);
 
+  // Chips de la cabecera: marca(s) favorita(s) + categorías, con tope total de 3
+  // para que la fila quepa siempre en ≤ 2 filas. La fila reserva altura fija de
+  // 2 filas (`min-h-[2.75rem]`, badge `h-5` × 2 + gap), igual que el título
+  // reserva 2 líneas, para que el precio quede a la misma altura entre cards.
+  const categoryTags = Array.isArray(idea.category)
+    ? idea.category
+    : (idea.category as unknown as string).split(" · ");
+  const visibleCategoryTags = categoryTags.slice(
+    0,
+    Math.max(0, 3 - matchedBrands.length),
+  );
+
   const userFavorites =
     favoriteStores && favoriteStores.length > 0
       ? ALL_STORES.filter((s) => favoriteStores.includes(s))
@@ -218,7 +230,7 @@ export function GiftRecommendationCard({
               </div>
             )}
           </div>
-          <div className="flex flex-wrap gap-1">
+          <div className="flex min-h-[2.75rem] flex-wrap content-start gap-1">
             {matchedBrands.map((brand) => (
               <Badge
                 key={`brand-${brand}`}
@@ -230,10 +242,7 @@ export function GiftRecommendationCard({
                 {brand}
               </Badge>
             ))}
-            {(Array.isArray(idea.category)
-              ? idea.category
-              : (idea.category as unknown as string).split(" · ")
-            ).map((tag) => (
+            {visibleCategoryTags.map((tag) => (
               <Badge key={tag} variant="secondary" className="text-xs">
                 {tag}
               </Badge>
@@ -241,7 +250,7 @@ export function GiftRecommendationCard({
           </div>
         </div>
 
-        <p className="text-sm leading-relaxed text-muted-foreground min-h-24 line-clamp-4">
+        <p className="text-sm leading-relaxed text-muted-foreground min-h-[4.5rem] line-clamp-3">
           {idea.description}
         </p>
 
