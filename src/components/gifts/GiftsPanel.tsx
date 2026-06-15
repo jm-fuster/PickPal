@@ -82,6 +82,7 @@ export function GiftsPanel({
       : [...ALL_STORES];
 
   const [occasion, setOccasion] = useState(initialOccasion ?? "");
+  const [occasionInvalid, setOccasionInvalid] = useState(false);
   const [giftType, setGiftType] = useState<GiftType>("fisica");
   const [ideas, setIdeas] = useState<GiftRecommendation[] | null>(null);
   const [remaining, setRemaining] = useState<number | null>(null);
@@ -113,6 +114,14 @@ export function GiftsPanel({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Si la persona tiene un único evento, se preselecciona solo: entrar desde la
+  // ficha (sin ?occasion) deja de mostrar el selector vacío en el caso más
+  // común. Con varios eventos no elegimos por el usuario (presupuestos distintos).
+  useEffect(() => {
+    if (occasion) return;
+    if (events && events.length === 1) setOccasion(events[0].label);
+  }, [events, occasion]);
 
   useEffect(() => {
     if (!embedded) return;
@@ -172,7 +181,21 @@ export function GiftsPanel({
     );
   }
 
+  const hasEvents = !!events && events.length > 0;
+
   const generate = async () => {
+    // El botón se mantiene activo aunque no haya ocasión elegida (mejor que un
+    // botón "mudo" deshabilitado): al pulsar sin elegir, guiamos al selector en
+    // vez de generar a ciegas. Solo aplica con varios eventos — con uno se
+    // auto-selecciona arriba.
+    if (!occasion) {
+      setOccasionInvalid(true);
+      toast.error("Elige primero una ocasión");
+      const el = document.getElementById("gift-occasion-trigger");
+      el?.scrollIntoView({ block: "center", behavior: "smooth" });
+      el?.focus();
+      return;
+    }
     setLoading(true);
     setIdeas(null);
     setSavedTitles(new Set());
@@ -324,6 +347,7 @@ export function GiftsPanel({
               onValueChange={(v) => {
                 if (!v) return;
                 setOccasion(v);
+                setOccasionInvalid(false);
                 setIdeas(null);
                 // savedTitles solo guarda títulos, no (ocasión, título): sin
                 // resetearlo, una idea con el mismo título en la ocasión nueva
@@ -331,7 +355,12 @@ export function GiftsPanel({
                 setSavedTitles(new Set());
               }}
             >
-              <SelectTrigger aria-label="Ocasión" className="w-full sm:w-56">
+              <SelectTrigger
+                id="gift-occasion-trigger"
+                aria-label="Ocasión"
+                aria-invalid={occasionInvalid || undefined}
+                className="w-full sm:w-56"
+              >
                 <SelectValue placeholder="Elige un evento" />
               </SelectTrigger>
               <SelectContent>
@@ -355,7 +384,7 @@ export function GiftsPanel({
             size="lg"
             className="hidden sm:inline-flex sm:w-auto"
             onClick={generate}
-            disabled={loading || !occasion}
+            disabled={loading || !hasEvents}
           >
             {hasCached ? (
               <RefreshCw className="size-4" aria-hidden />
@@ -405,7 +434,7 @@ export function GiftsPanel({
           size="lg"
           className="w-full sm:hidden"
           onClick={generate}
-          disabled={loading || !occasion}
+          disabled={loading || !hasEvents}
         >
           {hasCached ? (
             <RefreshCw className="size-4" aria-hidden />
