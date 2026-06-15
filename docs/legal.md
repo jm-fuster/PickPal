@@ -104,13 +104,19 @@ El usuario puede dar de baja su cuenta en cualquier momento desde `{{RUTA_BORRAD
 
 ---
 
-## 11. Ley aplicable y jurisdicción
+## 11. Modificación de los términos
+
+Podemos actualizar estos términos para reflejar cambios en el servicio o en la normativa aplicable. Publicaremos la versión vigente en esta misma página y, si el cambio es sustancial, avisaremos con antelación razonable.
+
+---
+
+## 12. Ley aplicable y jurisdicción
 
 - Legislación aplicable: **española y de la Unión Europea**.
 - Para resolver conflictos, las partes se someten a los **juzgados y tribunales de `{{CIUDAD}}`**, salvo en el caso de consumidores, que podrán acudir a los de su domicilio.
 
 ---
 
-## 12. Contacto
+## 13. Contacto
 
 Cualquier consulta sobre estos términos: `{{EMAIL_CONTACTO}}`.

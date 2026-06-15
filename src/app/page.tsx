@@ -86,9 +86,12 @@ export default async function Home() {
         </section>
       </main>
 
-      <footer className="flex items-center justify-center px-6 py-8 text-xs text-muted-foreground">
+      <footer className="flex items-center justify-center gap-4 px-6 py-8 text-xs text-muted-foreground">
         <Link href="/privacidad" className="hover:text-foreground">
           Privacidad
+        </Link>
+        <Link href="/terminos" className="hover:text-foreground">
+          Términos
         </Link>
       </footer>
     </div>

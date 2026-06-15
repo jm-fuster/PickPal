@@ -331,13 +331,22 @@ export default function SettingsPage() {
             Cómo tratamos tus datos en PickPal.
           </p>
         </div>
-        <Link
-          href="/privacidad"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-muted-foreground"
-        >
-          Política de privacidad
-          <ArrowUpRight className="size-4" aria-hidden />
-        </Link>
+        <div className="flex flex-col gap-2">
+          <Link
+            href="/privacidad"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-muted-foreground"
+          >
+            Política de privacidad
+            <ArrowUpRight className="size-4" aria-hidden />
+          </Link>
+          <Link
+            href="/terminos"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-muted-foreground"
+          >
+            Términos y condiciones de uso
+            <ArrowUpRight className="size-4" aria-hidden />
+          </Link>
+        </div>
       </section>
 
       <section className="space-y-3 rounded-xl border border-destructive/30 p-5">

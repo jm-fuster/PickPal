@@ -67,6 +67,11 @@ export default function PrivacyPage() {
               donde se guardan los seres queridos, eventos y ajustes.
             </li>
             <li>
+              <span className="text-foreground">Vercel</span> — aloja la web y
+              recoge una analítica de uso agregada que no usa cookies ni te
+              identifica personalmente.
+            </li>
+            <li>
               <span className="text-foreground">Google (Gemini)</span> — recibe
               los datos del ser querido (solo su nombre de pila, nunca los
               apellidos) y de la ocasión cada vez que pulsas
@@ -117,7 +122,22 @@ export default function PrivacyPage() {
         </section>
 
         <section className="space-y-3">
+          <h2 className="text-xl font-medium">Cookies</h2>
+          <p className="text-sm text-muted-foreground">
+            Solo usamos cookies técnicas necesarias para mantener tu sesión
+            iniciada (las gestiona Clerk). No usamos cookies de publicidad ni de
+            seguimiento, por lo que no hace falta ningún banner de
+            consentimiento. La analítica de Vercel funciona sin cookies.
+          </p>
+        </section>
+
+        <section className="space-y-3">
           <h2 className="text-xl font-medium">Tus derechos</h2>
+          <p className="text-sm text-muted-foreground">
+            Como titular de los datos tienes derecho de acceso, rectificación,
+            supresión, oposición, limitación del tratamiento y portabilidad.
+            Puedes ejercerlos así:
+          </p>
           <ul className="space-y-2 text-sm text-muted-foreground list-disc pl-5">
             <li>
               <span className="text-foreground">Acceso y modificación:</span>{" "}
@@ -139,7 +159,26 @@ export default function PrivacyPage() {
               está automatizada. Si la necesitas, escríbenos al contacto de
               abajo.
             </li>
+            <li>
+              <span className="text-foreground">
+                Oposición y limitación:
+              </span>{" "}
+              para cualquier otro derecho, escríbenos al contacto de abajo.
+            </li>
           </ul>
+          <p className="text-sm text-muted-foreground">
+            Si crees que no hemos atendido bien tus derechos, puedes reclamar
+            ante la{" "}
+            <a
+              href="https://www.aepd.es"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2 hover:text-foreground"
+            >
+              Agencia Española de Protección de Datos
+            </a>
+            .
+          </p>
         </section>
 
         <section className="space-y-3">

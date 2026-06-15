@@ -50,7 +50,8 @@ El usuario introduce información sobre personas de su entorno (amigos, familia,
 ### 2.4 Cookies
 
 - **Clerk** instala cookies técnicas de sesión (1ª parte). No requieren consentimiento bajo LSSI art. 22.2.
-- **No usamos cookies analíticas, publicitarias ni de terceros.** Si en el futuro se añade analítica (Vercel Analytics, Plausible, GA), habrá que añadir banner de consentimiento y actualizar este documento.
+- **No usamos cookies analíticas, publicitarias ni de terceros.** La analítica de uso se hace con **Vercel Web Analytics**, que es *cookieless* (no almacena ni accede a información en el dispositivo, recoge métricas agregadas), por lo que no requiere banner de consentimiento bajo LSSI art. 22.2.
+- Si en el futuro se añade analítica basada en cookies (Plausible con cookies, GA, etc.) o publicidad, habrá que añadir banner de consentimiento y actualizar este documento.
 
 ---
 
@@ -75,7 +76,7 @@ Compartimos datos con los siguientes proveedores que actúan como encargados:
 | [Clerk](https://clerk.com) | Autenticación y gestión de cuentas | EE. UU. | DPA + SCCs / EU-US DPF |
 | [Convex](https://convex.dev) | Base de datos y backend | EE. UU. | DPA + SCCs / EU-US DPF |
 | [Google (Gemini API)](https://ai.google.dev) | Generación de recomendaciones | EE. UU. | DPA + SCCs / EU-US DPF |
-| `{{HOSTING_PROVIDER}}` _(p. ej. Vercel)_ | Hosting de la web | EE. UU. | DPA + SCCs / EU-US DPF |
+| [Vercel](https://vercel.com) | Hosting de la web y analítica de uso *cookieless* (Vercel Web Analytics) | EE. UU. | DPA + SCCs / EU-US DPF |
 | [Pexels](https://www.pexels.com) | Fotos de stock que ilustran las ideas de regalo | EE. UU. | Solo recibe búsquedas genéricas en inglés (server-side) y la IP del navegador al cargar las fotos (ver 4.2) |
 | [DiceBear](https://www.dicebear.com) | Avatares ilustrados de los seres queridos | UE | Solo recibe la IP del navegador al cargar el avatar (ver 4.2) |
 
