@@ -106,7 +106,10 @@ Cada tarjeta tiene dos botones en la esquina superior derecha: pulgar arriba y p
 |---|---|
 | Cierra el toast manualmente | `removeIdea` se llama en `onDismiss` |
 | Navega fuera de la pantalla | El `useEffect` de cleanup llama `removeIdea` por cada pendiente |
+| Regenera | Los pendientes se confirman antes de la nueva tirada |
 | Pulsa "Deshacer" | La idea vuelve a su posición; `removeIdea` **no** se llama |
+
+**Descartar una idea ya guardada también la des-guarda.** Si la idea tenía 👍 (existe en `savedIdeas` para esa ocasión), al confirmarse el descarte se llama además a `api.savedIdeas.remove` — descartar = "no la quiero", así que no debe quedar en "Ideas guardadas" de la ficha. Se difiere junto a `removeIdea` (mismo `onDismiss` / cleanup / flush al regenerar), de modo que "Deshacer" la restaura sin necesidad de re-guardarla: hasta que el toast se cierra, nada se ha borrado. El `_id` a borrar se resuelve desde un ref espejo de `savedIdeas.getByPerson` (`discardSavedIdea` en `GiftsPanel`).
 
 #### Campos `discardedTitles` y `dislikedCategories`
 
@@ -130,10 +133,12 @@ await ctx.db.patch(existing._id, {
 ### 👍 Pulgar arriba — guardar idea
 
 1. Llama a `api.savedIdeas.save` (rate limit: 50 guardados/día).
-2. El icono pasa a `fill="currentColor"` como confirmación visual (estado local `savedTitles: Set<string>`; se resetea al regenerar).
+2. El icono pasa a `fill="currentColor"` como confirmación visual.
 3. Toast: "Idea guardada en la ficha de [nombre]".
 
 La idea se persiste en la tabla `savedIdeas` vinculada a la persona y la ocasión.
+
+El estado relleno del pulgar **sobrevive a recargas**: se deriva de `savedTitles` (set local de la sesión) **unido** a las ideas que ya persisten en `savedIdeas.getByPerson` para esa ocasión (`isSaved` en `GiftsPanel`). La clave de "guardada" espeja la dedupe del servidor: (persona, ocasión, título). Antes el pulgar dependía solo del set local y se vaciaba al recargar aunque la idea siguiera guardada.
 
 #### Tabla `savedIdeas`
 
@@ -448,8 +453,11 @@ La variable de entorno `GOOGLE_GENERATIVE_AI_API_KEY` debe configurarse en Verce
 - [ ] Navegar fuera de la pantalla con toasts abiertos → las ideas pendientes se eliminan de Convex al desmontar
 - [ ] Pulsar 👍 en una tarjeta → el icono pasa a relleno (filled), toast "Idea guardada en la ficha de [nombre]"
 - [ ] Pulsar 👍 de nuevo en la misma idea (ya guardada) → no lanza error (rate limit no se toca al duplicar en mismo set)
-- [ ] Regenerar ideas → los iconos 👍 vuelven a hollow (estado `savedTitles` se resetea)
-- [ ] Ir a la ficha de la persona → aparece sección "Ideas guardadas" con las ideas marcadas con 👍
+- [ ] Recargar la página (o salir y volver) → las ideas con 👍 siguen rellenas (estado persistido, no solo local)
+- [ ] Pulsar 👎 en una idea ya guardada con 👍 y cerrar el toast → desaparece de sugerencias **y** de "Ideas guardadas" de la ficha
+- [ ] Pulsar 👎 en una idea guardada y luego "Deshacer" → vuelve y sigue guardada en la ficha (no se borró)
+- [ ] Regenerar ideas → las nuevas tarjetas salen hollow (títulos nuevos; `savedTitles` se resetea). Si una coincide en título con una ya guardada para esa ocasión, sale relleno (persistencia)
+- [ ] Ir a la ficha de la persona → aparece sección "Ideas guardadas" con las ideas marcadas con 👍, su badge de marca favorita y, en físicas, el botón a la tienda de la marca
 - [ ] Pulsar "Lo regalé →" en una idea guardada → se abre el diálogo con nombre y ocasión pre-rellenados
 - [ ] Confirmar conversión → la idea desaparece de "Ideas guardadas" y aparece en el historial de regalos
 

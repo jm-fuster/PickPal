@@ -64,7 +64,7 @@ Por qué importa: sin esto un usuario autenticado puede insertar `notes` de 100 
   - Entre 1 y 9 ideas (la generación produce 9, pero la API route descarta títulos duplicados de Gemini antes de persistir; 0 o más de 9 se rechazan).
   - Caps por idea: title ≤ 80, description ≤ 280, category ≤ 40, amazonQuery ≤ 120 chars; precios finitos en [0, 100.000€].
   - `suggestedStores` (opcional): allowlist contra `ALLOWED_STORES`, sin duplicados, máximo 4 elementos.
-  - `matchedBrandStores` (opcional, resuelto vía Brandfetch): por entrada, `brand` ≤ 40 chars no vacío, `domain` validado como hostname (regex + ≤ 253 chars), `logoUrl` (opcional) por prefijo del CDN de Brandfetch. Cierra el gap de que un cliente directo inyecte un dominio/URL arbitrarios en el botón de marca.
+  - `matchedBrandStores` (opcional, resuelto vía Brandfetch): por entrada, `brand` ≤ 40 chars no vacío, `domain` validado como hostname (regex + ≤ 253 chars), `logoUrl` (opcional) por prefijo del CDN de Brandfetch. Cierra el gap de que un cliente directo inyecte un dominio/URL arbitrarios en el botón de marca. El mismo helper (`validateMatchedBrandStores`) valida el snapshot `matchedBrandStores` que persiste `api.savedIdeas.save` (vía `validateSavedIdeaInput`).
 
   Cierra el gap de que un atacante autenticado llamara directamente a `api.recommendations.upsert` saltándose la API route con un payload masivo.
 

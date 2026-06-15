@@ -40,6 +40,8 @@ import { BrandTagInput } from "@/components/people/BrandTagInput";
 import { RELATIONSHIPS, REACTIONS } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import { ALL_STORES, generateStoreSearchUrl, pickEffectiveStores, sanitizeFavoriteStores, STORE_ICONS, STORE_LABELS, type StoreId } from "@/lib/stores";
+import { matchFavoriteBrands } from "@/lib/brands";
+import { BrandStoreLink } from "@/components/gifts/BrandStoreLink";
 
 const MONTHS = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
 
@@ -506,6 +508,10 @@ function PersonDetailContent({
                   : s.suggestedStores && s.suggestedStores.length > 0
                     ? sanitizeFavoriteStores(s.suggestedStores)
                     : favoriteStores;
+                // Marcas favoritas que la idea menciona — misma heurística que la
+                // card de generación. El badge sale para cualquier tipo; el botón
+                // a la tienda de marca, solo en físicas (igual que los chips).
+                const matchedBrands = matchFavoriteBrands(s, localBrands);
                 return (
                   <li key={s._id}>
                     <div className="flex h-full flex-col gap-2 rounded-lg border border-border/60 bg-background/60 p-3 text-sm">
@@ -548,12 +554,38 @@ function PersonDetailContent({
                         </p>
                       )}
                       <div className="flex flex-wrap gap-1">
+                        {matchedBrands.map((brand) => (
+                          <Badge
+                            key={`brand-${brand}`}
+                            variant="outline"
+                            className="gap-1 text-xs text-secondary border-secondary/40"
+                          >
+                            <Tags className="size-3" aria-hidden />
+                            <span className="sr-only">Marca favorita: </span>
+                            {brand}
+                          </Badge>
+                        ))}
                         {cats.map((c) => (
                           <Badge key={c} variant="secondary" className="text-xs">{c}</Badge>
                         ))}
                       </div>
                       {s.amazonQuery && (
-                        <div className="mt-auto flex flex-wrap gap-1.5 pt-1">
+                        <div className="mt-auto flex flex-col gap-1.5 pt-1">
+                          {isPhysicalLike && matchedBrands.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5">
+                              {matchedBrands.map((brand) => (
+                                <BrandStoreLink
+                                  key={`brand-${brand}`}
+                                  brand={brand}
+                                  query={s.amazonQuery}
+                                  title={s.title}
+                                  matchedBrandStores={s.matchedBrandStores}
+                                  size="sm"
+                                />
+                              ))}
+                            </div>
+                          )}
+                          <div className="flex flex-wrap gap-1.5">
                           {storeChips.length > 0 ? (
                             storeChips.map((store) => (
                               <a
@@ -585,6 +617,7 @@ function PersonDetailContent({
                               <ExternalLink className="size-3 shrink-0" aria-hidden />
                             </a>
                           )}
+                          </div>
                         </div>
                       )}
                     </div>

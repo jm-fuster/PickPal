@@ -76,6 +76,13 @@ export function GiftsPanel({
     ready ? { personId } : "skip",
   );
   const settings = useQuery(api.settings.getMine, ready ? {} : "skip");
+  // Ideas ya guardadas para esta persona: sembramos el estado "me gusta"
+  // (pulgar relleno) desde la BD para que sobreviva a recargas. El estado local
+  // `savedTitles` solo cubre la sesión en curso.
+  const savedIdeasForPerson = useQuery(
+    api.savedIdeas.getByPerson,
+    ready ? { personId } : "skip",
+  );
   const favoriteStores =
     settings && settings.favoriteStores.length > 0
       ? sanitizeFavoriteStores(settings.favoriteStores)
@@ -94,6 +101,7 @@ export function GiftsPanel({
 
   const removeIdea = useMutation(api.recommendations.removeIdea);
   const saveIdea = useMutation(api.savedIdeas.save);
+  const removeSavedIdea = useMutation(api.savedIdeas.remove);
   const pendingDiscards = useRef<
     Map<
       string,
@@ -105,10 +113,29 @@ export function GiftsPanel({
     >
   >(new Map());
 
+  // Espejo en ref de las ideas guardadas para poder resolver su `_id` desde los
+  // callbacks diferidos del descarte (onDismiss, flush al regenerar/desmontar)
+  // con el dato más reciente, no el capturado en el render del toast.
+  const savedIdeasRef = useRef(savedIdeasForPerson);
+  useEffect(() => {
+    savedIdeasRef.current = savedIdeasForPerson;
+  }, [savedIdeasForPerson]);
+
+  // Un dislike a una idea guardada también la quita de la ficha (descartar = no
+  // la quiero). Se confirma junto al `removeIdea` diferido, así "Deshacer" no
+  // necesita re-guardarla: hasta que el toast se cierra, nada se ha borrado.
+  const discardSavedIdea = (title: string, occasionLabel: string) => {
+    const saved = (savedIdeasRef.current ?? []).find(
+      (s) => s.title === title && s.occasionLabel === occasionLabel,
+    );
+    if (saved) removeSavedIdea({ id: saved._id }).catch(() => {});
+  };
+
   useEffect(() => {
     return () => {
       pendingDiscards.current.forEach(({ args }) => {
         removeIdea(args).catch(() => {});
+        discardSavedIdea(args.ideaTitle, args.occasionLabel);
       });
       pendingDiscards.current.clear();
     };
@@ -208,7 +235,12 @@ export function GiftsPanel({
     if (pending.length > 0) {
       pendingDiscards.current.clear();
       toast.dismiss();
-      await Promise.all(pending.map((p) => removeIdea(p.args).catch(() => {})));
+      await Promise.all(
+        pending.map((p) => {
+          discardSavedIdea(p.args.ideaTitle, p.args.occasionLabel);
+          return removeIdea(p.args).catch(() => {});
+        }),
+      );
     }
     try {
       const res = await fetch("/api/recommendations", {
@@ -243,11 +275,23 @@ export function GiftsPanel({
   const hasCached = cached !== undefined && cached !== null;
   const showIdeas = ideas ?? (hasCached ? (cached!.ideas as GiftRecommendation[]) : null);
 
+  // Una idea sale marcada como "me gusta" (pulgar relleno) si está en el set
+  // local (guardada en esta sesión) o ya persiste en la ficha para esta
+  // ocasión. La clave de persistencia espeja la dedupe del servidor:
+  // (persona, ocasión, título). Sin esto, el pulgar se vaciaba al recargar.
+  const persistedSavedTitles = new Set(
+    (savedIdeasForPerson ?? [])
+      .filter((s) => s.occasionLabel === occasion)
+      .map((s) => s.title),
+  );
+  const isSaved = (title: string) =>
+    savedTitles.has(title) || persistedSavedTitles.has(title);
+
   const handleSave = async (idea: GiftRecommendation) => {
     if (!occasion) return;
     // Guard contra doble clic: el botón ya se deshabilita al guardar, pero
     // dos clics antes del primer render no deben crear dos filas.
-    if (savedTitles.has(idea.title)) return;
+    if (isSaved(idea.title)) return;
     try {
       // Congelamos las tiendas EFECTIVAS que mostró la card (con el fallback a
       // favoritas), no las crudas de la IA, para que la idea guardada enseñe
@@ -269,6 +313,10 @@ export function GiftsPanel({
         giftType,
         imageKey: idea.imageKey,
         image: idea.image,
+        // Congelamos también la tienda de marca resuelta para que la idea
+        // guardada enseñe el botón de marca (logo + enlace a la tienda oficial),
+        // igual que la card de generación.
+        matchedBrandStores: idea.matchedBrandStores,
       });
       setSavedTitles((prev) => new Set(prev).add(idea.title));
       toast.success(`Idea guardada en la ficha de ${person?.name ?? "esta persona"}`);
@@ -304,6 +352,7 @@ export function GiftsPanel({
         if (!pendingDiscards.current.has(idea.title)) return;
         pendingDiscards.current.delete(idea.title);
         removeIdea(args).catch(() => {});
+        discardSavedIdea(idea.title, occasion);
       },
     });
   };
@@ -487,7 +536,7 @@ export function GiftsPanel({
               giftType={giftType}
               favoriteStores={favoriteStores}
               favoriteBrands={person.favoriteBrands}
-              saved={savedTitles.has(idea.title)}
+              saved={isSaved(idea.title)}
               onSave={() => handleSave(idea)}
               onDiscard={() => handleDiscard(idea, i)}
             />

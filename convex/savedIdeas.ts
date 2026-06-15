@@ -47,6 +47,18 @@ export const save = mutation({
         photographerUrl: v.optional(v.string()),
       }),
     ),
+    // Tienda oficial de cada marca matcheada; dominio/logo verificados en
+    // validateSavedIdeaInput (mismo shape que recommendations).
+    matchedBrandStores: v.optional(
+      v.array(
+        v.object({
+          brand: v.string(),
+          domain: v.string(),
+          logoUrl: v.optional(v.string()),
+          supportsSearch: v.optional(v.boolean()),
+        }),
+      ),
+    ),
   },
   handler: async (ctx, args) => {
     const clerkUserId = await requireUser(ctx);

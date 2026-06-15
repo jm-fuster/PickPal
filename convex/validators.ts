@@ -375,6 +375,7 @@ export function validateSavedIdeaInput(input: {
   suggestedStores?: string[];
   imageKey?: string;
   image?: IdeaImage;
+  matchedBrandStores?: MatchedBrandStore[];
 }) {
   const title = input.title.trim();
   if (title.length === 0 || input.title.length > MAX_IDEA_TITLE) {
@@ -422,6 +423,7 @@ export function validateSavedIdeaInput(input: {
     throw new ConvexError("Clave de imagen inválida.");
   }
   validateIdeaImage(input.image);
+  validateMatchedBrandStores(input.matchedBrandStores);
 }
 
 export function validateDateInput(input: {

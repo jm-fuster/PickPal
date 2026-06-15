@@ -6,13 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import {
-  findBrandStore,
-  generateBrandProductSearchUrl,
-  generateBrandSearchUrl,
-  generateBrandStoreUrl,
-  matchFavoriteBrands,
-} from "@/lib/brands";
+import { matchFavoriteBrands } from "@/lib/brands";
+import { BrandStoreLink } from "@/components/gifts/BrandStoreLink";
 import {
   ALL_STORES,
   STORE_ICONS,
@@ -38,64 +33,6 @@ const generateGoogleUrl = (query: string) =>
 // marketplaces (que eligió en Ajustes > Tiendas).
 const STORE_SECTION_LABEL_CLASS =
   "font-sans text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground";
-
-/**
- * Botón de marca favorita matcheada. Si la idea trae la tienda oficial resuelta
- * (`matchedBrandStores`, vía Brandfetch), muestra su logo y enlaza a la web de
- * la marca: a la búsqueda del producto dentro de la tienda si esta la admite
- * (`supportsSearch`), o a su home en caso contrario. Si no se resolvió, cae al
- * botón de búsqueda de marca en Google (Capa 0) con el icono `Tags`. Logo con
- * `bg-white` para que se vea en modo oscuro (igual que los logos de tienda) y
- * fallback al icono si la imagen falla.
- */
-function BrandStoreLink({
-  brand,
-  idea,
-}: {
-  brand: string;
-  idea: GiftRecommendation;
-}) {
-  const [logoFailed, setLogoFailed] = useState(false);
-  const store = findBrandStore(brand, idea.matchedBrandStores);
-  const href = store
-    ? store.supportsSearch
-      ? generateBrandProductSearchUrl(store.domain, idea.amazonQuery)
-      : generateBrandStoreUrl(store.domain)
-    : generateBrandSearchUrl(idea.amazonQuery, brand);
-  const logo = store?.logoUrl && !logoFailed ? store.logoUrl : null;
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={
-        store && !store.supportsSearch
-          ? `Ir a la tienda de ${brand} (abre en una pestaña nueva)`
-          : `Buscar ${idea.title} en ${brand} (abre en una pestaña nueva)`
-      }
-      className={cn(
-        buttonVariants({ size: "default", variant: "outline" }),
-        "col-span-2 min-w-0 border-secondary/40 text-secondary hover:text-secondary",
-      )}
-    >
-      {logo ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={logo}
-          alt=""
-          aria-hidden
-          loading="lazy"
-          onError={() => setLogoFailed(true)}
-          className="size-4 shrink-0 rounded-sm object-contain bg-white p-px"
-        />
-      ) : (
-        <Tags className="size-4 shrink-0" aria-hidden />
-      )}
-      <span className="truncate">{brand}</span>
-      <ExternalLink className="size-3.5 shrink-0" aria-hidden />
-    </a>
-  );
-}
 
 interface GiftRecommendationCardProps {
   idea: GiftRecommendation;
@@ -274,7 +211,14 @@ export function GiftRecommendationCard({
                     <p className={STORE_SECTION_LABEL_CLASS}>Tienda de marca</p>
                     <div className="grid grid-cols-2 gap-2">
                       {matchedBrands.map((brand) => (
-                        <BrandStoreLink key={`brand-${brand}`} brand={brand} idea={idea} />
+                        <BrandStoreLink
+                          key={`brand-${brand}`}
+                          brand={brand}
+                          query={idea.amazonQuery}
+                          title={idea.title}
+                          matchedBrandStores={idea.matchedBrandStores}
+                          className="col-span-2"
+                        />
                       ))}
                     </div>
                   </div>

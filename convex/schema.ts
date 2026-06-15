@@ -144,6 +144,20 @@ export default defineSchema({
     // ideas guardadas antes de este campo caen al fallback por tipo de regalo.
     imageKey: v.optional(v.string()),
     image: v.optional(ideaImageValidator),
+    // Snapshot de la tienda oficial de cada marca matcheada al guardar (mismo
+    // shape que en `recommendations`). Opcional: ideas guardadas antes de este
+    // campo, o sin marca resuelta, caen al botón de búsqueda de marca (Capa 0).
+    // Validado en validateSavedIdeaInput.
+    matchedBrandStores: v.optional(
+      v.array(
+        v.object({
+          brand: v.string(),
+          domain: v.string(),
+          logoUrl: v.optional(v.string()),
+          supportsSearch: v.optional(v.boolean()),
+        }),
+      ),
+    ),
   })
     .index("by_person", ["personId"])
     .index("by_user", ["clerkUserId"]),
