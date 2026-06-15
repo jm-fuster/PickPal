@@ -484,7 +484,7 @@ export function PersonForm({
               )}
             />
             <p className="text-xs text-muted-foreground">
-              Si tiene predilección por alguna marca, la IA la tendrá en cuenta al sugerir.
+              Si tiene predilección por alguna marca, la IA la tendrá en cuenta y sus recomendaciones podrán enlazar a la tienda oficial de la marca.
             </p>
             {errors.favoriteBrands ? (
               <p className="text-xs text-destructive">

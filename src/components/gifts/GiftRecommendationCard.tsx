@@ -32,6 +32,13 @@ const formatRange = (min: number, max: number) =>
 const generateGoogleUrl = (query: string) =>
   `https://www.google.com/search?q=${encodeURIComponent(query)}`;
 
+// Eyebrow que rotula cada grupo de botones de compra. Solo aparece cuando hay
+// botón de marca, para que el usuario distinga de dónde sale cada enlace: la
+// tienda oficial de la marca (que añadió en la ficha de la persona) vs. los
+// marketplaces (que eligió en Ajustes > Tiendas).
+const STORE_SECTION_LABEL_CLASS =
+  "font-sans text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground";
+
 /**
  * Botón de marca favorita matcheada. Si la idea trae la tienda oficial resuelta
  * (`matchedBrandStores`, vía Brandfetch), muestra su logo y enlaza a la web de
@@ -245,50 +252,63 @@ export function GiftRecommendationCard({
 
           {idea.amazonQuery ? (
             isPhysical ? (
-              <div className="space-y-1.5">
-                <div className="grid grid-cols-2 gap-2">
-                  {/* Marcas favoritas matcheadas: van primero y a ancho completo
-                      porque son la vía que de verdad funciona. Muchas marcas
-                      (DTC tipo Brandy Melville) no están en los marketplaces. Si
-                      se resolvió su tienda oficial (Brandfetch), el botón lleva
-                      ahí con su logo; si no, cae a una búsqueda de Google acotada
-                      a la marca. */}
-                  {matchedBrands.map((brand) => (
-                    <BrandStoreLink key={`brand-${brand}`} brand={brand} idea={idea} />
-                  ))}
-                  {storesToRender.map((store, i) => {
-                    const isLastOdd =
-                      storesToRender.length % 2 === 1 &&
-                      i === storesToRender.length - 1;
-                    return (
-                      <a
-                        key={store}
-                        href={generateStoreSearchUrl(store, idea.amazonQuery, {
-                          minEuros: idea.priceMinEuros,
-                          maxEuros: idea.priceMaxEuros,
-                        })}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={`Buscar ${idea.title} en ${STORE_LABELS[store]} (abre en una pestaña nueva)`}
-                        className={cn(
-                          buttonVariants({ size: "default", variant: "outline" }),
-                          "min-w-0",
-                          isLastOdd && "col-span-2",
-                        )}
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={STORE_ICONS[store]} alt="" className="size-4 shrink-0 rounded-sm object-contain bg-white p-px" aria-hidden />
-                        <span className="truncate">{STORE_LABELS[store]}</span>
-                        <ExternalLink className="size-3.5 shrink-0" aria-hidden />
-                      </a>
-                    );
-                  })}
-                </div>
-                {isFallback && (
-                  <p className="text-[11px] text-muted-foreground">
-                    Búsqueda genérica — esta idea encaja mejor en otras tiendas.
-                  </p>
+              <div className="space-y-3">
+                {/* Marcas favoritas matcheadas: van primero y a ancho completo
+                    porque son la vía que de verdad funciona. Muchas marcas (DTC
+                    tipo Brandy Melville) no están en los marketplaces. Si se
+                    resolvió su tienda oficial (Brandfetch), el botón lleva ahí con
+                    su logo; si no, cae a una búsqueda de Google acotada a la marca.
+                    El eyebrow solo se rotula cuando hay marca, para que el usuario
+                    entienda que sale de las marcas que añadió a esta persona. */}
+                {matchedBrands.length > 0 && (
+                  <div className="space-y-1.5">
+                    <p className={STORE_SECTION_LABEL_CLASS}>Tienda de marca</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {matchedBrands.map((brand) => (
+                        <BrandStoreLink key={`brand-${brand}`} brand={brand} idea={idea} />
+                      ))}
+                    </div>
+                  </div>
                 )}
+                <div className="space-y-1.5">
+                  {matchedBrands.length > 0 && (
+                    <p className={STORE_SECTION_LABEL_CLASS}>Buscar en tiendas</p>
+                  )}
+                  <div className="grid grid-cols-2 gap-2">
+                    {storesToRender.map((store, i) => {
+                      const isLastOdd =
+                        storesToRender.length % 2 === 1 &&
+                        i === storesToRender.length - 1;
+                      return (
+                        <a
+                          key={store}
+                          href={generateStoreSearchUrl(store, idea.amazonQuery, {
+                            minEuros: idea.priceMinEuros,
+                            maxEuros: idea.priceMaxEuros,
+                          })}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`Buscar ${idea.title} en ${STORE_LABELS[store]} (abre en una pestaña nueva)`}
+                          className={cn(
+                            buttonVariants({ size: "default", variant: "outline" }),
+                            "min-w-0",
+                            isLastOdd && "col-span-2",
+                          )}
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={STORE_ICONS[store]} alt="" className="size-4 shrink-0 rounded-sm object-contain bg-white p-px" aria-hidden />
+                          <span className="truncate">{STORE_LABELS[store]}</span>
+                          <ExternalLink className="size-3.5 shrink-0" aria-hidden />
+                        </a>
+                      );
+                    })}
+                  </div>
+                  {isFallback && (
+                    <p className="text-[11px] text-muted-foreground">
+                      Búsqueda genérica — esta idea encaja mejor en otras tiendas.
+                    </p>
+                  )}
+                </div>
               </div>
             ) : (
               <a
