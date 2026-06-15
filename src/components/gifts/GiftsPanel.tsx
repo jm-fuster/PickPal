@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { GiftRecommendationCard } from "@/components/gifts/GiftRecommendationCard";
+import { GenerationProgress } from "@/components/gifts/GenerationProgress";
 import { LoadingFallback } from "@/components/layout/LoadingFallback";
 import { GIFT_TYPES, type GiftType, type GiftRecommendation } from "@/lib/gifts";
 import { ALL_STORES, pickEffectiveStores, sanitizeFavoriteStores } from "@/lib/stores";
@@ -436,13 +437,16 @@ export function GiftsPanel({
       </p>
 
       {loading ? (
-        <div className="grid gap-4 grid-cols-1" aria-hidden>
-          {Array.from({ length: 9 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-80 rounded-2xl border border-dashed border-border/60 bg-muted/40 animate-pulse"
-            />
-          ))}
+        <div className="flex flex-col gap-4">
+          <GenerationProgress regenerate={hasCached} />
+          <div className={`grid gap-4 ${embedded ? "grid-cols-1" : "sm:grid-cols-2 lg:grid-cols-3"}`} aria-hidden>
+            {Array.from({ length: 9 }).map((_, i) => (
+              <div
+                key={i}
+                className="h-80 rounded-2xl border border-dashed border-border/60 bg-muted/40 animate-pulse"
+              />
+            ))}
+          </div>
         </div>
       ) : showIdeas && showIdeas.length > 0 ? (
         <div className={`grid gap-4 ${embedded ? "grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-3"}`}>
