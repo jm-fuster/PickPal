@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LogoMark } from "@/components/ui/LogoMark";
+import { BackLink } from "./BackLink";
 
 export const metadata = {
   title: "Privacidad · PickPal",
@@ -155,9 +156,7 @@ export default function PrivacyPage() {
       </main>
 
       <footer className="px-6 py-8 text-center text-xs text-muted-foreground">
-        <Link href="/" className="hover:text-foreground">
-          Volver al inicio
-        </Link>
+        <BackLink />
       </footer>
     </div>
   );

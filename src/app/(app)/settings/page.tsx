@@ -5,7 +5,8 @@ import { useAuth, useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "convex/react";
 import { useTheme } from "next-themes";
-import { Check, Moon, Sun } from "lucide-react";
+import Link from "next/link";
+import { ArrowUpRight, Check, Moon, Sun } from "lucide-react";
 import { toast } from "sonner";
 import { userErrorMessage } from "@/lib/errors";
 import { api } from "../../../../convex/_generated/api";
@@ -321,6 +322,22 @@ export default function SettingsPage() {
             );
           })}
         </div>
+      </section>
+
+      <section className="space-y-3 rounded-xl border p-5">
+        <div className="space-y-0.5">
+          <Label>Legal</Label>
+          <p className="text-xs text-muted-foreground">
+            Cómo tratamos tus datos en PickPal.
+          </p>
+        </div>
+        <Link
+          href="/privacidad"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-muted-foreground"
+        >
+          Política de privacidad
+          <ArrowUpRight className="size-4" aria-hidden />
+        </Link>
       </section>
 
       <section className="space-y-3 rounded-xl border border-destructive/30 p-5">
