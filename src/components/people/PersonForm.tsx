@@ -498,7 +498,7 @@ export function PersonForm({
             <Textarea
               id="notes"
               rows={4}
-              placeholder="Restricciones, preferencias, contexto…"
+              placeholder="Contexto, anécdotas, lo que se te ocurra…"
               {...register("notes")}
             />
           </div>
