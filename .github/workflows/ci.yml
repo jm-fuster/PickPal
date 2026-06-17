@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# El job de auto-merge necesita poder mergear el PR.
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  # Red de seguridad: typecheck + tests en cada push y PR.
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm test
+
+  # Auto-merge SOLO para PRs de Dependabot de tipo patch/minor.
+  # `needs: test` garantiza que esto solo corre si los tests pasaron en verde:
+  # ahí está el gate. Los major se quedan esperando aprobación manual.
+  dependabot-automerge:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.actor == 'dependabot[bot]'
+    steps:
+      - name: Leer metadatos de Dependabot
+        id: meta
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Mergear si es patch o minor
+        if: steps.meta.outputs.update-type == 'version-update:semver-patch' || steps.meta.outputs.update-type == 'version-update:semver-minor'
+        run: gh pr merge --squash --delete-branch "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,6 +1,6 @@
 # Dependabot mantiene las dependencias directas al día abriendo PRs.
-# Sin auto-merge a propósito: este repo no tiene CI en GitHub, así que el
-# merge se aprueba a mano tras correr `npm test` + `tsc` en local.
+# El workflow ci.yml corre tests+tsc en cada PR y auto-mergea los patch/minor
+# que pasen en verde; los major esperan aprobación manual.
 # Las vulnerabilidades transitivas (las que arrastran shadcn/convex/vitest)
 # Dependabot no las puede PR-ear; esas se cierran con `overrides` en package.json.
 version: 2
