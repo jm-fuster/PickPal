@@ -22,6 +22,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx tsc --noEmit
+      # Convex usa su propio tsconfig y `convex deploy` lo typechquea aparte;
+      # sin esto, errores solo-de-Convex (p.ej. globals de @types/node) pasan
+      # el CI pero rompen el deploy en Vercel.
+      - run: npx tsc -p convex/tsconfig.json --noEmit
       - run: npm test
 
   # Auto-merge SOLO para PRs de Dependabot de tipo patch/minor.

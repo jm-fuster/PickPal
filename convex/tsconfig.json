@@ -2,6 +2,10 @@
   "compilerOptions": {
     "target": "ESNext",
     "lib": ["ES2021", "dom"],
+    // @types/node 24+ dejó de exponer el global `process` por auto-inclusión;
+    // hay que pedir los tipos de node explícitamente o el typecheck de
+    // `convex deploy` falla con TS2591 en process.env (auth.config, emails…).
+    "types": ["node"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "strict": true,
