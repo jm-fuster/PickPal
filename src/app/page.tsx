@@ -1,6 +1,6 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
-import { UserButton } from "@clerk/nextjs";
 import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -26,7 +26,12 @@ const STEPS: { number: number; title: string; body: string }[] = [
 
 export default async function Home() {
   const { userId } = await auth();
-  const isSignedIn = Boolean(userId);
+
+  // La landing es solo para visitantes sin sesión. Quien ya tiene sesión
+  // iniciada en su dispositivo entra directamente a la agenda.
+  if (userId) {
+    redirect("/agenda");
+  }
 
   return (
     <div className="flex flex-1 flex-col">
@@ -35,9 +40,6 @@ export default async function Home() {
           <LogoMark className="size-7" />
           PickPal
         </span>
-        <div className="flex items-center gap-3">
-          {isSignedIn ? <UserButton /> : null}
-        </div>
       </header>
 
       <main className="flex flex-1 flex-col items-center justify-center gap-16 px-6 py-16">
@@ -49,23 +51,15 @@ export default async function Home() {
             Guarda lo que sabes de cada persona, activa los avisos y deja que la IA piense contigo cuando llegue el momento.
           </p>
           <div className="flex flex-wrap justify-center gap-3 pt-3">
-            {isSignedIn ? (
-              <Link href="/agenda" className={buttonVariants({ size: "lg" })}>
-                Ir a la agenda
-              </Link>
-            ) : (
-              <>
-                <Link href="/sign-up" className={buttonVariants({ size: "lg" })}>
-                  Empezar gratis
-                </Link>
-                <Link
-                  href="/sign-in"
-                  className={cn(buttonVariants({ size: "lg", variant: "outline" }))}
-                >
-                  Iniciar sesión
-                </Link>
-              </>
-            )}
+            <Link href="/sign-up" className={buttonVariants({ size: "lg" })}>
+              Empezar gratis
+            </Link>
+            <Link
+              href="/sign-in"
+              className={cn(buttonVariants({ size: "lg", variant: "outline" }))}
+            >
+              Iniciar sesión
+            </Link>
           </div>
         </section>
 
