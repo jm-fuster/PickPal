@@ -88,7 +88,15 @@ export function GiftsPanel({
       ? sanitizeFavoriteStores(settings.favoriteStores)
       : [...ALL_STORES];
 
-  const [occasion, setOccasion] = useState(initialOccasion ?? "");
+  const [occasionChoice, setOccasionChoice] = useState(initialOccasion ?? "");
+  // Si la persona tiene un único evento, se preselecciona como valor derivado
+  // (no con setState en un effect, que dispara renders en cascada): `occasionChoice`
+  // vacío significa "el usuario no ha elegido", y en ese caso usamos el único
+  // evento disponible. Entrar desde la ficha (sin ?occasion) deja de mostrar el
+  // selector vacío en el caso más común. Con varios eventos no elegimos por el
+  // usuario (presupuestos distintos).
+  const occasion =
+    occasionChoice || (events && events.length === 1 ? events[0].label : "");
   const [occasionInvalid, setOccasionInvalid] = useState(false);
   const [giftType, setGiftType] = useState<GiftType>("fisica");
   const [ideas, setIdeas] = useState<GiftRecommendation[] | null>(null);
@@ -141,14 +149,6 @@ export function GiftsPanel({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // Si la persona tiene un único evento, se preselecciona solo: entrar desde la
-  // ficha (sin ?occasion) deja de mostrar el selector vacío en el caso más
-  // común. Con varios eventos no elegimos por el usuario (presupuestos distintos).
-  useEffect(() => {
-    if (occasion) return;
-    if (events && events.length === 1) setOccasion(events[0].label);
-  }, [events, occasion]);
 
   useEffect(() => {
     if (!embedded) return;
@@ -395,7 +395,7 @@ export function GiftsPanel({
               value={occasion}
               onValueChange={(v) => {
                 if (!v) return;
-                setOccasion(v);
+                setOccasionChoice(v);
                 setOccasionInvalid(false);
                 setIdeas(null);
                 // savedTitles solo guarda títulos, no (ocasión, título): sin

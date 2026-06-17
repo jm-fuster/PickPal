@@ -79,7 +79,6 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (settings && !initializedRef.current) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setEmailEnabled(settings.emailNotificationsEnabled);
       // Defensive: el backend puede devolver número (legacy) o array (nuevo)
       // mientras se propagan los despliegues. Normalizamos siempre a array.
