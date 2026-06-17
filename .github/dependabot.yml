@@ -1,0 +1,22 @@
+# Dependabot mantiene las dependencias directas al día abriendo PRs.
+# Sin auto-merge a propósito: este repo no tiene CI en GitHub, así que el
+# merge se aprueba a mano tras correr `npm test` + `tsc` en local.
+# Las vulnerabilidades transitivas (las que arrastran shadcn/convex/vitest)
+# Dependabot no las puede PR-ear; esas se cierran con `overrides` en package.json.
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    # Un solo PR agrupado para minor/patch evita el spam de un PR por paquete.
+    # Los major van sueltos porque suelen traer breaking changes que revisar.
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+    commit-message:
+      prefix: "chore(deps)"
