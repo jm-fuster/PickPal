@@ -199,22 +199,24 @@ export function InterestTagInput({
       </div>
       {suggestions.length > 0 ? (
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="text-xs text-muted-foreground">Sugerencias:</span>
-          {/* El botón de refrescar va justo tras la etiqueta (ancho fijo), NO al
+          {/* El botón "Otras" va al PRINCIPIO de la fila (ancho fijo), NO al
               final de los chips: con `flex-wrap` los chips cambian de ancho y
               número en cada refresco, así que un botón al final saltaba de
               posición y era incómodo de pulsar varias veces seguidas. Aquí su
-              posición es estable. */}
+              posición es estable. Lleva borde + etiqueta (no un icono ghost
+              suelto) para que se lea como un botón pulsable. */}
           {suggestionPool.length > SUGGESTIONS_SHOWN ? (
             <Button
               type="button"
-              variant="ghost"
-              size="icon-xs"
+              variant="outline"
+              size="xs"
+              className="rounded-full"
               onClick={() => setSuggestionOffset((o) => o + SUGGESTIONS_SHOWN)}
               aria-label="Ver otras sugerencias"
               title="Ver otras sugerencias"
             >
               <RefreshCw aria-hidden />
+              Otras
             </Button>
           ) : null}
           {suggestions.map((suggestion) => (
