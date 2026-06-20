@@ -34,7 +34,7 @@ import {
 import { EditImportantDateInline, ImportantDateForm } from "@/components/people/ImportantDateForm";
 import { EditGiftHistoryInline, GiftHistoryForm } from "@/components/people/GiftHistoryForm";
 import { LoadingFallback } from "@/components/layout/LoadingFallback";
-import { AvatarPicker } from "@/components/people/AvatarPicker";
+import { AvatarPickerDialog } from "@/components/people/AvatarPickerDialog";
 import { InterestTagInput } from "@/components/people/InterestTagInput";
 import { BrandTagInput } from "@/components/people/BrandTagInput";
 import { RELATIONSHIPS, REACTIONS } from "@/lib/schemas";
@@ -84,7 +84,6 @@ function PersonDetailContent({
   const [headerName, setHeaderName] = useState(person.name);
   const [headerRelationship, setHeaderRelationship] = useState(person.relationship);
   const [headerAvatar, setHeaderAvatar] = useState<string | undefined>(person.avatarUrl);
-  const [avatarDialogOpen, setAvatarDialogOpen] = useState(false);
   const [localInterests, setLocalInterests] = useState<string[]>(person.interests);
   const [localBrands, setLocalBrands] = useState<string[]>(person.favoriteBrands ?? []);
   const [localNotes, setLocalNotes] = useState(person.notes ?? "");
@@ -192,14 +191,19 @@ function PersonDetailContent({
               {headerName.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
-          <button
-            type="button"
-            onClick={() => setAvatarDialogOpen(true)}
-            className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity"
-            aria-label="Cambiar avatar"
-          >
-            <Camera className="size-6 text-white" />
-          </button>
+          <AvatarPickerDialog
+            value={headerAvatar}
+            onChange={(url) => { setHeaderAvatar(url); if (url) save({ avatarUrl: url }); }}
+            trigger={
+              <button
+                type="button"
+                className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                aria-label="Cambiar avatar"
+              >
+                <Camera className="size-6 text-white" />
+              </button>
+            }
+          />
         </div>
 
         <div className="flex-1 space-y-2 min-w-0">
@@ -248,28 +252,6 @@ function PersonDetailContent({
           </Button>
         </div>
       </header>
-
-      {/* Avatar picker dialog — autosave on select */}
-      <Dialog open={avatarDialogOpen} onOpenChange={setAvatarDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Cambiar avatar</DialogTitle>
-          </DialogHeader>
-          <AvatarPicker
-            value={headerAvatar}
-            onChange={(url) => {
-              setHeaderAvatar(url);
-              if (url) {
-                save({ avatarUrl: url });
-                setAvatarDialogOpen(false);
-              }
-            }}
-          />
-          <DialogFooter>
-            <DialogClose render={<Button variant="outline">Cerrar</Button>} />
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* Delete dialog */}
       <Dialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>

@@ -7,12 +7,12 @@ import {
   useFieldArray,
   useWatch,
   type Control,
-  type UseFormSetValue,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { userErrorMessage } from "@/lib/errors";
-import { CalendarDays, CalendarX2, Plus, Repeat2, Ruler, Trash2 } from "lucide-react";
+import { CalendarDays, CalendarX2, Camera, Plus, Repeat2, Ruler, Shuffle, Trash2, UserRound } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
   personFormSchema,
@@ -34,7 +34,8 @@ import {
 
 import { InterestTagInput } from "./InterestTagInput";
 import { BrandTagInput } from "./BrandTagInput";
-import { AvatarPicker } from "./AvatarPicker";
+import { randomAvatarUrl } from "./AvatarPicker";
+import { AvatarPickerDialog } from "./AvatarPickerDialog";
 import { BudgetRangeSlider } from "./BudgetRangeSlider";
 import { DatePickerDialog, MONTHS, formatDate as formatEventDate } from "./DatePickerDialog";
 
@@ -409,6 +410,9 @@ export function PersonForm({
     },
   });
 
+  // Para mostrar las iniciales en el preview del avatar mientras se teclea el nombre.
+  const watchedName = useWatch({ control, name: "name" });
+
   const submit = async (values: PersonFormValues) => {
     setSubmitting(true);
     try {
@@ -431,7 +435,40 @@ export function PersonForm({
               name="avatarUrl"
               control={control}
               render={({ field }) => (
-                <AvatarPicker value={field.value} onChange={field.onChange} />
+                <div className="flex items-center gap-4">
+                  <Avatar className="size-16 ring-1 ring-border">
+                    {field.value ? <AvatarImage src={field.value} alt="" /> : null}
+                    <AvatarFallback>
+                      {watchedName?.trim() ? (
+                        watchedName.trim().slice(0, 2).toUpperCase()
+                      ) : (
+                        <UserRound className="size-6 text-muted-foreground" aria-hidden />
+                      )}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-wrap gap-2">
+                    <AvatarPickerDialog
+                      value={field.value}
+                      onChange={field.onChange}
+                      trigger={
+                        <Button type="button" variant="outline" size="sm" className="gap-1.5">
+                          <Camera className="size-3.5" aria-hidden />
+                          {field.value ? "Cambiar avatar" : "Elegir avatar"}
+                        </Button>
+                      }
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => field.onChange(randomAvatarUrl())}
+                      className="gap-1.5"
+                    >
+                      <Shuffle className="size-3.5" aria-hidden />
+                      Aleatorio
+                    </Button>
+                  </div>
+                </div>
               )}
             />
           </div>
