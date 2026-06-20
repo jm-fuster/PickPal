@@ -200,6 +200,23 @@ export function InterestTagInput({
       {suggestions.length > 0 ? (
         <div className="flex flex-wrap items-center gap-1.5">
           <span className="text-xs text-muted-foreground">Sugerencias:</span>
+          {/* El botón de refrescar va justo tras la etiqueta (ancho fijo), NO al
+              final de los chips: con `flex-wrap` los chips cambian de ancho y
+              número en cada refresco, así que un botón al final saltaba de
+              posición y era incómodo de pulsar varias veces seguidas. Aquí su
+              posición es estable. */}
+          {suggestionPool.length > SUGGESTIONS_SHOWN ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xs"
+              onClick={() => setSuggestionOffset((o) => o + SUGGESTIONS_SHOWN)}
+              aria-label="Ver otras sugerencias"
+              title="Ver otras sugerencias"
+            >
+              <RefreshCw aria-hidden />
+            </Button>
+          ) : null}
           {suggestions.map((suggestion) => (
             <Badge
               key={suggestion}
@@ -215,18 +232,6 @@ export function InterestTagInput({
               {suggestion}
             </Badge>
           ))}
-          {suggestionPool.length > SUGGESTIONS_SHOWN ? (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-xs"
-              onClick={() => setSuggestionOffset((o) => o + SUGGESTIONS_SHOWN)}
-              aria-label="Ver otras sugerencias"
-              title="Ver otras sugerencias"
-            >
-              <RefreshCw aria-hidden />
-            </Button>
-          ) : null}
         </div>
       ) : null}
     </div>

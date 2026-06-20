@@ -75,7 +75,22 @@ function AddEventForm({
   const watchedDay = useWatch({ control, name: "day" });
 
   return (
-    <div className="space-y-3 rounded-lg bg-background/60 p-3 animate-in fade-in slide-in-from-top-1 duration-200">
+    <div
+      className="space-y-3 rounded-lg bg-background/60 p-3 animate-in fade-in slide-in-from-top-1 duration-200"
+      onKeyDown={(e) => {
+        // AddEventForm es un <div> dentro del <form> de PersonForm (no se pueden
+        // anidar <form> en HTML). Sin esto, pulsar Enter en cualquier input
+        // dispara el submit implícito del form EXTERIOR → crea la persona con la
+        // fecha a medias y navega a su ficha, impidiendo añadir más de una al
+        // crear. Interceptamos Enter en los inputs para que confirme el evento
+        // (mismo comportamiento que el Enter de un <form> real, como en
+        // ImportantDateForm), no la persona.
+        if (e.key === "Enter" && (e.target as HTMLElement).tagName === "INPUT") {
+          e.preventDefault();
+          handleSubmit(onAdd)();
+        }
+      }}
+    >
       <DatePickerDialog
         open={pickerOpen}
         day={watchedDay ?? 1}
