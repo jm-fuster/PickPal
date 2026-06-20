@@ -289,10 +289,10 @@ function EventsSection({
   };
 
   return (
-    <div className="space-y-3 rounded-xl border border-dashed border-border/70 bg-background/40 p-4">
+    <div className="space-y-3">
       <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-1.5">
         <CalendarDays className="size-3.5" aria-hidden />
-        Eventos (opcional)
+        Eventos
       </p>
       <p className="text-xs text-muted-foreground">
         Añade cumpleaños, aniversarios u otras fechas clave para recibir un aviso con tiempo y no pillarte por sorpresa.
@@ -535,9 +535,6 @@ export function PersonForm({
                 <BrandTagInput value={field.value} onChange={field.onChange} />
               )}
             />
-            <p className="text-xs text-muted-foreground">
-              Si tiene predilección por alguna marca, la IA la tendrá en cuenta y sus recomendaciones podrán enlazar a la tienda oficial de la marca.
-            </p>
             {errors.favoriteBrands ? (
               <p className="text-xs text-destructive">
                 {errors.favoriteBrands.message as string}
@@ -558,10 +555,10 @@ export function PersonForm({
 
         {/* ── Right column: practical info + events ── */}
         <div className="space-y-5">
-          <div className="space-y-3 rounded-xl border border-dashed border-border/70 bg-background/40 p-4">
+          <div className="space-y-3">
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-1.5">
               <Ruler className="size-3.5" aria-hidden />
-              Datos prácticos (opcional)
+              Datos prácticos
             </p>
             <p className="text-xs text-muted-foreground">
               Cuanto más sepamos, mejores sugerencias de regalo recibirás. Las tallas y restricciones evitan regalos que no se pueden usar.

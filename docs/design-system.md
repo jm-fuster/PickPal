@@ -265,12 +265,18 @@ Padding de página responsive en todos los `<main>`: `p-4 sm:p-6 lg:p-8`. No usa
 **PersonForm — layout dos columnas en desktop:**
 - A partir de `lg`: `grid grid-cols-2 items-start gap-6`.
 - Columna izquierda: avatar, nombre, relación, intereses, marcas favoritas, notas.
-- Columna derecha: card "Datos prácticos" (talla zapato, talla ropa, alergias, no le gusta) + `EventsSection` (si `includeDates` es `true`).
+- Columna derecha: bloque "Datos prácticos" (talla zapato, talla ropa, alergias, no le gusta) + `EventsSection` (si `includeDates` es `true`).
 - Cada bloque semántico usa `space-y-5` entre grupos y `space-y-1.5` label–input–error.
+- **Sin contenedores** en la columna derecha: ni "Datos prácticos" ni "Eventos" van en card ni caja con borde punteado. Fluyen en la columna como el resto de campos (eyebrow de sección + campos), separados por `space-y-5`. El eyebrow basta para delimitar la sección; la caja añadía peso visual y rompía la simetría con la columna izquierda.
+- **Marcas favoritas vive con Intereses** (columna izquierda), no en "Datos prácticos": es un *gusto* (preferencia positiva que alimenta la IA), no un hecho/restricción como las tallas o las alergias. "Datos prácticos" se reserva para tallas y límites.
+
+**PersonForm — qué es obligatorio:**
+- **Solo `name` es obligatorio**; todo lo demás es opcional. No se etiquetan secciones sueltas como "(opcional)" — marcar unas sí y otras no daba a entender que intereses/marcas/notas eran obligatorios. Los headers de sección van limpios ("Datos prácticos", "Eventos").
+- La obligatoriedad se comunica **una sola vez**, con un subtítulo `text-sm text-muted-foreground` bajo el `h1` de la página de alta (`/seres-queridos/new`): "Solo el nombre es obligatorio. Lo demás puedes rellenarlo ahora o cuando quieras." Sin asteriscos de "campo requerido" — chocan con el registro de libreta cálida.
 
 **PersonForm — sección Eventos (al crear):**
 - `EventsSection` lista los eventos añadidos en memoria (antes de guardar la persona) y ofrece un botón dashed "Añadir evento".
-- Al pulsar, aparece `AddEventForm` inline (misma card, sin dialog ni navegación).
+- Al pulsar, aparece `AddEventForm` inline (misma sección, sin dialog ni navegación).
 - `AddEventForm` usa `<div>`, NO `<form>` — evita anidamiento de `<form>` HTML prohibido. El botón "Añadir evento" es `type="button"` con `onClick={handleSubmit(onAdd)}`.
 - **Enter dentro de `AddEventForm`**: como es un `<div>` dentro del `<form>` de `PersonForm`, pulsar Enter en un input dispararía el submit implícito del form exterior (crearía la persona con la fecha a medias y solo dejaría añadir una fecha al crear). El root del `<div>` lleva un `onKeyDown` que, si `e.key === "Enter"` y el target es un `INPUT`, hace `preventDefault()` y llama a `handleSubmit(onAdd)()` — Enter confirma el evento, igual que en un `<form>` real (`ImportantDateForm`). El guard por `INPUT` deja intactos los Select y el botón del date picker.
 - Al confirmar, el evento se añade al array local con `useFieldArray.append` y el subformulario desaparece. El usuario puede añadir varios antes de guardar la persona.
@@ -340,7 +346,7 @@ La visibilidad se detecta con un listener de `scroll` en `scrollContainerRef` qu
 
 ### Marcas favoritas (`BrandTagInput`)
 
-`src/components/people/BrandTagInput.tsx`. Mismo patrón de chips que `InterestTagInput` (Badge `secondary` con `X`, input + botón `Plus`, dedupe normalizado sin acentos, Enter/coma añade, Backspace con input vacío quita la última) pero **sin desplegable ni sugerencias**: las marcas son un vocabulario abierto (LEGO, Nike, Lush…) que no tiene sentido autocompletar con un catálogo local. Tope de 10 (`MAX_BRANDS`, espejo del validador del servidor); al alcanzarlo el input se deshabilita con placeholder "Máximo alcanzado". Se usa en `PersonForm` (creación, bajo Intereses, con hint de una línea) y en la ficha de persona (autosave en cada cambio, eyebrow `Tags`). El campo alimenta el prompt de la IA — ver `docs/ia-regalos.md` · "Marcas favoritas".
+`src/components/people/BrandTagInput.tsx`. Mismo patrón de chips que `InterestTagInput` (Badge `secondary` con `X`, input + botón `Plus`, dedupe normalizado sin acentos, Enter/coma añade, Backspace con input vacío quita la última) pero **sin desplegable ni sugerencias**: las marcas son un vocabulario abierto (LEGO, Nike, Lush…) que no tiene sentido autocompletar con un catálogo local. Tope de 10 (`MAX_BRANDS`, espejo del validador del servidor); al alcanzarlo el input se deshabilita con placeholder "Máximo alcanzado". Se usa en `PersonForm` (creación, bajo Intereses, sin hint) y en la ficha de persona (autosave en cada cambio, eyebrow `Tags`). El campo alimenta el prompt de la IA — ver `docs/ia-regalos.md` · "Marcas favoritas".
 
 ### Sección Eventos (detalle de persona)
 
