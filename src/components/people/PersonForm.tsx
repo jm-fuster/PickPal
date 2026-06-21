@@ -297,7 +297,7 @@ function EventsSection({
           Eventos
         </h2>
         <p className="text-xs text-muted-foreground">
-          Añade cumpleaños, aniversarios u otras fechas clave para recibir un aviso con tiempo y no pillarte por sorpresa.
+          Fechas que no quieres olvidar, cada una con su presupuesto.
         </p>
 
         {/* List of added events */}
