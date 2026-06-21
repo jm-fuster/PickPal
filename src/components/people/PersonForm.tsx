@@ -22,6 +22,7 @@ import {
   RELATIONSHIPS,
 } from "@/lib/schemas";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -289,86 +290,88 @@ function EventsSection({
   };
 
   return (
-    <div className="space-y-3">
-      <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-1.5">
-        <CalendarDays className="size-3.5" aria-hidden />
-        Eventos
-      </p>
-      <p className="text-xs text-muted-foreground">
-        Añade cumpleaños, aniversarios u otras fechas clave para recibir un aviso con tiempo y no pillarte por sorpresa.
-      </p>
+    <Card className="border-border/60 shadow-sm">
+      <CardContent className="space-y-4 p-5">
+        <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-1.5">
+          <CalendarDays className="size-3.5" aria-hidden />
+          Eventos
+        </h2>
+        <p className="text-xs text-muted-foreground">
+          Añade cumpleaños, aniversarios u otras fechas clave para recibir un aviso con tiempo y no pillarte por sorpresa.
+        </p>
 
-      {/* List of added events */}
-      {fields.map((field, idx) => {
-        const min = field.budgetMinEuros;
-        const max = field.budgetMaxEuros;
-        const hasBudget = min !== undefined || max !== undefined;
-        const budgetText =
-          min !== undefined && max !== undefined
-            ? `${min}€ – ${max}€`
-            : min !== undefined
-              ? `desde ${min}€`
-              : max !== undefined
-                ? `hasta ${max}€`
-                : null;
-        return (
-          <div
-            key={field.id}
-            className="flex items-start justify-between gap-3 rounded-lg bg-background/60 px-3 py-2 text-sm"
-          >
-            <div className="min-w-0 flex-1 space-y-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="font-medium">{field.label}</span>
-                {field.recurring === false ? (
-                  <Badge variant="outline" className="gap-1 text-muted-foreground">
-                    <CalendarX2 className="size-3" aria-hidden />Única
-                  </Badge>
-                ) : (
-                  <Badge variant="outline" className="gap-1 text-muted-foreground">
-                    <Repeat2 className="size-3" aria-hidden />Anual
-                  </Badge>
-                )}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {formatEventDate(field.day, field.month, field.year)}
-              </p>
-              {hasBudget && budgetText ? (
-                <p className="text-xs text-muted-foreground">
-                  Presupuesto: {budgetText}
-                </p>
-              ) : null}
-            </div>
-            <Button
-              type="button"
-              size="icon-sm"
-              variant="ghost"
-              onClick={() => remove(idx)}
-              aria-label="Quitar evento"
-              className="shrink-0"
+        {/* List of added events */}
+        {fields.map((field, idx) => {
+          const min = field.budgetMinEuros;
+          const max = field.budgetMaxEuros;
+          const hasBudget = min !== undefined || max !== undefined;
+          const budgetText =
+            min !== undefined && max !== undefined
+              ? `${min}€ – ${max}€`
+              : min !== undefined
+                ? `desde ${min}€`
+                : max !== undefined
+                  ? `hasta ${max}€`
+                  : null;
+          return (
+            <div
+              key={field.id}
+              className="flex items-start justify-between gap-3 rounded-lg border border-border/60 bg-background/60 px-3 py-2 text-sm"
             >
-              <Trash2 className="size-3.5" />
-            </Button>
-          </div>
-        );
-      })}
+              <div className="min-w-0 flex-1 space-y-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-medium">{field.label}</span>
+                  {field.recurring === false ? (
+                    <Badge variant="outline" className="gap-1 text-muted-foreground">
+                      <CalendarX2 className="size-3" aria-hidden />Única
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="gap-1 text-muted-foreground">
+                      <Repeat2 className="size-3" aria-hidden />Anual
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {formatEventDate(field.day, field.month, field.year)}
+                </p>
+                {hasBudget && budgetText ? (
+                  <p className="text-xs text-muted-foreground">
+                    Presupuesto: {budgetText}
+                  </p>
+                ) : null}
+              </div>
+              <Button
+                type="button"
+                size="icon-sm"
+                variant="ghost"
+                onClick={() => remove(idx)}
+                aria-label="Quitar evento"
+                className="shrink-0"
+              >
+                <Trash2 className="size-3.5" />
+              </Button>
+            </div>
+          );
+        })}
 
-      {/* Add form or button */}
-      {showAddForm ? (
-        <AddEventForm
-          onAdd={handleAdd}
-          onCancel={() => setShowAddForm(false)}
-        />
-      ) : (
-        <button
-          type="button"
-          onClick={() => setShowAddForm(true)}
-          className="flex w-full items-center gap-2 rounded-lg border border-dashed border-border/70 p-3 text-sm text-muted-foreground transition-colors hover:border-border hover:bg-muted/40 hover:text-foreground"
-        >
-          <Plus className="size-4" aria-hidden />
-          Añadir evento
-        </button>
-      )}
-    </div>
+        {/* Add form or button */}
+        {showAddForm ? (
+          <AddEventForm
+            onAdd={handleAdd}
+            onCancel={() => setShowAddForm(false)}
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={() => setShowAddForm(true)}
+            className="flex w-full items-center gap-2 rounded-lg border border-dashed border-border/70 p-3 text-sm text-muted-foreground transition-colors hover:border-border hover:bg-muted/40 hover:text-foreground"
+          >
+            <Plus className="size-4" aria-hidden />
+            Añadir evento
+          </button>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
@@ -427,171 +430,180 @@ export function PersonForm({
   return (
     <form onSubmit={handleSubmit(submit)} className="space-y-6">
       <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
-        {/* ── Left column: identity ── */}
-        <div className="space-y-5">
-          <div className="space-y-1.5">
-            <Label>Avatar</Label>
-            <Controller
-              name="avatarUrl"
-              control={control}
-              render={({ field }) => (
-                <div className="flex items-center gap-4">
-                  <Avatar className="size-16 ring-1 ring-border">
-                    {field.value ? <AvatarImage src={field.value} alt="" /> : null}
-                    <AvatarFallback>
-                      {watchedName?.trim() ? (
-                        watchedName.trim().slice(0, 2).toUpperCase()
-                      ) : (
-                        <UserRound className="size-6 text-muted-foreground" aria-hidden />
-                      )}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-wrap gap-2">
-                    <AvatarPickerDialog
-                      value={field.value}
-                      onChange={field.onChange}
-                      trigger={
-                        <Button type="button" variant="outline" size="sm" className="gap-1.5">
-                          <Camera className="size-3.5" aria-hidden />
-                          {field.value ? "Cambiar avatar" : "Elegir avatar"}
-                        </Button>
-                      }
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => field.onChange(randomAvatarUrl())}
-                      className="gap-1.5"
-                    >
-                      <Shuffle className="size-3.5" aria-hidden />
-                      Aleatorio
-                    </Button>
+        {/* ── Left column: identity card ── */}
+        <Card className="border-border/60 shadow-sm">
+          <CardContent className="space-y-5 p-5">
+            <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-1.5">
+              <UserRound className="size-3.5" aria-hidden />
+              Quién es
+            </h2>
+
+            <div className="space-y-1.5">
+              <Label>Avatar</Label>
+              <Controller
+                name="avatarUrl"
+                control={control}
+                render={({ field }) => (
+                  <div className="flex items-center gap-4">
+                    <Avatar className="size-16 ring-1 ring-border">
+                      {field.value ? <AvatarImage src={field.value} alt="" /> : null}
+                      <AvatarFallback>
+                        {watchedName?.trim() ? (
+                          watchedName.trim().slice(0, 2).toUpperCase()
+                        ) : (
+                          <UserRound className="size-6 text-muted-foreground" aria-hidden />
+                        )}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-wrap gap-2">
+                      <AvatarPickerDialog
+                        value={field.value}
+                        onChange={field.onChange}
+                        trigger={
+                          <Button type="button" variant="outline" size="sm" className="gap-1.5">
+                            <Camera className="size-3.5" aria-hidden />
+                            {field.value ? "Cambiar avatar" : "Elegir avatar"}
+                          </Button>
+                        }
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => field.onChange(randomAvatarUrl())}
+                        className="gap-1.5"
+                      >
+                        <Shuffle className="size-3.5" aria-hidden />
+                        Aleatorio
+                      </Button>
+                    </div>
                   </div>
+                )}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="name">Nombre</Label>
+              <Input
+                id="name"
+                aria-invalid={errors.name ? true : undefined}
+                aria-describedby={errors.name ? "name-error" : undefined}
+                {...register("name")}
+              />
+              {errors.name ? (
+                <p id="name-error" className="text-xs text-destructive">{errors.name.message}</p>
+              ) : null}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Relación</Label>
+              <Controller
+                name="relationship"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger aria-label="Relación" className="w-full">
+                      <span>
+                        {RELATIONSHIPS.find((r) => r.value === field.value)?.label ?? "Selecciona relación"}
+                      </span>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {RELATIONSHIPS.map((r) => (
+                        <SelectItem key={r.value} value={r.value}>
+                          {r.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Intereses</Label>
+              <Controller
+                name="interests"
+                control={control}
+                render={({ field }) => (
+                  <InterestTagInput value={field.value} onChange={field.onChange} />
+                )}
+              />
+              {errors.interests ? (
+                <p className="text-xs text-destructive">
+                  {errors.interests.message as string}
+                </p>
+              ) : null}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Marcas favoritas</Label>
+              <Controller
+                name="favoriteBrands"
+                control={control}
+                render={({ field }) => (
+                  <BrandTagInput value={field.value} onChange={field.onChange} />
+                )}
+              />
+              {errors.favoriteBrands ? (
+                <p className="text-xs text-destructive">
+                  {errors.favoriteBrands.message as string}
+                </p>
+              ) : null}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="notes">Notas</Label>
+              <Textarea
+                id="notes"
+                rows={4}
+                placeholder="Contexto, anécdotas, lo que se te ocurra…"
+                {...register("notes")}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* ── Right column: practical info card + events card ── */}
+        <div className="space-y-6">
+          <Card className="border-border/60 shadow-sm">
+            <CardContent className="space-y-4 p-5">
+              <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-1.5">
+                <Ruler className="size-3.5" aria-hidden />
+                Datos prácticos
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                Cuanto más sepamos, mejores sugerencias de regalo recibirás. Las tallas y restricciones evitan regalos que no se pueden usar.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="shoeSize">Talla de zapato</Label>
+                  <Input id="shoeSize" placeholder="EU 42, 38…" {...register("shoeSize")} />
                 </div>
-              )}
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="name">Nombre</Label>
-            <Input
-              id="name"
-              aria-invalid={errors.name ? true : undefined}
-              aria-describedby={errors.name ? "name-error" : undefined}
-              {...register("name")}
-            />
-            {errors.name ? (
-              <p id="name-error" className="text-xs text-destructive">{errors.name.message}</p>
-            ) : null}
-          </div>
-
-          <div className="space-y-1.5">
-            <Label>Relación</Label>
-            <Controller
-              name="relationship"
-              control={control}
-              render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger aria-label="Relación" className="w-full">
-                    <span>
-                      {RELATIONSHIPS.find((r) => r.value === field.value)?.label ?? "Selecciona relación"}
-                    </span>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {RELATIONSHIPS.map((r) => (
-                      <SelectItem key={r.value} value={r.value}>
-                        {r.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label>Intereses</Label>
-            <Controller
-              name="interests"
-              control={control}
-              render={({ field }) => (
-                <InterestTagInput value={field.value} onChange={field.onChange} />
-              )}
-            />
-            {errors.interests ? (
-              <p className="text-xs text-destructive">
-                {errors.interests.message as string}
-              </p>
-            ) : null}
-          </div>
-
-          <div className="space-y-1.5">
-            <Label>Marcas favoritas</Label>
-            <Controller
-              name="favoriteBrands"
-              control={control}
-              render={({ field }) => (
-                <BrandTagInput value={field.value} onChange={field.onChange} />
-              )}
-            />
-            {errors.favoriteBrands ? (
-              <p className="text-xs text-destructive">
-                {errors.favoriteBrands.message as string}
-              </p>
-            ) : null}
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="notes">Notas</Label>
-            <Textarea
-              id="notes"
-              rows={4}
-              placeholder="Contexto, anécdotas, lo que se te ocurra…"
-              {...register("notes")}
-            />
-          </div>
-        </div>
-
-        {/* ── Right column: practical info + events ── */}
-        <div className="space-y-5">
-          <div className="space-y-3">
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-1.5">
-              <Ruler className="size-3.5" aria-hidden />
-              Datos prácticos
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Cuanto más sepamos, mejores sugerencias de regalo recibirás. Las tallas y restricciones evitan regalos que no se pueden usar.
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="shoeSize">Talla de zapato</Label>
-                <Input id="shoeSize" placeholder="EU 42, 38…" {...register("shoeSize")} />
+                <div className="space-y-1.5">
+                  <Label htmlFor="clothingSize">Talla de ropa</Label>
+                  <Input id="clothingSize" placeholder="M, L, 38…" {...register("clothingSize")} />
+                </div>
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="clothingSize">Talla de ropa</Label>
-                <Input id="clothingSize" placeholder="M, L, 38…" {...register("clothingSize")} />
+                <Label htmlFor="allergies">Alergias o restricciones</Label>
+                <Textarea
+                  id="allergies"
+                  rows={2}
+                  placeholder="Frutos secos, gluten, látex…"
+                  {...register("allergies")}
+                />
               </div>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="allergies">Alergias o restricciones</Label>
-              <Textarea
-                id="allergies"
-                rows={2}
-                placeholder="Frutos secos, gluten, látex…"
-                {...register("allergies")}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="dislikes">Cosas que no le gustan</Label>
-              <Textarea
-                id="dislikes"
-                rows={2}
-                placeholder="Color amarillo, perfumes fuertes, libros de autoayuda…"
-                {...register("dislikes")}
-              />
-            </div>
-          </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="dislikes">Cosas que no le gustan</Label>
+                <Textarea
+                  id="dislikes"
+                  rows={2}
+                  placeholder="Color amarillo, perfumes fuertes, libros de autoayuda…"
+                  {...register("dislikes")}
+                />
+              </div>
+            </CardContent>
+          </Card>
 
           {includeDates ? <EventsSection control={control} /> : null}
         </div>

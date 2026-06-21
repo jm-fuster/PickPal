@@ -264,11 +264,12 @@ Padding de página responsive en todos los `<main>`: `p-4 sm:p-6 lg:p-8`. No usa
 
 **PersonForm — layout dos columnas en desktop:**
 - A partir de `lg`: `grid grid-cols-2 items-start gap-6`.
-- Columna izquierda: avatar, nombre, relación, intereses, marcas favoritas, notas.
-- Columna derecha: bloque "Datos prácticos" (talla zapato, talla ropa, alergias, no le gusta) + `EventsSection` (si `includeDates` es `true`).
-- Cada bloque semántico usa `space-y-5` entre grupos y `space-y-1.5` label–input–error.
-- **Sin contenedores** en la columna derecha: ni "Datos prácticos" ni "Eventos" van en card ni caja con borde punteado. Fluyen en la columna como el resto de campos (eyebrow de sección + campos), separados por `space-y-5`. El eyebrow basta para delimitar la sección; la caja añadía peso visual y rompía la simetría con la columna izquierda.
-- **Marcas favoritas vive con Intereses** (columna izquierda), no en "Datos prácticos": es un *gusto* (preferencia positiva que alimenta la IA), no un hecho/restricción como las tallas o las alergias. "Datos prácticos" se reserva para tallas y límites.
+- **Cada sección va en su propia `Card`** (`border-border/60 shadow-sm`, con `CardContent p-5` y eyebrow `<h2>` `font-sans` + icono lucide `size-3.5`) — mismo registro de cards que la ficha de persona (`/seres-queridos/[id]`), para que crear y editar se vean como la misma libreta.
+  - **Columna izquierda — card "Quién es"** (icono `UserRound`): avatar, nombre, relación, intereses, marcas favoritas, notas. `CardContent` con `space-y-5` (campos altos: avatar con botones, textareas).
+  - **Columna derecha — card "Datos prácticos"** (icono `Ruler`: talla zapato, talla ropa, alergias, no le gusta) + card "Eventos" (`EventsSection`, icono `CalendarDays`, solo si `includeDates`). Las dos cards se apilan con `space-y-6` (mismo gap que el grid). `CardContent` con `space-y-4`.
+- Dentro de cada card, los grupos usan `space-y-1.5` label–input–error.
+- **Por qué cards, y por qué la identidad también lleva título** (revierte la decisión previa de "sin contenedores"): la sección de identidad (foto, nombre, gustos…) no tenía título; ahora es una card con eyebrow representativo, "Quién es" (cubre identidad + gustos). Envolver **todas** las secciones en cards iguala el formulario de creación con la ficha de persona —donde cada sección ya vivía en una `Card` con eyebrow `<h2>`— y resuelve la antigua objeción de "rompe la simetría": ya no hay una columna con caja y otra sin ella, ambas son cards.
+- **Marcas favoritas vive con Intereses** (card "Quién es"), no en "Datos prácticos": es un *gusto* (preferencia positiva que alimenta la IA), no un hecho/restricción como las tallas o las alergias. "Datos prácticos" se reserva para tallas y límites.
 
 **PersonForm — qué es obligatorio:**
 - **Solo `name` es obligatorio**; todo lo demás es opcional. No se etiquetan secciones sueltas como "(opcional)" — marcar unas sí y otras no daba a entender que intereses/marcas/notas eran obligatorios. Los headers de sección van limpios ("Datos prácticos", "Eventos").
