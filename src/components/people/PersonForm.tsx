@@ -575,7 +575,7 @@ export function PersonForm({
                 Datos prácticos
               </h2>
               <p className="text-xs text-muted-foreground">
-                Cuanto más sepamos, mejores sugerencias de regalo recibirás. Las tallas y restricciones evitan regalos que no se pueden usar.
+                Las tallas y restricciones evitan regalos que no se pueden usar.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
