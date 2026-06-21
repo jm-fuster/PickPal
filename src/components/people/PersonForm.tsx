@@ -437,6 +437,9 @@ export function PersonForm({
               <UserRound className="size-3.5" aria-hidden />
               Quién es
             </h2>
+            <p className="text-xs text-muted-foreground">
+              Quién es y qué le gusta. Cuanto mejor la describas, más acertarán las sugerencias de regalo.
+            </p>
 
             <div className="space-y-1.5">
               <Label>Avatar</Label>
