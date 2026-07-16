@@ -227,24 +227,31 @@ Página de marketing, server component. Estructura:
   - Autenticado: un botón "Ir a la agenda" → `/agenda`.
   - No autenticado: "Empezar gratis" (primary) + "Iniciar sesión" (outline).
 - **Steps**: grid `grid-cols-1 sm:grid-cols-3`, tres `Card` estáticas (sin hover). Cada card tiene:
-  - **Banda de ilustración** arriba: `relative flex h-28 items-center justify-center rounded-xl` con tinte plano + composición de iconos lucide — un icono central `size-10 strokeWidth={1.5}` a opacidad plena y dos satélites `size-4`/`size-5` en `opacity-50` posicionados `absolute` con rotaciones ligeras (`±rotate-6/12`) para el registro de viñeta hecha a mano. Todo el bloque `aria-hidden` (decorativo).
+  - **Pictograma de marca** arriba: componente SVG de [`src/components/landing/StepIllustrations.tsx`](../src/components/landing/StepIllustrations.tsx), centrado en un contenedor `flex h-24 items-center justify-center`, tamaño `h-20 w-auto`. Flotan directamente sobre la card, sin banda de tinte detrás — los círculos crema del propio pictograma hacen de fondo.
   - Badge de número: `size-6 rounded-full bg-secondary text-secondary-foreground text-[11px] font-semibold`.
   - Título `text-xl font-medium` (serif heredado), en fila con el badge (flex row, `gap-3`).
   - Cuerpo `text-sm leading-relaxed text-muted-foreground`.
 - **Footer**: una línea centrada `text-xs text-muted-foreground`.
 
-**Pasos actuales:**
+**Pictogramas de marca (`StepIllustrations.tsx`):**
 
-| # | Ilustración (tinte · central · satélites) | Título | Cuerpo |
-|---|---|---|---|
-| 1 | Terracota `bg-secondary/15 text-secondary` · `Users` · `Heart` + `NotebookPen` | Añade a tus seres queridos | Sus gustos, notas, tallas y sus eventos — cada ocasión con su presupuesto. |
-| 2 | Ámbar `bg-chart-3/15 text-amber-700 dark:text-amber-500` · `BellRing` · `CalendarDays` + `Clock` | Dile cuándo avisarte | Elige con cuántos días de antelación quieres saber que se acerca una fecha. Sin sorpresas. |
-| 3 | Verde `bg-primary/10 text-primary` · `Gift` · `Sparkles` ×2 | Genera ideas perfectas | Un botón. Nueve sugerencias adaptadas a esa persona, a la ocasión y a tu presupuesto. |
+Ilustraciones planas en el mismo lenguaje que el logo-mark: figuras geométricas rellenas (sin stroke), círculos crema de fondo y el dúo verde bosque + terracota. Reglas:
+
+- **Colores solo por token**: `fill-accent` (círculos crema de fondo), `fill-primary` (forma principal), `fill-secondary` (acento terracota), `fill-chart-3` (destello ámbar puntual). Nunca hex fijos — así se adaptan a claro/oscuro solos.
+- **Formas**: círculos, rects redondeados y paths simples. Las figuras humanas son cabeza (círculo) + hombros (rect con `rx` = mitad del ancho), recortadas al círculo de fondo con `clipPath` — mismo esquema que las dos figuras del logo.
+- Siempre `aria-hidden` (decorativas). `viewBox="0 0 140 72"` compartido.
+
+| # | Pictograma | Título |
+|---|---|---|
+| 1 | Trío de figuras — la central terracota, delante y más grande; las laterales verdes | Añade a tus seres queridos |
+| 2 | Campana verde sobre círculo crema + badge terracota de aviso | Dile cuándo avisarte |
+| 3 | Caja de regalo verde con lazo terracota + destellos ámbar/terracota | Genera ideas perfectas |
 
 **Decisiones:**
 - Las step cards no tienen hover — son informativas, no interactivas.
-- **Las ilustraciones reutilizan el lenguaje de la cabecera visual de las cards de ideas** (tinte plano + icono lucide grande, mismas tres familias de color): la landing promete lo que la app ya enseña. Sets externos tipo unDraw siguen descartados (ver decisión en Cards · Cabecera visual). El mapeo semántico de tintes: terracota = personas/afecto (mismo color que los badges de relación), ámbar = avisos (mismo ámbar que el contador de la campana, con la regla de contraste `amber-700` en claro), verde = generación de ideas (mismo primary que `GenerationProgress`).
-- Sin emojis en las cards: el número + ilustración lucide comunica el paso mejor y mantiene el registro adulto.
+- **Pictogramas propios, no iconos lucide ni sets externos**: se probó una composición de iconos lucide con tintes planos (commit `d7eae86`) y se sustituyó — los iconos de stroke leen como UI, no como ilustración. Los pictogramas rellenos en la paleta de marca extienden el lenguaje del logo (figuras planas verde+terracota) y mantienen el registro de papelería cálida. unDraw y similares siguen descartados (estética SaaS genérica). Esta es la **excepción deliberada a la regla "no SVG inline"** de Iconografía: aplica solo a ilustración de marca (landing, futuros empty states de marketing), nunca a iconos funcionales de la app, que siguen siendo lucide.
+- El mapeo semántico de colores se mantiene: terracota = personas/afecto, verde = producto/acción, ámbar = destello puntual.
+- Sin emojis en las cards: número + pictograma comunican el paso y mantienen el registro adulto.
 - El H1 apunta al pain principal ("regalo perfecto"), no al recordatorio de fechas, que es lo que ya hace el calendario del teléfono.
 
 ### Páginas — padding y layout
@@ -523,14 +530,13 @@ Iconos en uso:
 - `Shuffle` — tipo de regalo "Sorpréndeme".
 - `ExternalLink` — chips de tienda en `GiftRecommendationCard` (size-3, detrás del texto).
 - `Gift` — icono del botón "Ideas de regalo" (agenda y ficha de persona) y empty state de la campana de notificaciones.
-- **Catálogo visual de ideas** — la cabecera de `GiftRecommendationCard` usa 30 iconos lucide adicionales (Smartphone, Headphones, ChefHat, Wine, Plane, Drama, etc.) mapeados en `src/lib/giftImages.ts`. Iconos `size-9` con `strokeWidth={1.5}`; ver Componentes · Cards · Cabecera visual.
-- **Ilustraciones de la landing** — las step cards componen viñetas con iconos lucide (central `size-10` + dos satélites `size-4`/`size-5` en `opacity-50`, todos `strokeWidth={1.5}`): `Users`/`Heart`/`NotebookPen`, `BellRing`/`CalendarDays`/`Clock`, `Gift`/`Sparkles`. `BellRing` y `Clock` solo se usan aquí (la campana funcional de la app sigue siendo `Bell`). Ver Componentes · Landing page.
+- **Catálogo visual de ideas** — la cabecera de `GiftRecommendationCard` usa 30 iconos lucide adicionales (Smartphone, Headphones, ChefHat, Wine, Plane, Drama, etc.) mapeados en `src/lib/giftImages.ts`. Es el único sitio donde se usan iconos `size-9` con `strokeWidth={1.5}`; ver Componentes · Cards · Cabecera visual.
 - **Nota tiendas**: los chips de tienda ya NO usan iconos Lucide. Usan logos PNG/SVG oficiales en `public/stores/`. Ver sección Chips de tienda.
 
 **Reglas:**
 - **Botones icon-only** necesitan `aria-label` y `title`. Usar variant `ghost` y size `icon` o `icon-sm`.
 - **Botones con icono + texto**: el icono va antes del texto, separado por el gap nativo del botón. No añadir `mr-2`.
-- **No mezclar sets**: no usar Heroicons / Phosphor / SVG inline. Si lucide no tiene un icono concreto, abrir issue en pendientes antes de meter algo ad-hoc.
+- **No mezclar sets**: no usar Heroicons / Phosphor / SVG inline como icono funcional. Si lucide no tiene un icono concreto, abrir issue en pendientes antes de meter algo ad-hoc. **Excepción**: las ilustraciones de marca (logo-mark, pictogramas de la landing en `src/components/landing/StepIllustrations.tsx`) sí son SVG propio — son ilustración, no iconografía. Ver Componentes · Landing page.
 - **NADA de emojis en ningún sitio de la UI** (botones, chips, tarjetas, headers, navegación y también empty states). Siempre el icono de lucide más cercano. Equivalencias usadas en empty states: libreta → `Notebook`, café/calma → `Coffee`, ideas/destellos → `Sparkles`.
 - **Iconos decorativos**: `aria-hidden`. Solo los que aportan información llevan label.
 
