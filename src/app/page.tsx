@@ -78,10 +78,13 @@ export default async function Home() {
         </section>
 
         <section className="grid w-full max-w-5xl gap-4 grid-cols-1 sm:grid-cols-3">
-          {STEPS.map(({ number, title, body, illustration }) => (
+          {STEPS.map(({ number, title, body, illustration }, index) => (
             <Card key={title} className="border-border/60 shadow-sm">
               <CardContent className="space-y-4 p-6">
-                <div className="flex h-24 items-center justify-center">
+                <div
+                  className="flex h-24 items-center justify-center animate-in fade-in zoom-in-95 duration-500 fill-mode-both"
+                  style={{ animationDelay: `${index * 120}ms` }}
+                >
                   {illustration}
                 </div>
                 <div className="flex items-center gap-3">

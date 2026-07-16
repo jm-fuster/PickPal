@@ -238,6 +238,7 @@ Página de marketing, server component. Estructura:
 Ilustraciones planas en el mismo lenguaje que el logo-mark: figuras geométricas rellenas (sin stroke), círculos crema de fondo y el dúo verde bosque + terracota. Reglas:
 
 - **Colores solo por token**: `fill-accent` (círculos crema de fondo), `fill-primary` (forma principal), `fill-secondary` (acento terracota), `fill-chart-3` (destello ámbar puntual). Nunca hex fijos — así se adaptan a claro/oscuro solos.
+- **Entrada animada**: el contenedor del pictograma lleva `animate-in fade-in zoom-in-95 duration-500 fill-mode-both` con `animationDelay: index * 120ms` — las tres viñetas "aparecen" en cascada al cargar la landing. Zoom sutil (no slide) porque son objetos que *se posan*, no filas de lista. CSS puro (`tw-animate-css`), la página sigue siendo server component y `prefers-reduced-motion` se respeta por defecto.
 - **Formas**: círculos, rects redondeados y paths simples. Las figuras humanas son cabeza (círculo) + hombros (rect con `rx` = mitad del ancho), recortadas al círculo de fondo con `clipPath` — mismo esquema que las dos figuras del logo.
 - Siempre `aria-hidden` (decorativas). `viewBox="0 0 140 72"` compartido.
 
@@ -495,7 +496,7 @@ Patrón para "volver a la sección anterior", visible en la parte superior de p�
   - **Riesgo:** la animación se replay si el componente se desmonta/remonta. Verificar que ningún ancestro tiene un `key` que cambie con datos de Convex. El toggle interno (`useState` de `showForm`) mantiene el elemento montado mientras esté abierto; sin riesgo en los formularios actuales.
 - **Selección de cards con cambio visual** (UpcomingDateCard cuando `isSelected`): `transition-[border-color,box-shadow] duration-150` para que el ring/border aparezca con fade en lugar de saltar. No usar `transition-all` con `hover:-translate-y` en cards con acción interna (regla 164).
 - **Hovers en chips/badges clicables** (un `Badge` que no sea `<a>` — p. ej. los tags de interés, que son `<Badge render={<button>}>`; ver Accesibilidad): añadir explícitamente `hover:bg-secondary/80 transition-colors` (o equivalente). Las variantes shadcn de Badge tienen el hover bajo selector `[a]:hover:...`, que solo aplica a `<a>` — un `<span>`/`<button>` con cursor-pointer no recibe hover por defecto.
-- **No animar**: aparición de un único elemento espontáneo (es ruido), elementos que reaparecen tras refresh, headers, navegación, transiciones de página.
+- **No animar**: aparición de un único elemento espontáneo (es ruido), elementos que reaparecen tras refresh, headers, navegación, transiciones de página. **Excepción**: los pictogramas de la landing animan su entrada en cada carga — es una página de marketing donde la primera impresión es el objetivo, no una herramienta de uso repetido. No extender esto a páginas de la app.
 - **`fill-mode-both`** es importante en stagger: sin él, las cards parpadean al inicio porque la animación no tiene estado inicial.
 - **`prefers-reduced-motion`**: Tailwind y `tw-animate-css` lo respetan por defecto. No añadir overrides manuales.
 
