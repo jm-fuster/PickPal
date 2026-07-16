@@ -1,26 +1,90 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
+import {
+  BellRing,
+  CalendarDays,
+  Clock,
+  Gift,
+  Heart,
+  NotebookPen,
+  Sparkles,
+  Users,
+} from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { LogoMark } from "@/components/ui/LogoMark";
 
-const STEPS: { number: number; title: string; body: string }[] = [
+const STEPS: {
+  number: number;
+  title: string;
+  body: string;
+  illustration: ReactNode;
+}[] = [
   {
     number: 1,
     title: "Añade a tus seres queridos",
     body: "Sus gustos, notas, tallas y sus eventos — cada ocasión con su presupuesto.",
+    illustration: (
+      <div
+        aria-hidden
+        className="relative flex h-28 items-center justify-center rounded-xl bg-secondary/15 text-secondary"
+      >
+        <Users className="size-10" strokeWidth={1.5} />
+        <Heart
+          className="absolute left-[16%] top-[22%] size-5 -rotate-12 opacity-50"
+          strokeWidth={1.5}
+        />
+        <NotebookPen
+          className="absolute bottom-[20%] right-[16%] size-5 rotate-6 opacity-50"
+          strokeWidth={1.5}
+        />
+      </div>
+    ),
   },
   {
     number: 2,
     title: "Dile cuándo avisarte",
     body: "Elige con cuántos días de antelación quieres saber que se acerca una fecha. Sin sorpresas.",
+    illustration: (
+      <div
+        aria-hidden
+        className="relative flex h-28 items-center justify-center rounded-xl bg-chart-3/15 text-amber-700 dark:text-amber-500"
+      >
+        <BellRing className="size-10" strokeWidth={1.5} />
+        <CalendarDays
+          className="absolute left-[16%] top-[22%] size-5 -rotate-6 opacity-50"
+          strokeWidth={1.5}
+        />
+        <Clock
+          className="absolute bottom-[20%] right-[16%] size-5 rotate-12 opacity-50"
+          strokeWidth={1.5}
+        />
+      </div>
+    ),
   },
   {
     number: 3,
     title: "Genera ideas perfectas",
     body: "Un botón. Nueve sugerencias adaptadas a esa persona, a la ocasión y a tu presupuesto.",
+    illustration: (
+      <div
+        aria-hidden
+        className="relative flex h-28 items-center justify-center rounded-xl bg-primary/10 text-primary"
+      >
+        <Gift className="size-10" strokeWidth={1.5} />
+        <Sparkles
+          className="absolute right-[16%] top-[20%] size-5 rotate-12 opacity-50"
+          strokeWidth={1.5}
+        />
+        <Sparkles
+          className="absolute bottom-[22%] left-[18%] size-4 -rotate-12 opacity-50"
+          strokeWidth={1.5}
+        />
+      </div>
+    ),
   },
 ];
 
@@ -64,9 +128,10 @@ export default async function Home() {
         </section>
 
         <section className="grid w-full max-w-5xl gap-4 grid-cols-1 sm:grid-cols-3">
-          {STEPS.map(({ number, title, body }) => (
+          {STEPS.map(({ number, title, body, illustration }) => (
             <Card key={title} className="border-border/60 shadow-sm">
               <CardContent className="space-y-4 p-6">
+                {illustration}
                 <div className="flex items-center gap-3">
                   <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-secondary text-[11px] font-semibold text-secondary-foreground">
                     {number}

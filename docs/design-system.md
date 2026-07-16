@@ -227,23 +227,24 @@ Página de marketing, server component. Estructura:
   - Autenticado: un botón "Ir a la agenda" → `/agenda`.
   - No autenticado: "Empezar gratis" (primary) + "Iniciar sesión" (outline).
 - **Steps**: grid `grid-cols-1 sm:grid-cols-3`, tres `Card` estáticas (sin hover). Cada card tiene:
-  - Badge de número: `size-6 rounded-full bg-primary text-primary-foreground text-[11px] font-semibold`.
-  - Icono lucide `size-5 text-muted-foreground` junto al badge (flex row, `gap-3`).
-  - Título `text-xl font-medium` (serif heredado).
+  - **Banda de ilustración** arriba: `relative flex h-28 items-center justify-center rounded-xl` con tinte plano + composición de iconos lucide — un icono central `size-10 strokeWidth={1.5}` a opacidad plena y dos satélites `size-4`/`size-5` en `opacity-50` posicionados `absolute` con rotaciones ligeras (`±rotate-6/12`) para el registro de viñeta hecha a mano. Todo el bloque `aria-hidden` (decorativo).
+  - Badge de número: `size-6 rounded-full bg-secondary text-secondary-foreground text-[11px] font-semibold`.
+  - Título `text-xl font-medium` (serif heredado), en fila con el badge (flex row, `gap-3`).
   - Cuerpo `text-sm leading-relaxed text-muted-foreground`.
 - **Footer**: una línea centrada `text-xs text-muted-foreground`.
 
 **Pasos actuales:**
 
-| # | Icono | Título | Cuerpo |
+| # | Ilustración (tinte · central · satélites) | Título | Cuerpo |
 |---|---|---|---|
-| 1 | `Users` | Añade a tus seres queridos | Sus gustos, notas, tallas y sus eventos — cada ocasión con su presupuesto. |
-| 2 | `Bell` | Dile cuándo avisarte | Elige con cuántos días de antelación quieres saber que se acerca una fecha. Sin sorpresas. |
-| 3 | `Gift` | Genera ideas perfectas | Un botón. Nueve sugerencias adaptadas a esa persona, a la ocasión y a tu presupuesto. |
+| 1 | Terracota `bg-secondary/15 text-secondary` · `Users` · `Heart` + `NotebookPen` | Añade a tus seres queridos | Sus gustos, notas, tallas y sus eventos — cada ocasión con su presupuesto. |
+| 2 | Ámbar `bg-chart-3/15 text-amber-700 dark:text-amber-500` · `BellRing` · `CalendarDays` + `Clock` | Dile cuándo avisarte | Elige con cuántos días de antelación quieres saber que se acerca una fecha. Sin sorpresas. |
+| 3 | Verde `bg-primary/10 text-primary` · `Gift` · `Sparkles` ×2 | Genera ideas perfectas | Un botón. Nueve sugerencias adaptadas a esa persona, a la ocasión y a tu presupuesto. |
 
 **Decisiones:**
 - Las step cards no tienen hover — son informativas, no interactivas.
-- Sin emojis en las cards: el número + icono lucide comunica el paso mejor y mantiene el registro adulto.
+- **Las ilustraciones reutilizan el lenguaje de la cabecera visual de las cards de ideas** (tinte plano + icono lucide grande, mismas tres familias de color): la landing promete lo que la app ya enseña. Sets externos tipo unDraw siguen descartados (ver decisión en Cards · Cabecera visual). El mapeo semántico de tintes: terracota = personas/afecto (mismo color que los badges de relación), ámbar = avisos (mismo ámbar que el contador de la campana, con la regla de contraste `amber-700` en claro), verde = generación de ideas (mismo primary que `GenerationProgress`).
+- Sin emojis en las cards: el número + ilustración lucide comunica el paso mejor y mantiene el registro adulto.
 - El H1 apunta al pain principal ("regalo perfecto"), no al recordatorio de fechas, que es lo que ya hace el calendario del teléfono.
 
 ### Páginas — padding y layout
@@ -522,7 +523,8 @@ Iconos en uso:
 - `Shuffle` — tipo de regalo "Sorpréndeme".
 - `ExternalLink` — chips de tienda en `GiftRecommendationCard` (size-3, detrás del texto).
 - `Gift` — icono del botón "Ideas de regalo" (agenda y ficha de persona) y empty state de la campana de notificaciones.
-- **Catálogo visual de ideas** — la cabecera de `GiftRecommendationCard` usa 30 iconos lucide adicionales (Smartphone, Headphones, ChefHat, Wine, Plane, Drama, etc.) mapeados en `src/lib/giftImages.ts`. Es el único sitio donde se usan iconos `size-9` con `strokeWidth={1.5}`; ver Componentes · Cards · Cabecera visual.
+- **Catálogo visual de ideas** — la cabecera de `GiftRecommendationCard` usa 30 iconos lucide adicionales (Smartphone, Headphones, ChefHat, Wine, Plane, Drama, etc.) mapeados en `src/lib/giftImages.ts`. Iconos `size-9` con `strokeWidth={1.5}`; ver Componentes · Cards · Cabecera visual.
+- **Ilustraciones de la landing** — las step cards componen viñetas con iconos lucide (central `size-10` + dos satélites `size-4`/`size-5` en `opacity-50`, todos `strokeWidth={1.5}`): `Users`/`Heart`/`NotebookPen`, `BellRing`/`CalendarDays`/`Clock`, `Gift`/`Sparkles`. `BellRing` y `Clock` solo se usan aquí (la campana funcional de la app sigue siendo `Bell`). Ver Componentes · Landing page.
 - **Nota tiendas**: los chips de tienda ya NO usan iconos Lucide. Usan logos PNG/SVG oficiales en `public/stores/`. Ver sección Chips de tienda.
 
 **Reglas:**
