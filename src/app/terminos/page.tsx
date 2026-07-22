@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { LogoMark } from "@/components/ui/LogoMark";
-import { BackLink } from "./BackLink";
+import { BackLink } from "@/components/layout/BackLink";
 
 export const metadata = {
   title: "Términos y condiciones · PickPal",
@@ -234,7 +234,7 @@ export default function TermsPage() {
       </main>
 
       <footer className="px-6 py-8 text-center text-xs text-muted-foreground">
-        <BackLink />
+        <BackLink fallbackHref="/" icon={false} />
       </footer>
     </div>
   );

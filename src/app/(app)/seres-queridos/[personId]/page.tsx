@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { use, useRef, useState } from "react";
 import {
-  ArrowLeft, CalendarDays, CalendarX2, Camera, Check, ExternalLink, Gift, NotebookPen, PencilLine, Repeat2, Ruler, Star, Tags, Trash2, ThumbsUp, X,
+  CalendarDays, CalendarX2, Camera, Check, ExternalLink, Gift, NotebookPen, PencilLine, Repeat2, Ruler, Star, Tags, Trash2, ThumbsUp, X,
 } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/select";
 import { EditImportantDateInline, ImportantDateForm } from "@/components/people/ImportantDateForm";
 import { EditGiftHistoryInline, GiftHistoryForm } from "@/components/people/GiftHistoryForm";
+import { BackLink } from "@/components/layout/BackLink";
 import { LoadingFallback } from "@/components/layout/LoadingFallback";
 import { AvatarPickerDialog } from "@/components/people/AvatarPickerDialog";
 import { InterestTagInput } from "@/components/people/InterestTagInput";
@@ -173,13 +174,7 @@ function PersonDetailContent({
     <main className="flex flex-1 flex-col gap-8 p-4 sm:p-6 lg:p-8 w-full max-w-6xl">
       {/* Título de página para navegación por encabezados (el nombre visible es un input editable) */}
       <h1 className="sr-only">{headerName}</h1>
-      <Link
-        href="/seres-queridos"
-        className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground w-fit"
-      >
-        <ArrowLeft className="size-3.5" aria-hidden />
-        Volver
-      </Link>
+      <BackLink />
 
       {/* ── Header ── */}
       <header className="flex flex-col gap-6 sm:flex-row sm:items-start">

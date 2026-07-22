@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   Sparkles,
   RefreshCw,
@@ -10,7 +9,6 @@ import {
   Ticket,
   Heart,
   Shuffle,
-  ArrowLeft,
   X,
 } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
@@ -32,6 +30,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { GiftRecommendationCard } from "@/components/gifts/GiftRecommendationCard";
 import { GenerationProgress } from "@/components/gifts/GenerationProgress";
+import { BackLink } from "@/components/layout/BackLink";
+import { EmptyState } from "@/components/layout/EmptyState";
 import { LoadingFallback } from "@/components/layout/LoadingFallback";
 import { GIFT_TYPES, type GiftType, type GiftRecommendation } from "@/lib/gifts";
 import { ALL_STORES, pickEffectiveStores, sanitizeFavoriteStores } from "@/lib/stores";
@@ -66,7 +66,6 @@ export function GiftsPanel({
   onClose,
   backHref: _backHref = "/agenda",
 }: GiftsPanelProps) {
-  const router = useRouter();
   const { isLoaded, isSignedIn } = useAuth();
   const ready = isLoaded && isSignedIn;
 
@@ -361,13 +360,7 @@ export function GiftsPanel({
     <div className="flex flex-col gap-6">
       {!embedded && (
         <div className="space-y-3">
-          <button
-            onClick={() => router.back()}
-            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground w-fit"
-          >
-            <ArrowLeft className="size-3.5" aria-hidden />
-            Volver
-          </button>
+          <BackLink />
           {person && (
             <Link
               href={`/seres-queridos/${personId}`}
@@ -544,46 +537,38 @@ export function GiftsPanel({
         </div>
       ) : showIdeas ? (
         /* El usuario descartó las 9 ideas: estado vacío con CTA, no un grid en blanco */
-        <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-14 text-center">
-          <div className="mb-3 flex justify-center" aria-hidden>
-            <Sparkles className="size-9 text-muted-foreground" />
-          </div>
-          <h2 className="text-2xl font-medium mb-2">Has descartado todas las ideas</h2>
-          <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-6">
-            La próxima tanda evitará sugerencias parecidas a las que has descartado.
-          </p>
-          <Button onClick={generate} disabled={loading} className="hover:bg-primary/80">
-            <RefreshCw className="size-4" aria-hidden />
-            Generar de nuevo
-          </Button>
-        </div>
+        <EmptyState
+          icon={Sparkles}
+          title="Has descartado todas las ideas"
+          description="La próxima tanda evitará sugerencias parecidas a las que has descartado."
+          cta={
+            <Button onClick={generate} disabled={loading} className="hover:bg-primary/80">
+              <RefreshCw className="size-4" aria-hidden />
+              Generar de nuevo
+            </Button>
+          }
+        />
+      ) : events && events.length === 0 ? (
+        <EmptyState
+          icon={Sparkles}
+          title="Sin eventos todavía"
+          description="Para generar ideas necesitas al menos un evento — cumpleaños, aniversario, lo que sea."
+          cta={
+            <Link
+              href={`/seres-queridos/${personId}`}
+              className={cn(buttonVariants({ variant: "outline" }))}
+            >
+              Añadir evento a {person.name}
+            </Link>
+          }
+        />
       ) : (
-        <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-14 text-center">
-          <div className="mb-3 flex justify-center" aria-hidden>
-            <Sparkles className="size-9 text-muted-foreground" />
-          </div>
-          {events && events.length === 0 ? (
-            <>
-              <h2 className="text-2xl font-medium mb-2">Sin eventos todavía</h2>
-              <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-6">
-                Para generar ideas necesitas al menos un evento — cumpleaños, aniversario, lo que sea.
-              </p>
-              <Link
-                href={`/seres-queridos/${personId}`}
-                className={cn(buttonVariants({ variant: "outline" }))}
-              >
-                Añadir evento a {person.name}
-              </Link>
-            </>
-          ) : (
-            <>
-              <h2 className="text-2xl font-medium mb-2">A medida para {person.name}</h2>
-              <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                La IA combinará intereses, notas y presupuesto que has guardado con la ocasión y el tipo de regalo que elijas para sugerir nueve ideas concretas.
-              </p>
-            </>
-          )}
-        </div>
+        <EmptyState
+          icon={Sparkles}
+          title={`A medida para ${person.name}`}
+          description="La IA combinará intereses, notas y presupuesto que has guardado con la ocasión y el tipo de regalo que elijas para sugerir nueve ideas concretas."
+          descriptionClassName="max-w-md"
+        />
       )}
     </div>
   );

@@ -423,9 +423,14 @@ La sección "Historial de regalos" en `/people/[id]` registra regalos pasados pa
 
 ### Enlace de retroceso (back link)
 
-Patrón para "volver a la sección anterior", visible en la parte superior de páginas de detalle o subpáginas.
+Patrón para "volver a la sección anterior", visible en la parte superior de páginas de detalle o subpáginas. Componente compartido: `src/components/layout/BackLink.tsx`.
 
 ```tsx
+<BackLink />
+```
+
+```tsx
+// Implementación interna (variante con icono, por defecto)
 <button
   onClick={() => router.back()}
   className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground w-fit"
@@ -435,12 +440,18 @@ Patrón para "volver a la sección anterior", visible en la parte superior de p�
 </button>
 ```
 
+**Props:**
+- `fallbackHref?: string` — si se indica y no hay historial dentro de la app (`window.history.length <= 1`, p. ej. URL abierta directamente o desde un enlace externo), navega ahí en vez de `router.back()`. Sin esta prop, siempre `router.back()`. Usado en los pies de página públicos (`/terminos`, `/privacidad`) con `fallbackHref="/"`.
+- `icon?: boolean` (default `true`) — variante con `ArrowLeft` + layout en fila (páginas de detalle) o variante de texto plano sin icono (pies de página, donde el contenedor ya centra y da color). `/terminos` y `/privacidad` usan `icon={false}`.
+- `label?: string` (default `"Volver"`).
+- `className?: string`.
+
 **Reglas:**
-- `router.back()` siempre — navega al paso anterior real del historial del navegador, sin importar desde dónde se llegó a la página. Nunca hardcodear un `href` fijo.
+- `router.back()` siempre por defecto — navega al paso anterior real del historial del navegador, sin importar desde dónde se llegó a la página. **Nunca hardcodear un `href` fijo** (p. ej. `<Link href="/seres-queridos">`): eso rompe el patrón para cualquier caso en que se llegó a la página desde otro sitio.
 - `<button>` con `onClick`, no `<Link>` — `router.back()` no tiene URL.
 - Icono `ArrowLeft` de lucide-react, `size-3.5`. `aria-hidden` — el texto del botón ya es descriptivo.
 - Color `text-muted-foreground` en reposo, `hover:text-foreground`. No usar `text-primary`.
-- `w-fit` para que el área de hover no se extienda a todo el ancho.
+- `w-fit` para que el área de hover no se extienda a todo el ancho (variante con icono).
 - Texto: "Volver" siempre — con navegación dinámica no se sabe el destino en tiempo de render.
 
 ### Avatars
@@ -545,29 +556,42 @@ Iconos en uso:
 
 ## Empty states
 
-Patrón consolidado. Vivo en [`src/app/(app)/people/page.tsx`](../src/app/(app)/people/page.tsx) y [`src/app/(app)/dashboard/page.tsx`](../src/app/(app)/dashboard/page.tsx).
+Componente compartido: `src/components/layout/EmptyState.tsx`. Usado en [`src/app/(app)/seres-queridos/page.tsx`](../src/app/(app)/seres-queridos/page.tsx), [`src/app/(app)/agenda/page.tsx`](../src/app/(app)/agenda/page.tsx) y [`src/components/gifts/GiftsPanel.tsx`](../src/components/gifts/GiftsPanel.tsx).
 
 ```tsx
-<div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-14 text-center">
-  <div className="mb-3 flex justify-center" aria-hidden>
-    <Notebook className="size-9 text-muted-foreground" />
-  </div>
-  <h2 className="text-2xl font-medium mb-2">Una libreta en blanco</h2>
-  <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
-    Texto invitador, 1-2 frases, voz humana, sugiere acción concreta.
-  </p>
-  <Link href="/..." className={buttonVariants({ size: "lg" })}>
-    Verbo concreto + objeto
-  </Link>
-</div>
+<EmptyState
+  icon={Notebook}
+  title="Una libreta en blanco"
+  description="Texto invitador, 1-2 frases, voz humana, sugiere acción concreta."
+  cta={
+    <Link href="/..." className={buttonVariants({ size: "lg" })}>
+      Verbo concreto + objeto
+    </Link>
+  }
+/>
 ```
+
+**Props:**
+- `icon?: LucideIcon` — opcional; sin icono para variantes reducidas de "sin resultados" (ver `seres-queridos` más abajo).
+- `title?: string` — opcional por la misma razón.
+- `description?: ReactNode`.
+- `descriptionClassName?: string` — para casos que necesitan un ancho distinto (p. ej. `max-w-md` en vez del `max-w-sm` por defecto).
+- `cta?: ReactNode` — se pasa el `Link`/`Button` ya construido, no una API propia, porque los CTAs varían entre navegación (`Link`) y acción (`Button onClick`).
+- `compact?: boolean` (default `false`) — `p-10` en vez de `p-14`, para variantes secundarias con menos contenido.
 
 **Reglas:**
 - Icono decorativo lucide (`Notebook`, `Coffee`, `Sparkles`) con `size-9 text-muted-foreground`, centrado con `flex justify-center` y `aria-hidden`. **NADA de emojis** (ni aquí ni en navegación, headers, badges o step cards).
 - Título h2 en serif (heredado del base layer), **frase con voz**, no etiqueta funcional. "Una libreta en blanco" sí; "Sin datos" no.
 - Container: `rounded-2xl border-dashed`. Punteado refuerza "este sitio está esperando algo".
-- **El CTA debe ir al destino más directo**: el empty state del dashboard lleva a `/people/new` ("Añadir ser querido"), no a `/people`. El usuario ya sabe que necesita crear una persona — no hay que darle un paso intermedio.
+- **El CTA debe ir al destino más directo**: el empty state de la agenda sin personas lleva a `/seres-queridos/new` ("Añadir ser querido"), no a `/seres-queridos`. El usuario ya sabe que necesita crear una persona — no hay que darle un paso intermedio.
 - **Empty states contextuales**: cuando hay más de una razón posible para que algo esté vacío, distinguir cuál aplica y adaptar mensaje + CTA. No mostrar siempre el mismo empty state genérico.
+
+**Seres queridos — dos variantes** (`src/app/(app)/seres-queridos/page.tsx`):
+
+| Situación | Icono | Título | CTA |
+|---|---|---|---|
+| Sin personas (`people.length === 0`) | `Notebook` | "Una libreta en blanco" | "Añadir la primera persona" → `/seres-queridos/new` |
+| Hay personas pero el filtro de relación no devuelve ninguna | — | — (solo `description`, `compact`) | Sin CTA — "Nadie en esta categoría todavía." |
 
 **Agenda — dos empty states** (`src/app/(app)/agenda/page.tsx`):
 
@@ -585,7 +609,7 @@ Cuando `events.length === 0` (la persona existe pero no tiene ningún evento gua
 - Mensaje: "Para generar ideas necesitas al menos un evento."
 - CTA botón `outline`: "Añadir evento a [nombre]" → `/seres-queridos/[personId]`
 
-Cuando hay eventos pero no se ha generado aún, muestra el placeholder informativo habitual ("A medida para [nombre]") sin CTA.
+Cuando hay eventos pero no se ha generado aún, muestra el placeholder informativo habitual ("A medida para [nombre]") sin CTA (usa `descriptionClassName="max-w-md"`, más ancho que el resto de empty states porque el texto explicativo es más largo).
 
 Cuando el usuario **descarta todas las ideas** de una tanda, se muestra otro empty state contextual ("Has descartado todas las ideas") con CTA filled "Generar de nuevo" (`Button` default + `hover:bg-primary/80` explícito, icono `RefreshCw`) — nunca un grid en blanco.
 

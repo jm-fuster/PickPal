@@ -7,6 +7,7 @@ import { useAuth } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { PersonCard } from "@/components/people/PersonCard";
+import { EmptyState } from "@/components/layout/EmptyState";
 import { buttonVariants } from "@/components/ui/button";
 import {
   Select,
@@ -67,19 +68,16 @@ export default function PeoplePage() {
           ))}
         </div>
       ) : people.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-14 text-center">
-          <div className="mb-3 flex justify-center" aria-hidden>
-            <Notebook className="size-9 text-muted-foreground" />
-          </div>
-          <h2 className="text-2xl font-medium mb-2">Una libreta en blanco</h2>
-          <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
-            Empieza por alguien fácil — pareja, padres, mejor amigo. Anota sus
-            intereses y déjanos cuidar las fechas.
-          </p>
-          <Link href="/seres-queridos/new" className={buttonVariants({ size: "lg" })}>
-            Añadir la primera persona
-          </Link>
-        </div>
+        <EmptyState
+          icon={Notebook}
+          title="Una libreta en blanco"
+          description="Empieza por alguien fácil — pareja, padres, mejor amigo. Anota sus intereses y déjanos cuidar las fechas."
+          cta={
+            <Link href="/seres-queridos/new" className={buttonVariants({ size: "lg" })}>
+              Añadir la primera persona
+            </Link>
+          }
+        />
       ) : (
         <>
           <div className="flex items-center gap-3">
@@ -111,11 +109,7 @@ export default function PeoplePage() {
               ))}
             </div>
           ) : (
-            <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-10 text-center">
-              <p className="text-sm text-muted-foreground">
-                Nadie en esta categoría todavía.
-              </p>
-            </div>
+            <EmptyState compact description="Nadie en esta categoría todavía." />
           )}
         </>
       )}
