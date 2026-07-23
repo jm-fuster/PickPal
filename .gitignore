@@ -44,3 +44,8 @@ next-env.d.ts
 # clerk configuration (can include secrets)
 /.clerk/
 .claude/
+
+# local prod data dumps & backups (PII — never commit)
+*_prod.txt
+*-prod-backup*.zip
+*.backup.zip

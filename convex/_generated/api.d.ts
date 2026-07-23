@@ -14,6 +14,7 @@ import type * as crons from "../crons.js";
 import type * as emails from "../emails.js";
 import type * as giftHistory from "../giftHistory.js";
 import type * as importantDates from "../importantDates.js";
+import type * as migrations from "../migrations.js";
 import type * as notifications from "../notifications.js";
 import type * as people from "../people.js";
 import type * as rateLimit from "../rateLimit.js";
@@ -36,6 +37,7 @@ declare const fullApi: ApiFromModules<{
   emails: typeof emails;
   giftHistory: typeof giftHistory;
   importantDates: typeof importantDates;
+  migrations: typeof migrations;
   notifications: typeof notifications;
   people: typeof people;
   rateLimit: typeof rateLimit;
