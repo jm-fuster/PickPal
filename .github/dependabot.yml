@@ -18,5 +18,13 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    ignore:
+      # typescript-eslint aún no soporta TS 7: `next build` y `npm run lint`
+      # fallan con "typescript-eslint does not support TS 7.0" (vía
+      # eslint-config-next). El CI solo corre vitest, así que el PR pasa en
+      # verde pese a romper build/lint. Reactivar el major cuando
+      # typescript-eslint publique soporte para TS 7.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
     commit-message:
       prefix: "chore(deps)"
