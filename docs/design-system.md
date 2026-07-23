@@ -186,7 +186,7 @@ Visible a partir de `lg` (1024px). Implementado en `src/app/(app)/layout.tsx`.
 
 ### Buttons
 
-- Variantes shadcn: `default` (terracota), `outline`, `ghost`, `destructive`.
+- Variantes shadcn: `default` (verde, `bg-primary`), `secondary` (terracota, `bg-secondary`), `outline`, `ghost`, `destructive` (tintado, `bg-destructive/10`), `link`. Corregido: esta línea decía antes "default (terracota)", que era del `secondary`, no del `default` — confirmado contra `src/components/ui/button.tsx`.
 - Tamaños: `sm` para acciones secundarias inline, `default` por defecto, `lg` para CTAs principales.
 - **Links que parecen botón**: usar `<Link className={cn(buttonVariants({ ... }))}>`. El componente Button de esta app **no soporta `asChild`** porque usa `@base-ui/react` en vez de Radix Slot. Dos gotchas al usar `buttonVariants` directamente en un `<a>`/`<Link>` (no en el componente `Button`):
   - **Envuélvelo en `cn(...)`**: `buttonVariants` es `cva` puro y **no aplica tailwind-merge**; sin `cn`, las clases en conflicto coexisten — p. ej. `border-transparent` (base) y `border-border` (variant `outline`) — y el borde puede renderizarse **invisible**. El componente `Button` ya hace el `cn` por dentro; los `<a>` no.
@@ -669,6 +669,8 @@ Medido con conversión OKLCH→sRGB (objetivo 4.5:1 texto normal, 3:1 texto gran
 - **`text-muted-foreground`** sobre `background`/`card`: ~5.6–7.0:1 en claro y oscuro → **pasa**. No oscurecer el token (la sensación de medido a ojo engaña: la `L` de OKLCH no es la luminancia relativa de sRGB).
 - **`text-amber-500`** sobre superficies claras: ~2.0:1 → **fallaba** (era el contador "≤7 días" de la campana). Corregido a **`text-amber-700 dark:text-amber-500`** (claro 4.91:1, oscuro 8.1:1). Para texto de aviso ámbar sobre fondo claro, usar `amber-700` (no `amber-500/600`).
 - **`text-destructive`** ("Hoy") sobre `card` claro: ~5.2:1 → pasa.
+- **`--secondary-foreground` sobre `--secondary`** (botones/badges `secondary`, terracota): **3.66:1 en claro** → no pasa AA de texto normal (4.5:1), solo el umbral de texto grande/UI (3:1). `font-medium` (500) no cuenta como "bold" a efectos de WCAG, así que en la práctica los botones/badges secundarios en modo claro no cumplen hoy con texto de tamaño normal. En oscuro pasa (6.78:1). Pendiente decidir si se oscurece `--secondary` o se aclara `--secondary-foreground` en claro. Detectado auditando las variables de Figma (ver Fundamentos de diseño más abajo).
+- **Verde de marca sin variante clara para texto sobre fondo oscuro**: `--primary` en dark (`#315837`) sobre `--background` dark da **2.32:1** — no pasa ni el umbral de texto grande. El verde de marca solo está pensado como *fondo* de botón/badge (con `--primary-foreground` encima), nunca como color de texto sobre la página; no crear un token de "texto de marca/acción" verde para dark mode sin antes añadir un primitivo más claro.
 
 ---
 
