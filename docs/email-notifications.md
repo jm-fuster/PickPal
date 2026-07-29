@@ -268,26 +268,25 @@ npx convex run emails:runDailyEmailNotifications
 npx convex run emails:runDailyEmailNotifications --prod
 ```
 
-**Opción B — email de prueba visual** (envía a cualquier email con datos reales del usuario, sin condición de días):
-
-Crear temporalmente `convex/emailTest.ts` con una action pública que llame a `internal.emails.sendBatchedReminderEmail` usando IDs reales consultados desde la base de datos. Ejemplo mínimo:
-
-```ts
-export const sendTestReminderEmail = action({
-  args: { to: v.optional(v.string()) },
-  handler: async (ctx, { to }) => {
-    // consultar un usuario + persona + fecha reales del deployment
-    // llamar a internal.emails.sendBatchedReminderEmail con esos datos
-  },
-});
-```
+**Opción B — `emails:sendTestEmail`** (envía datos de muestra a cualquier dirección, sin condición de días y sin tocar la base de datos):
 
 ```bash
-npx convex dev --once
-npx convex run emailTest:sendTestReminderEmail
+npx convex run emails:sendTestEmail '{"to":"tu@email.com"}' --prod
 ```
 
-**Importante**: borrar `emailTest.ts` tras la prueba. No commitear — es scaffolding temporal. Los IDs del dev deployment no existen en prod (la pantalla de error al pulsar el CTA en el email de prueba es esperada y no es un bug).
+Es la vía recomendada para comprobar la cadena completa —API key, remitente, dominio verificado, DNS— porque no depende de que hoy haya eventos dentro de la ventana de antelación. Devuelve un resumen con el remitente real usado, útil para confirmar que `EMAIL_FROM` está donde crees.
+
+Sin argumentos extra manda **dos tarjetas** y el CTA apunta a `/agenda`. Una tarjeta usa avatar con imagen y la otra la inicial, para ejercitar las dos ramas de `avatarHtml`; los `daysUntil` de muestra (0 y 5) cubren las redacciones "hoy" y "en N días".
+
+Para revisar la variante de **un solo evento**, que es la que enlaza a la ficha de la persona, pásale un `personId` y un `dateId` reales del mismo deployment:
+
+```bash
+npx convex run emails:sendTestEmail '{"to":"tu@email.com","personId":"...","dateId":"..."}' --prod
+```
+
+Sin esos dos argumentos los ids internos son placeholders que nunca llegan a una URL, así que el CTA de `/agenda` funciona igual. Ojo con mezclar deployments: ids de dev no existen en prod, y el CTA daría una pantalla de error (esperado, no es un bug).
+
+No lleva rate limit porque es `internalAction` y no hay forma de invocarla desde el navegador. Si algún día se expone un botón "enviar prueba" en Ajustes, ahí sí aplica el bucket `email_test` que indica [`docs/security.md`](security.md).
 
 ### Logs
 
@@ -315,7 +314,7 @@ Si por alguna razón hay que reenviar un aviso ya marcado como enviado, hay que 
 ## Limitaciones conocidas y decisiones "ahora no"
 
 - **Sin reintentos**: ver "Flujo end-to-end".
-- **Sin email de prueba desde Ajustes**: cuando lo haya, requiere bucket de rate limit. De momento, ver "Opción B" en la sección de operativa.
+- **Sin email de prueba desde Ajustes**: existe `emails:sendTestEmail`, pero solo por CLI/dashboard. Exponerlo en la UI requiere el bucket de rate limit `email_test`. Ver "Opción B" en la sección de operativa.
 - **Sin localización**: el correo va siempre en español, igual que el resto de la app.
 - **Sin opciones por evento**: el toggle es global. No se puede silenciar el recordatorio de una persona o evento concreto.
 - **Sin verificación de email**: si el JWT trae `email_verified=false`, hoy no se rechaza. Aceptable mientras Clerk no permita registros sin verificar; revisar si cambia.

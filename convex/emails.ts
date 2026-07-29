@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { internalAction } from "./_generated/server";
 import { internal } from "./_generated/api";
+import type { Id } from "./_generated/dataModel";
 import type { UserToNotify, EventToNotify } from "./notifications";
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
 const DEFAULT_FROM = "PickPal <hola@pickpal.jorgemolinafuster.com>";
@@ -183,6 +184,36 @@ function buildHtml(events: EventToNotify[]): string {
 </html>`;
 }
 
+async function sendViaResend(
+  to: string,
+  events: EventToNotify[],
+): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error("RESEND_API_KEY no configurada en Convex.");
+  }
+  const from = process.env.EMAIL_FROM ?? DEFAULT_FROM;
+
+  const res = await fetch(RESEND_ENDPOINT, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from,
+      to,
+      subject: buildSubject(events),
+      html: buildHtml(events),
+    }),
+  });
+
+  if (!res.ok) {
+    const detail = await res.text().catch(() => "");
+    throw new Error(`Resend respondió ${res.status}: ${detail.slice(0, 200)}`);
+  }
+}
+
 export const sendBatchedReminderEmail = internalAction({
   args: {
     to: v.string(),
@@ -201,30 +232,76 @@ export const sendBatchedReminderEmail = internalAction({
     ),
   },
   handler: async (_ctx, { to, events }) => {
-    const apiKey = process.env.RESEND_API_KEY;
-    if (!apiKey) {
-      throw new Error("RESEND_API_KEY no configurada en Convex.");
-    }
+    await sendViaResend(to, events);
+  },
+});
+
+/**
+ * Envío de prueba manual, con datos de muestra.
+ *
+ * Es `internalAction`: no aparece en `api.*`, así que solo se invoca desde
+ * el dashboard de Convex, `npx convex run` u otra función del backend —
+ * nunca desde el navegador. Por eso no lleva rate limit; el bucket
+ * `email_test` que sugiere `docs/security.md` aplicará el día que se
+ * exponga un botón "enviar prueba" en Ajustes, que sí sería superficie
+ * pública.
+ *
+ * Sirve para verificar la cadena completa (API key, remitente, dominio
+ * verificado y DNS) sin esperar al cron ni depender de que hoy haya
+ * eventos dentro de la ventana de antelación.
+ *
+ * Sin argumentos manda dos tarjetas y el CTA apunta a /agenda. Pasando
+ * `personId` + `dateId` reales manda una sola tarjeta con el CTA a la ficha
+ * de esa persona, que es la variante que reciben los usuarios cuando solo
+ * tienen un evento próximo.
+ */
+export const sendTestEmail = internalAction({
+  args: {
+    to: v.string(),
+    personId: v.optional(v.id("people")),
+    dateId: v.optional(v.id("importantDates")),
+  },
+  handler: async (_ctx, { to, personId, dateId }): Promise<string> => {
+    const single = personId !== undefined && dateId !== undefined;
+
+    // `buildCta` solo lee los ids en la variante de un evento único; con dos
+    // tarjetas enlaza a /agenda y no los dereferencia. Estos placeholders,
+    // por tanto, nunca llegan a viajar a una URL.
+    const SAMPLE_PERSON = "muestra" as unknown as Id<"people">;
+    const SAMPLE_DATE = "muestra" as unknown as Id<"importantDates">;
+
+    const primary: EventToNotify = {
+      dateId: dateId ?? SAMPLE_DATE,
+      personId: personId ?? SAMPLE_PERSON,
+      occurrenceYear: 2026,
+      label: "Cumpleaños",
+      personName: "Marta",
+      month: 8,
+      day: 3,
+      daysUntil: 0,
+    };
+
+    const secondary: EventToNotify = {
+      dateId: SAMPLE_DATE,
+      personId: SAMPLE_PERSON,
+      occurrenceYear: 2026,
+      label: "Aniversario",
+      personName: "Luis",
+      // Ejercita la rama de avatar con imagen (`background-image`, el
+      // workaround del modo oscuro de Gmail) frente a la inicial de Marta.
+      personAvatarUrl: `${APP_BASE_URL}/logo-mark-email.png`,
+      month: 8,
+      day: 12,
+      daysUntil: 5,
+    };
+
+    // `daysUntil` 0 y 5 cubren dos de las tres redacciones de `daysText`
+    // ("hoy" y "en N días"); "mañana" es `daysUntil === 1`.
+    const events = single ? [primary] : [primary, secondary];
+    await sendViaResend(to, events);
+
     const from = process.env.EMAIL_FROM ?? DEFAULT_FROM;
-
-    const res = await fetch(RESEND_ENDPOINT, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from,
-        to,
-        subject: buildSubject(events),
-        html: buildHtml(events),
-      }),
-    });
-
-    if (!res.ok) {
-      const detail = await res.text().catch(() => "");
-      throw new Error(`Resend respondió ${res.status}: ${detail.slice(0, 200)}`);
-    }
+    return `Enviado a ${to} desde "${from}" — ${events.length} tarjeta(s), CTA a ${single ? "la ficha de la persona" : "/agenda"}.`;
   },
 });
 
