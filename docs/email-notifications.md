@@ -146,7 +146,7 @@ El campo `personAvatarUrl` se propaga desde `person.avatarUrl` en `convex/notifi
 
 `white-space:nowrap` garantiza que el botón nunca parte en dos líneas en móvil.
 
-La URL base está hardcodeada como constante `APP_BASE_URL = "https://pickpal-app.vercel.app"` en `emails.ts`. Si el dominio cambia, actualizar ahí.
+La URL base está hardcodeada como constante `APP_BASE_URL = "https://pickpal.jorgemolinafuster.com"` en `emails.ts`. Si el dominio cambia, actualizar ahí. Alimenta tanto los links (CTA y footer) como las imágenes del email (logo e icono de regalo, servidos desde `/public`), así que un valor obsoleto rompe las dos cosas a la vez.
 
 ### Sender avatar (foto de perfil del emisor)
 
@@ -154,7 +154,7 @@ El avatar que aparece junto al remitente en clientes como Gmail **no** lo contro
 
 ### Footer
 
-> Si no quieres seguir recibiendo estos recordatorios, desactívalos en tus [ajustes](https://pickpal-app.vercel.app/settings) de PickPal.
+> Si no quieres seguir recibiendo estos recordatorios, desactívalos en tus [ajustes](https://pickpal.jorgemolinafuster.com/settings) de PickPal.
 
 "ajustes" enlaza a `/settings`. Texto en minúsculas deliberadamente — registro conversacional.
 
@@ -177,15 +177,23 @@ Viven en el **deployment de Convex**, no en Next.js, porque solo las consume el 
 
 ```bash
 npx convex env set RESEND_API_KEY re_xxxxxxxxxxxxx
-npx convex env set EMAIL_FROM "PickPal <onboarding@resend.dev>"   # opcional
+npx convex env set EMAIL_FROM "PickPal <hola@pickpal.jorgemolinafuster.com>"   # opcional
 ```
 
-Para el deployment de producción se añade `--prod` a cada comando.
+Para el deployment de producción se añade `--prod` a cada comando. En PowerShell las comillas del valor de `EMAIL_FROM` son obligatorias: sin ellas, `<` y `>` se interpretan como redirección.
 
 | Variable | Obligatoria | Default | Notas |
 |---|---|---|---|
 | `RESEND_API_KEY` | **sí** | — | API key de Resend. Sin ella, `sendBatchedReminderEmail` lanza error. |
-| `EMAIL_FROM` | no | `PickPal <onboarding@resend.dev>` | Remitente. El sandbox de Resend solo manda al email de la cuenta dueña. Para enviar a cualquiera hay que verificar dominio en Resend. |
+| `EMAIL_FROM` | no | `PickPal <hola@pickpal.jorgemolinafuster.com>` | Remitente, en formato `Nombre <dirección>`. El dominio debe estar verificado en Resend; la parte local no necesita buzón real. |
+
+### Dominio de envío
+
+El dominio verificado en Resend es **`pickpal.jorgemolinafuster.com`**, el mismo que sirve la app (`APP_BASE_URL` en [`convex/emails.ts`](../convex/emails.ts)). El `.vercel.app` original queda como alias de Vercel.
+
+Los registros DNS (SPF/DKIM) viven en la zona de `jorgemolinafuster.com` bajo `send.pickpal` y `resend._domainkey.pickpal`, mientras que el propio `pickpal` apunta a Vercel. Conviven sin problema porque son nombres distintos, pero **hay que tenerlo presente al tocar DNS**: borrar o reemplazar los registros de `pickpal` pensando solo en el hosting puede tumbar el envío de emails, y al revés.
+
+Si el estado en Resend → Domains no es *Verified*, todo envío falla con 403 aunque las variables de entorno estén bien puestas.
 
 ---
 
@@ -311,4 +319,4 @@ Si por alguna razón hay que reenviar un aviso ya marcado como enviado, hay que 
 - **Sin localización**: el correo va siempre en español, igual que el resto de la app.
 - **Sin opciones por evento**: el toggle es global. No se puede silenciar el recordatorio de una persona o evento concreto.
 - **Sin verificación de email**: si el JWT trae `email_verified=false`, hoy no se rechaza. Aceptable mientras Clerk no permita registros sin verificar; revisar si cambia.
-- **Sandbox de Resend**: hasta verificar dominio, los correos solo llegan al email de la cuenta dueña en Resend. Documentado, asumido para uso personal.
+- **Sin BIMI**: el avatar del remitente en Gmail requiere un registro DNS BIMI con logo SVG. Ver "Sender avatar". Fuera del alcance actual.

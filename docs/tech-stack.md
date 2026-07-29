@@ -56,7 +56,7 @@ Estas las consume el backend (cron de emails). Se setean con `npx convex env set
 
 ```bash
 RESEND_API_KEY=re_...                          # API key de Resend, server-only
-EMAIL_FROM="PickPal <onboarding@resend.dev>"   # opcional; sandbox por defecto
+EMAIL_FROM="PickPal <hola@pickpal.jorgemolinafuster.com>"   # opcional; dominio verificado en Resend
 CLERK_JWT_ISSUER_DOMAIN=https://...clerk.accounts.dev   # mismo issuer que en Next.js
 ```
 

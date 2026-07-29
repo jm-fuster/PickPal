@@ -40,4 +40,4 @@ Lista de preguntas abiertas que hay que resolver antes o durante el desarrollo.
 - [x] **Landing page pública.** Explica el producto con tres tarjetas de features y CTA dual (registro / login).
 - [x] **Rate limiting en `/api/recommendations`.** 10 generaciones por usuario y día (UTC), tabla `recommendationUsage` en Convex.
 - [x] **Manejo del 29 de febrero.** En años no bisiestos cae al 28 de febrero (fix en `src/lib/dates.ts`).
-- [x] **Hosting / despliegue.** Vercel auto-deploy desde `main` + Convex dev. Dominio: `pickpal-app.vercel.app` (anterior: `giftly-blond.vercel.app`; `pickpal.vercel.app` estaba ocupado por otro proyecto Vercel ajeno).
+- [x] **Hosting / despliegue.** Vercel auto-deploy desde `main` + Convex dev. Dominio: `pickpal.jorgemolinafuster.com` (subdominio propio; también es el dominio de envío verificado en Resend). Alias previos: `pickpal-app.vercel.app`, `giftly-blond.vercel.app`. `pickpal.vercel.app` estaba ocupado por otro proyecto Vercel ajeno.

@@ -3,8 +3,8 @@ import { internalAction } from "./_generated/server";
 import { internal } from "./_generated/api";
 import type { UserToNotify, EventToNotify } from "./notifications";
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
-const DEFAULT_FROM = "PickPal <onboarding@resend.dev>";
-const APP_BASE_URL = "https://pickpal-app.vercel.app";
+const DEFAULT_FROM = "PickPal <hola@pickpal.jorgemolinafuster.com>";
+const APP_BASE_URL = "https://pickpal.jorgemolinafuster.com";
 const LOGO_DATA_URI = `${APP_BASE_URL}/logo-mark-email.png`;
 const GIFT_ICON_DATA_URI = `${APP_BASE_URL}/gift-icon-email.png`;
 
