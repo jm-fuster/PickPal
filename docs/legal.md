@@ -47,7 +47,7 @@ Al registrarse y utilizar PickPal, el usuario acepta estos términos. Si no est�
 El usuario se compromete a:
 
 - No introducir datos de terceros sin tener una relación personal legítima con ellos.
-- No introducir datos sensibles (salud, ideología, orientación sexual, etc., art. 9 RGPD) en las notas.
+- No introducir datos sensibles (ideología, religión, orientación sexual, salud, etc., art. 9 RGPD) en las notas. **Excepción acotada:** el campo "alergias o restricciones" existe precisamente para lo imprescindible (una alergia alimentaria, un material que no puede llevar) y se envía a Gemini; los términos piden anotar el mínimo que evite un regalo inservible, no un historial médico. Redactarlo como prohibición absoluta contradecía un campo que la propia app ofrece — ver `privacy.md` §4.1.
 - No usar la app para fines ilícitos, ofensivos o que vulneren derechos de terceros.
 - No intentar saltarse las medidas de seguridad, los rate limits ni acceder a datos de otros usuarios.
 - No automatizar el uso del servicio mediante bots o scraping.
@@ -63,7 +63,7 @@ Las ideas de regalo se generan con un modelo de lenguaje (Google Gemini) a parti
 - Las sugerencias son **orientativas**: precios, disponibilidad y descripciones pueden no ser exactos.
 - Los enlaces a Amazon son búsquedas: no garantizan la existencia ni el precio del producto.
 - PickPal **no se hace responsable** de compras realizadas a partir de las recomendaciones.
-- Los datos necesarios para generar las ideas se envían a Google (Gemini). PickPal usa actualmente la capa gratuita de esa API, en la que Google puede usar esos datos para mejorar sus servicios; el detalle está en la [política de privacidad](privacy.md) (§4.1).
+- Para generar las ideas se envía a Google (Gemini) la ficha completa de la persona: nombre de pila (nunca apellidos), relación, intereses, marcas, notas íntegras, tallas, alergias/restricciones, dislikes, presupuesto, ocasión e historial de regalos. PickPal usa actualmente la capa gratuita de esa API, en la que Google puede usar esos datos para mejorar sus servicios y revisores humanos pueden leerlos; el detalle campo a campo está en la [política de privacidad](privacy.md) (§4.1). No basta con decir "los datos necesarios": el usuario tiene que poder saber que sus notas libres salen del sistema.
 
 ---
 

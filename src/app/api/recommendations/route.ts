@@ -64,6 +64,11 @@ const buildPrompt = (
   const brandsLine =
     brands.length > 0 ? `- Marcas favoritas: ${brands.join(", ")}` : "";
   const notesText = person.notes?.trim() || "ninguna";
+  // Solo el nombre de pila: los apellidos no aportan nada a la sugerencia y
+  // son lo que haría identificable a la persona en el proveedor de IA. El
+  // `trim()` previo importa — sin él, un nombre con espacio inicial deja el
+  // campo vacío. Ver docs/privacy.md §4.1 (qué se envía y qué no).
+  const firstName = person.name.trim().split(/\s+/)[0];
 
   const practicalLines = [
     person.shoeSize ? `- Talla de zapato: ${person.shoeSize}` : "",
@@ -134,7 +139,7 @@ ${storesGuide}`,
   return `Genera EXACTAMENTE 9 ideas de regalo para la siguiente persona.
 
 Persona:
-- Nombre: ${person.name.split(/\s+/)[0]}
+- Nombre: ${firstName}
 - Relación con quien regala: ${relationshipLabel}
 - Intereses: ${interestsText}
 ${brandsLine ? brandsLine + "\n" : ""}- Notas: ${notesText}

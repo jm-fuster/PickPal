@@ -344,6 +344,14 @@ La visibilidad se detecta con un listener de `scroll` en `scrollContainerRef` qu
 - Espaciado entre campos: `space-y-1.5` dentro de un grupo (label + input + error), `space-y-5` entre grupos.
 - **Selects**: usar siempre el componente shadcn `Select` (`SelectTrigger` + `SelectContent` + `SelectItem`). **Nunca `<select>` nativo** — el aspecto del navegador rompe la consistencia visual con el resto de la UI. En selects controlados con valor inicial, renderizar el label manualmente dentro del `SelectTrigger` con `<span>` (ver patrón en "Select con valor inicial controlado").
 
+### Aviso de datos hacia la IA (`AiNotesNotice`)
+
+[`src/components/people/AiNotesNotice.tsx`](../src/components/people/AiNotesNotice.tsx). Va **bajo el campo de notas**, en los dos sitios donde se editan: alta (`PersonForm`, card "Quién es") y ficha (`/seres-queridos/[personId]`). Un `<p className="text-xs text-muted-foreground">` con enlace subrayado a `/privacidad` — el mismo registro que el resto de hints de formulario, sin caja de alerta ni icono de warning.
+
+**Por qué sin `Alert` ni tinte destructivo**: no es un error ni un peligro inminente, es transparencia. Un banner ámbar junto a un campo opcional rompería el registro de libreta cálida y enseñaría al usuario a ignorarlo. El texto informa y sigue.
+
+**No es decoración, es un requisito legal** (RGPD art. 13: la información va donde se recogen los datos). Las notas se envían a Gemini en la capa gratuita, donde Google puede entrenar con ellas. Si se rediseña el formulario, el componente tiene que seguir montado en **ambas** pantallas — el texto vive en un componente compartido justamente para que no divergan. Contexto en [`docs/privacy.md`](privacy.md) §4.1.
+
 ### Intereses — autocompletado y sugerencias (`InterestTagInput`)
 
 `src/components/people/InterestTagInput.tsx`. Se usa en `PersonForm` (creación) y en la ficha de persona (autosave). Dos capas de ayuda sobre el input libre de tags:

@@ -10,6 +10,10 @@ const isPublicRoute = createRouteMatcher([
   // crear cuenta y para que cualquiera al que un usuario haya añadido como
   // "ser querido" pueda consultar el tratamiento de sus datos.
   "/privacidad",
+  // Términos: mismo motivo. La página dice "al registrarte aceptas estos
+  // términos", así que tienen que poder leerse *antes* de registrarse; con el
+  // default-deny, el enlace del footer y del sign-up llevaba a sign-in.
+  "/terminos",
 ]);
 
 export default clerkMiddleware(async (auth, req) => {

@@ -81,8 +81,12 @@ export default function TermsPage() {
               legítima con ellos.
             </li>
             <li>
-              No introducir datos sensibles (salud, ideología, orientación
-              sexual y similares) en las notas.
+              No introducir datos sensibles (ideología, religión, orientación
+              sexual, salud y similares) en las notas. El campo
+              &laquo;alergias o restricciones&raquo; existe para lo
+              imprescindible —una alergia alimentaria, un material que no puede
+              llevar—: anota ahí lo mínimo que evite un regalo inservible, no un
+              historial médico.
             </li>
             <li>
               No usar la app para fines ilícitos, ofensivos o que vulneren
@@ -118,8 +122,10 @@ export default function TermsPage() {
               partir de las recomendaciones.
             </li>
             <li>
-              Los datos necesarios para generar las ideas se envían a Google
-              (Gemini). El detalle está en la{" "}
+              Para generar las ideas se envía a Google (Gemini) la ficha de la
+              persona: nombre de pila, intereses, marcas, notas, tallas,
+              restricciones, presupuesto, ocasión e historial de regalos. El
+              detalle está en la{" "}
               <Link
                 href="/privacidad"
                 className="underline underline-offset-2 hover:text-foreground"
@@ -229,7 +235,7 @@ export default function TermsPage() {
         </section>
 
         <p className="text-xs text-muted-foreground">
-          Última actualización: 15 de junio de 2026.
+          Última actualización: 29 de julio de 2026.
         </p>
       </main>
 

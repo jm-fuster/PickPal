@@ -156,6 +156,50 @@ export const remapClerkUserId = internalMutation({
 });
 
 /**
+ * Avisos por correo: opt-out → opt-in. Hasta ahora `settings.ensureDefaults`
+ * creaba el doc con `emailNotificationsEnabled: true`, así que todo usuario con
+ * email quedaba suscrito sin pedirlo, mientras `/privacidad` prometía que los
+ * correos solo salen "si activas las notificaciones". Corregido el default;
+ * esta migración arregla a los usuarios ya creados con el flag heredado.
+ *
+ * Pone `emailNotificationsEnabled: false` en TODOS los docs que lo tengan en
+ * `true`. No se puede distinguir "activado por el default" de "activado a
+ * mano" —no guardamos esa señal—, así que se resetea a todos: pedir un opt-in
+ * de nuevo es recuperable, seguir enviando sin consentimiento no lo es. El
+ * resto de ajustes (antelaciones, tiendas, email) se conserva intacto, así que
+ * reactivarlo es un clic en /settings.
+ *
+ * Uso (dry run primero, siempre):
+ *   npx convex run migrations:resetEmailNotificationsToOptIn '{"dryRun":true}'
+ *   npx convex run migrations:resetEmailNotificationsToOptIn '{"dryRun":false}'
+ *   (añade --prod para el deployment de producción)
+ *
+ * Idempotente: tras correrla ningún doc queda en `true`, así que repetirla no
+ * toca nada. Correr una sola vez — si se repite después de que alguien
+ * reactive sus avisos, se los volvería a desactivar.
+ */
+export const resetEmailNotificationsToOptIn = internalMutation({
+  args: { dryRun: v.boolean() },
+  handler: async (ctx, { dryRun }) => {
+    const enabled = (await ctx.db.query("userSettings").collect()).filter(
+      (doc) => doc.emailNotificationsEnabled === true,
+    );
+
+    if (!dryRun) {
+      for (const doc of enabled) {
+        await ctx.db.patch(doc._id, { emailNotificationsEnabled: false });
+      }
+    }
+
+    return {
+      dryRun,
+      reset: enabled.length,
+      clerkUserIds: enabled.map((doc) => doc.clerkUserId).sort(),
+    };
+  },
+});
+
+/**
  * Verificación post-migración: para cada `oldClerkUserId`, cuenta cuántos
  * documentos siguen referenciándolo en las 7 tablas. Todo en 0 = migración
  * completa; cualquier valor > 0 apunta a qué tabla quedó sin migrar.

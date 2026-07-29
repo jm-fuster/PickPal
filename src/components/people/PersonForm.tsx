@@ -35,6 +35,7 @@ import {
 
 import { InterestTagInput } from "./InterestTagInput";
 import { BrandTagInput } from "./BrandTagInput";
+import { AiNotesNotice } from "./AiNotesNotice";
 import { randomAvatarUrl } from "./AvatarPicker";
 import { AvatarPickerDialog } from "./AvatarPickerDialog";
 import { BudgetRangeSlider } from "./BudgetRangeSlider";
@@ -562,6 +563,7 @@ export function PersonForm({
                 placeholder="Contexto, anécdotas, lo que se te ocurra…"
                 {...register("notes")}
               />
+              <AiNotesNotice />
             </div>
           </CardContent>
         </Card>
@@ -575,7 +577,8 @@ export function PersonForm({
                 Datos prácticos
               </h2>
               <p className="text-xs text-muted-foreground">
-                Las tallas y restricciones evitan regalos que no se pueden usar.
+                Tallas y restricciones que ayudan a la IA a sugerir regalos que
+                realmente se pueden usar.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">

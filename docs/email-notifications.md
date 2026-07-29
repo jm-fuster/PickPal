@@ -18,7 +18,7 @@ La activación y la antelación son configurables desde `/settings`.
 |---|---|
 | `userSettings.notifyDaysBefore` | **Ventana visual** de la app (campanita y dashboard). "Muéstrame todo lo que ocurra en los próximos 30 días". |
 | `userSettings.emailNotifyDaysBefore` | **Gatillos** del email (array). "Avísame cuando falten 14, 7, 2 días o el mismo día". Opciones permitidas: `[0, 2, 7, 14]`. Default `[14]`. Cada antelación marcada produce un email independiente cuando se alcanza. |
-| `userSettings.emailNotificationsEnabled` | Toggle on/off. **Activo por defecto** para nuevos usuarios (si Clerk provee email). |
+| `userSettings.emailNotificationsEnabled` | Toggle on/off. **Desactivado por defecto** — opt-in explícito (ver "Defaults para nuevos usuarios"). |
 | `userSettings.email` | Copia local del email del usuario (vino del JWT de Clerk al guardar ajustes). El cron lo lee de aquí, sin volver a pedírselo a Clerk. |
 | `emailNotifications` (tabla) | Registro de envíos para deduplicar. Una fila = una ocurrencia notificada. |
 
@@ -57,12 +57,20 @@ Al entrar por primera vez a la app (cualquier ruta autenticada), el componente `
 
 | Campo | Valor por defecto | Condición |
 |---|---|---|
-| `emailNotificationsEnabled` | `true` | Solo si Clerk provee email. Si no hay email, queda `false`. |
+| `emailNotificationsEnabled` | `false` | Siempre. Opt-in: el usuario lo activa en `/settings`. |
 | `emailNotifyDaysBefore` | `[14]` | Siempre. Array — el usuario puede marcar varias antelaciones (0/2/7/14) en `/settings`. |
 | `notifyDaysBefore` | `30` | Siempre (ventana visual de campanita) |
 | `email` | Del JWT de Clerk | Si está disponible |
 
 `ensureDefaults` es idempotente: si la fila ya existe, no hace nada. Los usuarios que ya han guardado ajustes manualmente no se ven afectados.
+
+### Por qué el toggle nace apagado (opt-in)
+
+Hasta julio de 2026 el default era `true` (activado si Clerk daba email). Era un **opt-out**: quien nunca pasaba por `/settings` recibía correos sin haberlos pedido, mientras `/privacidad` prometía que los avisos solo salen "si activas las notificaciones" y `docs/privacy.md` §3 declaraba **consentimiento** (RGPD art. 6.1.a) como base legal. Tres piezas que no podían ser ciertas a la vez.
+
+La constante es `DEFAULT_EMAIL_NOTIFICATIONS_ENABLED` en [`convex/settings.ts`](../convex/settings.ts). **No volver a `true`** sin cambiar antes la base legal declarada y las dos páginas legales: el default es la diferencia entre tener consentimiento y no tenerlo.
+
+Los usuarios creados con el default viejo se corrigieron con `migrations:resetEmailNotificationsToOptIn` ([`convex/migrations.ts`](../convex/migrations.ts)), que pone el flag en `false` en todos los docs que lo tuvieran en `true`. No se puede distinguir "activado por el default" de "activado a mano" (no guardamos esa señal), así que resetea a todos: volver a pedir el opt-in es recuperable, seguir enviando sin consentimiento no. Correr **una sola vez** — repetirla después de que alguien reactive sus avisos se los volvería a apagar.
 
 ---
 

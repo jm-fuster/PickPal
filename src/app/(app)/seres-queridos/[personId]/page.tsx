@@ -38,6 +38,7 @@ import { LoadingFallback } from "@/components/layout/LoadingFallback";
 import { AvatarPickerDialog } from "@/components/people/AvatarPickerDialog";
 import { InterestTagInput } from "@/components/people/InterestTagInput";
 import { BrandTagInput } from "@/components/people/BrandTagInput";
+import { AiNotesNotice } from "@/components/people/AiNotesNotice";
 import { RELATIONSHIPS, REACTIONS } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import { ALL_STORES, generateStoreSearchUrl, pickEffectiveStores, sanitizeFavoriteStores, STORE_ICONS, STORE_LABELS, type StoreId } from "@/lib/stores";
@@ -311,6 +312,7 @@ function PersonDetailContent({
               rows={4}
               placeholder="Restricciones, preferencias, contexto…"
             />
+            <AiNotesNotice />
           </CardContent>
         </Card>
 

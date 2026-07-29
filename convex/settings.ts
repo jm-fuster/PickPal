@@ -8,7 +8,12 @@ export const DEFAULT_NOTIFY_DAYS_BEFORE = 30;
 // 0 (día relevante), 2 y 7. Los valores aceptados están en EMAIL_LEAD_DAY_OPTIONS.
 export const DEFAULT_EMAIL_NOTIFY_DAYS_BEFORE: readonly number[] = [14];
 export const EMAIL_LEAD_DAY_OPTIONS: readonly number[] = [0, 2, 7, 14];
-export const DEFAULT_EMAIL_NOTIFICATIONS_ENABLED = true;
+// Opt-in explícito: la base legal de los avisos por correo es el consentimiento
+// (RGPD art. 6.1.a) y `/privacidad` promete que los correos solo salen "si
+// activas las notificaciones". Un default en `true` enviaría correos a quien
+// nunca pasó por /settings, que es exactamente lo que ese texto niega.
+// No cambiar a `true` sin cambiar antes la base legal y las páginas legales.
+export const DEFAULT_EMAIL_NOTIFICATIONS_ENABLED = false;
 
 export const DEFAULT_FAVORITE_STORES: readonly AllowedStore[] = ALLOWED_STORES;
 
@@ -53,8 +58,7 @@ export const getMine = query({
     return {
       notifyDaysBefore: existing?.notifyDaysBefore ?? DEFAULT_NOTIFY_DAYS_BEFORE,
       // Sin doc todavía, el default debe reflejar lo que persistirá
-      // `ensureDefaults` (activado solo si hay email). Si no, un usuario sin
-      // email vería el toggle en ON junto al aviso "no encontramos tu email".
+      // `ensureDefaults`: OFF hasta que el usuario lo active (ver constante).
       emailNotificationsEnabled:
         existing?.emailNotificationsEnabled ??
         (resolvedEmail !== null && DEFAULT_EMAIL_NOTIFICATIONS_ENABLED),
@@ -93,7 +97,8 @@ export const ensureDefaults = mutation({
     await ctx.db.insert("userSettings", {
       clerkUserId,
       notifyDaysBefore: DEFAULT_NOTIFY_DAYS_BEFORE,
-      emailNotificationsEnabled: email !== null,
+      emailNotificationsEnabled:
+        email !== null && DEFAULT_EMAIL_NOTIFICATIONS_ENABLED,
       emailNotifyDaysBefore: [...DEFAULT_EMAIL_NOTIFY_DAYS_BEFORE],
       ...(email !== null ? { email } : {}),
     });
