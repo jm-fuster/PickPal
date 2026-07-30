@@ -12,6 +12,7 @@ import { RELATIONSHIPS, REACTIONS } from "@/lib/schemas";
 import { STORE_IDS } from "@/lib/stores";
 import { matchFavoriteBrands, normalizeBrandDomain } from "@/lib/brands";
 import { normalizeInterest } from "@/lib/interests";
+import { classifyProviderError } from "@/lib/errors";
 
 const GIFT_TYPE_VALUES = GIFT_TYPES.map((t) => t.value) as [GiftType, ...GiftType[]];
 
@@ -515,18 +516,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ideas: ideasWithBrands, remaining });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    console.error("[recommendations] gemini:", message);
-    // AI_RetryError wraps the real cause in lastError
-    const statusCode =
-      err != null && typeof err === "object"
-        ? (err as Record<string, unknown>).statusCode ??
-          (
-            (err as Record<string, unknown>).lastError as
-              | Record<string, unknown>
-              | undefined
-          )?.statusCode
-        : undefined;
-    const isOverloaded = statusCode === 503;
+    const failure = classifyProviderError(err);
+    // El `kind` en el log distingue los 429 entre sí (cuota diaria agotada vs.
+    // ráfaga por minuto) sin tener que volver a leer el cuerpo del proveedor.
+    console.error(`[recommendations] gemini (${failure.kind}):`, message);
     // La cuota se reservó ANTES de llamar a Gemini. Si llegamos al catch no se
     // persistió ninguna idea (el `return` de éxito va dentro del try, tras el
     // upsert), así que SIEMPRE devolvemos la unidad: ni un fallo retriable del
@@ -539,12 +532,8 @@ export async function POST(req: NextRequest) {
       console.error("[recommendations] quota refund:", refundErr);
     }
     return NextResponse.json(
-      {
-        error: isOverloaded
-          ? "La IA está saturada ahora mismo — no se ha consumido cuota. Inténtalo en unos minutos."
-          : "No hemos podido generar ideas en este momento — no se ha consumido cuota. Inténtalo de nuevo.",
-      },
-      { status: isOverloaded ? 503 : 500 },
+      { error: failure.error },
+      { status: failure.status },
     );
   }
 }

@@ -402,8 +402,22 @@ La variable de entorno `GOOGLE_GENERATIVE_AI_API_KEY` debe configurarse en Verce
 **PickPal usa la capa gratuita (free tier) de la Gemini API:**
 1. Crear la API key en [aistudio.google.com/apikey](https://aistudio.google.com/apikey) sobre un proyecto de Google Cloud **SIN facturación activada**. El free tier no requiere método de pago y está disponible en la UE.
 2. Coste: **0 €**. A cambio, Google usa los datos enviados para mejorar sus modelos y revisores humanos pueden leerlos (ver el coste de privacidad en [`privacy.md`](privacy.md) §4.1).
-3. Los límites del free tier de `gemini-2.5-flash` (RPM/RPD) son suficientes para una beta privada, sobre todo con el rate limit interno de 10 generaciones/usuario/día. Para no malgastar cuota, el código desactiva el *thinking* y limita los reintentos (`maxRetries: 1`) en [`route.ts`](../src/app/api/recommendations/route.ts).
-4. **Proyecto de Google Cloud dedicado.** La [doc de Google](https://ai.google.dev/gemini-api/docs/rate-limits) dice literalmente que los rate limits "se aplican por proyecto, no por API key": crear una segunda key dentro del mismo proyecto **no** separa la cuota. Si el proyecto se comparte con otra app, esa app puede agotar el RPD del día y PickPal se queda sin generar: Gemini devuelve `429`, cae al `catch` de [`route.ts`](../src/app/api/recommendations/route.ts) (devuelve la unidad de cuota al usuario y responde `500` con el mensaje genérico) — no hay mensaje específico de "cuota de Google agotada". PickPal debe tener su propio proyecto.
+3. Los límites del free tier de `gemini-2.5-flash` (RPM/RPD) son suficientes para una beta privada, sobre todo con el rate limit interno de 10 generaciones/usuario/día. El *thinking* se deja activo a propósito (desactivarlo degradaba el structured output) y `maxRetries: 2` da margen ante una tanda que no valide; el coste extra es asumible con el tope de 10 generaciones/día. Ver [`route.ts`](../src/app/api/recommendations/route.ts).
+4. **Proyecto de Google Cloud dedicado.** La [doc de Google](https://ai.google.dev/gemini-api/docs/rate-limits) dice literalmente que los rate limits "se aplican por proyecto, no por API key": crear una segunda key dentro del mismo proyecto **no** separa la cuota. Si el proyecto se comparte con otra app, esa app puede agotar el RPD del día y PickPal se queda sin generar. PickPal debe tener su propio proyecto.
+
+### Qué ve el usuario cuando falla el proveedor
+
+`classifyProviderError` ([`src/lib/errors.ts`](../src/lib/errors.ts), tests en `errors.test.ts`) traduce el fallo en status + mensaje. En todos los casos la cuota interna se devuelve con `refund` antes de responder, así que ningún fallo del proveedor le cuesta una generación al usuario.
+
+| Fallo del proveedor | Status | Mensaje |
+|---|---|---|
+| `503` | 503 | "La IA está saturada ahora mismo… Inténtalo en unos minutos." |
+| `429` con `quotaId` `…PerDay…` | 429 | "La cuota diaria de la IA se ha agotado… Vuelve a intentarlo **mañana**." |
+| `429` con `quotaId` `…PerMinute…` | 429 | "Demasiadas peticiones seguidas… Espera **un minuto**." |
+| `429` sin cuerpo reconocible | 429 | "…ha alcanzado su límite de uso… Inténtalo más tarde." (sin plazo) |
+| Cualquier otro (timeout, schema, bloqueo de seguridad) | 500 | Mensaje genérico. |
+
+La distinción del `429` importa porque agotar el **RPD** no se arregla reintentando: el reset es a medianoche del Pacífico, así que un "inténtalo de nuevo" genérico manda al usuario a golpear un endpoint que no puede funcionar. Google lo indica en el `quotaId` del cuerpo (`GenerateRequestsPerDayPerProjectPerModel-FreeTier` vs. `…PerMinute…`); si el cuerpo no llega o cambia de forma, se degrada a un mensaje que **no promete ningún plazo** — prometer el equivocado es peor. El `kind` de la clasificación va al log (`[recommendations] gemini (quotaDaily):`) para poder distinguirlos en Vercel sin releer el cuerpo.
 
 Los números concretos de RPM/RPD del free tier **ya no aparecen en la doc de Google** (antes se listaban por modelo). Ahora remite al panel de la cuenta en [aistudio.google.com/rate-limit](https://aistudio.google.com/rate-limit) y añade que "los límites especificados no están garantizados y la capacidad real puede variar". Por eso este doc no fija una cifra: consultar el panel. Las fuentes de terceros que sí dan números se contradicen entre sí (250 vs. 1.500 RPD) — no fiarse.
 
