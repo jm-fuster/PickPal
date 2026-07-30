@@ -13,6 +13,12 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "convex/_generated/**",
+    // Herramientas de agentes: `.claude/worktrees/**` son copias completas del
+    // repo (`git worktree`) que ESLint barre igual porque no respeta
+    // `.gitignore`. Un worktree olvidado metía 716 errores de archivos que no
+    // son del proyecto y dejaba `npm run lint` inservible.
+    ".claude/**",
+    ".agents/**",
   ]),
 ]);
 
