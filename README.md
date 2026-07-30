@@ -48,7 +48,7 @@ Necesitas cuentas (gratis) en cuatro servicios:
 | `NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL` | — | `/dashboard` |
 | `NEXT_PUBLIC_CONVEX_URL` | `npx convex dev` lo rellena solo | URL del deployment Convex |
 | `CONVEX_DEPLOYMENT` | `npx convex dev` lo rellena solo | Identificador del deployment |
-| `GOOGLE_GENERATIVE_AI_API_KEY` | [aistudio.google.com](https://aistudio.google.com) → Get API key | Free tier suficiente |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | [aistudio.google.com](https://aistudio.google.com) → Get API key | Free tier suficiente. La cuota va **por proyecto**, no por key — usa un proyecto propio (ver [`docs/ia-regalos.md`](docs/ia-regalos.md)) |
 
 Convex también necesita `CLERK_JWT_ISSUER_DOMAIN` configurado en su dashboard (Settings → Environment Variables) para validar los tokens de Clerk.
 
