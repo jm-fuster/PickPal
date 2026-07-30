@@ -196,6 +196,11 @@ Antes de mergear, verifica que el cambio no rompe ninguno de estos:
 - [ ] Nuevos secrets no llevan prefijo `NEXT_PUBLIC_`.
 - [ ] `.env.example` actualizado con placeholder.
 
+### Si tocas `package.json` o el lockfile:
+- [ ] Ningún aviso nuevo sin resolver ni justificar (`npm audit`); si se acepta uno, va a la tabla de avisos aceptados.
+- [ ] No se ha ejecutado `npm audit fix --force`.
+- [ ] `npm run lint`, `tsc` y `npm run build` pasan (los majors de tooling rompen el build sin que el CI lo note — el CI solo corre vitest).
+
 ### Si tocas el schema de Convex:
 - [ ] Índices nuevos no exponen datos cruzados (ej. un índice solo por `personId` sin `clerkUserId` en la query).
 - [ ] Campos sensibles nuevos están listados aquí.
@@ -214,9 +219,30 @@ Decisiones explícitas de "ahora no":
 
 ---
 
+## Avisos de dependencias (Dependabot / `npm audit`)
+
+Dependabot abre PRs para las dependencias **directas** ([`.github/dependabot.yml`](../.github/dependabot.yml)). Las vulnerabilidades **transitivas** no las puede PR-ear: esas se cierran subiendo la versión dentro del rango semver existente o, si no cabe, con `overrides` en `package.json`.
+
+**Nunca ejecutar `npm audit fix --force`.** Instala majors fuera de rango: hoy metería `eslint@10`, que rompe `eslint-config-next` (y por tanto `next build` y `npm run lint`). El coste supera siempre al de un aviso *dev-only*.
+
+Antes de declarar un aviso "no arreglable", dos comprobaciones:
+1. **Verificar el código instalado, no los metadatos.** Un backport de mantenimiento puede contener el fix sin que GitHub acote el rango del aviso. Buscar el guard que describe el CVE en `node_modules/<pkg>/`.
+2. **`npm update` puede mentir por caché de metadatos** — dice "up to date" habiendo versiones nuevas. Forzar re-resolución con `--prefer-online`.
+
+### Avisos aceptados
+
+| Aviso | Paquete | Por qué se acepta | Cuándo revisar |
+|---|---|---|---|
+| [GHSA-mh99-v99m-4gvg](https://github.com/advisories/GHSA-mh99-v99m-4gvg) / CVE-2026-14257 (high, DoS por expansión sin límite) | `brace-expansion` | **Ya parcheado; el aviso es inexacto.** El árbol tiene `1.1.17` (backport v1, contiene el guard `EXPANSION_MAX_LENGTH` — verificado en el código instalado) y `5.0.8` (versión oficialmente parcheada). GitHub declara el rango como `<= 5.0.7`, que en semver también encaja con `1.1.17`, así que la instancia v1 no dejará de encajar nunca. Forzar `overrides` a `5.0.8` **rompe el lint**: la v5 cambió el export CJS a `exports.expand` y `minimatch@3` hace `require(...)` y lo llama como función → `TypeError`. Exposición real nula: scope `development`, cadena `eslint → minimatch → brace-expansion`, y lo que se expande son los globs de nuestra propia config de ESLint. | Descartado en Dependabot como *inaccurate* el 30-07-2026. Desaparece solo cuando GitHub acote el rango, o cuando Next soporte ESLint 10 y la cadena entera salte a `brace-expansion@5.x` (ver el `ignore` de `typescript` en [`dependabot.yml`](../.github/dependabot.yml)). |
+
+Descartar un aviso en Dependabot requiere motivo; usar el que sea **cierto** (`inaccurate` cuando el rango del aviso está mal, `not_used` cuando el código no se ejecuta, `tolerable_risk` cuando se asume el riesgo) y añadirlo a esta tabla en el mismo commit.
+
+---
+
 ## Cuándo actualizar este documento
 
 - Añades un nuevo patrón de seguridad (helper, validator, middleware).
-- Decides explícitamente *no* implementar algo (añádelo a la sección anterior).
+- Decides explícitamente *no* implementar algo (añádelo a "Lo que NO está implementado todavía").
 - Encuentras un gap durante una revisión y lo cierras: documenta el principio, no el incidente.
 - Cambias los límites de validación o rate limit (los números viven aquí y en código, mantener sincronizados).
+- Descartas o aceptas un aviso de Dependabot (añádelo a la tabla de avisos aceptados con el motivo y la condición de revisión).
