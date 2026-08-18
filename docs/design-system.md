@@ -91,6 +91,33 @@ Mantenemos calidez también en oscuro. Nada de marrón griseado.
 - **Hover de cards interactivas**: aún por consolidar (ver Pendientes).
 - **No usar**: `shadow-lg`, `shadow-xl`, `shadow-2xl`. Rompen la sensación de papel y suenan a Material.
 
+### Figma — arquitectura de variables
+
+El archivo [PickPal — Design System](https://www.figma.com/design/4hQt4BnsEluKsYk5qbKkCz/PickPal---Design-System) espeja este documento y `globals.css`, no al revés: **si Figma contradice el código, gana el código**. Sus 223 variables están organizadas en las cuatro capas del patrón de design tokens, y cada una aliasa a la de abajo sin saltarse eslabones.
+
+| Capa | Ejemplos | Aliasa a |
+|---|---|---|
+| Primitivo | `color/green/850`, `spacing/4`, `radius/md` | valor directo |
+| Semántico | `color/background/primary`, `spacing/stack/lg`, `size/interactive-xl` | primitivo |
+| Marca | `color/brand/primary`, `color/brand/logo` | primitivo |
+| Componente | `spacing/switch/thumb-default`, `size/checkbox` | **semántico**, nunca primitivo |
+
+**Los primitivos tienen scope vacío**: no aparecen en ningún picker, para que nadie aplique `spacing/4` donde toca `spacing/container/padding`. Única excepción, las 26 de `Typography`, que siguen scopeadas porque todavía no hay text styles por encima.
+
+**La capa de marca es el único punto de contacto con la paleta de identidad.** Cambiar el verde o la terracota son 4 ediciones en `color/brand/*`; ningún semántico ni ningún nodo referencia `green/*` o `terracotta/*` directamente, salvo los swatches de documentación.
+
+#### Dónde Figma tiene más estructura que el código
+
+Las familias `spacing/stack/*`, `spacing/inline/*`, `spacing/inset/*` y `size/interactive-*` (28 variables) **no existen en `globals.css`**: en el código esos valores son clases utilitarias (`gap-2`, `p-4`), no custom properties. Viven solo en Figma para que la cadena de alias llegue completa hasta el componente. Lo que implica en la práctica:
+
+- Nacen **sin `codeSyntax`**, así que Dev Mode muestra el valor crudo (`12px`) en vez de un `var()` que no compilaría.
+- **No añadirlas a `globals.css`** para "cuadrar" los dos lados: ningún componente las consumiría.
+- Al implementar desde Figma, traducir a la utilidad de Tailwind equivalente, no a una variable CSS.
+
+Los `codeSyntax` que **sí** apuntan a código real son los 28 semánticos de color (`--primary`, `--muted-foreground`, `--sidebar*`…) y los 7 radios (`--radius-sm` … `--radius-4xl`). Ahí Figma y código están 1:1, y conviene no romperlo.
+
+Las desviaciones deliberadas están todas en la página **`Foundations - Excepciones`** del archivo: 8 entradas, cada una con su motivo y su "no hacer". Si algo en Figma parece un error, mirar ahí antes de tocarlo.
+
 ---
 
 ## Tipografía
@@ -677,7 +704,7 @@ Medido con conversión OKLCH→sRGB (objetivo 4.5:1 texto normal, 3:1 texto gran
 - **`text-muted-foreground`** sobre `background`/`card`: ~5.6–7.0:1 en claro y oscuro → **pasa**. No oscurecer el token (la sensación de medido a ojo engaña: la `L` de OKLCH no es la luminancia relativa de sRGB).
 - **`text-amber-500`** sobre superficies claras: ~2.0:1 → **fallaba** (era el contador "≤7 días" de la campana). Corregido a **`text-amber-700 dark:text-amber-500`** (claro 4.91:1, oscuro 8.1:1). Para texto de aviso ámbar sobre fondo claro, usar `amber-700` (no `amber-500/600`).
 - **`text-destructive`** ("Hoy") sobre `card` claro: ~5.2:1 → pasa.
-- **`--secondary-foreground` sobre `--secondary`** (botones/badges `secondary`, terracota): en claro el texto era casi blanco (`oklch(0.985 0.005 80)`) sobre terracota → **3.66:1**, no pasaba AA de texto normal (4.5:1), solo el umbral de texto grande/UI (3:1). **Corregido**: `--secondary-foreground` en claro pasa a texto oscuro `oklch(0.18 0.012 50)` → **4.92:1** (pasa AA). Se conserva el terracota de marca (`--secondary` sin tocar) y queda coherente con dark, que ya usaba texto oscuro sobre terracota (6.78:1). Nota WCAG: `font-medium` (500) no cuenta como "bold", así que estos botones no se acogen al umbral de texto grande (3:1); por eso hay que cumplir los 4.5:1. Detectado auditando las variables de Figma (ver Fundamentos de diseño más abajo).
+- **`--secondary-foreground` sobre `--secondary`** (botones/badges `secondary`, terracota): en claro el texto era casi blanco (`oklch(0.985 0.005 80)`) sobre terracota → **3.66:1**, no pasaba AA de texto normal (4.5:1), solo el umbral de texto grande/UI (3:1). **Corregido**: `--secondary-foreground` en claro pasa a texto oscuro `oklch(0.18 0.012 50)` → **4.92:1** (pasa AA). Se conserva el terracota de marca (`--secondary` sin tocar) y queda coherente con dark, que ya usaba texto oscuro sobre terracota (6.78:1). Nota WCAG: `font-medium` (500) no cuenta como "bold", así que estos botones no se acogen al umbral de texto grande (3:1); por eso hay que cumplir los 4.5:1. Detectado auditando las variables de Figma (ver "Tokens · Figma — arquitectura de variables").
 - **Verde de marca sin variante clara para texto sobre fondo oscuro**: `--primary` en dark (`#315837`) sobre `--background` dark da **2.32:1** — no pasa ni el umbral de texto grande. El verde de marca solo está pensado como *fondo* de botón/badge (con `--primary-foreground` encima), nunca como color de texto sobre la página; no crear un token de "texto de marca/acción" verde para dark mode sin antes añadir un primitivo más claro.
 
 ---
