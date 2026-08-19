@@ -225,15 +225,27 @@ Dependabot abre PRs para las dependencias **directas** ([`.github/dependabot.yml
 
 **Nunca ejecutar `npm audit fix --force`.** Instala majors fuera de rango: hoy metería `eslint@10`, que rompe `eslint-config-next` (y por tanto `next build` y `npm run lint`). El coste supera siempre al de un aviso *dev-only*.
 
-Antes de declarar un aviso "no arreglable", dos comprobaciones:
-1. **Verificar el código instalado, no los metadatos.** Un backport de mantenimiento puede contener el fix sin que GitHub acote el rango del aviso. Buscar el guard que describe el CVE en `node_modules/<pkg>/`.
-2. **`npm update` puede mentir por caché de metadatos** — dice "up to date" habiendo versiones nuevas. Forzar re-resolución con `--prefer-online`.
+Antes de declarar un aviso "no arreglable", tres comprobaciones:
+1. **¿Cabe el parche en el rango semver que ya existe?** Comparar `npm view <pkg>@<rango> version --prefer-online` con lo que pide el padre en el lockfile. Si cabe, `npm update <pkg> --prefer-online` lo cierra sin `overrides` ni majors, y entonces no hay nada que aceptar. Es el caso más común y el que primero hay que descartar.
+2. **Verificar el código instalado, no los metadatos.** Un backport de mantenimiento puede contener el fix sin que GitHub acote el rango del aviso. Buscar el guard que describe el CVE en `node_modules/<pkg>/`.
+3. **`npm update` puede mentir por caché de metadatos** — dice "up to date" habiendo versiones nuevas. Forzar re-resolución con `--prefer-online`.
 
 ### Avisos aceptados
 
-| Aviso | Paquete | Por qué se acepta | Cuándo revisar |
-|---|---|---|---|
-| [GHSA-mh99-v99m-4gvg](https://github.com/advisories/GHSA-mh99-v99m-4gvg) / CVE-2026-14257 (high, DoS por expansión sin límite) | `brace-expansion` | **Ya parcheado; el aviso es inexacto.** El árbol tiene `1.1.17` (backport v1, contiene el guard `EXPANSION_MAX_LENGTH` — verificado en el código instalado) y `5.0.8` (versión oficialmente parcheada). GitHub declara el rango como `<= 5.0.7`, que en semver también encaja con `1.1.17`, así que la instancia v1 no dejará de encajar nunca. Forzar `overrides` a `5.0.8` **rompe el lint**: la v5 cambió el export CJS a `exports.expand` y `minimatch@3` hace `require(...)` y lo llama como función → `TypeError`. Exposición real nula: scope `development`, cadena `eslint → minimatch → brace-expansion`, y lo que se expande son los globs de nuestra propia config de ESLint. | Descartado en Dependabot como *inaccurate* el 30-07-2026. Desaparece solo cuando GitHub acote el rango, o cuando Next soporte ESLint 10 y la cadena entera salte a `brace-expansion@5.x` (ver el `ignore` de `typescript` en [`dependabot.yml`](../.github/dependabot.yml)). |
+**Ninguno ahora mismo** — `npm audit` está a cero (19-08-2026).
+
+### Historial: lo que se aceptó y por qué dejó de aceptarse
+
+| Aviso | Paquete | Qué pasó |
+|---|---|---|
+| [GHSA-mh99-v99m-4gvg](https://github.com/advisories/GHSA-mh99-v99m-4gvg) / CVE-2026-14257 (high, DoS por expansión sin límite) | `brace-expansion` | Aceptado el 30-07-2026 como *inaccurate*: el árbol tenía `1.1.17`, backport v1 que sí contiene el guard `EXPANSION_MAX_LENGTH`. **La aceptación se cayó el 19-08-2026** con [GHSA-rgw5-rvv9-x895](https://github.com/advisories/GHSA-rgw5-rvv9-x895), que es el bypass de esa misma mitigación: el `maxLength` se aplicaba en `combine()` pero no en los arrays intermedios que lo alimentan, así que ~25 KB de input seguían tumbando el proceso con un OOM **no capturable**. Resuelto subiendo a `1.1.18` (dev) y `5.0.9` (prod), ambos dentro del rango semver que ya existía. |
+| [GHSA-2v37-7h3g-55p8](https://github.com/advisories/GHSA-2v37-7h3g-55p8) (high, bucle infinito en `customAlphabet`/`customRandom` con `size` 0) | `nanoid` | Nunca se aceptó. Exposición real nula —llega por `postcss`, no se importa en `src/` ni en `convex/`, y postcss no le pasa un tamaño ajeno—, pero el parche `3.3.18` cabía en el `^3.3.16` de postcss: se arregló en vez de documentar una excepción permanente. |
+
+**Tres lecciones de ese episodio:**
+
+- **«Ya parcheado» no es una razón duradera** cuando el parche es justo lo que el aviso siguiente pone en duda. Si se acepta un aviso porque una mitigación lo cubre, hay que revisarlo en cuanto aparezca cualquier advisory nuevo sobre el mismo paquete.
+- **No forzar `overrides` de `brace-expansion` a la v5.** La v5 cambió el export CJS a `exports.expand`, y `minimatch@3` hace `require(...)` y lo llama como función → `TypeError` que rompe `npm run lint`. Cuando hay parche en la línea v1, usarlo: satisface el `^1.1.7` de minimatch sin cambiar la forma del export.
+- **Un aviso *runtime* puede serlo por accidente de clasificación.** `brace-expansion` 5.x aparece como prod porque `shadcn` vive en `dependencies` (`shadcn → ts-morph → @ts-morph/common → minimatch@^5`). Es una CLI de codegen: lo único que se le consume es el `@import "shadcn/tailwind.css"` de `globals.css`, que se resuelve en build, donde Vercel también instala devDependencies. Moverla a `devDependencies` reclasificaría el aviso y adelgazaría el árbol de producción — pendiente de comprobar que no rompe el build.
 
 Descartar un aviso en Dependabot requiere motivo; usar el que sea **cierto** (`inaccurate` cuando el rango del aviso está mal, `not_used` cuando el código no se ejecuta, `tolerable_risk` cuando se asume el riesgo) y añadirlo a esta tabla en el mismo commit.
 
