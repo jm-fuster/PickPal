@@ -128,7 +128,7 @@ Los 29 semánticos de color siguen la fórmula `type-element-role-emphasis-state
 |---|---|---|
 | `color/bg` | `--background` | Canvas de página |
 | `color/bg/surface` · `color/bg/surface-raised` | `--card` · `--popover` | Card · popover y dropdown |
-| `color/bg/sunken` | `--input` | Fondo de input |
+| `color/bg/sunken` | `--input` | Track del Switch apagado. **No es «el fondo del input»**: el campo de `Input` va `bg-transparent` y solo tiene borde. Nace sin `codeSyntax` porque `bg-input` se usa en un único sitio |
 | `color/bg/component` | `--muted` | **Superficie interactiva neutra**: hover de Button outline y ghost, hover de Badge, link del sidebar, footer de Card, track del Slider |
 | `color/bg/component-focus` | `--accent` | **Solo el item de menú resaltado**: `focus:bg-accent` en `SelectItem` y la opción activa del combobox de intereses |
 | `color/bg/brand` · `color/bg/brand-secondary` | `--primary` · `--secondary` | Verde de CTA · terracota |
@@ -136,7 +136,7 @@ Los 29 semánticos de color siguen la fórmula `type-element-role-emphasis-state
 | `color/text` · `color/text/secondary` | `--foreground` · `--muted-foreground` | Texto principal · de apoyo |
 | `color/text/brand` | — | Links y texto de marca (aliasa a marca solo en Light) |
 | `color/text/on-*` | `--*-foreground` | El prefijo `on-` significa siempre «encima de esta superficie» |
-| `color/border` · `color/border/component` | `--border` · `--input` | Borde estándar · de input |
+| `color/border` · `color/border/component` | `--border` · `--input` | Borde estándar · borde de `Input` y `Textarea` |
 
 **Dos palabras que hay que vigilar al cruzar de un lado al otro:**
 
