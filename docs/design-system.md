@@ -93,22 +93,24 @@ Mantenemos calidez también en oscuro. Nada de marrón griseado.
 
 ### Figma — arquitectura de variables
 
-El archivo [PickPal — Design System](https://www.figma.com/design/4hQt4BnsEluKsYk5qbKkCz/PickPal---Design-System) espeja este documento y `globals.css`, no al revés: **si Figma contradice el código, gana el código**. Sus 223 variables están organizadas en las cuatro capas del patrón de design tokens, y cada una aliasa a la de abajo sin saltarse eslabones.
+El archivo [PickPal — Design System](https://www.figma.com/design/4hQt4BnsEluKsYk5qbKkCz/PickPal---Design-System) espeja este documento y `globals.css`, no al revés: **si Figma contradice el código, gana el código**. Sus 225 variables están organizadas en las cuatro capas del patrón de design tokens, y cada una aliasa a la de abajo sin saltarse eslabones.
 
-| Capa | Ejemplos | Aliasa a |
-|---|---|---|
-| Primitivo | `color/green/850`, `spacing/4`, `radius/md` | valor directo |
-| Semántico | `color/background/primary`, `spacing/stack/lg`, `size/interactive-xl` | primitivo |
-| Marca | `color/brand/primary`, `color/brand/logo` | primitivo |
-| Componente | `spacing/switch/thumb-default`, `size/checkbox` | **semántico**, nunca primitivo |
+| Capa | Nº | Ejemplos | Aliasa a |
+|---|---|---|---|
+| Primitivo | 101 | `color/green/850`, `spacing/4`, `radius/md` | valor directo |
+| Semántico | 90 | `color/background/primary`, `spacing/stack/lg`, `size/interactive-xl` | primitivo |
+| Marca | 5 | `color/brand/primary`, `color/brand/logo` | primitivo |
+| Componente | 29 | `size/switch/thumb-default`, `size/checkbox` | **semántico**, nunca primitivo |
 
-**Los primitivos tienen scope vacío**: no aparecen en ningún picker, para que nadie aplique `spacing/4` donde toca `spacing/container/padding`. Única excepción, las 26 de `Typography`, que siguen scopeadas porque todavía no hay text styles por encima.
+**Los primitivos tienen scope vacío y están ocultos al publicar** (`hiddenFromPublishing`): no aparecen en ningún picker ni viajan a los archivos que consumen la librería, para que nadie aplique `spacing/4` donde toca `spacing/container/padding`. Única excepción, las 26 de `Typography`, que siguen scopeadas y publicadas porque todavía no hay text styles por encima — sin ellas los pickers de tamaño de fuente e interlineado quedarían vacíos y empujarían a valores crudos. Crear los text styles es el prerrequisito para cerrarlas.
+
+**Las colecciones se agrupan por tipo de dato (`Color`, `Typography`, `Medidas`), no por capa.** El patrón canónico pide una colección por capa (`Primitives` / `Semantic` / `Component`), y se descartó a propósito: Figma no permite mover una variable de colección, así que separarlas obliga a recrear las 225 variables y repuntar los **4.524 bindings** que hay fuera de instancias. Lo que esa separación compra —que nadie pueda aplicar un primitivo— ya está resuelto con el scope vacío y el `hiddenFromPublishing`, que se controlan por variable. La capa de cada token se lee por su nombre, no por su colección.
 
 **La capa de marca es el único punto de contacto con la paleta de identidad.** Cambiar el verde o la terracota son 4 ediciones en `color/brand/*`; ningún semántico ni ningún nodo referencia `green/*` o `terracotta/*` directamente, salvo los swatches de documentación.
 
 #### Dónde Figma tiene más estructura que el código
 
-Las familias `spacing/stack/*`, `spacing/inline/*`, `spacing/inset/*` y `size/interactive-*` (28 variables) **no existen en `globals.css`**: en el código esos valores son clases utilitarias (`gap-2`, `p-4`), no custom properties. Viven solo en Figma para que la cadena de alias llegue completa hasta el componente. Lo que implica en la práctica:
+Las familias `spacing/stack/*`, `spacing/inline/*`, `spacing/inset/*` y `size/interactive-*` (28 variables), más los primitivos `spacing/60` y `spacing/120` (240 y 480 px, existen solo para que el ancho del sidebar y el de la columna de eventos tengan a qué aliasar), **no existen en `globals.css`**: en el código esos valores son clases utilitarias (`gap-2`, `p-4`), no custom properties. Viven solo en Figma para que la cadena de alias llegue completa hasta el componente. Lo que implica en la práctica:
 
 - Nacen **sin `codeSyntax`**, así que Dev Mode muestra el valor crudo (`12px`) en vez de un `var()` que no compilaría.
 - **No añadirlas a `globals.css`** para "cuadrar" los dos lados: ningún componente las consumiría.
@@ -116,7 +118,13 @@ Las familias `spacing/stack/*`, `spacing/inline/*`, `spacing/inset/*` y `size/in
 
 Los `codeSyntax` que **sí** apuntan a código real son los 28 semánticos de color (`--primary`, `--muted-foreground`, `--sidebar*`…) y los 7 radios (`--radius-sm` … `--radius-4xl`). Ahí Figma y código están 1:1, y conviene no romperlo.
 
-Las desviaciones deliberadas están todas en la página **`Foundations - Excepciones`** del archivo: 8 entradas, cada una con su motivo y su "no hacer". Si algo en Figma parece un error, mirar ahí antes de tocarlo.
+#### Cómo se nombran las variables
+
+El primer segmento del nombre dice **qué propiedad controla** el token, y no se omite nunca. En concreto `spacing/*` es separación (padding, gap) y `size/*` es dimensión (ancho, alto). Al crear una variable numérica, mirar su scope: `GAP` → `spacing/`, `WIDTH_HEIGHT` → `size/`. Había 16 que mentían (los seis del switch, los seis del avatar, los tres iconos de control y el mínimo del textarea, todas `spacing/*` con scope `WIDTH_HEIGHT`) y se renombraron a `size/*` el 23-ago-2026. La familia `layout/*`, que no tenía segmento de tipo, desapareció en el mismo pase: `size/sidebar/width`, `size/event-column/width`, `spacing/panel/gap` y `spacing/page/padding-lg`.
+
+**El vocabulario de roles sigue siendo el de shadcn** (`primary`, `secondary`, `muted`, `accent`, `destructive`), no el del patrón canónico (`brand`, `accent`, `subtle`, `component`, `danger`). Es deliberado: los 28 semánticos de color llevan `codeSyntax` apuntando a la variable CSS real, y mantener el mismo nombre a los dos lados evita que alguien traduzca mal al cruzar. Atención al falso amigo: **`accent` aquí es el beige de hover, no un color de identidad** — en el patrón canónico `accent` significa justo lo contrario (el color secundario de marca, que aquí es `secondary`). Si algún día se adopta la fórmula `type-element-role-emphasis-state`, ese cruce es el que hay que resolver primero.
+
+Las desviaciones deliberadas están todas en la página **`Foundations - Excepciones`** del archivo: 10 entradas, cada una con su motivo y su "no hacer". Si algo en Figma parece un error, mirar ahí antes de tocarlo.
 
 ---
 
