@@ -93,11 +93,11 @@ Mantenemos calidez también en oscuro. Nada de marrón griseado.
 
 ### Figma — arquitectura de variables
 
-El archivo [PickPal — Design System](https://www.figma.com/design/4hQt4BnsEluKsYk5qbKkCz/PickPal---Design-System) espeja este documento y `globals.css`, no al revés: **si Figma contradice el código, gana el código**. Sus 231 variables están organizadas en las cuatro capas del patrón de design tokens, y cada una aliasa a la de abajo sin saltarse eslabones.
+El archivo [PickPal — Design System](https://www.figma.com/design/4hQt4BnsEluKsYk5qbKkCz/PickPal---Design-System) espeja este documento y `globals.css`, no al revés: **si Figma contradice el código, gana el código**. Sus 289 variables están organizadas en las cuatro capas del patrón de design tokens, y cada una aliasa a la de abajo sin saltarse eslabones.
 
 | Capa | Nº | Colección | Ejemplos | Aliasa a |
 |---|---|---|---|---|
-| Primitivo | 101 | `Primitives` (75) · `Typography (primitivos)` (26) | `color/green/850`, `spacing/4`, `radius/md` | valor directo |
+| Primitivo | 159 | `Primitives` (133) · `Typography (primitivos)` (26) | `color/green/850`, `spacing/4`, `radius/md` | valor directo |
 | Semántico | 95 | `Color` · `Medidas` | `color/bg/brand`, `color/icon/secondary`, `spacing/stack/lg` | primitivo |
 | Marca | 5 | `Color` | `color/brand/primary`, `color/brand/logo` | primitivo |
 | Componente | 30 | `Color` · `Medidas` | `size/switch/thumb-default`, `color/switch/thumb-bg`, `size/checkbox` | **semántico**, nunca primitivo |
@@ -111,6 +111,18 @@ El archivo [PickPal — Design System](https://www.figma.com/design/4hQt4BnsEluK
 `Typography (primitivos)` se queda fuera de `Primitives` por la misma razón por la que conserva scope y publicación: sus 26 variables tienen **1.036 bindings de nodo** y no hay capa semántica ni text styles por encima que los absorba. El nombre de la colección lleva la palabra «primitivos» justamente para que la excepción se lea sin abrir la documentación.
 
 **La capa de marca es el único punto de contacto con la paleta de identidad.** Cambiar el verde o la terracota son 4 ediciones en `color/brand/*`; ningún semántico ni ningún nodo referencia `green/*` o `terracotta/*` directamente, salvo los swatches de documentación.
+
+#### Rampas de color: escala 50–950 (23-ago-2026)
+
+Las 8 familias de color de `Primitives` (`cream`, `neutral`, `green`, `terracotta`, `umber`, `red`, `amber`, `bronze`) siguen ahora la escala estándar de 11 pasos — `50·100·200·300·400·500·600·700·800·900·950` —, dentro del límite de 12 tonos por rampa. Antes, cada familia cubría solo el tramo que algún componente había necesitado (`terracotta` tenía 2 pasos, `bronze` 1); ahora las 8 cubren el rango completo de claro a oscuro, generando los pasos que no existían.
+
+**Cómo se generó lo que faltaba.** Cada hex real se convirtió a OKLCH (conversión exacta sRGB↔OKLab de Björn Ottosson, no una aproximación). Para cada familia, los pasos ya existentes se mantuvieron como anclas; donde no había ningún dato por debajo del paso más claro conocido, se añadió un ancla sintética en el paso 50 (`L≈0.985`, croma ≈10 % del pico de esa familia) para que la rampa tuviera un punto de partida razonable. Sobre esas anclas se ajustó un **spline cúbico monótono (Fritsch-Carlson)** —L y C por separado, H constante por familia— y se evaluó en los 11 pasos objetivo. Monótono es la palabra clave: a diferencia de una interpolación ingenua, no puede generar oscilaciones ni un paso más claro que su vecino más oscuro.
+
+**Ningún valor referenciado cambió.** Los pasos que ya caían en la escala nueva (por ejemplo `cream/500`, `neutral/900`) se dejaron con su hex exacto — cero deriva. Los que no encajaban en la escala (`cream/550·650·750·850`, `neutral/650·750·850`) se consolidaron en el paso canónico más próximo, con una deriva de pocas unidades de RGB, imperceptible; las variables sobrantes se borraron tras repuntar sus alias. Verificado con captura antes/después de la sección `Vista en contexto` y de los 26 swatches semánticos: 0 cambios visibles, 0 alias roto, 0 binding huérfano.
+
+**Dos casos donde consolidar habría sido un error, no solo un desvío cosmético**: `color/brand/primary` usaba `green/850` en Light y `green/750` en Dark — dos verdes *deliberadamente distintos* para el mismo rol según el tema. Consolidar ambos al mismo paso los habría igualado. En vez de eso, `green/750` se convirtió literalmente en el nuevo `green/700` (mismo hex, nuevo nombre) y `green/850` se dejó como un **12.º paso propio** de esa familia — la única que supera los 11 estándar, justificado porque aquí sí hace falta y 12 sigue sin pasarse del límite. Mismo problema con `color/chart/5` (`neutral/650` Light / `neutral/700` Dark): en vez de fusionar 650 en 700, se mapeó al nuevo `neutral/600` generado, manteniendo Light y Dark distintos. **Regla al consolidar un paso no estándar: comprobar primero si su mismo token usa OTRO paso no estándar en el modo contrario — si sí, no fusionar, darle un paso propio.**
+
+**Limitación conocida, documentada, no corregida**: `amber` y `umber` solo tenían 2 anclas reales cada una, muy juntas (900-950) y sin relación de "mismo color, distinta claridad" — `amber/900` es un tono apagado y `amber/950` un dorado vivo, dos acentos con carácter distinto, no dos pasos de una rampa. El spline monótono conecta ambos con honestidad, pero el resultado es una rampa que se ve plana y neutra del 50 al 800 y solo "aparece" el dorado en el último tramo. Forzar más color a mitad de rampa exigiría romper la monotonía (una subida-bajada-subida) que se descartó por parecer peor que el problema que resuelve. Si `amber` gana protagonismo en el producto, esta rampa es la primera candidata a rehacer a mano.
 
 #### Dónde Figma tiene más estructura que el código
 
