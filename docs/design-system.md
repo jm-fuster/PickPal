@@ -98,9 +98,9 @@ El archivo [PickPal — Design System](https://www.figma.com/design/4hQt4BnsEluK
 | Capa | Nº | Ejemplos | Aliasa a |
 |---|---|---|---|
 | Primitivo | 101 | `color/green/850`, `spacing/4`, `radius/md` | valor directo |
-| Semántico | 90 | `color/background/primary`, `spacing/stack/lg`, `size/interactive-xl` | primitivo |
+| Semántico | 89 | `color/bg/brand`, `spacing/stack/lg`, `size/interactive-xl` | primitivo |
 | Marca | 5 | `color/brand/primary`, `color/brand/logo` | primitivo |
-| Componente | 29 | `size/switch/thumb-default`, `size/checkbox` | **semántico**, nunca primitivo |
+| Componente | 30 | `size/switch/thumb-default`, `color/switch/thumb-bg`, `size/checkbox` | **semántico**, nunca primitivo |
 
 **Los primitivos tienen scope vacío y están ocultos al publicar** (`hiddenFromPublishing`): no aparecen en ningún picker ni viajan a los archivos que consumen la librería, para que nadie aplique `spacing/4` donde toca `spacing/container/padding`. Única excepción, las 26 de `Typography`, que siguen scopeadas y publicadas porque todavía no hay text styles por encima — sin ellas los pickers de tamaño de fuente e interlineado quedarían vacíos y empujarían a valores crudos. Crear los text styles es el prerrequisito para cerrarlas.
 
@@ -122,7 +122,28 @@ Los `codeSyntax` que **sí** apuntan a código real son los 28 semánticos de co
 
 El primer segmento del nombre dice **qué propiedad controla** el token, y no se omite nunca. En concreto `spacing/*` es separación (padding, gap) y `size/*` es dimensión (ancho, alto). Al crear una variable numérica, mirar su scope: `GAP` → `spacing/`, `WIDTH_HEIGHT` → `size/`. Había 16 que mentían (los seis del switch, los seis del avatar, los tres iconos de control y el mínimo del textarea, todas `spacing/*` con scope `WIDTH_HEIGHT`) y se renombraron a `size/*` el 23-ago-2026. La familia `layout/*`, que no tenía segmento de tipo, desapareció en el mismo pase: `size/sidebar/width`, `size/event-column/width`, `spacing/panel/gap` y `spacing/page/padding-lg`.
 
-**El vocabulario de roles sigue siendo el de shadcn** (`primary`, `secondary`, `muted`, `accent`, `destructive`), no el del patrón canónico (`brand`, `accent`, `subtle`, `component`, `danger`). Es deliberado: los 28 semánticos de color llevan `codeSyntax` apuntando a la variable CSS real, y mantener el mismo nombre a los dos lados evita que alguien traduzca mal al cruzar. Atención al falso amigo: **`accent` aquí es el beige de hover, no un color de identidad** — en el patrón canónico `accent` significa justo lo contrario (el color secundario de marca, que aquí es `secondary`). Si algún día se adopta la fórmula `type-element-role-emphasis-state`, ese cruce es el que hay que resolver primero.
+Los 29 semánticos de color siguen la fórmula `type-element-role-emphasis-state`, con los segmentos `emphasis` y `state` omitidos cuando valen *default*. El `element` es `bg`, `text` o `border`; **el nombre de la variable en Figma ya no coincide con el de la variable CSS**, y el puente entre los dos es el `codeSyntax`, que sigue apuntando a la custom property real. Dev Mode muestra `var(--primary)` aunque el token se llame `color/bg/brand`.
+
+| Figma | CSS | Qué es |
+|---|---|---|
+| `color/bg` | `--background` | Canvas de página |
+| `color/bg/surface` · `color/bg/surface-raised` | `--card` · `--popover` | Card · popover y dropdown |
+| `color/bg/sunken` | `--input` | Fondo de input |
+| `color/bg/component` | `--muted` | **Superficie interactiva neutra**: hover de Button outline y ghost, hover de Badge, link del sidebar, footer de Card, track del Slider |
+| `color/bg/component-focus` | `--accent` | **Solo el item de menú resaltado**: `focus:bg-accent` en `SelectItem` y la opción activa del combobox de intereses |
+| `color/bg/brand` · `color/bg/brand-secondary` | `--primary` · `--secondary` | Verde de CTA · terracota |
+| `color/bg/danger-solid` | `--destructive` | Rojo sólido |
+| `color/text` · `color/text/secondary` | `--foreground` · `--muted-foreground` | Texto principal · de apoyo |
+| `color/text/brand` | — | Links y texto de marca (aliasa a marca solo en Light) |
+| `color/text/on-*` | `--*-foreground` | El prefijo `on-` significa siempre «encima de esta superficie» |
+| `color/border` · `color/border/component` | `--border` · `--input` | Borde estándar · de input |
+
+**Dos palabras que hay que vigilar al cruzar de un lado al otro:**
+
+- **`accent`.** El patrón canónico llama `accent` al color secundario de identidad; shadcn llama `--accent` al beige del item de menú enfocado. Son cosas opuestas, así que la palabra **no se usa como rol en Figma**: la terracota es `brand-secondary` y el beige es `component-focus`.
+- **`secondary`.** En la familia de texto, `color/text/secondary` es el texto de apoyo (el sentido del patrón canónico), mientras `color/text/on-brand-secondary` es el texto que va encima de la terracota. El prefijo `on-` es lo que los distingue.
+
+Al mapear un token de color nuevo, **decidir el rol por cómo lo usa el código, no por cómo se llama la variable CSS**: `--muted` parece "zona secundaria" por el nombre y resultó ser la superficie interactiva de medio sistema, y `--accent` parece un color de identidad y resultó ser un solo estado de foco.
 
 Las desviaciones deliberadas están todas en la página **`Foundations - Excepciones`** del archivo: 10 entradas, cada una con su motivo y su "no hacer". Si algo en Figma parece un error, mirar ahí antes de tocarlo.
 
@@ -159,9 +180,10 @@ Cargadas en [`src/app/layout.tsx`](../src/app/layout.tsx) y expuestas como varia
 
 Visible a partir de `lg` (1024px). Implementado en `src/app/(app)/layout.tsx`.
 
-- Fondo: `bg-sidebar` (`oklch(0.22 0.04 148)` — verde oscuro, no negro).
-- Links activos: `bg-sidebar-accent text-sidebar-accent-foreground font-medium`.
-- Links inactivos: `text-sidebar-foreground/70 hover:bg-sidebar-accent`.
+- Fondo: `bg-background text-foreground border-r border-border`. **Es un panel claro, no el verde oscuro**: comparte fondo con el contenido y se separa solo por el borde derecho.
+- Links activos: `bg-muted text-foreground font-medium` (en `SidebarLink`).
+- Links inactivos: `text-muted-foreground hover:bg-muted hover:text-foreground`.
+- **Las 13 variables `--sidebar-*` de `globals.css` no se usan en ninguna parte de la app.** Son el set que arrastra shadcn y quedaron huérfanas al pasar el sidebar a panel claro. Verificado el 23-ago-2026 sobre `layout.tsx` y `SidebarLink.tsx`; este documento describía hasta entonces el sidebar verde que ya no existe. Los 7 tokens equivalentes en Figma (`color/bg/sidebar*`, `color/text/on-sidebar*`, `color/border/*-sidebar`) siguen ahí porque espejan `globals.css`, pero tienen 2–4 bindings cada uno y todos son swatches de documentación. Antes de darles uso, decidir si el sidebar oscuro vuelve o si toca borrar la familia de los dos lados.
 - El componente `SidebarLink` usa `usePathname()` y compara con `startsWith` para resaltar rutas anidadas.
 - El `<aside>` usa `h-screen sticky top-0` para que el pie quede siempre visible sin que el contenido principal lo desplace.
 - **Header del sidebar**: `<LogoMark size-7>` + texto "PickPal" (link) a la izquierda + `SafeNotificationBell` a la derecha. `flex items-center justify-between`.
