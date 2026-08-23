@@ -95,16 +95,20 @@ Mantenemos calidez también en oscuro. Nada de marrón griseado.
 
 El archivo [PickPal — Design System](https://www.figma.com/design/4hQt4BnsEluKsYk5qbKkCz/PickPal---Design-System) espeja este documento y `globals.css`, no al revés: **si Figma contradice el código, gana el código**. Sus 225 variables están organizadas en las cuatro capas del patrón de design tokens, y cada una aliasa a la de abajo sin saltarse eslabones.
 
-| Capa | Nº | Ejemplos | Aliasa a |
-|---|---|---|---|
-| Primitivo | 101 | `color/green/850`, `spacing/4`, `radius/md` | valor directo |
-| Semántico | 89 | `color/bg/brand`, `spacing/stack/lg`, `size/interactive-xl` | primitivo |
-| Marca | 5 | `color/brand/primary`, `color/brand/logo` | primitivo |
-| Componente | 30 | `size/switch/thumb-default`, `color/switch/thumb-bg`, `size/checkbox` | **semántico**, nunca primitivo |
+| Capa | Nº | Colección | Ejemplos | Aliasa a |
+|---|---|---|---|---|
+| Primitivo | 101 | `Primitives` (75) · `Typography (primitivos)` (26) | `color/green/850`, `spacing/4`, `radius/md` | valor directo |
+| Semántico | 89 | `Color` · `Medidas` | `color/bg/brand`, `spacing/stack/lg`, `size/interactive-xl` | primitivo |
+| Marca | 5 | `Color` | `color/brand/primary`, `color/brand/logo` | primitivo |
+| Componente | 30 | `Color` · `Medidas` | `size/switch/thumb-default`, `color/switch/thumb-bg`, `size/checkbox` | **semántico**, nunca primitivo |
 
 **Los primitivos tienen scope vacío y están ocultos al publicar** (`hiddenFromPublishing`): no aparecen en ningún picker ni viajan a los archivos que consumen la librería, para que nadie aplique `spacing/4` donde toca `spacing/container/padding`. Única excepción, las 26 de `Typography`, que siguen scopeadas y publicadas porque todavía no hay text styles por encima — sin ellas los pickers de tamaño de fuente e interlineado quedarían vacíos y empujarían a valores crudos. Crear los text styles es el prerrequisito para cerrarlas.
 
-**Las colecciones se agrupan por tipo de dato (`Color`, `Typography`, `Medidas`), no por capa.** El patrón canónico pide una colección por capa (`Primitives` / `Semantic` / `Component`), y se descartó a propósito: Figma no permite mover una variable de colección, así que separarlas obliga a recrear las 225 variables y repuntar los **4.524 bindings** que hay fuera de instancias. Lo que esa separación compra —que nadie pueda aplicar un primitivo— ya está resuelto con el scope vacío y el `hiddenFromPublishing`, que se controlan por variable. La capa de cada token se lee por su nombre, no por su colección.
+**Los primitivos viven en su propia colección, `Primitives`, con un solo modo.** Los 75 (35 de color y 40 numéricos) son *mode-invariant* —el mismo valor en claro y en oscuro— porque el cambio de modo ocurre en la capa semántica, igual que en `globals.css`. Tener un único modo lo hace explícito y evita el espejismo de dos columnas idénticas.
+
+**Lo que sigue agrupado por tipo de dato es todo lo que está por encima del primitivo**: `Color` (39) y `Medidas` (85) contienen semántico, marca y componente mezclados. Separar esas dos capas en `Semantic` y `Component` **no se ha hecho y no compensa**: Figma no permite mover una variable de colección, así que hay que recrearla y repuntar cada referencia, y ahí es donde están los bindings caros —solo `radius/control` tiene 620 y `radius/pill` 424, y en total hay más de 4.000 fuera de instancias. Sacar los primitivos, en cambio, costó **32 bindings de nodo** (los swatches de `Foundations - Color`; los 40 numéricos tenían 0) y **117 referencias de alias**. Regla general para este archivo: antes de dar por caro un movimiento de colección, **contar los bindings de las variables implicadas**, no del archivo entero.
+
+`Typography (primitivos)` se queda fuera de `Primitives` por la misma razón por la que conserva scope y publicación: sus 26 variables tienen **1.036 bindings de nodo** y no hay capa semántica ni text styles por encima que los absorba. El nombre de la colección lleva la palabra «primitivos» justamente para que la excepción se lea sin abrir la documentación.
 
 **La capa de marca es el único punto de contacto con la paleta de identidad.** Cambiar el verde o la terracota son 4 ediciones en `color/brand/*`; ningún semántico ni ningún nodo referencia `green/*` o `terracotta/*` directamente, salvo los swatches de documentación.
 
