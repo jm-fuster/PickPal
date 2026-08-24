@@ -83,7 +83,7 @@ Mantenemos calidez también en oscuro. Nada de marrón griseado.
 
 ### Radii
 
-`--radius` base: `0.875rem`. Escalado en `@theme inline` a sm/md/lg/xl/2xl/3xl/4xl. Curvas generosas — coherentes con el registro suave.
+`--radius` base: `1rem` (16px, era `0.875rem`/14px — subido el 24-ago-2026, ver más abajo). Escalado en `@theme inline` a `xs/sm/md/lg/xl/2xl/3xl/4xl`, ahora en incrementos limpios de 4px: `xs` 4, `sm` 8, `md` 12, `lg` 16 (=`--radius`), `xl` 20, `2xl` 24, `3xl` 28, `4xl` 32. Antes eran multiplicadores del base (`base * 0.6`, `* 0.8`, `* 1.4`…) que daban valores como 8.4 o 30.8 — sin significado propio, solo el resultado de una fórmula. `rounded-full` (avatares, switches, sliders, badges) sigue siendo la utilidad nativa de Tailwind, sin variable propia — no depende de esta escala. Curvas generosas — coherentes con el registro suave.
 
 ### Sombras
 
@@ -93,11 +93,11 @@ Mantenemos calidez también en oscuro. Nada de marrón griseado.
 
 ### Figma — arquitectura de variables
 
-El archivo [PickPal — Design System](https://www.figma.com/design/4hQt4BnsEluKsYk5qbKkCz/PickPal---Design-System) espeja este documento y `globals.css`, no al revés: **si Figma contradice el código, gana el código**. Sus 289 variables están organizadas en las cuatro capas del patrón de design tokens, y cada una aliasa a la de abajo sin saltarse eslabones.
+El archivo [PickPal — Design System](https://www.figma.com/design/4hQt4BnsEluKsYk5qbKkCz/PickPal---Design-System) espeja este documento y `globals.css`, no al revés: **si Figma contradice el código, gana el código**. Sus 290 variables están organizadas en las cuatro capas del patrón de design tokens, y cada una aliasa a la de abajo sin saltarse eslabones.
 
 | Capa | Nº | Colección | Ejemplos | Aliasa a |
 |---|---|---|---|---|
-| Primitivo | 159 | `Primitives` (133) · `Typography (primitivos)` (26) | `color/Green/850`, `spacing/4`, `radius/md` | valor directo |
+| Primitivo | 160 | `Primitives` (134) · `Typography (primitivos)` (26) | `color/Green/850`, `spacing/4`, `radius/md` | valor directo |
 | Semántico | 95 | `Color` · `Medidas` | `color/bg/brand`, `color/icon/secondary`, `spacing/stack/lg` | primitivo |
 | Marca | 5 | `Color` | `color/brand/primary`, `color/brand/logo` | primitivo |
 | Componente | 30 | `Color` · `Medidas` | `size/switch/thumb-default`, `color/switch/thumb-bg`, `size/checkbox` | **semántico**, nunca primitivo |
@@ -127,6 +127,16 @@ Las 8 familias de color de `Primitives` (`Cream`, `Neutral`, `Green`, `Terracott
 Los 9 pasos intermedios (`50`–`800`) se sustituyeron por valores elegidos a mano en OKLCH, con un pico de croma deliberado en `400`–`600` (`C≈0.12–0.135`, a la altura del pico real de `950`) que decae suavemente hacia el tono apagado de `900`. El resultado: una progresión crema → dorado vivo → ámbar apagado, coherente en todo el rango, en vez de la meseta gris-beige anterior. No es una fórmula reutilizable para otras rampas de 2 anclas —es una decisión de diseño hecha a mano para esta familia en concreto—, aplicar caso por caso según el rol de cada rampa.
 
 **`Umber` también rediseñada a mano (23-ago-2026).** Diagnóstico distinto al de `Amber`: aquí no hay un salto de croma entre anclas (`Umber/900` C≈0.025, `Umber/950` C≈0.022, muy parecidas), el problema era la **hue** — el spline promediaba entre `H=60.3°` (900) y `H=78.9°` (950) dando `H≈69.6°` constante, y con un croma bajo eso se leía como gris lavado, no como el marrón cálido que el nombre «Umber» promete. `Umber/900` y `Umber/950` se dejaron intactos (alimentan `color/text/secondary` en Light y `color/bg/component-focus`). Los 9 pasos intermedios se recalcularon a mano comprometiéndose con `H≈57–60°` (más cerca del matiz de `900`, el más "marrón" de los dos) y un croma algo más alto que el original pero **deliberadamente por debajo del pico de `Amber`** (`C≈0.05` frente a `≈0.135`): el rol de `Umber` es texto secundario y superficies discretas, no un acento de gráfica, así que no debe competir en viveza con `Amber`. Mismo patrón de ejecución que `Amber`: reasignar valor a las variables existentes (mismos IDs, sin recrear) y actualizar a mano las 9 etiquetas de texto del swatch, que no siguen el valor de la variable automáticamente.
+
+#### Rampa de radios: escala limpia de 4px (24-ago-2026)
+
+A diferencia de las rampas numéricas de espaciado/tamaño (que no tienen equivalente en código y nacen sin `codeSyntax`), **los 8 primitivos de `radius` sí tienen una variable CSS real detrás de cada uno** — cambiar su valor cambia lo que la app renderiza de verdad. Antes eran multiplicadores de `--radius` (`* 0.6`, `* 0.8`, `* 1.4`…), lo que daba números sin significado propio (`8.4`, `30.8`). Ahora son valores explícitos en incrementos limpios de 4px: `xs` 4 · `sm` 8 · `md` 12 · `lg`/`base` 16 · `xl` 20 · `2xl` 24 · `3xl` 28 · `4xl` 32. Cambio aplicado en los dos lados a la vez — `src/app/globals.css` y los 8 primitivos de Figma — para que no diverjan, siguiendo la regla del proyecto de que **nunca conviene tocar uno sin el otro** cuando el token tiene `codeSyntax`.
+
+`--radius-xs` no existía en `globals.css` (caía al valor por defecto de Tailwind, `0.125rem`/2px, sin relación con el resto de la escala) aunque Figma ya lo documentaba en 4px desde antes. Añadido explícitamente al `@theme inline` junto con el resto, cerrando una divergencia previa a este cambio que nadie había notado porque ningún componente usa hoy `rounded-xs`.
+
+**`radius/full` (nuevo primitivo, valor `999`, sin `codeSyntax`)** cierra el hueco que ya señalaba el documento de referencia original (`radius-full: 9999px | Avatares, toggles`): `radius/pill` aliasaba a `radius/4xl` (antes 36.4, ahora 32), que solo redondea del todo un elemento de hasta el doble de esa medida — insuficiente si algún avatar o control creciera por encima de 64px. `radius/full` no necesita variable CSS: el código nunca lo usaría vía `--radius-*`, porque `rounded-full` es la utilidad nativa de Tailwind (`border-radius` prácticamente infinito), completamente independiente de esta escala — verificado en runtime: `getComputedStyle` de un nodo `rounded-full` da un valor calculado de ~26.8 millones de px, ajeno a cualquier variable del proyecto.
+
+`--radius` (el base, del que cuelga `lg`) sube de `0.875rem` (14px) a `1rem` (16px) para que `lg` caiga exactamente en un múltiplo de 4. Verificado en el navegador tras el cambio: `rounded-lg` calcula 16px, `rounded-xl` calcula 20px — coincide con Figma. El efecto visible más notorio es un sutil aumento de +2px en botones e inputs (`radius/interactive`, el token más usado de toda la capa numérica, 620 bindings), comprobado en la landing sin distorsión ni aspecto "pill" accidental.
 
 #### Rampa de spacing: múltiplos de 4, 0–96 px (23-ago-2026)
 
