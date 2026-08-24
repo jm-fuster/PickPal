@@ -93,11 +93,11 @@ Mantenemos calidez también en oscuro. Nada de marrón griseado.
 
 ### Figma — arquitectura de variables
 
-El archivo [PickPal — Design System](https://www.figma.com/design/4hQt4BnsEluKsYk5qbKkCz/PickPal---Design-System) espeja este documento y `globals.css`, no al revés: **si Figma contradice el código, gana el código**. Sus 300 variables están organizadas en las cuatro capas del patrón de design tokens, y cada una aliasa a la de abajo sin saltarse eslabones.
+El archivo [PickPal — Design System](https://www.figma.com/design/4hQt4BnsEluKsYk5qbKkCz/PickPal---Design-System) espeja este documento y `globals.css`, no al revés: **si Figma contradice el código, gana el código**. Sus 309 variables están organizadas en las cuatro capas del patrón de design tokens, y cada una aliasa a la de abajo sin saltarse eslabones.
 
 | Capa | Nº | Colección | Ejemplos | Aliasa a |
 |---|---|---|---|---|
-| Primitivo | 170 | `Primitives` (144) · `Typography (primitivos)` (26) | `color/Green/850`, `spacing/4`, `radius/md` | valor directo |
+| Primitivo | 179 | `Primitives` (153) · `Typography (primitivos)` (26) | `color/Green/850`, `spacing/4`, `size/16`, `radius/md` | valor directo |
 | Semántico | 90 | `Color` · `Medidas` | `color/bg/brand`, `color/icon/secondary`, `spacing/stack/lg` | primitivo |
 | Marca | 5 | `Color` | `color/brand/primary`, `color/brand/logo` | primitivo |
 | Componente | 35 | `Color` · `Medidas` | `size/switch/thumb-default`, `color/switch/thumb-bg`, `size/checkbox` | **semántico**, nunca primitivo |
@@ -160,6 +160,16 @@ Dos exclusiones deliberadas del barrido:
 **Consecuencia asumida: la capa semántica colapsa algunos escalones.** Al no existir 2/6/10, pares de tokens semánticos adyacentes resuelven ahora al mismo valor — `spacing/inset/2xs` = `inset/xs` (4px), `inset/sm` = `inset/md` (8px), `inset/lg` = `inset/xl` (12px), `inline/sm` = `inline/md` (8px), `size/interactive-2xs` = `interactive-xs` (8px), `interactive-sm` = `interactive-md` (12px). Es inherente a la rejilla: el nivel semántico tenía más granularidad de la que una rejilla de 4px permite expresar. **No se han fusionado a propósito** — siguen siendo roles distintos que hoy comparten valor, y fusionarlos rompería la completitud de las familias `2xs…4xl` y obligaría a repuntar los tokens de componente. Si algún día molesta la redundancia en el picker, es una decisión aparte.
 
 **`spacing/18-4` (18.4px) eliminado el 24-ago-2026** — a diferencia de los tres anteriores, este no era un paso real de Tailwind, sino el espejo de un valor arbitrario hardcodeado en `switch.tsx`: `data-[size=default]:h-[18.4px] data-[size=default]:w-[32px]`. Su único consumidor en Figma (`size/interactive-track`, la altura del track del Switch por defecto) se repuntó al primitivo ya existente `spacing/20`, y el componente real se corrigió a la vez: `h-[18.4px] w-[32px]` → `h-5 w-8` (utilidades limpias de Tailwind para 20px y 32px — `w-8` ya daba exactamente 32px, solo se limpió la sintaxis de corchete). Mismo criterio que con `radius`: si el valor tiene un reflejo real en código (aunque sea un arbitrario suelto, no una variable), hay que tocar los dos lados a la vez. Verificado: `h-5` calcula 20px en el dev server; `w-8` no se pudo comprobar en directo porque el Switch solo vive detrás de login (Ajustes), pero usa el mismo `--spacing` base de Tailwind (sin sobreescribir en `globals.css`) que `h-5`, ya confirmado.
+
+#### Grupo `size/*` de primitivos: 0–32 px (24-ago-2026)
+
+Nueva familia de primitivos en `Primitives`, 9 variables en múltiplos de 4: `size/0, 4, 8, 12, 16, 20, 24, 28, 32`. Misma convención que `spacing`: **`size/N` significa N píxeles.** Scope vacío y ocultas al publicar, como el resto de la capa.
+
+Existe para cerrar un desajuste de tipo que hasta ahora solo estaba resuelto en la capa semántica: los tokens de dimensión (`size/interactive-*`, `size/avatar/*`, `size/control/icon-*`) aliasan hoy a primitivos de **`spacing/*`** (6 casos) o de **`icon/*`** (15 casos), es decir, una medida de ancho/alto apuntando a un primitivo de separación. Con esta familia esas cadenas pueden apuntar a un primitivo del tipo correcto.
+
+**Todavía no consume nada ese grupo, a propósito.** Repuntar solo lo que cabe en 0–32 dejaría la familia semántica partida en tres convenciones a la vez: `size/*` para los ≤32, `icon/*` para 14/36/40/64/96 y `spacing/*` para los 240/480 de nivel de página. Serían 13 tokens migrables y 8 fuera de rango (`size/control/icon-sm` y `size/interactive-lg` a 14px; `size/icon/xl` 36; `size/avatar/lg` 40; `size/interactive-5xl` 64; `size/media-lg` 96; `size/sidebar/width` 240; `size/event-column/width` 480). Antes de migrar hay que decidir si la familia `size` se extiende para cubrir todo ese rango; media migración es peor que ninguna.
+
+**Trampa de nomenclatura, importante**: dentro de la misma colección conviven ahora dos convenciones opuestas para `N`. `spacing/N` y `size/N` significan **N píxeles** (`spacing/12` = 12px), pero **`icon/N` sigue la convención de índice de Tailwind** — `icon/3` = 12px, `icon/4` = 16px, `icon/8` = 32px. Al leer una cadena de alias hay que tener presente cuál de las dos se está usando. La familia `icon` conserva además su medio paso `icon/3-5` = 14px, fuera de la rejilla de 4 (30 usos de `size-3.5` en código; 14px es un tamaño de icono estándar y una rejilla estricta daría 12 o 16, perdiendo ese paso).
 
 #### Dónde Figma tiene más estructura que el código
 
