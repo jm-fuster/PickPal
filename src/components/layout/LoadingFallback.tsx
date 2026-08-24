@@ -2,7 +2,7 @@ export function LoadingFallback({ label = "Cargando…" }: { label?: string }) {
   return (
     <main className="flex flex-1 items-center justify-center p-8">
       <div className="flex flex-col items-center gap-4 text-muted-foreground">
-        <div className="flex items-center gap-1.5" aria-hidden>
+        <div className="flex items-center gap-2" aria-hidden>
           {[0, 1, 2].map((i) => (
             <span
               key={i}

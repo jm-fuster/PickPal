@@ -179,7 +179,7 @@ export function InterestTagInput({
                 role="option"
                 aria-selected={i === highlighted}
                 className={cn(
-                  "cursor-pointer rounded-md px-2 py-1.5 text-sm",
+                  "cursor-pointer rounded-md px-2 py-2 text-sm",
                   i === highlighted && "bg-accent text-accent-foreground",
                 )}
                 // preventDefault keeps focus on the input so blur doesn't
@@ -198,7 +198,7 @@ export function InterestTagInput({
         ) : null}
       </div>
       {suggestions.length > 0 ? (
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex flex-wrap items-center gap-2">
           {/* El botón "Otras" va al PRINCIPIO de la fila (ancho fijo), NO al
               final de los chips: con `flex-wrap` los chips cambian de ancho y
               número en cada refresco, así que un botón al final saltaba de

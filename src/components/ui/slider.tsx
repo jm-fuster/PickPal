@@ -32,7 +32,7 @@ function SliderTrack({ className, ...props }: SliderPrimitive.Track.Props) {
     <SliderPrimitive.Track
       data-slot="slider-track"
       className={cn(
-        "relative h-1.5 w-full grow rounded-full bg-muted overflow-hidden",
+        "relative h-2 w-full grow rounded-full bg-muted overflow-hidden",
         className,
       )}
       {...props}

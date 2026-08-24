@@ -39,7 +39,7 @@ export function BackLink({
       onClick={handleClick}
       className={cn(
         icon
-          ? "flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground w-fit"
+          ? "flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground w-fit"
           : "hover:text-foreground",
         className,
       )}

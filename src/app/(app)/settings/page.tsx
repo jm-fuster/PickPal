@@ -196,7 +196,7 @@ export default function SettingsPage() {
 
       <section className="space-y-3 rounded-xl border p-5">
         <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
+          <div className="space-y-1">
             <Label htmlFor="theme-toggle">Modo oscuro</Label>
             <p className="text-xs text-muted-foreground">
               Cambia entre tema claro y oscuro.
@@ -218,7 +218,7 @@ export default function SettingsPage() {
       <section className="space-y-4 rounded-xl border p-5">
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
+            <div className="space-y-1">
               <Label htmlFor="email-toggle">Notificaciones por correo</Label>
               <p className="text-xs text-muted-foreground">
                 Recibe un email cuando se acerquen tus eventos importantes.
@@ -286,7 +286,7 @@ export default function SettingsPage() {
       </section>
 
       <section className="space-y-3 rounded-xl border p-5">
-        <div className="space-y-0.5">
+        <div className="space-y-1">
           <Label>Tiendas para recomendaciones</Label>
           <p className="text-xs text-muted-foreground">
             Elige en qué tiendas quieres buscar regalos físicos. Los enlaces se
@@ -324,7 +324,7 @@ export default function SettingsPage() {
       </section>
 
       <section className="space-y-3 rounded-xl border p-5">
-        <div className="space-y-0.5">
+        <div className="space-y-1">
           <Label>Legal</Label>
           <p className="text-xs text-muted-foreground">
             Cómo tratamos tus datos en PickPal.
@@ -333,14 +333,14 @@ export default function SettingsPage() {
         <div className="flex flex-col gap-2">
           <Link
             href="/privacidad"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-muted-foreground"
+            className="inline-flex items-center gap-2 text-sm font-medium text-foreground hover:text-muted-foreground"
           >
             Política de privacidad
             <ArrowUpRight className="size-4" aria-hidden />
           </Link>
           <Link
             href="/terminos"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-muted-foreground"
+            className="inline-flex items-center gap-2 text-sm font-medium text-foreground hover:text-muted-foreground"
           >
             Términos y condiciones de uso
             <ArrowUpRight className="size-4" aria-hidden />
@@ -349,7 +349,7 @@ export default function SettingsPage() {
       </section>
 
       <section className="space-y-3 rounded-xl border border-destructive/30 p-5">
-        <div className="space-y-0.5">
+        <div className="space-y-1">
           <Label className="text-destructive">Eliminar cuenta</Label>
           <p className="text-xs text-muted-foreground">
             Borra tu cuenta y todos tus datos en PickPal — seres queridos,
@@ -415,7 +415,7 @@ export default function SettingsPage() {
           opacidad no se anuncia; la inserción de contenido sí. */}
       <div
         aria-live="polite"
-        className={`fixed bottom-6 right-6 z-50 flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground shadow-md transition-all duration-300 ${
+        className={`fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full bg-primary px-3 py-2 text-xs font-medium text-primary-foreground shadow-md transition-all duration-300 ${
           savedRecently
             ? "opacity-100 translate-y-0"
             : "opacity-0 translate-y-2 pointer-events-none"

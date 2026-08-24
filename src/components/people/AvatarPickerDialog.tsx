@@ -78,7 +78,7 @@ export function AvatarPickerDialog({ value, onChange, trigger }: AvatarPickerDia
                 variant="outline"
                 size="sm"
                 onClick={() => apply(randomBuild())}
-                className="gap-1.5"
+                className="gap-2"
               >
                 <Shuffle className="size-3.5" aria-hidden />
                 Aleatorio

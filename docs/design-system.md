@@ -93,11 +93,11 @@ Mantenemos calidez también en oscuro. Nada de marrón griseado.
 
 ### Figma — arquitectura de variables
 
-El archivo [PickPal — Design System](https://www.figma.com/design/4hQt4BnsEluKsYk5qbKkCz/PickPal---Design-System) espeja este documento y `globals.css`, no al revés: **si Figma contradice el código, gana el código**. Sus 303 variables están organizadas en las cuatro capas del patrón de design tokens, y cada una aliasa a la de abajo sin saltarse eslabones.
+El archivo [PickPal — Design System](https://www.figma.com/design/4hQt4BnsEluKsYk5qbKkCz/PickPal---Design-System) espeja este documento y `globals.css`, no al revés: **si Figma contradice el código, gana el código**. Sus 300 variables están organizadas en las cuatro capas del patrón de design tokens, y cada una aliasa a la de abajo sin saltarse eslabones.
 
 | Capa | Nº | Colección | Ejemplos | Aliasa a |
 |---|---|---|---|---|
-| Primitivo | 173 | `Primitives` (147) · `Typography (primitivos)` (26) | `color/Green/850`, `spacing/4`, `radius/md` | valor directo |
+| Primitivo | 170 | `Primitives` (144) · `Typography (primitivos)` (26) | `color/Green/850`, `spacing/4`, `radius/md` | valor directo |
 | Semántico | 90 | `Color` · `Medidas` | `color/bg/brand`, `color/icon/secondary`, `spacing/stack/lg` | primitivo |
 | Marca | 5 | `Color` | `color/brand/primary`, `color/brand/logo` | primitivo |
 | Componente | 35 | `Color` · `Medidas` | `size/switch/thumb-default`, `color/switch/thumb-bg`, `size/checkbox` | **semántico**, nunca primitivo |
@@ -142,7 +142,22 @@ A diferencia de las rampas numéricas de espaciado/tamaño (que no tienen equiva
 
 Los 11 primitivos de `spacing/*` en `Primitives` seguían la convención de índice de Tailwind (`spacing/1`=4px, `spacing/2`=8px … `spacing/14`=56px, saltándose 9 y 11 igual que Tailwind), en vez de nombrar por el valor real en px. Se renombraron a valor-en-px (mismos IDs, sin recrear, así que los alias semánticos no se tocaron) y se crearon los pasos que faltaban, para que la rampa cubra **todos** los múltiplos de 4 entre 0 y 96 sin huecos: `spacing/0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80, 84, 88, 92, 96` (25 variables).
 
-Los dos primitivos de tamaño de página (`spacing/60`=240px y `spacing/120`=480px, ver más abajo) usaban esa misma convención de índice y su nombre habría colisionado con el nuevo `spacing/60` (60px) de la rampa. Se renombraron a `spacing/240` y `spacing/480` para quedar consistentes con el resto de la familia: **todo `spacing/N` significa ahora N píxeles, sin excepción.** Los primitivos fraccionarios `spacing/0-5`=2px, `spacing/1-5`=6px, `spacing/2-5`=10px no forman parte de la rampa de múltiplos de 4 — son pasos reales de Tailwind (`0.5`, `1.5`, `2.5`) y se quedan como están.
+Los dos primitivos de tamaño de página (`spacing/60`=240px y `spacing/120`=480px, ver más abajo) usaban esa misma convención de índice y su nombre habría colisionado con el nuevo `spacing/60` (60px) de la rampa. Se renombraron a `spacing/240` y `spacing/480` para quedar consistentes con el resto de la familia: **todo `spacing/N` significa ahora N píxeles, sin excepción.**
+
+#### Rejilla estricta de 4px: fin de los medios pasos (24-ago-2026)
+
+La rampa arrastraba cuatro primitivos fuera de la rejilla: `spacing/0-5`=2px, `spacing/1-5`=6px, `spacing/2-5`=10px (los medios pasos de Tailwind `0.5`/`1.5`/`2.5`) y `spacing/18-4`=18.4px. **Los cuatro se eliminaron y el código se migró a la vez** — la escala de `spacing` es ahora `0 · 4 · 8 · … · 96 · 240 · 480`, sin un solo valor que no sea múltiplo de 4.
+
+**Regla de conversión: redondear siempre hacia arriba** al siguiente múltiplo de 4 (2→4, 6→8, 10→12). Hacia arriba y no hacia abajo porque apretar un espaciado tiende a verse roto, mientras que soltarlo solo respira más. En el código son **125 sustituciones en 25 archivos** (de 509 utilidades de espaciado totales, un 24 % estaba en medio paso): `space-y-1.5`→`space-y-2` ×47, `gap-1.5`→`gap-2` ×28, `gap-0.5`→`gap-1` ×10, `px-2.5`→`px-3` ×5, y 35 más. El efecto visible es que **los grupos label–input–error de todos los formularios pasan de 6 a 8 px** (era el patrón documentado `space-y-1.5`, ver más abajo), y los botones ganan 2px de padding horizontal en tamaño `sm`.
+
+Dos exclusiones deliberadas del barrido:
+
+- **`gemini-2.5-flash`** en `route.ts` y `errors.test.ts` — es el nombre del modelo de IA, no una clase de Tailwind. Un `sed` sobre `-2.5` lo habría corrompido.
+- **`hover:-translate-y-0.5`** en `PersonCard` — es la amplitud del "levantar el papel" al hover, una transformación de movimiento, no una medida de layout. Doblarla a 4px cambiaría la sensación de la interacción; la rejilla de espaciado gobierna disposición, no la distancia de una animación.
+
+**Trampa al hacer este barrido**: `gap-1.5` **contiene** la subcadena `p-1.5`, así que un reemplazo literal ingenuo procesa esa clase dos veces. Hay que anclar el inicio de cada clase (que el carácter previo no sea palabra ni guion) — el prefijo de variante (`hover:`, `md:`, `[&::-webkit-scrollbar]:`) sí debe seguir matcheando.
+
+**Consecuencia asumida: la capa semántica colapsa algunos escalones.** Al no existir 2/6/10, pares de tokens semánticos adyacentes resuelven ahora al mismo valor — `spacing/inset/2xs` = `inset/xs` (4px), `inset/sm` = `inset/md` (8px), `inset/lg` = `inset/xl` (12px), `inline/sm` = `inline/md` (8px), `size/interactive-2xs` = `interactive-xs` (8px), `interactive-sm` = `interactive-md` (12px). Es inherente a la rejilla: el nivel semántico tenía más granularidad de la que una rejilla de 4px permite expresar. **No se han fusionado a propósito** — siguen siendo roles distintos que hoy comparten valor, y fusionarlos rompería la completitud de las familias `2xs…4xl` y obligaría a repuntar los tokens de componente. Si algún día molesta la redundancia en el picker, es una decisión aparte.
 
 **`spacing/18-4` (18.4px) eliminado el 24-ago-2026** — a diferencia de los tres anteriores, este no era un paso real de Tailwind, sino el espejo de un valor arbitrario hardcodeado en `switch.tsx`: `data-[size=default]:h-[18.4px] data-[size=default]:w-[32px]`. Su único consumidor en Figma (`size/interactive-track`, la altura del track del Switch por defecto) se repuntó al primitivo ya existente `spacing/20`, y el componente real se corrigió a la vez: `h-[18.4px] w-[32px]` → `h-5 w-8` (utilidades limpias de Tailwind para 20px y 32px — `w-8` ya daba exactamente 32px, solo se limpió la sintaxis de corchete). Mismo criterio que con `radius`: si el valor tiene un reflejo real en código (aunque sea un arbitrario suelto, no una variable), hay que tocar los dos lados a la vez. Verificado: `h-5` calcula 20px en el dev server; `w-8` no se pudo comprobar en directo porque el Switch solo vive detrás de login (Ajustes), pero usa el mismo `--spacing` base de Tailwind (sin sobreescribir en `globals.css`) que `h-5`, ya confirmado.
 
@@ -374,7 +389,7 @@ Padding de página responsive en todos los `<main>`: `p-4 sm:p-6 lg:p-8`. No usa
 - **Cada sección va en su propia `Card`** (`border-border/60 shadow-sm`, con `CardContent p-5` y eyebrow `<h2>` `font-sans` + icono lucide `size-3.5`) — mismo registro de cards que la ficha de persona (`/seres-queridos/[id]`), para que crear y editar se vean como la misma libreta.
   - **Columna izquierda — card "Quién es"** (icono `UserRound`): avatar, nombre, relación, intereses, marcas favoritas, notas. `CardContent` con `space-y-5` (campos altos: avatar con botones, textareas).
   - **Columna derecha — card "Datos prácticos"** (icono `Ruler`: talla zapato, talla ropa, alergias, no le gusta) + card "Eventos" (`EventsSection`, icono `CalendarDays`, solo si `includeDates`). Las dos cards se apilan con `space-y-6` (mismo gap que el grid). `CardContent` con `space-y-4`.
-- Dentro de cada card, los grupos usan `space-y-1.5` label–input–error.
+- Dentro de cada card, los grupos usan `space-y-2` label–input–error.
 - **Por qué cards, y por qué la identidad también lleva título** (revierte la decisión previa de "sin contenedores"): la sección de identidad (foto, nombre, gustos…) no tenía título; ahora es una card con eyebrow representativo, "Quién es" (cubre identidad + gustos). Envolver **todas** las secciones en cards iguala el formulario de creación con la ficha de persona —donde cada sección ya vivía en una `Card` con eyebrow `<h2>`— y resuelve la antigua objeción de "rompe la simetría": ya no hay una columna con caja y otra sin ella, ambas son cards.
 - **Marcas favoritas vive con Intereses** (card "Quién es"), no en "Datos prácticos": es un *gusto* (preferencia positiva que alimenta la IA), no un hecho/restricción como las tallas o las alergias. "Datos prácticos" se reserva para tallas y límites.
 
@@ -416,7 +431,7 @@ La altura del panel viene determinada por el contenedor `fixed` del dashboard (`
 
 **Scrollbar styling** (embebido):
 ```tsx
-[&::-webkit-scrollbar]:w-1.5
+[&::-webkit-scrollbar]:w-2
 [&::-webkit-scrollbar-track]:bg-transparent
 [&::-webkit-scrollbar-thumb]:rounded-full
 [&::-webkit-scrollbar-thumb]:bg-border/60
@@ -439,7 +454,7 @@ La visibilidad se detecta con un listener de `scroll` en `scrollContainerRef` qu
 
 - Siempre con `border` visible. Nada de inputs invisibles a la Material.
 - Label arriba (`<Label>`), input debajo, error en rojo (`text-destructive`) inmediatamente después con `text-xs`.
-- Espaciado entre campos: `space-y-1.5` dentro de un grupo (label + input + error), `space-y-5` entre grupos.
+- Espaciado entre campos: `space-y-2` dentro de un grupo (label + input + error), `space-y-5` entre grupos.
 - **Selects**: usar siempre el componente shadcn `Select` (`SelectTrigger` + `SelectContent` + `SelectItem`). **Nunca `<select>` nativo** — el aspecto del navegador rompe la consistencia visual con el resto de la UI. En selects controlados con valor inicial, renderizar el label manualmente dentro del `SelectTrigger` con `<span>` (ver patrón en "Select con valor inicial controlado").
 
 ### Aviso de datos hacia la IA (`AiNotesNotice`)
@@ -539,7 +554,7 @@ Patrón para "volver a la sección anterior", visible en la parte superior de p�
 // Implementación interna (variante con icono, por defecto)
 <button
   onClick={() => router.back()}
-  className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground w-fit"
+  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground w-fit"
 >
   <ArrowLeft className="size-3.5" aria-hidden />
   Volver

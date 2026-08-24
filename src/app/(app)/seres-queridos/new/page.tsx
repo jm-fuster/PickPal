@@ -54,7 +54,7 @@ export default function NewPersonPage() {
 
   return (
     <main className="flex flex-1 flex-col gap-6 p-4 sm:p-6 lg:p-8">
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         <h1 className="text-4xl font-medium">Nueva persona</h1>
         <p className="text-sm text-muted-foreground">
           Solo el nombre es obligatorio. Lo demás puedes rellenarlo ahora o cuando quieras.

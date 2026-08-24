@@ -108,7 +108,7 @@ function AddEventForm({
       />
 
       {/* Etiqueta */}
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         <Label htmlFor="ae-label" className="text-xs">Etiqueta</Label>
         <Input
           id="ae-label"
@@ -134,7 +134,7 @@ function AddEventForm({
 
       {/* Desktop: día / mes / año en línea */}
       <div className="hidden md:grid grid-cols-3 gap-3">
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <Label htmlFor="ae-day" className="text-xs">Día</Label>
           <Input
             id="ae-day"
@@ -155,7 +155,7 @@ function AddEventForm({
             <p id="ae-day-error" className="text-xs text-destructive">{errors.day.message}</p>
           ) : null}
         </div>
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <Label className="text-xs">Mes</Label>
           <Select
             value={watchedMonth ? String(watchedMonth) : ""}
@@ -179,7 +179,7 @@ function AddEventForm({
             <p id="ae-month-error" className="text-xs text-destructive">{errors.month.message}</p>
           ) : null}
         </div>
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <Label htmlFor="ae-year" className="text-xs">Año (opc.)</Label>
           <Input
             id="ae-year"
@@ -201,7 +201,7 @@ function AddEventForm({
       </div>
 
       {/* Móvil: un único botón que abre el drum-roll picker */}
-      <div className="md:hidden space-y-1.5">
+      <div className="md:hidden space-y-2">
         <Label className="text-xs">Fecha</Label>
         <button
           type="button"
@@ -220,7 +220,7 @@ function AddEventForm({
       </div>
 
       {/* Recurrencia */}
-      <div className="space-y-1.5 max-w-[14rem]">
+      <div className="space-y-2 max-w-[14rem]">
         <Label className="text-xs">Recurrencia</Label>
         <Select
           value={watchedRecurring === false ? "false" : "true"}
@@ -231,7 +231,7 @@ function AddEventForm({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="true">
-              <span className="flex flex-col items-start gap-0.5 whitespace-normal py-0.5">
+              <span className="flex flex-col items-start gap-1 whitespace-normal py-1">
                 <span className="font-medium leading-tight">Todos los años</span>
                 <span className="text-xs text-muted-foreground leading-tight">
                   Se repite cada año (cumpleaños, aniversarios…)
@@ -239,7 +239,7 @@ function AddEventForm({
               </span>
             </SelectItem>
             <SelectItem value="false">
-              <span className="flex flex-col items-start gap-0.5 whitespace-normal py-0.5">
+              <span className="flex flex-col items-start gap-1 whitespace-normal py-1">
                 <span className="font-medium leading-tight">Fecha única</span>
                 <span className="text-xs text-muted-foreground leading-tight">
                   Solo en esta fecha concreta (boda, viaje…)
@@ -293,7 +293,7 @@ function EventsSection({
   return (
     <Card className="border-border/60 shadow-sm">
       <CardContent className="space-y-4 p-5">
-        <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-1.5">
+        <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-2">
           <CalendarDays className="size-3.5" aria-hidden />
           Eventos
         </h2>
@@ -434,7 +434,7 @@ export function PersonForm({
         {/* ── Left column: identity card ── */}
         <Card className="border-border/60 shadow-sm">
           <CardContent className="space-y-5 p-5">
-            <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-1.5">
+            <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-2">
               <UserRound className="size-3.5" aria-hidden />
               Quién es
             </h2>
@@ -442,7 +442,7 @@ export function PersonForm({
               Quién es y qué le gusta. Cuanto mejor la describas, más acertarán las sugerencias de regalo.
             </p>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label>Avatar</Label>
               <Controller
                 name="avatarUrl"
@@ -464,7 +464,7 @@ export function PersonForm({
                         value={field.value}
                         onChange={field.onChange}
                         trigger={
-                          <Button type="button" variant="outline" size="sm" className="gap-1.5">
+                          <Button type="button" variant="outline" size="sm" className="gap-2">
                             <Camera className="size-3.5" aria-hidden />
                             {field.value ? "Cambiar avatar" : "Elegir avatar"}
                           </Button>
@@ -475,7 +475,7 @@ export function PersonForm({
                         variant="outline"
                         size="sm"
                         onClick={() => field.onChange(randomAvatarUrl())}
-                        className="gap-1.5"
+                        className="gap-2"
                       >
                         <Shuffle className="size-3.5" aria-hidden />
                         Aleatorio
@@ -486,7 +486,7 @@ export function PersonForm({
               />
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label htmlFor="name">Nombre</Label>
               <Input
                 id="name"
@@ -499,7 +499,7 @@ export function PersonForm({
               ) : null}
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label>Relación</Label>
               <Controller
                 name="relationship"
@@ -523,7 +523,7 @@ export function PersonForm({
               />
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label>Intereses</Label>
               <Controller
                 name="interests"
@@ -539,7 +539,7 @@ export function PersonForm({
               ) : null}
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label>Marcas favoritas</Label>
               <Controller
                 name="favoriteBrands"
@@ -555,7 +555,7 @@ export function PersonForm({
               ) : null}
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label htmlFor="notes">Notas</Label>
               <Textarea
                 id="notes"
@@ -572,7 +572,7 @@ export function PersonForm({
         <div className="space-y-6">
           <Card className="border-border/60 shadow-sm">
             <CardContent className="space-y-4 p-5">
-              <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-1.5">
+              <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-2">
                 <Ruler className="size-3.5" aria-hidden />
                 Datos prácticos
               </h2>
@@ -581,16 +581,16 @@ export function PersonForm({
                 realmente se pueden usar.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                   <Label htmlFor="shoeSize">Talla de zapato</Label>
                   <Input id="shoeSize" placeholder="EU 42, 38…" {...register("shoeSize")} />
                 </div>
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                   <Label htmlFor="clothingSize">Talla de ropa</Label>
                   <Input id="clothingSize" placeholder="M, L, 38…" {...register("clothingSize")} />
                 </div>
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <Label htmlFor="allergies">Alergias o restricciones</Label>
                 <Textarea
                   id="allergies"
@@ -599,7 +599,7 @@ export function PersonForm({
                   {...register("allergies")}
                 />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <Label htmlFor="dislikes">Cosas que no le gustan</Label>
                 <Textarea
                   id="dislikes"

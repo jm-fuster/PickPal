@@ -85,7 +85,7 @@ export function GiftHistoryForm({ personId }: { personId: Id<"people"> }) {
       </p>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <Label htmlFor="gh-name">Regalo</Label>
           <Input
             id="gh-name"
@@ -99,7 +99,7 @@ export function GiftHistoryForm({ personId }: { personId: Id<"people"> }) {
           ) : null}
         </div>
 
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <Label htmlFor="gh-occasion">Ocasión</Label>
           <Input
             id="gh-occasion"
@@ -115,7 +115,7 @@ export function GiftHistoryForm({ personId }: { personId: Id<"people"> }) {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <Label htmlFor="gh-year">Año (opcional)</Label>
           <Input
             id="gh-year"
@@ -134,7 +134,7 @@ export function GiftHistoryForm({ personId }: { personId: Id<"people"> }) {
           ) : null}
         </div>
 
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <Label>Reacción</Label>
           <Controller
             name="reaction"
@@ -166,7 +166,7 @@ export function GiftHistoryForm({ personId }: { personId: Id<"people"> }) {
         </div>
       </div>
 
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         <Label htmlFor="gh-notes">Notas (opcional)</Label>
         <Textarea
           id="gh-notes"
@@ -240,7 +240,7 @@ export function EditGiftHistoryInline({
       </p>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <Label htmlFor="ghe-name">Regalo</Label>
           <Input
             id="ghe-name"
@@ -254,7 +254,7 @@ export function EditGiftHistoryInline({
           ) : null}
         </div>
 
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <Label htmlFor="ghe-occasion">Ocasión</Label>
           <Input
             id="ghe-occasion"
@@ -270,7 +270,7 @@ export function EditGiftHistoryInline({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <Label htmlFor="ghe-year">Año (opcional)</Label>
           <Input
             id="ghe-year"
@@ -289,7 +289,7 @@ export function EditGiftHistoryInline({
           ) : null}
         </div>
 
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <Label>Reacción</Label>
           <Controller
             name="reaction"
@@ -321,7 +321,7 @@ export function EditGiftHistoryInline({
         </div>
       </div>
 
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         <Label htmlFor="ghe-notes">Notas (opcional)</Label>
         <Textarea
           id="ghe-notes"

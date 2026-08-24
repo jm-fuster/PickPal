@@ -364,7 +364,7 @@ export function GiftsPanel({
           {person && (
             <Link
               href={`/seres-queridos/${personId}`}
-              className="flex items-center gap-2.5 w-fit group"
+              className="flex items-center gap-3 w-fit group"
             >
               <Avatar className="size-9 shrink-0">
                 {person.avatarUrl ? <AvatarImage src={person.avatarUrl} /> : null}
@@ -382,7 +382,7 @@ export function GiftsPanel({
 
       <div ref={controlsRef} className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-5 space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <Label>¿Para qué ocasión?</Label>
             <Select
               value={occasion}
@@ -454,7 +454,7 @@ export function GiftsPanel({
                     setSavedTitles(new Set());
                   }}
                   className={[
-                    "flex flex-col items-start gap-1 rounded-xl px-3 py-2.5 text-left text-sm transition-colors",
+                    "flex flex-col items-start gap-1 rounded-xl px-3 py-3 text-left text-sm transition-colors",
                     selected
                       ? "bg-muted border border-border text-foreground"
                       : "border border-border/50 text-muted-foreground hover:border-border hover:text-foreground",
@@ -608,7 +608,7 @@ export function GiftsPanel({
             {onClose && (
               <button
                 onClick={onClose}
-                className="rounded-md p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                className="rounded-md p-2 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                 aria-label="Cerrar panel"
               >
                 <X className="size-4" aria-hidden />
@@ -617,7 +617,7 @@ export function GiftsPanel({
           </div>
         </div>
         {/* Cuerpo scrollable */}
-        <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border/60 [scrollbar-width:thin] [scrollbar-color:hsl(var(--border)/0.6)_transparent]">
+        <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-5 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border/60 [scrollbar-width:thin] [scrollbar-color:hsl(var(--border)/0.6)_transparent]">
           {content}
         </div>
       </div>
@@ -641,7 +641,7 @@ export function GiftsPanel({
       >
         <Link
           href={`/seres-queridos/${personId}`}
-          className="flex items-center gap-2.5 min-w-0"
+          className="flex items-center gap-3 min-w-0"
         >
           <Avatar className="size-8 shrink-0">
             {person.avatarUrl ? <AvatarImage src={person.avatarUrl} alt={person.name} /> : null}

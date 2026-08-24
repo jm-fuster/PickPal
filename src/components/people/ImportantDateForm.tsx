@@ -118,7 +118,7 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
 </p>
 
         {/* Etiqueta — full width on both breakpoints */}
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <Label htmlFor="date-label">Etiqueta</Label>
           <Input
             id="date-label"
@@ -149,7 +149,7 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
 
         {/* ── Desktop: three inline inputs ── */}
         <div className="hidden md:grid md:grid-cols-3 gap-3">
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <Label htmlFor="date-day-desktop">Día</Label>
             <Input
               id="date-day-desktop"
@@ -165,7 +165,7 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
               }
             />
           </div>
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <Label htmlFor="date-month-desktop">Mes</Label>
             <Select
               value={watchedMonth ? String(watchedMonth) : ""}
@@ -188,7 +188,7 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <Label htmlFor="date-year-desktop">Año (opcional)</Label>
             <Input
               id="date-year-desktop"
@@ -210,7 +210,7 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
         </div>
 
         {/* ── Mobile: single button that opens drum-roll picker ── */}
-        <div className="md:hidden space-y-1.5">
+        <div className="md:hidden space-y-2">
           <Label>Fecha</Label>
           <button
             type="button"
@@ -229,7 +229,7 @@ export function ImportantDateForm({ personId }: { personId: Id<"people"> }) {
         </div>
 
         {/* Recurrencia */}
-        <div className="space-y-1.5 max-w-[14rem]">
+        <div className="space-y-2 max-w-[14rem]">
           <Label>Recurrencia</Label>
           <Select
             value={watchedRecurring === false ? "false" : "true"}
@@ -372,7 +372,7 @@ export function EditImportantDateInline({
         className="space-y-3 rounded-lg border border-primary/40 bg-background/80 p-3 text-sm animate-in fade-in slide-in-from-top-1 duration-200"
       >
       {/* Etiqueta */}
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         <Label htmlFor="edit-label">Etiqueta</Label>
         <Input
           id="edit-label"
@@ -391,7 +391,7 @@ export function EditImportantDateInline({
       })} />
 
       {/* Fecha — desktop: tres columnas; móvil: botón que abre el picker */}
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         <Label>Fecha</Label>
         <div className="hidden md:grid md:grid-cols-3 gap-2">
           <Input
@@ -450,7 +450,7 @@ export function EditImportantDateInline({
       </div>
 
       {/* Recurrencia */}
-      <div className="space-y-1.5 max-w-[14rem]">
+      <div className="space-y-2 max-w-[14rem]">
         <Label>Recurrencia</Label>
         <Select
           value={watchedRecurring === false ? "false" : "true"}
@@ -461,7 +461,7 @@ export function EditImportantDateInline({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="true">
-              <span className="flex flex-col items-start gap-0.5 whitespace-normal py-0.5">
+              <span className="flex flex-col items-start gap-1 whitespace-normal py-1">
                 <span className="font-medium leading-tight">Todos los años</span>
                 <span className="text-xs text-muted-foreground leading-tight">
                   Se repite cada año (cumpleaños, aniversarios…)
@@ -469,7 +469,7 @@ export function EditImportantDateInline({
               </span>
             </SelectItem>
             <SelectItem value="false">
-              <span className="flex flex-col items-start gap-0.5 whitespace-normal py-0.5">
+              <span className="flex flex-col items-start gap-1 whitespace-normal py-1">
                 <span className="font-medium leading-tight">Fecha única</span>
                 <span className="text-xs text-muted-foreground leading-tight">
                   Solo en esta fecha concreta (boda, viaje…)

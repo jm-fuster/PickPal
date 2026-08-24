@@ -64,7 +64,7 @@ export function GenerationProgress({ regenerate = false }: { regenerate?: boolea
           style={{ width: `${progress}%` }}
         />
       </div>
-      <p className="mt-2.5 text-xs text-muted-foreground">
+      <p className="mt-3 text-xs text-muted-foreground">
         Suele tardar unos segundos. Puedes esperar aquí, está todo en marcha.
       </p>
     </div>

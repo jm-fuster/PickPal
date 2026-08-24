@@ -271,7 +271,7 @@ function PersonDetailContent({
         {/* ── Interests + Notes card ── */}
         <Card className="border-border/60 shadow-sm">
           <CardContent className="space-y-4 p-5">
-            <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-1.5">
+            <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-2">
               <Star className="size-3.5" aria-hidden />
               Intereses
             </h2>
@@ -284,7 +284,7 @@ function PersonDetailContent({
               }}
             />
 
-            <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-1.5 pt-2">
+            <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-2 pt-2">
               <Tags className="size-3.5" aria-hidden />
               Marcas favoritas
             </h2>
@@ -300,7 +300,7 @@ function PersonDetailContent({
               }}
             />
 
-            <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-1.5 pt-2">
+            <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-2 pt-2">
               <NotebookPen className="size-3.5" aria-hidden />
               Notas
             </h2>
@@ -319,7 +319,7 @@ function PersonDetailContent({
         {/* ── Events card ── */}
         <Card className="border-border/60 shadow-sm">
           <CardContent className="space-y-4 p-5">
-            <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-1.5">
+            <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-2">
               <CalendarDays className="size-3.5" aria-hidden />
               Eventos
             </h2>
@@ -362,7 +362,7 @@ function PersonDetailContent({
                             </p>
                           )}
                         </div>
-                        <div className="flex items-center gap-0.5 shrink-0">
+                        <div className="flex items-center gap-1 shrink-0">
                           <Button variant="ghost" size="icon-sm" aria-label="Editar evento" onClick={() => setEditingDate(d)}>
                             <PencilLine className="size-3.5" aria-hidden />
                           </Button>
@@ -390,7 +390,7 @@ function PersonDetailContent({
       {/* ── Practical data card ── */}
       <Card className="border-border/60 shadow-sm">
         <CardContent className="space-y-4 p-5">
-          <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-1.5">
+          <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-2">
             <Ruler className="size-3.5" aria-hidden />
             Datos prácticos
           </h2>
@@ -398,7 +398,7 @@ function PersonDetailContent({
             Tallas y restricciones que ayudan a la IA a sugerir regalos que realmente se pueden usar.
           </p>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label htmlFor="shoeSize">Talla de zapato</Label>
               <Input
                 id="shoeSize"
@@ -408,7 +408,7 @@ function PersonDetailContent({
                 onBlur={() => save({ shoeSize: localShoeSize || undefined })}
               />
             </div>
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label htmlFor="clothingSize">Talla de ropa</Label>
               <Input
                 id="clothingSize"
@@ -419,7 +419,7 @@ function PersonDetailContent({
               />
             </div>
           </div>
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <Label htmlFor="allergies">Alergias o restricciones</Label>
             <Textarea
               id="allergies"
@@ -430,7 +430,7 @@ function PersonDetailContent({
               onBlur={() => save({ allergies: localAllergies || undefined })}
             />
           </div>
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <Label htmlFor="dislikes">Cosas que no le gustan</Label>
             <Textarea
               id="dislikes"
@@ -449,7 +449,7 @@ function PersonDetailContent({
           un cambio de opacidad no se anuncia; la inserción de contenido sí. */}
       <div
         aria-live="polite"
-        className={`fixed bottom-6 right-6 z-50 flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground shadow-md transition-all duration-300 ${
+        className={`fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full bg-primary px-3 py-2 text-xs font-medium text-primary-foreground shadow-md transition-all duration-300 ${
           savedRecently ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"
         }`}
       >
@@ -464,7 +464,7 @@ function PersonDetailContent({
       {/* ── Saved ideas card ── */}
       <Card className="border-border/60 shadow-sm">
         <CardContent className="space-y-4 p-5">
-          <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-1.5">
+          <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-2">
             <ThumbsUp className="size-3.5" aria-hidden />
             Ideas guardadas
           </h2>
@@ -501,7 +501,7 @@ function PersonDetailContent({
                             {s.occasionLabel} · {formatPriceRange(s.priceMinEuros, s.priceMaxEuros)}
                           </p>
                         </div>
-                        <div className="flex items-center gap-0.5 shrink-0">
+                        <div className="flex items-center gap-1 shrink-0">
                           <Button
                             size="sm"
                             className="text-xs h-7 px-2 hover:bg-primary/80"
@@ -549,9 +549,9 @@ function PersonDetailContent({
                         ))}
                       </div>
                       {s.amazonQuery && (
-                        <div className="mt-auto flex flex-col gap-1.5 pt-1">
+                        <div className="mt-auto flex flex-col gap-2 pt-1">
                           {isPhysicalLike && matchedBrands.length > 0 && (
-                            <div className="flex flex-wrap gap-1.5">
+                            <div className="flex flex-wrap gap-2">
                               {matchedBrands.map((brand) => (
                                 <BrandStoreLink
                                   key={`brand-${brand}`}
@@ -564,7 +564,7 @@ function PersonDetailContent({
                               ))}
                             </div>
                           )}
-                          <div className="flex flex-wrap gap-1.5">
+                          <div className="flex flex-wrap gap-2">
                           {storeChips.length > 0 ? (
                             storeChips.map((store) => (
                               <a
@@ -621,7 +621,7 @@ function PersonDetailContent({
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label>Reacción</Label>
               <Select value={convertReaction} onValueChange={(v) => setConvertReaction(v ?? "")}>
                 <SelectTrigger aria-label="Reacción">
@@ -634,7 +634,7 @@ function PersonDetailContent({
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label htmlFor="convert-year">Año (opcional)</Label>
               <Input
                 id="convert-year"
@@ -646,7 +646,7 @@ function PersonDetailContent({
                 onChange={(e) => setConvertYear(e.target.value)}
               />
             </div>
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label htmlFor="convert-notes">Notas (opcional)</Label>
               <Textarea
                 id="convert-notes"
@@ -669,7 +669,7 @@ function PersonDetailContent({
       {/* ── Gift history card ── */}
       <Card className="border-border/60 shadow-sm">
         <CardContent className="space-y-4 p-5">
-          <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-1.5">
+          <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-2">
             <Gift className="size-3.5" aria-hidden />
             Historial de regalos
           </h2>
@@ -695,7 +695,7 @@ function PersonDetailContent({
                             </span>
                           </span>
                         </span>
-                        <div className="flex items-center gap-0.5 shrink-0">
+                        <div className="flex items-center gap-1 shrink-0">
                           <Button variant="ghost" size="icon-sm" aria-label="Editar regalo" onClick={() => setEditingGift(h)}>
                             <PencilLine className="size-3.5" aria-hidden />
                           </Button>

@@ -135,13 +135,13 @@ export function GiftRecommendationCard({
             />
           </div>
         )}
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <div className="flex items-start justify-between gap-2">
             <h3 className="text-base font-medium leading-snug line-clamp-2 min-h-[2.75rem]">
               {idea.title}
             </h3>
             {(onSave || onDiscard) && (
-              <div className="flex gap-0.5 shrink-0">
+              <div className="flex gap-1 shrink-0">
                 {onSave && (
                   <button
                     type="button"
@@ -207,7 +207,7 @@ export function GiftRecommendationCard({
                     El eyebrow solo se rotula cuando hay marca, para que el usuario
                     entienda que sale de las marcas que añadió a esta persona. */}
                 {matchedBrands.length > 0 && (
-                  <div className="space-y-1.5">
+                  <div className="space-y-2">
                     <p className={STORE_SECTION_LABEL_CLASS}>Tienda de marca</p>
                     <div className="grid grid-cols-2 gap-2">
                       {matchedBrands.map((brand) => (
@@ -223,7 +223,7 @@ export function GiftRecommendationCard({
                     </div>
                   </div>
                 )}
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                   {matchedBrands.length > 0 && (
                     <p className={STORE_SECTION_LABEL_CLASS}>Buscar en tiendas</p>
                   )}
