@@ -93,14 +93,14 @@ Mantenemos calidez también en oscuro. Nada de marrón griseado.
 
 ### Figma — arquitectura de variables
 
-El archivo [PickPal — Design System](https://www.figma.com/design/4hQt4BnsEluKsYk5qbKkCz/PickPal---Design-System) espeja este documento y `globals.css`, no al revés: **si Figma contradice el código, gana el código**. Sus 290 variables están organizadas en las cuatro capas del patrón de design tokens, y cada una aliasa a la de abajo sin saltarse eslabones.
+El archivo [PickPal — Design System](https://www.figma.com/design/4hQt4BnsEluKsYk5qbKkCz/PickPal---Design-System) espeja este documento y `globals.css`, no al revés: **si Figma contradice el código, gana el código**. Sus 303 variables están organizadas en las cuatro capas del patrón de design tokens, y cada una aliasa a la de abajo sin saltarse eslabones.
 
 | Capa | Nº | Colección | Ejemplos | Aliasa a |
 |---|---|---|---|---|
-| Primitivo | 160 | `Primitives` (134) · `Typography (primitivos)` (26) | `color/Green/850`, `spacing/4`, `radius/md` | valor directo |
-| Semántico | 95 | `Color` · `Medidas` | `color/bg/brand`, `color/icon/secondary`, `spacing/stack/lg` | primitivo |
+| Primitivo | 173 | `Primitives` (147) · `Typography (primitivos)` (26) | `color/Green/850`, `spacing/4`, `radius/md` | valor directo |
+| Semántico | 90 | `Color` · `Medidas` | `color/bg/brand`, `color/icon/secondary`, `spacing/stack/lg` | primitivo |
 | Marca | 5 | `Color` | `color/brand/primary`, `color/brand/logo` | primitivo |
-| Componente | 30 | `Color` · `Medidas` | `size/switch/thumb-default`, `color/switch/thumb-bg`, `size/checkbox` | **semántico**, nunca primitivo |
+| Componente | 35 | `Color` · `Medidas` | `size/switch/thumb-default`, `color/switch/thumb-bg`, `size/checkbox` | **semántico**, nunca primitivo |
 
 **Los primitivos tienen scope vacío y están ocultos al publicar** (`hiddenFromPublishing`): no aparecen en ningún picker ni viajan a los archivos que consumen la librería, para que nadie aplique `spacing/4` donde toca `spacing/container/padding`. Única excepción, las 26 de `Typography`, que siguen scopeadas y publicadas porque todavía no hay text styles por encima — sin ellas los pickers de tamaño de fuente e interlineado quedarían vacíos y empujarían a valores crudos. Crear los text styles es el prerrequisito para cerrarlas.
 
@@ -142,7 +142,9 @@ A diferencia de las rampas numéricas de espaciado/tamaño (que no tienen equiva
 
 Los 11 primitivos de `spacing/*` en `Primitives` seguían la convención de índice de Tailwind (`spacing/1`=4px, `spacing/2`=8px … `spacing/14`=56px, saltándose 9 y 11 igual que Tailwind), en vez de nombrar por el valor real en px. Se renombraron a valor-en-px (mismos IDs, sin recrear, así que los alias semánticos no se tocaron) y se crearon los pasos que faltaban, para que la rampa cubra **todos** los múltiplos de 4 entre 0 y 96 sin huecos: `spacing/0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80, 84, 88, 92, 96` (25 variables).
 
-Los dos primitivos de tamaño de página (`spacing/60`=240px y `spacing/120`=480px, ver más abajo) usaban esa misma convención de índice y su nombre habría colisionado con el nuevo `spacing/60` (60px) de la rampa. Se renombraron a `spacing/240` y `spacing/480` para quedar consistentes con el resto de la familia: **todo `spacing/N` significa ahora N píxeles, sin excepción.** Los primitivos fraccionarios (`spacing/0-5`=2px, `spacing/1-5`=6px, `spacing/2-5`=10px, `spacing/18-4`=18.4px) no forman parte de la rampa de múltiplos de 4 — son valores reales de Tailwind (`0.5`, `1.5`, `2.5`) o un arbitrario del código (`h-[18.4px]`) y se quedan como están.
+Los dos primitivos de tamaño de página (`spacing/60`=240px y `spacing/120`=480px, ver más abajo) usaban esa misma convención de índice y su nombre habría colisionado con el nuevo `spacing/60` (60px) de la rampa. Se renombraron a `spacing/240` y `spacing/480` para quedar consistentes con el resto de la familia: **todo `spacing/N` significa ahora N píxeles, sin excepción.** Los primitivos fraccionarios `spacing/0-5`=2px, `spacing/1-5`=6px, `spacing/2-5`=10px no forman parte de la rampa de múltiplos de 4 — son pasos reales de Tailwind (`0.5`, `1.5`, `2.5`) y se quedan como están.
+
+**`spacing/18-4` (18.4px) eliminado el 24-ago-2026** — a diferencia de los tres anteriores, este no era un paso real de Tailwind, sino el espejo de un valor arbitrario hardcodeado en `switch.tsx`: `data-[size=default]:h-[18.4px] data-[size=default]:w-[32px]`. Su único consumidor en Figma (`size/interactive-track`, la altura del track del Switch por defecto) se repuntó al primitivo ya existente `spacing/20`, y el componente real se corrigió a la vez: `h-[18.4px] w-[32px]` → `h-5 w-8` (utilidades limpias de Tailwind para 20px y 32px — `w-8` ya daba exactamente 32px, solo se limpió la sintaxis de corchete). Mismo criterio que con `radius`: si el valor tiene un reflejo real en código (aunque sea un arbitrario suelto, no una variable), hay que tocar los dos lados a la vez. Verificado: `h-5` calcula 20px en el dev server; `w-8` no se pudo comprobar en directo porque el Switch solo vive detrás de login (Ajustes), pero usa el mismo `--spacing` base de Tailwind (sin sobreescribir en `globals.css`) que `h-5`, ya confirmado.
 
 #### Dónde Figma tiene más estructura que el código
 
