@@ -206,7 +206,7 @@ function AddEventForm({
         <button
           type="button"
           onClick={() => setPickerOpen(true)}
-          className={`h-8 w-full rounded-md border bg-background px-3 text-sm text-left transition-colors hover:bg-muted/50 ${!watchedDay || !watchedMonth ? "text-muted-foreground" : ""}`}
+          className={`h-8 w-full rounded-md border bg-background px-3 text-sm text-left transition-colors hover:bg-muted/50 ${!watchedDay || !watchedMonth ? "text-subtle-foreground" : ""}`}
         >
           {watchedDay && watchedMonth
             ? formatEventDate(watchedDay, watchedMonth, watchedYear)

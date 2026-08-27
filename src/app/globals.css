@@ -24,6 +24,7 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
+  --color-subtle-foreground: var(--subtle-foreground);
   --color-muted: var(--muted);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-secondary: var(--secondary);
@@ -92,6 +93,11 @@
      No es un descuido — si algún día deben separarse, se separan en Figma primero. */
   --muted: oklch(0.93 0.03 78);
   --muted-foreground: oklch(0.4014 0.0404 51.47);
+  /* Nivel terciario: placeholders y decoración. Espeja color/text/tertiary de
+     Figma (Umber/900 en claro, Cream/500 en oscuro). Más débil que
+     --muted-foreground a propósito: si un placeholder pesa igual que un valor
+     real, el campo vacío parece relleno. */
+  --subtle-foreground: oklch(0.4992 0.0249 60.35);
   --accent: oklch(0.93 0.03 78);
   --accent-foreground: oklch(0.4014 0.0404 51.47);
   --destructive: oklch(0.55 0.2 28);
@@ -121,7 +127,8 @@
   --secondary: oklch(0.70 0.12 45);
   --secondary-foreground: oklch(0.18 0.012 50);
   --muted: oklch(0.28 0.018 50);
-  --muted-foreground: oklch(0.7 0.025 70);
+  --muted-foreground: oklch(0.8806 0.0248 77.44);
+  --subtle-foreground: oklch(0.7 0.0252 69.47);
   --accent: oklch(0.28 0.022 78);
   --accent-foreground: oklch(0.94 0.012 80);
   --destructive: oklch(0.7 0.18 25);

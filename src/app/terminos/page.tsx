@@ -24,7 +24,7 @@ export default function TermsPage() {
       <main className="mx-auto w-full max-w-2xl space-y-8 px-6 py-12">
         <div className="space-y-3">
           <h1 className="text-4xl font-medium">Términos y condiciones de uso</h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-foreground">
             PickPal está en beta privada. Estas condiciones explican en
             lenguaje llano qué es el servicio, qué se espera de ti al usarlo y
             de qué nos hacemos —y no— responsables.
@@ -33,7 +33,7 @@ export default function TermsPage() {
 
         <section className="space-y-3">
           <h2 className="text-xl font-medium">Qué es PickPal</h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-foreground">
             PickPal es una aplicación web para guardar información sobre las
             personas a las que quieres regalar (intereses, fechas señaladas,
             notas) y obtener ideas de regalo personalizadas generadas por
@@ -51,7 +51,7 @@ export default function TermsPage() {
 
         <section className="space-y-3">
           <h2 className="text-xl font-medium">Aceptación</h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-foreground">
             Al registrarte y usar PickPal aceptas estos términos. Si no estás
             de acuerdo con ellos, no debes registrarte ni utilizar el servicio.
           </p>
@@ -59,7 +59,7 @@ export default function TermsPage() {
 
         <section className="space-y-3">
           <h2 className="text-xl font-medium">Tu cuenta</h2>
-          <ul className="space-y-2 text-sm text-muted-foreground list-disc pl-5">
+          <ul className="space-y-2 text-sm text-foreground list-disc pl-5">
             <li>
               El acceso se gestiona con Clerk. Eres responsable de mantener la
               confidencialidad de tus credenciales.
@@ -74,8 +74,8 @@ export default function TermsPage() {
 
         <section className="space-y-3">
           <h2 className="text-xl font-medium">Uso aceptable</h2>
-          <p className="text-sm text-muted-foreground">Al usar PickPal te comprometes a:</p>
-          <ul className="space-y-2 text-sm text-muted-foreground list-disc pl-5">
+          <p className="text-sm text-foreground">Al usar PickPal te comprometes a:</p>
+          <ul className="space-y-2 text-sm text-foreground list-disc pl-5">
             <li>
               No introducir datos de terceros sin tener una relación personal
               legítima con ellos.
@@ -98,7 +98,7 @@ export default function TermsPage() {
             </li>
             <li>No automatizar el uso del servicio mediante bots o scraping.</li>
           </ul>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-foreground">
             El incumplimiento puede conllevar la suspensión o eliminación de tu
             cuenta.
           </p>
@@ -106,7 +106,7 @@ export default function TermsPage() {
 
         <section className="space-y-3">
           <h2 className="text-xl font-medium">Recomendaciones generadas por IA</h2>
-          <ul className="space-y-2 text-sm text-muted-foreground list-disc pl-5">
+          <ul className="space-y-2 text-sm text-foreground list-disc pl-5">
             <li>
               Las ideas de regalo se generan con un modelo de lenguaje a partir
               de los datos que introduces. Son{" "}
@@ -139,7 +139,7 @@ export default function TermsPage() {
 
         <section className="space-y-3 rounded-xl border border-border/60 p-5">
           <h2 className="text-xl font-medium">Datos de otras personas</h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-foreground">
             Cuando añades a alguien como &laquo;ser querido&raquo; guardas datos
             de un tercero que probablemente no es usuario de PickPal. Eres tú
             quien decide qué información introducir y eres responsable de tener
@@ -157,7 +157,7 @@ export default function TermsPage() {
 
         <section className="space-y-3">
           <h2 className="text-xl font-medium">Tus datos y la propiedad intelectual</h2>
-          <ul className="space-y-2 text-sm text-muted-foreground list-disc pl-5">
+          <ul className="space-y-2 text-sm text-foreground list-disc pl-5">
             <li>
               Los datos que introduces son{" "}
               <span className="text-foreground">tuyos</span>. PickPal solo los
@@ -172,7 +172,7 @@ export default function TermsPage() {
 
         <section className="space-y-3">
           <h2 className="text-xl font-medium">Disponibilidad del servicio</h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-foreground">
             PickPal se ofrece &laquo;tal cual&raquo; y &laquo;según
             disponibilidad&raquo;. Al estar en beta, podemos modificar,
             suspender o discontinuar funcionalidades, y no garantizamos una
@@ -182,7 +182,7 @@ export default function TermsPage() {
 
         <section className="space-y-3">
           <h2 className="text-xl font-medium">Limitación de responsabilidad</h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-foreground">
             En la medida permitida por la ley, PickPal no se responsabiliza de
             daños indirectos, lucro cesante o pérdida de datos derivados del uso
             o de la imposibilidad de uso del servicio, del uso que hagas de las
@@ -194,7 +194,7 @@ export default function TermsPage() {
 
         <section className="space-y-3">
           <h2 className="text-xl font-medium">Baja del servicio</h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-foreground">
             Puedes dar de baja tu cuenta en cualquier momento desde{" "}
             <Link
               href="/settings"
@@ -209,7 +209,7 @@ export default function TermsPage() {
 
         <section className="space-y-3">
           <h2 className="text-xl font-medium">Cambios en estos términos</h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-foreground">
             Podemos actualizar estos términos para reflejar cambios en el
             servicio o en la normativa. Publicaremos la versión vigente en esta
             página y, si el cambio es sustancial, te avisaremos con antelación
@@ -219,7 +219,7 @@ export default function TermsPage() {
 
         <section className="space-y-3">
           <h2 className="text-xl font-medium">Ley aplicable</h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-foreground">
             Estos términos se rigen por la legislación española y de la Unión
             Europea. Como consumidor, conservas el derecho a acudir a los
             tribunales de tu domicilio.
@@ -228,7 +228,7 @@ export default function TermsPage() {
 
         <section className="space-y-3">
           <h2 className="text-xl font-medium">Contacto</h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-foreground">
             Para cualquier duda sobre estos términos, escribe a la persona que
             te invitó a la beta.
           </p>

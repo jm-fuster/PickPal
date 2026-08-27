@@ -13,14 +13,14 @@ No genera CSS desde Figma — solo 67 de las 373 variables tienen contraparte en
 
 | | Nº |
 |---|---|
-| Espejados (Figma ↔ código) | 67 |
-| … de acuerdo | 60 |
+| Espejados (Figma ↔ código) | 69 |
+| … de acuerdo | 63 |
 | … iguales salvo redondeo oklch↔hex | 2 |
-| … en divergencia **ya declarada** | 5 |
+| … en divergencia **ya declarada** | 4 |
 | … en divergencia **nueva, sin declarar** | 0 |
 | Props del código que varias variables de Figma reclaman con valores distintos | 1 |
 | Solo-código (sin variable en Figma) | 5 |
-| Solo-Figma · capa Semantic (decisión pendiente) | 149 |
+| Solo-Figma · capa Semantic (decisión pendiente) | 147 |
 | Solo-Figma · Primitives (por diseño: ocultos al publicar) | 157 |
 
 ## Divergencias ya declaradas
@@ -30,7 +30,6 @@ Desacuerdos vistos y anotados. No hacen fallar el script, pero siguen siendo tra
 | Custom property | Modo | Figma | Código | Estado | Qué hacer |
 |---|---|---|---|---|---|
 | `--chart-1` | Dark | #547959 | #315837 | pendiente · gana figma | globals.css .dark → --chart-1: oklch(0.539 0.065 148) |
-| `--muted-foreground` | Dark | #e1d6c6 | #a99c8e | pendiente · gana sin decidir | Decidir entre: (a) el código adopta el nivel secundario en los dos modos — oscuro a Cream/400, 13.14:1, pero deja solo 2.60 de distancia con el texto normal; (b) vuelve al terciario en los dos modos — claro a Umber/900, 5.63:1, AA raspado; (c) el código crece un token terciario y se reparten los 151 usos de --muted-foreground, que es lo que pide el modelo de Figma. Lo que se decida arrastra el codeSyntax: si el código se queda en terciario, var(--muted-foreground) tiene que pasar de color/text/secondary a color/text/tertiary. Nota estructural: la rampa Cream no tiene ningún paso entre 400 y 500 (salto de L de 0.1806, el mayor de la rampa), así que la escalera de oscuro no se puede equilibrar solo con Cream. |
 | `--primary` | Dark | #547959 | #315837 | pendiente · gana figma | globals.css .dark → --primary: oklch(0.539 0.065 148) |
 | `--ring` | Dark | #547959 | #315837 | pendiente · gana figma | globals.css .dark → --ring: oklch(0.539 0.065 148) |
 | `--secondary` | Light | #a44c1d | #c56a3e | pendiente · gana figma | Decidir si se parte en --secondary (relleno) + una prop de texto, siguiendo la forma de --brand. Ver la sección de conflictos de docs/token-map.md. |
@@ -70,57 +69,59 @@ Valores: `Figma / código`. `≈` = mismo color, ±1 por canal del ida y vuelta 
 | `color/border/danger` | Semantic | `--destructive` | :root / .dark | ✅ #cc2823 / #cc2823 | ✅ #fa6863 / #fa6863 |
 | `color/fill/danger-solid` | Semantic | `--destructive` | :root / .dark | ✅ #cc2823 / #cc2823 | ✅ #fa6863 / #fa6863 |
 | `color/text/danger` | Semantic | `--destructive` | :root / .dark | ✅ #cc2823 / #cc2823 | ✅ #fa6863 / #fa6863 |
+| `typography/font-family/heading` | Typography | `--font-heading` | @theme inline | — Fraunces / var(--font-fraunces) | — Fraunces / var(--font-fraunces) |
+| `typography/font-family/mono` | Typography | `--font-mono` | @theme inline | — Geist Mono / var(--font-geist-mono) | — Geist Mono / var(--font-geist-mono) |
+| `typography/font-family/sans` | Typography | `--font-sans` | @theme inline | — Geist / var(--font-geist-sans) | — Geist / var(--font-geist-sans) |
+| `typography/font-weight/bold` | Typography | `--font-weight-bold` | — | — 700 / — | — 700 / — |
+| `typography/font-weight/medium` | Typography | `--font-weight-medium` | — | — 500 / — | — 500 / — |
+| `typography/font-weight/regular` | Typography | `--font-weight-normal` | — | — 400 / — | — 400 / — |
+| `typography/font-weight/semibold` | Typography | `--font-weight-semibold` | — | — 600 / — | — 600 / — |
 | `color/text` | Semantic | `--foreground` | :root / .dark | ✅ #302621 / #302621 | ✅ #efeae2 / #efeae2 |
 | `color/border/component` | Semantic | `--input` | :root / .dark | ✅ #e1d6c6 / #e1d6c6 | ≈ #ffffff/12.16 / #ffffff/12 |
+| `typography/line-height/normal` | Typography | `--leading-normal` | @theme | ✅ 1.4 / 1.4 | ✅ 1.4 / 1.4 |
+| `typography/line-height/relaxed` | Typography | `--leading-relaxed` | @theme | ✅ 1.5 / 1.5 | ✅ 1.5 / 1.5 |
+| `typography/line-height/snug` | Typography | `--leading-snug` | @theme | ✅ 1.2 / 1.2 | ✅ 1.2 / 1.2 |
+| `typography/line-height/snug-alt` | Typography | `--leading-snug-alt` | @theme | ✅ 1.3 / 1.3 | ✅ 1.3 / 1.3 |
+| `typography/line-height/tight` | Typography | `--leading-tight` | @theme | ✅ 1.1 / 1.1 | ✅ 1.1 / 1.1 |
 | `color/fill/component` | Semantic | `--muted` | :root / .dark | ✅ #f3e6d2 / #f3e6d2 | ✅ #302621 / #302621 |
-| `color/text/secondary` | Semantic | `--muted-foreground` | :root / .dark | ✅ #5a4234 / #5a4234 | ❌ #e1d6c6 / #a99c8e |
+| `color/text/secondary` | Semantic | `--muted-foreground` | :root / .dark | ✅ #5a4234 / #5a4234 | ✅ #e1d6c6 / #e1d6c6 |
 | `color/bg/surface-raised` | Semantic | `--popover` | :root / .dark | ✅ #fffbf6 / #fffbf6 | ✅ #211914 / #211914 |
 | `color/fill/brand` | Semantic | `--primary` | :root / .dark | ✅ #0c2912 / #0c2912 | ❌ #547959 / #315837 |
 | `color/text/on-brand` | Semantic | `--primary-foreground` | :root / .dark | ✅ #faf6f1 / #faf6f1 | ✅ #faf6f1 / #faf6f1 |
+| `radius/base` | Primitives | `--radius` | :root | ✅ 16 / 16 | ✅ 16 / 16 |
+| `radius/2xl` | Primitives | `--radius-2xl` | @theme inline | ✅ 24 / 24 | ✅ 24 / 24 |
+| `radius/3xl` | Primitives | `--radius-3xl` | @theme inline | ✅ 28 / 28 | ✅ 28 / 28 |
+| `radius/4xl` | Primitives | `--radius-4xl` | @theme inline | ✅ 32 / 32 | ✅ 32 / 32 |
+| `radius/lg` | Primitives | `--radius-lg` | @theme inline | — 16 / var(--radius) | — 16 / var(--radius) |
+| `radius/md` | Primitives | `--radius-md` | @theme inline | ✅ 12 / 12 | ✅ 12 / 12 |
+| `radius/sm` | Primitives | `--radius-sm` | @theme inline | ✅ 8 / 8 | ✅ 8 / 8 |
+| `radius/xl` | Primitives | `--radius-xl` | @theme inline | ✅ 20 / 20 | ✅ 20 / 20 |
+| `radius/xs` | Primitives | `--radius-xs` | @theme inline | ✅ 4 / 4 | ✅ 4 / 4 |
 | `color/border/focus` | Semantic | `--ring` | :root / .dark | ✅ #0c2912 / #0c2912 | ❌ #547959 / #315837 |
 | `color/fill/brand-secondary` | Semantic | `--secondary` | :root / .dark | ✅ #c56a3e / #c56a3e | ✅ #dc855d / #dc855d |
 | `color/text/brand-secondary` | Semantic | `--secondary` | :root / .dark | ❌ #a44c1d / #c56a3e | ✅ #dc855d / #dc855d |
 | `color/text/on-brand-secondary` | Semantic | `--secondary-foreground` | :root / .dark | ✅ #16100d / #16100d | ✅ #16100d / #16100d |
-| `color/text/warning` | Semantic | `--warning` | :root / .dark | ✅ #b45309 / #b45309 | ✅ #f3ae51 / #f3ae51 |
-| `radius/base` | Primitives | `--radius` | :root | ✅ 16 / 16 | ✅ 16 / 16 |
-| `radius/xs` | Primitives | `--radius-xs` | @theme inline | ✅ 4 / 4 | ✅ 4 / 4 |
-| `radius/sm` | Primitives | `--radius-sm` | @theme inline | ✅ 8 / 8 | ✅ 8 / 8 |
-| `radius/md` | Primitives | `--radius-md` | @theme inline | ✅ 12 / 12 | ✅ 12 / 12 |
-| `radius/lg` | Primitives | `--radius-lg` | @theme inline | — 16 / var(--radius) | — 16 / var(--radius) |
-| `radius/xl` | Primitives | `--radius-xl` | @theme inline | ✅ 20 / 20 | ✅ 20 / 20 |
-| `radius/2xl` | Primitives | `--radius-2xl` | @theme inline | ✅ 24 / 24 | ✅ 24 / 24 |
-| `radius/3xl` | Primitives | `--radius-3xl` | @theme inline | ✅ 28 / 28 | ✅ 28 / 28 |
-| `radius/4xl` | Primitives | `--radius-4xl` | @theme inline | ✅ 32 / 32 | ✅ 32 / 32 |
-| `typography/font-family/sans` | Typography | `--font-sans` | @theme inline | — Geist / var(--font-geist-sans) | — Geist / var(--font-geist-sans) |
-| `typography/font-family/mono` | Typography | `--font-mono` | @theme inline | — Geist Mono / var(--font-geist-mono) | — Geist Mono / var(--font-geist-mono) |
-| `typography/font-family/heading` | Typography | `--font-heading` | @theme inline | — Fraunces / var(--font-fraunces) | — Fraunces / var(--font-fraunces) |
-| `typography/font-size/2xs` | Typography | `--text-2xs` | @theme | ✅ 11 / 11 | ✅ 11 / 11 |
-| `typography/font-size/xs` | Typography | `--text-xs` | — | — 12 / — | — 12 / — |
-| `typography/font-size/sm` | Typography | `--text-sm` | — | — 14 / — | — 14 / — |
-| `typography/font-size/base` | Typography | `--text-base` | — | — 16 / — | — 16 / — |
-| `typography/font-size/lg` | Typography | `--text-lg` | — | — 18 / — | — 18 / — |
-| `typography/font-size/xl` | Typography | `--text-xl` | — | — 20 / — | — 20 / — |
+| `color/icon/tertiary` | Semantic | `--subtle-foreground` | :root / .dark | ✅ #6e6055 / #6e6055 | ✅ #a99c8e / #a99c8e |
+| `color/text/tertiary` | Semantic | `--subtle-foreground` | :root / .dark | ✅ #6e6055 / #6e6055 | ✅ #a99c8e / #a99c8e |
 | `typography/font-size/2xl` | Typography | `--text-2xl` | — | — 24 / — | — 24 / — |
+| `typography/font-size/2xs` | Typography | `--text-2xs` | @theme | ✅ 11 / 11 | ✅ 11 / 11 |
 | `typography/font-size/3xl` | Typography | `--text-3xl` | @theme | ✅ 28 / 28 | ✅ 28 / 28 |
 | `typography/font-size/4xl` | Typography | `--text-4xl` | @theme | ✅ 34 / 34 | ✅ 34 / 34 |
 | `typography/font-size/5xl` | Typography | `--text-5xl` | @theme | ✅ 40 / 40 | ✅ 40 / 40 |
 | `typography/font-size/6xl` | Typography | `--text-6xl` | @theme | ✅ 48 / 48 | ✅ 48 / 48 |
 | `typography/font-size/7xl` | Typography | `--text-7xl` | @theme | ✅ 60 / 60 | ✅ 60 / 60 |
 | `typography/font-size/8xl` | Typography | `--text-8xl` | @theme | ✅ 72 / 72 | ✅ 72 / 72 |
-| `typography/font-weight/regular` | Typography | `--font-weight-normal` | — | — 400 / — | — 400 / — |
-| `typography/font-weight/medium` | Typography | `--font-weight-medium` | — | — 500 / — | — 500 / — |
-| `typography/font-weight/semibold` | Typography | `--font-weight-semibold` | — | — 600 / — | — 600 / — |
-| `typography/font-weight/bold` | Typography | `--font-weight-bold` | — | — 700 / — | — 700 / — |
-| `typography/line-height/tight` | Typography | `--leading-tight` | @theme | ✅ 1.1 / 1.1 | ✅ 1.1 / 1.1 |
-| `typography/line-height/snug` | Typography | `--leading-snug` | @theme | ✅ 1.2 / 1.2 | ✅ 1.2 / 1.2 |
-| `typography/line-height/snug-alt` | Typography | `--leading-snug-alt` | @theme | ✅ 1.3 / 1.3 | ✅ 1.3 / 1.3 |
-| `typography/line-height/normal` | Typography | `--leading-normal` | @theme | ✅ 1.4 / 1.4 | ✅ 1.4 / 1.4 |
-| `typography/line-height/relaxed` | Typography | `--leading-relaxed` | @theme | ✅ 1.5 / 1.5 | ✅ 1.5 / 1.5 |
-| `typography/letter-spacing/tighter` | Typography | `--tracking-tighter` | @theme | ✅ -0.02 / -0.02 | ✅ -0.02 / -0.02 |
-| `typography/letter-spacing/tight` | Typography | `--tracking-tight` | @theme | ✅ -0.01 / -0.01 | ✅ -0.01 / -0.01 |
+| `typography/font-size/base` | Typography | `--text-base` | — | — 16 / — | — 16 / — |
+| `typography/font-size/lg` | Typography | `--text-lg` | — | — 18 / — | — 18 / — |
+| `typography/font-size/sm` | Typography | `--text-sm` | — | — 14 / — | — 14 / — |
+| `typography/font-size/xl` | Typography | `--text-xl` | — | — 20 / — | — 20 / — |
+| `typography/font-size/xs` | Typography | `--text-xs` | — | — 12 / — | — 12 / — |
 | `typography/letter-spacing/normal` | Typography | `--tracking-normal` | @theme | ✅ 0 / 0 | ✅ 0 / 0 |
+| `typography/letter-spacing/tight` | Typography | `--tracking-tight` | @theme | ✅ -0.01 / -0.01 | ✅ -0.01 / -0.01 |
+| `typography/letter-spacing/tighter` | Typography | `--tracking-tighter` | @theme | ✅ -0.02 / -0.02 | ✅ -0.02 / -0.02 |
 | `typography/letter-spacing/wide` | Typography | `--tracking-wide` | @theme | ✅ 0.01 / 0.01 | ✅ 0.01 / 0.01 |
 | `typography/letter-spacing/wider` | Typography | `--tracking-wider` | @theme | ✅ 0.02 / 0.02 | ✅ 0.02 / 0.02 |
+| `color/text/warning` | Semantic | `--warning` | :root / .dark | ✅ #b45309 / #b45309 | ✅ #f3ae51 / #f3ae51 |
 
 ## Solo-código
 
@@ -140,7 +141,7 @@ Escalas propias en `@theme` sin variable equivalente:
 
 ## Solo-Figma
 
-### Capa Semantic — 149 variables sin contraparte
+### Capa Semantic — 147 variables sin contraparte
 
 Aquí está el trabajo pendiente de verdad: por cada una hay que decidir si merece una custom
 property, si el código ya lo resuelve con utilidades de Tailwind, o si es de uso exclusivo en Figma.
@@ -150,13 +151,13 @@ Mientras no se decida, ni Figma ni el código están completos.
 |---|---|---|
 | `space/` | 44 | `space/badge/padding-x`, `space/card/padding-default`, `space/card/padding-dense`, `space/card/padding-lg`, `space/container/padding`, `space/container/padding-lg`, `space/control/gap`, `space/control/gap-sm`, `space/control/padding-x`, `space/control/padding-x-sm`, `space/control/padding-y-lg`, `space/control/padding-y-md`, `space/control/padding-y-sm`, `space/control/padding-y-xs`, `space/empty-state/padding-full`, `space/empty-state/padding-minimal`, `space/field-group/gap`, `space/field/gap`, `space/inline/2xs`, `space/inline/lg`, `space/inline/md`, `space/inline/sm`, `space/inline/xl`, `space/inline/xs`, `space/inset/2xs`, `space/inset/lg`, `space/inset/md`, `space/inset/sm`, `space/inset/xl`, `space/inset/xs`, `space/layout/grid-gap`, `space/menu/item-padding-x`, `space/menu/padding`, `space/page/padding-lg`, `space/panel/gap`, `space/popover/padding`, `space/section/gap`, `space/stack/2xs`, `space/stack/lg`, `space/stack/md`, `space/stack/sm`, `space/stack/xl`, `space/stack/xs`, `space/switch/track-inset` |
 | `sizing/` | 34 | `sizing/avatar/badge-lg`, `sizing/avatar/badge-md`, `sizing/avatar/badge-sm`, `sizing/avatar/lg`, `sizing/avatar/md`, `sizing/avatar/sm`, `sizing/card-visual-header`, `sizing/checkbox`, `sizing/control/icon-md`, `sizing/control/icon-sm`, `sizing/control/icon-xs`, `sizing/control/lg`, `sizing/control/md`, `sizing/control/sm`, `sizing/event-column/width`, `sizing/icon/lg`, `sizing/icon/md`, `sizing/icon/sm`, `sizing/icon/xl`, `sizing/interactive/lg`, `sizing/interactive/md`, `sizing/interactive/sm`, `sizing/sidebar/width`, `sizing/slider-thumb`, `sizing/slider-thumb-dragging`, `sizing/slider-track`, `sizing/spinner-dot`, `sizing/switch/thumb-default`, `sizing/switch/thumb-sm`, `sizing/switch/track-height-default`, `sizing/switch/track-height-sm`, `sizing/switch/track-width-default`, `sizing/switch/track-width-sm`, `sizing/textarea/min-height` |
-| `color/icon/` | 12 | `color/icon`, `color/icon/danger`, `color/icon/info`, `color/icon/on-brand`, `color/icon/on-brand-secondary`, `color/icon/on-danger-solid`, `color/icon/on-success-solid`, `color/icon/on-warning-solid`, `color/icon/secondary`, `color/icon/strong`, `color/icon/success`, `color/icon/tertiary` |
 | `color/fill/` | 11 | `color/fill/brand-hover`, `color/fill/brand-secondary-hover`, `color/fill/brand-subtle`, `color/fill/danger`, `color/fill/danger-hover`, `color/fill/field-disabled`, `color/fill/success`, `color/fill/success-solid`, `color/fill/sunken`, `color/fill/warning`, `color/fill/warning-solid` |
+| `color/icon/` | 11 | `color/icon`, `color/icon/danger`, `color/icon/info`, `color/icon/on-brand`, `color/icon/on-brand-secondary`, `color/icon/on-danger-solid`, `color/icon/on-success-solid`, `color/icon/on-warning-solid`, `color/icon/secondary`, `color/icon/strong`, `color/icon/success` |
 | `color/brand/` | 10 | `color/brand/logo`, `color/brand/primary`, `color/brand/primary-border`, `color/brand/primary-hover`, `color/brand/primary-subtle`, `color/brand/primary-text`, `color/brand/secondary`, `color/brand/secondary-border`, `color/brand/secondary-hover`, `color/brand/secondary-text` |
 | `radius/` | 8 | `radius/checkbox`, `radius/control-sm`, `radius/interactive`, `radius/logo`, `radius/panel`, `radius/pill`, `radius/surface`, `radius/tag` |
-| `color/text/` | 6 | `color/text/info`, `color/text/on-danger-solid`, `color/text/on-success-solid`, `color/text/on-warning-solid`, `color/text/success`, `color/text/tertiary` |
 | `z-index/` | 6 | `z-index/dropdown`, `z-index/modal`, `z-index/overlay`, `z-index/popover`, `z-index/sticky`, `z-index/toast` |
 | `color/field/` | 5 | `color/field/border`, `color/field/border-focus`, `color/field/border-invalid`, `color/field/fill-disabled`, `color/field/placeholder` |
+| `color/text/` | 5 | `color/text/info`, `color/text/on-danger-solid`, `color/text/on-success-solid`, `color/text/on-warning-solid`, `color/text/success` |
 | `opacity/` | 4 | `opacity/disabled`, `opacity/hover`, `opacity/pressed`, `opacity/skeleton` |
 | `border-width/` | 3 | `border-width/default`, `border-width/focus`, `border-width/strong` |
 | `color/border/` | 3 | `color/border/brand`, `color/border/brand-secondary`, `color/border/subtle` |

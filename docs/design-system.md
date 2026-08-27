@@ -68,7 +68,8 @@ Definidos en [`src/app/globals.css`](../src/app/globals.css). Todos los colores 
 | `--brand` | `oklch(0.25 0.055 148)` (~`#0C2912`) | El mismo verde, pero como **primer plano**: texto e iconos de marca. En claro coincide con `--primary`; existe porque en oscuro no puede coincidir. |
 | `--secondary` | `oklch(0.62 0.13 45)` (~`#C56A3E`) | Terracota. Acento cálido para badges de relación y elementos de énfasis. |
 | `--muted` / `--accent` | `oklch(0.93 0.03 78)` los dos (`#F3E6D2`) | Beige/ámbar sutil — fondos de hover, badges neutros. **Mismo valor a propósito**: en Figma los dos aliasan a `Cream/300`. |
-| `--muted-foreground` | `oklch(0.4014 0.0404 51.47)` (`#5A4234`) | Texto secundario, el token de color más usado del código después de `--foreground` (151 usos). Es `Neutral/700`. 8.62:1 sobre el fondo. |
+| `--muted-foreground` | `oklch(0.4014 0.0404 51.47)` (`#5A4234`) | Texto secundario: descripciones, metadatos, rótulos de sección, reposo de lo clicable. Es `Neutral/700`. 8.62:1 sobre el fondo. |
+| `--subtle-foreground` | `oklch(0.4992 0.0249 60.35)` (`#6E6055`) | **Tercer nivel**, más débil que el anterior: placeholders y decoración. Es `Umber/900`. 5.63:1 — suficiente porque nunca lleva contenido que haya que leer. |
 | `--border` | `oklch(0.88 0.025 75)` | Tostado discreto. Define sin gritar. |
 | `--chart-3` | `oklch(0.77 0.12 72)` (~`#E8B059`) | Ámbar dorado — acento terciario para gráficas y datos. |
 
@@ -111,9 +112,9 @@ Seis tokens de modo claro pasan a los valores de Figma. Los encontró [`docs/tok
 
 **Dos concesiones, dichas en voz alta.** `--accent-foreground` **pierde** contraste (9.27 → 7.54:1, sigue en AAA) a cambio de caer en un paso de rampa en vez de un oklch suelto; son 2 usos, los dos el ítem resaltado de un select. Y `--card-foreground` y `--popover-foreground` se movieron con `--foreground` sin que Figma lo pidiera: eran idénticos a él y dejarlos atrás habría creado una diferencia entre el texto de la página y el de las tarjetas que antes no existía. Figma no tiene variable para ninguno de los dos — un relleno sin su primer plano, contra su propia regla de parejas.
 
-**Y una sin resolver**: en oscuro, `--muted-foreground` se queda de momento en `Cream/500` (`#A99C8E`). La primera lectura fue «gana el código, hay que bajar Figma a `Cream/500`», y era falsa — ver la sección siguiente.
+**Y una que se resolvió partiendo el token**: en oscuro `--muted-foreground` estaba en `Cream/500`, no en el `Cream/400` de Figma. La primera lectura fue «gana el código, hay que bajar Figma a `Cream/500`», y era falsa — ver la sección siguiente.
 
-#### El código tiene dos niveles de texto donde Figma tiene tres (27-ago-2026)
+#### El código tenía dos niveles de texto donde Figma tiene tres (27-ago-2026)
 
 Al ir a aplicar ese cambio en Figma se vio que **`Cream/500` no está libre: es el escalón de `color/text/tertiary`**. Moverle `secondary` encima habría colapsado los dos niveles, y arrastrado también los iconos, porque `color/icon/secondary` comparte el primitivo a propósito para que icono y texto casen.
 
@@ -125,9 +126,24 @@ Al ir a aplicar ese cambio en Figma se vio que **`Cream/500` no está libre: es 
 
 **El diagnóstico real es otro.** Antes de esta pasada, `--muted-foreground` valía `#6E6055` en claro y `#A99C8E` en oscuro: estaba exactamente sobre el nivel **terciario** en los dos modos. El `codeSyntax var(--muted-foreground)` lo lleva `color/text/secondary`, así que el mapa comparaba contra el nivel equivocado — **no era deriva de valor, era un mapeo mal puesto**. Tras la pasada el código quedó en secundario en claro y terciario en oscuro: visualmente correcto (8.62:1 y 7.03:1, los dos AAA) pero cruzando niveles.
 
-**Tres salidas, sin decidir**: (a) el código adopta secundario en los dos modos, con oscuro a `Cream/400` — pero eso deja solo 2.60 de distancia con el texto normal y el secundario deja de leerse como tal; (b) vuelve a terciario en los dos modos, con claro a `Umber/900` y su 5.63:1 de AA raspado; (c) el código crece un token terciario y se reparten los 151 usos de `--muted-foreground`, que es lo que pide el modelo de Figma. Lo que se decida arrastra el `codeSyntax`.
+**Se eligió la salida de fondo: el código crece el tercer nivel.** Nace `--subtle-foreground`, que espeja `color/text/tertiary` y `color/icon/tertiary` (`Umber/900` en claro, `Cream/500` en oscuro), y `--muted-foreground` sube en oscuro a `Cream/400` para ocupar de verdad el escalón secundario. Los otros dos caminos —dejar el código en secundario cruzando niveles, o devolverlo entero a terciario— arreglaban la coherencia perdiendo el escalón que faltaba.
 
-**Y un hallazgo estructural de propina**: la escalera de oscuro está desequilibrada (2.60 de hueco entre normal y secundario, 6.11 entre secundario y terciario) y **no se puede equilibrar solo con `Cream`**, porque la rampa no tiene ningún paso entre `400` y `500` — un salto de L de 0.1806, el mayor de toda la familia. `Cream` se diseñó para vivir en la mitad clara (ver Rampas de color) y aquí se le está pidiendo cubrir primer plano sobre fondo oscuro, que es justo el tramo que no tiene.
+**Por qué esto invierte el argumento anterior sin contradecirlo**: la objeción a `Cream/400` era que, con solo dos niveles, el secundario se comía el papel del apagado. En cuanto existe el tercero, `Cream/500` se queda haciendo ese trabajo y la objeción cae.
+
+#### Reparto de los 151 usos de `--muted-foreground` (27-ago-2026)
+
+El inventario reveló que dentro de un solo token convivían **ocho papeles distintos**, no dos niveles mal repartidos. El reparto se hizo por papel, no por contraste.
+
+| Rol | Usos | Destino | Por qué |
+|---|---|---|---|
+| Cuerpo de páginas legales | **27** | `--foreground` | `/terminos` y `/privacidad` renderizaban **todo** su contenido de lectura en el token de apoyo. No había ni un `text-foreground` en el cuerpo. Ahora esos párrafos y listas están a 13.70:1 en vez de 5.63:1. |
+| Apoyo, rótulos, interactivos, iconos | **110** | `--muted-foreground` | El caso central: descripciones, metadatos, helper text, rótulos de sección, estado de reposo de lo clicable. Incluye los 4 de metadato de las páginas legales («Última actualización» y footer), que **sí** deben quedarse atenuados. |
+| Placeholders y decoración | **10** | `--subtle-foreground` | 8 placeholders (`input`, `textarea`, `select` y los 5 botones de fecha sin elegir) y 2 decorativos (puntos del spinner, borde de hover del selector de avatar). Un placeholder que pesa igual que un valor real hace que el campo vacío parezca relleno. |
+| Destino de hover | **4** | sin tocar | `badge.tsx` (2 variantes) y los 2 enlaces legales de `/settings` usan `hover:text-muted-foreground`: el texto **se apaga** al señalarlo, al revés que los otros 11 interactivos. Puede ser deliberado en el badge; queda en Pendientes. |
+
+El inventario completo, uso por uso y agrupado por pantalla, se generó con un clasificador reproducible sobre `grep`; el recuento por rol y pantalla está en el commit que introdujo el reparto.
+
+**Y un hallazgo estructural que sigue abierto**: la escalera de oscuro queda desequilibrada (2.60 de hueco entre normal y secundario, 6.11 entre secundario y terciario) y **no se puede equilibrar solo con `Cream`**, porque la rampa no tiene ningún paso entre `400` y `500` — un salto de L de 0.1806, el mayor de toda la familia, mientras que `200`→`300` es de 0.0087. De hecho `Cream/300` no es un escalón de luminosidad sino un tinte cálido de superficie con número de rampa (+0.0181 de croma a igual L). `Cream` se diseñó para vivir en la mitad clara (ver Rampas de color) y aquí se le pide cubrir primer plano sobre fondo oscuro, que es justo el tramo que no tiene. `Neutral` sí está bien espaciada —pasos regulares de ~0.085, y su `300` da los 9.06:1 que faltan— pero es más griseada y choca con «mantenemos calidez también en oscuro». Ver Pendientes.
 
 Verificado en el navegador midiendo con canvas, no parseando `getComputedStyle` — devuelve `lab()` y parsear la cadena da contrastes falsos sin lanzar error.
 
@@ -1355,6 +1371,8 @@ Lista de cosas que sé que faltan o que no han recibido pasada todavía. Se irá
 - [x] ~~Iconografía~~ → resuelto: lucide-react adoptado, ver Componentes · Iconografía.
 - [x] ~~Página `/people/[id]` (detalle)~~ → edición inline por secciones (header / intereses+notas / datos prácticos). Sin página `/people/[id]/edit` (redirige al perfil). Guard de cambios sin guardar con `beforeunload` + dialog. Ver "Edición inline (perfil de persona)".
 - [x] ~~Página `/people/[id]/gifts`~~ → resuelto: panel de configuración con Select de evento (solo eventos del perfil, presupuesto automático), tarjetas de tipo con iconos lucide y descripción, botón "Generar" top-right del panel, skeletons visibles (`bg-muted/40 animate-pulse`), tarjetas con stagger animation, botón X con toast permanente + deshacer, back link con `ArrowLeft`.
+- [ ] **Escalera de texto en oscuro desequilibrada**: 2.60 de hueco entre normal y secundario frente a 6.11 entre secundario y terciario, y la rampa `Cream` no tiene paso entre `400` y `500` para arreglarlo. O se rehace el espaciado de `Cream` en su tramo bajo, o el primer plano en oscuro pasa a salir de `Neutral` (bien espaciada, pero más griseada y choca con la regla de calidez). Ver «Reparto de los 151 usos».
+- [ ] **Cuatro elementos se apagan al pasar el ratón**: `badge.tsx` (variantes `outline` y `ghost`) y los dos enlaces legales de `/settings` usan `hover:text-muted-foreground` sobre `text-foreground`, así que **pierden** contraste al señalarlos. Los otros 11 usos interactivos van al contrario. Decidir si en el badge es deliberado.
 - [ ] **Footer global**: minimal por ahora. Decidir si crece o se queda así.
 - [ ] **Skeletons consistentes**: todos en `rounded-2xl` y `border-dashed`, pero verificar dimensiones uniformes.
 - [ ] **Mobile < 380px**: sin probar. Hero de landing podría descuadrar.

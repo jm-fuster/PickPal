@@ -24,7 +24,7 @@ export default function PrivacyPage() {
       <main className="mx-auto w-full max-w-2xl space-y-8 px-6 py-12">
         <div className="space-y-3">
           <h1 className="text-4xl font-medium">Privacidad</h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-foreground">
             PickPal está en beta privada. Esta página describe en lenguaje
             llano qué datos guardamos, dónde van y qué puedes hacer con ellos.
           </p>
@@ -32,7 +32,7 @@ export default function PrivacyPage() {
 
         <section className="space-y-3">
           <h2 className="text-xl font-medium">Qué datos guardamos</h2>
-          <ul className="space-y-2 text-sm text-muted-foreground list-disc pl-5">
+          <ul className="space-y-2 text-sm text-foreground list-disc pl-5">
             <li>
               <span className="text-foreground">Tu cuenta:</span> email y datos
               básicos que gestiona Clerk para autenticarte.
@@ -58,7 +58,7 @@ export default function PrivacyPage() {
 
         <section className="space-y-3">
           <h2 className="text-xl font-medium">Quién procesa esos datos</h2>
-          <ul className="space-y-2 text-sm text-muted-foreground list-disc pl-5">
+          <ul className="space-y-2 text-sm text-foreground list-disc pl-5">
             <li>
               <span className="text-foreground">Clerk</span> — autenticación y
               gestión de cuentas. Su verificación anti-bot se carga desde
@@ -122,12 +122,12 @@ export default function PrivacyPage() {
           <h2 className="text-xl font-medium">
             Importante: datos de otras personas
           </h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-foreground">
             Cuando añades a alguien como &laquo;ser querido&raquo;, estás
             guardando datos de un tercero que probablemente no es usuario de
             PickPal y no ha dado su consentimiento aquí.
           </p>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-foreground">
             Eres tú quien decide qué información introducir y eres
             responsable de que esa persona sepa que estás usando un servicio
             como este para acordarte de sus fechas y pensar en regalos. Si
@@ -138,7 +138,7 @@ export default function PrivacyPage() {
 
         <section className="space-y-3">
           <h2 className="text-xl font-medium">Cookies</h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-foreground">
             Solo usamos cookies técnicas necesarias para mantener tu sesión
             iniciada (las gestiona Clerk). No usamos cookies de publicidad ni de
             seguimiento, por lo que no hace falta ningún banner de
@@ -148,7 +148,7 @@ export default function PrivacyPage() {
 
         <section className="space-y-3">
           <h2 className="text-xl font-medium">Cuánto lo conservamos</h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-foreground">
             Todo lo que guardas se conserva mientras tu cuenta esté activa. Si
             eliminas tu cuenta, se borra de nuestra base de datos en ese mismo
             momento, sin periodo de gracia; las copias de seguridad de nuestros
@@ -160,12 +160,12 @@ export default function PrivacyPage() {
 
         <section className="space-y-3">
           <h2 className="text-xl font-medium">Tus derechos</h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-foreground">
             Como titular de los datos tienes derecho de acceso, rectificación,
             supresión, oposición, limitación del tratamiento y portabilidad.
             Puedes ejercerlos así:
           </p>
-          <ul className="space-y-2 text-sm text-muted-foreground list-disc pl-5">
+          <ul className="space-y-2 text-sm text-foreground list-disc pl-5">
             <li>
               <span className="text-foreground">Acceso y modificación:</span>{" "}
               todos tus datos son visibles y editables desde la app.
@@ -193,7 +193,7 @@ export default function PrivacyPage() {
               para cualquier otro derecho, escríbenos al contacto de abajo.
             </li>
           </ul>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-foreground">
             Si crees que no hemos atendido bien tus derechos, puedes reclamar
             ante la{" "}
             <a
@@ -210,7 +210,7 @@ export default function PrivacyPage() {
 
         <section className="space-y-3">
           <h2 className="text-xl font-medium">Contacto</h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-foreground">
             Para cualquier duda sobre tus datos, escribe a la persona que te
             invitó a la beta.
           </p>

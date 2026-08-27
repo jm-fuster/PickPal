@@ -146,7 +146,7 @@ export function GiftHistoryForm({ personId }: { personId: Id<"people"> }) {
                   aria-invalid={errors.reaction ? true : undefined}
                   aria-describedby={errors.reaction ? "gh-reaction-error" : undefined}
                 >
-                  <span className={!field.value ? "text-muted-foreground" : ""}>
+                  <span className={!field.value ? "text-subtle-foreground" : ""}>
                     {REACTIONS.find((r) => r.value === field.value)?.label ?? "Reacción…"}
                   </span>
                 </SelectTrigger>
@@ -301,7 +301,7 @@ export function EditGiftHistoryInline({
                   aria-invalid={errors.reaction ? true : undefined}
                   aria-describedby={errors.reaction ? "ghe-reaction-error" : undefined}
                 >
-                  <span className={!field.value ? "text-muted-foreground" : ""}>
+                  <span className={!field.value ? "text-subtle-foreground" : ""}>
                     {REACTIONS.find((r) => r.value === field.value)?.label ?? "Reacción…"}
                   </span>
                 </SelectTrigger>
