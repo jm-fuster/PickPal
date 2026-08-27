@@ -252,6 +252,8 @@ Los especímenes, en cambio, ya usan **20px para el texto de 14 y 24px para el d
 
 **Tres arreglos de arrastre en el mismo pase, todos por lo mismo — el texto que describe un valor no sigue al valor**: las 13 fichas de `Foundations - Typography` seguían anunciando el ratio viejo (`Label 2` decía «14 · 1,2 · 0») y ahora dicen el píxel; el párrafo de cabecera de esa página afirmaba que el interlineado va «como porcentaje literal» en los 22, cuando hoy son 16 en px y 6 en porcentaje; y **los 3 `Eyebrow/` vinculaban su interlineado a una variable borrada** —`line-height/px/*` desapareció y el enlace se quedó colgando—, así que se desvinculó, conservando el literal de 16 px que ya tenían.
 
+**Y un cuarto, que es el de siempre**: al crecer el interlineado, las SECTION no crecen con su frame. Se quedaron cortas cuatro — `Foundations - Typography` (73 px), `Iconography` (13), `Avatar Picker Dialog` (19) y `Popover` (6) —, reajustadas todas a contenido + margen. **Conviene barrer las secciones después de cualquier cambio que mueva alturas**: son veinte líneas de bucle y encuentran lo que el ojo no ve, porque una SECTION corta no recorta nada, solo deja el contenido fuera de su fondo.
+
 #### Auditoría de las páginas de documentación (27-ago-2026)
 
 Las páginas que explican el sistema envejecen peor que el sistema, porque nada las obliga a seguirlo. Barrido completo de las 10 páginas de documentación más las cabeceras de anatomía de las 29 de componente.
