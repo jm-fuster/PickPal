@@ -23,10 +23,10 @@ El logo-mark de PickPal son dos figuras entrelazadas que forman las letras "PP".
 
 | Path | Color | Token equivalente |
 |---|---|---|
-| Figura izquierda (p) + cabeza izquierda | `currentColor` | hereda `--foreground` / `--sidebar-foreground` del contexto |
+| Figura izquierda (p) + cabeza izquierda | `currentColor` | hereda `--foreground` del contexto |
 | Figura derecha (P) + cabeza derecha | `#F1704B` | ~`--secondary` (terracota) |
 
-Los paths del verde oscuro usan `fill="currentColor"` en el componente React, no un color fijo. Esto permite que el logo se adapte automáticamente: sobre fondo oscuro (sidebar, dark mode) hereda el color crema del texto; sobre fondo claro hereda el marrón cálido del texto. El coral se queda fijo porque es el acento de marca.
+Los paths del verde oscuro usan `fill="currentColor"` en el componente React, no un color fijo. Esto permite que el logo se adapte automáticamente: sobre fondo oscuro (dark mode) hereda el color crema del texto; sobre fondo claro hereda el marrón cálido del texto. El coral se queda fijo porque es el acento de marca.
 
 ### Componente
 
@@ -64,7 +64,8 @@ Definidos en [`src/app/globals.css`](../src/app/globals.css). Todos los colores 
 |---|---|---|
 | `--background` | `oklch(0.975 0.012 80)` (~`#FBF7EE`) | Crema cálida. Evoca papel ligeramente envejecido, no blanco quirófano. |
 | `--foreground` | `oklch(0.27 0.02 50)` | Marrón cálido oscuro, no negro puro. Acompaña al fondo crema sin chocar. |
-| `--primary` | `oklch(0.25 0.055 148)` (~`#2D4033`) | Verde bosque. Arraigado, cálido-natural, sin ser "eco startup". |
+| `--primary` | `oklch(0.25 0.055 148)` (~`#2D4033`) | Verde bosque. Arraigado, cálido-natural, sin ser "eco startup". **Solo relleno**, nunca color de texto (ver Accesibilidad · Contraste). |
+| `--brand` | `oklch(0.25 0.055 148)` (~`#0C2912`) | El mismo verde, pero como **primer plano**: texto e iconos de marca. En claro coincide con `--primary`; existe porque en oscuro no puede coincidir. |
 | `--secondary` | `oklch(0.62 0.13 45)` (~`#D97757`) | Terracota. Acento cálido para badges de relación y elementos de énfasis. |
 | `--muted` / `--accent` | `oklch(0.93 0.022 75)` / `oklch(0.93 0.03 78)` | Beige/ámbar sutil — fondos de hover, badges neutros. |
 | `--border` | `oklch(0.88 0.025 75)` | Tostado discreto. Define sin gritar. |
@@ -78,7 +79,8 @@ Mantenemos calidez también en oscuro. Nada de marrón griseado.
 |---|---|---|
 | `--background` | `oklch(0.18 0.012 50)` | Marrón profundo, no negro. Sigue evocando papel a baja luz. |
 | `--foreground` | `oklch(0.94 0.012 80)` | Crema clara con un toque cálido. |
-| `--primary` | `oklch(0.42 0.07 148)` | Verde bosque más luminoso para contrastar sobre el fondo oscuro. |
+| `--primary` | `oklch(0.42 0.07 148)` | Verde bosque más luminoso para contrastar sobre el fondo oscuro. Como **relleno** funciona; como texto da 2.30:1 — por eso existe `--brand`. |
+| `--brand` | `oklch(0.71 0.047 148)` (`#8EAA91`) | Verde claro para texto e iconos de marca: **7.46:1** sobre el fondo. Es `Green/400` de la rampa, no un valor inventado. Aquí es donde se separa de `--primary`. |
 | `--secondary` | `oklch(0.70 0.12 45)` | Terracota más luminosa para badges sobre fondo oscuro. |
 
 ### Radii
@@ -93,28 +95,50 @@ Mantenemos calidez también en oscuro. Nada de marrón griseado.
 
 ### Figma — arquitectura de variables
 
-El archivo [PickPal — Design System](https://www.figma.com/design/4hQt4BnsEluKsYk5qbKkCz/PickPal---Design-System) espeja este documento y `globals.css`, no al revés: **si Figma contradice el código, gana el código**. Sus 309 variables están organizadas en las cuatro capas del patrón de design tokens, y cada una aliasa a la de abajo sin saltarse eslabones.
+El archivo [PickPal — Design System](https://www.figma.com/design/4hQt4BnsEluKsYk5qbKkCz/PickPal---Design-System) espeja este documento y `globals.css`, no al revés: **si Figma contradice el código, gana el código**. Sus 372 variables están organizadas en las cuatro capas del patrón de design tokens, y cada una aliasa a la de abajo sin saltarse eslabones.
 
 | Capa | Nº | Colección | Ejemplos | Aliasa a |
 |---|---|---|---|---|
-| Primitivo | 179 | `Primitives` (153) · `Typography (primitivos)` (26) | `color/Green/850`, `spacing/4`, `size/16`, `radius/md` | valor directo |
-| Semántico | 90 | `Color` · `Medidas` | `color/bg/brand`, `color/icon/secondary`, `spacing/stack/lg` | primitivo |
-| Marca | 5 | `Color` | `color/brand/primary`, `color/brand/logo` | primitivo |
-| Componente | 35 | `Color` · `Medidas` | `size/switch/thumb-default`, `color/switch/thumb-bg`, `size/checkbox` | **semántico**, nunca primitivo |
+| Primitivo | 195 | `Primitives` (165) · `Typography` (30) | `color/Green/850`, `spacing/4`, `size/16`, `radius/md`, `opacity/50` | valor directo |
+| Semántico | 121 | `Semantic` | `color/fill/component`, `color/icon/secondary`, `space/stack/lg` | primitivo, o marca si el token es de identidad |
+| Marca | 10 | `Semantic` | `color/brand/primary`, `color/brand/primary-hover`, `color/brand/primary-text`, `color/brand/logo` | primitivo |
+| Componente | 46 | `Semantic` | `sizing/switch/thumb-default`, `color/switch/thumb-bg-checked`, `color/field/border` | **semántico**, nunca primitivo |
 
-**Los primitivos tienen scope vacío y están ocultos al publicar** (`hiddenFromPublishing`): no aparecen en ningún picker ni viajan a los archivos que consumen la librería, para que nadie aplique `spacing/4` donde toca `spacing/container/padding`. Única excepción, las 26 de `Typography`, que siguen scopeadas y publicadas porque todavía no hay text styles por encima — sin ellas los pickers de tamaño de fuente e interlineado quedarían vacíos y empujarían a valores crudos. Crear los text styles es el prerrequisito para cerrarlas.
+**La colección `Medidas` se eliminó el 26-ago-2026**: sus 86 variables (spacing/size legacy) tenían 0 bindings de nodo y 0 alias entrantes desde cualquier otra variable del archivo — comprobado escaneando los 4.285 nodos de las 8 páginas antes de borrar. `Semantic` ya cubría el mismo terreno bajo `space/*` (44) y `sizing/*` (34), con las mismas hojas de nombre (`space/inset/md`, `sizing/avatar/sm`…), así que no hubo nada que repuntar. El archivo pasó de 401 a 371 variables y de cuatro colecciones a tres (`Primitives` · `Semantic` · `Typography`), sin ningún nombre en español.
 
-**Los primitivos viven en su propia colección, `Primitives`, con un solo modo.** Los 75 (35 de color y 40 numéricos) son *mode-invariant* —el mismo valor en claro y en oscuro— porque el cambio de modo ocurre en la capa semántica, igual que en `globals.css`. Tener un único modo lo hace explícito y evita el espejismo de dos columnas idénticas.
+**Cómo recontar esta tabla sin auditar nada**: la capa primitiva son las variables con valor directo (`Primitives` 165 + las 30 de `Typography`); la capa componente son las que aliasan a otra variable **de su misma colección** (`Semantic`); marca son las 10 de `color/brand/*`; semántico es el resto. Las cuatro suman las 372 del archivo. **Dos puntos ciegos**: (1) un semántico que aliasa al hub de marca apunta a su misma colección y saldría contado como componente — hay que excluir los 10 tokens con destino `color/brand/*`; (2) los **6 tokens de `z-index/*` de `Semantic` llevan valor literal a propósito** (ver su sección) y parecen primitivos sin serlo — por eso el recuento bruto da 201 valores directos y la tabla dice 195. Con esas dos correcciones el bruto cuadra con la tabla (195 · 121 · 10 · 46), verificado el 26-ago-2026. Al tocar el archivo, recontar así con `figma_get_variables` y no fiarse de las cifras de este documento, que envejecen a cada cambio.
 
-**Lo que sigue agrupado por tipo de dato es todo lo que está por encima del primitivo**: `Color` (45) y `Medidas` (85) contienen semántico, marca y componente mezclados. Separar esas dos capas en `Semantic` y `Component` **no se ha hecho y no compensa**: Figma no permite mover una variable de colección, así que hay que recrearla y repuntar cada referencia, y ahí es donde están los bindings caros —solo `radius/interactive` tiene 620 y `radius/pill` 424, y en total hay más de 4.000 fuera de instancias. Sacar los primitivos, en cambio, costó **32 bindings de nodo** (los swatches de `Foundations - Color`; los 40 numéricos tenían 0) y **117 referencias de alias**. Regla general para este archivo: antes de dar por caro un movimiento de colección, **contar los bindings de las variables implicadas**, no del archivo entero.
+**Los primitivos tienen scope vacío y están ocultos al publicar** (`hiddenFromPublishing`): no aparecen en ningún picker ni viajan a los archivos que consumen la librería, para que nadie aplique `spacing/4` donde toca `spacing/container/padding`. **La excepción es `Typography`, que está publicada**: sus 20 variables aplicables llevan el scope de su propiedad (`FONT_FAMILY` 3 · `FONT_WEIGHT` 4 · `FONT_SIZE` 13), que es lo que pide la §5 de la guía de tipografía — en tipografía el text style hace de capa semántica y consume el primitivo directamente. **Las 10 de ratio y em (`line-height/*` 5 y `letter-spacing/*` 5) tienen scope vacío a propósito**: son solo referencia de código y **vincularlas rompe el texto**, porque Figma resuelve esas dos propiedades en píxeles (un ratio de 1,4 se aplicaría como 1,4 px). Con el scope vacío ya no aparecen en los pickers de interlineado y tracking; la advertencia vive además en la descripción de cada una.
 
-`Typography (primitivos)` se queda fuera de `Primitives` por la misma razón por la que conserva scope y publicación: sus 26 variables tienen **1.036 bindings de nodo** y no hay capa semántica ni text styles por encima que los absorba. El nombre de la colección lleva la palabra «primitivos» justamente para que la excepción se lea sin abrir la documentación.
+**Los primitivos viven en su propia colección, `Primitives`, con un solo modo.** Las 165 (91 de color y 74 numéricas: `spacing` 27, `icon` 14, `size` 12, `radius` 10, `opacity` 7, `border-width` 4) son *mode-invariant* —el mismo valor en claro y en oscuro— porque el cambio de modo ocurre en la capa semántica, igual que en `globals.css`. Tener un único modo lo hace explícito y evita el espejismo de dos columnas idénticas.
 
-**La capa de marca es el único punto de contacto con la paleta de identidad.** Cambiar el verde o la terracota son 4 ediciones en `color/brand/*`; ningún semántico ni ningún nodo referencia `Green/*` o `Terracotta/*` directamente, salvo los swatches de documentación.
+**Lo que sigue agrupado por tipo de dato es todo lo que está por encima del primitivo**: `Semantic` (176) contiene semántico, marca y componente mezclados — desde el 26-ago-2026 es la única colección de esta capa, tras eliminar `Medidas` por no tener uso. Separar `Semantic` en capas propias (`Semantic` / `Component` / `Brand`) **no se ha hecho y no compensa**: Figma no permite mover una variable de colección, así que hay que recrearla y repuntar cada referencia, y ahí es donde están los bindings caros —solo `radius/interactive` tiene 620 y `radius/pill` 424, y en total hay más de 4.000 fuera de instancias. Sacar los primitivos, en cambio, costó **32 bindings de nodo** (los swatches de `Foundations - Color`; los 40 numéricos tenían 0) y **117 referencias de alias**. Regla general para este archivo: antes de dar por caro un movimiento de colección, **contar los bindings de las variables implicadas**, no del archivo entero.
+
+**El nombre de esa colección ha ido y vuelto: `Semantic` → `Color` (24-ago-2026) → `Semantic` (25-ago-2026).** El paso a `Color` buscaba el paralelo con `Medidas` —agrupar por tipo de dato, que era el modelo elegido mientras existieron dos colecciones por encima del primitivo— porque el nombre `Semantic` afirma una separación de capas que el párrafo anterior niega. La vuelta a `Semantic` la hizo el usuario para alinear el archivo con la guía canónica de tokens, que nombra así a la colección de la capa semántica. **La tensión sigue en pie y conviene tenerla presente**: dentro viven también los 9 tokens de marca y los 46 de componente, así que el nombre promete más pureza de la que hay. Renombrar una colección conserva ids, alias y bindings (0 tocados), pero **el archivo está publicado como librería**, así que el nombre nuevo llega a los archivos consumidores en la siguiente publicación.
+
+`Typography` se queda fuera de `Primitives` por la misma razón por la que conserva scope y publicación: sus variables acumulan **1.036 bindings de nodo** y los text styles consumen el primitivo directamente, sin capa semántica de variables en medio. Desde que se borró `tracking/*` es una colección de **primitivos puros**: sus 30 guardan valor directo, ni un alias, así que aparece en una sola fila de la tabla.
+
+**La capa de marca es el único punto de contacto con la paleta de identidad.** Cambiar el verde o la terracota se hace entero dentro de `color/brand/*`; ningún semántico ni ningún nodo referencia `Green/*` o `Terracotta/*` directamente, salvo los swatches de documentación. El hub pasó de 3 a 8 tokens el 25-ago-2026: al crear la capa de `emphasis`/`state`, los tokens de marca nuevos aliasaban **directo al primitivo** y se saltaban el hub, dejándolo en una promesa falsa. Se añadieron `brand/primary-hover`, `-subtle`, `-border`, `brand/secondary-hover` y `-border`, y se repuntaron los 5 semánticos con 0 cambios de valor resuelto. **Regla**: al crear un token de color de marca, aliasarlo al hub, nunca al primitivo — si el paso no existe en el hub, se crea ahí primero.
+
+Y pasó de 8 a **10** el 26-ago-2026, aplicando esa misma regla: `color/brand/primary-text` (`Green/950` claro / `Green/400` oscuro) es el verde de marca cuando va de primer plano, y lo consumen `color/text/brand` y `color/icon/brand`, que antes caían a `color/Cream/200` en oscuro saltándose el hub. El décimo es `color/brand/secondary-text`, que ya existía. **El par `primary` / `primary-text` es la forma que toma en el hub la distinción entre relleno y primer plano**: son el mismo verde en claro y tienen que dejar de serlo en oscuro (ver Accesibilidad · Contraste).
+
+#### Descripciones de variables y estilos (26-ago-2026)
+
+Las 372 variables y los 26 estilos llevan descripción, y todas responden a la misma pregunta: **¿cómo o dónde se usa esto?** — no a cómo se generó ni cuándo. La fórmula es *«[Qué es y dónde se usa en el producto]. [Advertencia breve, solo si evita un error]. Espeja `utilidad-de-código`.»*, en 1–2 frases (media actual: 95 caracteres en variables y 61 en estilos, máximo 250).
+
+**Dos reglas de recorte, que son las que mantienen esto legible**: (1) **no repetir el dato que Figma ya enseña al lado** — el panel muestra el valor de la variable y, en un estilo de texto, su tamaño, interlineado y tracking; una descripción que abre con «20 px de la rampa…» o con una ficha `72 px / 1,1 / -0,02em` gasta la primera línea en algo que el ojo ya tiene. (2) **Cada descripción explica lo suyo, no lo de al lado**: la advertencia de no vincular interlineado ni tracking vive en `line-height/*` y `letter-spacing/*`, no repetida en los 22 estilos de texto que las rozan.
+
+**Lo que sí va**: el sitio concreto del producto donde se aplica (PersonCard, botón primario, la Agenda), la utilidad de código que espeja (`--primary`, `text-sm`, `p-4`) —que no es visible en Figma y es el puente real hacia el código—, y «sin uso todavía» cuando el rol está adelantado al producto. **Lo que no va, porque su sitio es este documento**: fechas y changelog, metodología de generación (splines, OKLCH, anclas), recuentos de bindings, justificaciones de arquitectura y ratios de contraste que no sean la advertencia en sí.
+
+**Las advertencias que sí se conservan** son las que evitan romper algo, y conviene repetirlas en cada variable afectada aunque canse: el par obligatorio `on-*-solid` de cada relleno sólido, la escala 0–100 de `opacity/*`, que `line-height/*` y `letter-spacing/*` **no se vinculan nunca** en Figma, y que `icon/N` sigue la convención de índice de Tailwind mientras `spacing/N` y `size/N` significan píxeles.
+
+**Las familias uniformes usan una plantilla con el paso interpolado** (rampas de color, `spacing/N`, `size/N`, `opacity/N`), y solo los pasos con un rol propio —las anclas de marca, los que alimentan un semántico concreto— añaden una frase extra. Así se mantienen las 372 sin reescribirlas una a una: al añadir un paso a una familia, se copia la plantilla de sus vecinos.
+
+Al tocar el archivo, **la descripción se actualiza con el cambio**, igual que este documento. Y al revés: si una descripción cita un valor o un alias concreto, comprobarlo antes de fiarse — el pase de agosto de 2026 corrigió `radius/base`, que seguía diciendo 14 px meses después de subir a 16, y seis radios que aún describían las fórmulas `base * 0.6` del sistema de multiplicadores ya retirado.
 
 #### Rampas de color: escala 50–950 (23-ago-2026)
 
-Las 8 familias de color de `Primitives` (`Cream`, `Neutral`, `Green`, `Terracotta`, `Umber`, `Red`, `Amber`, `Bronze`) siguen ahora la escala estándar de 11 pasos — `50·100·200·300·400·500·600·700·800·900·950` —, dentro del límite de 12 tonos por rampa. Antes, cada familia cubría solo el tramo que algún componente había necesitado (`Terracotta` tenía 2 pasos, `Bronze` 1); ahora las 8 cubren el rango completo de claro a oscuro, generando los pasos que no existían. Las familias llevan mayúscula inicial (`Cream`, no `cream`) — es la única excepción de capitalización en toda la nomenclatura del archivo, y existe solo porque así se lee mejor en el panel de variables de Figma, que ordena por creación y no numéricamente; no aplica a nada más (semánticos, spacing, radius siguen en minúsculas).
+Las 8 familias de color de `Primitives` (`Cream`, `Neutral`, `Green`, `Terracotta`, `Umber`, `Red`, `Amber`, `Bronze`) siguen ahora la escala estándar de 11 pasos — `50·100·200·300·400·500·600·700·800·900·950` —, dentro del límite de 12 tonos por rampa. Antes, cada familia cubría solo el tramo que algún componente había necesitado (`Terracotta` tenía 2 pasos, `Bronze` 1); ahora las 8 cubren el rango completo de claro a oscuro, generando los pasos que no existían. **La excepción es `Cream`, que llega hasta el paso 500 (6 pasos: `50`–`500`)**: su rango vive entero en la mitad clara y los pasos oscuros los cubre `Neutral`, así que generarlos habría duplicado esa familia sin consumidor. Las familias llevan mayúscula inicial (`Cream`, no `cream`) — es la única excepción de capitalización en toda la nomenclatura del archivo, y existe solo porque así se lee mejor en el panel de variables de Figma, que ordena por creación y no numéricamente; no aplica a nada más (semánticos, spacing, radius siguen en minúsculas).
 
 **Cómo se generó lo que faltaba.** Cada hex real se convirtió a OKLCH (conversión exacta sRGB↔OKLab de Björn Ottosson, no una aproximación). Para cada familia, los pasos ya existentes se mantuvieron como anclas; donde no había ningún dato por debajo del paso más claro conocido, se añadió un ancla sintética en el paso 50 (`L≈0.985`, croma ≈10 % del pico de esa familia) para que la rampa tuviera un punto de partida razonable. Sobre esas anclas se ajustó un **spline cúbico monótono (Fritsch-Carlson)** —L y C por separado, H constante por familia— y se evaluó en los 11 pasos objetivo. Monótono es la palabra clave: a diferencia de una interpolación ingenua, no puede generar oscilaciones ni un paso más claro que su vecino más oscuro.
 
@@ -126,7 +150,7 @@ Las 8 familias de color de `Primitives` (`Cream`, `Neutral`, `Green`, `Terracott
 
 Los 9 pasos intermedios (`50`–`800`) se sustituyeron por valores elegidos a mano en OKLCH, con un pico de croma deliberado en `400`–`600` (`C≈0.12–0.135`, a la altura del pico real de `950`) que decae suavemente hacia el tono apagado de `900`. El resultado: una progresión crema → dorado vivo → ámbar apagado, coherente en todo el rango, en vez de la meseta gris-beige anterior. No es una fórmula reutilizable para otras rampas de 2 anclas —es una decisión de diseño hecha a mano para esta familia en concreto—, aplicar caso por caso según el rol de cada rampa.
 
-**`Umber` también rediseñada a mano (23-ago-2026).** Diagnóstico distinto al de `Amber`: aquí no hay un salto de croma entre anclas (`Umber/900` C≈0.025, `Umber/950` C≈0.022, muy parecidas), el problema era la **hue** — el spline promediaba entre `H=60.3°` (900) y `H=78.9°` (950) dando `H≈69.6°` constante, y con un croma bajo eso se leía como gris lavado, no como el marrón cálido que el nombre «Umber» promete. `Umber/900` y `Umber/950` se dejaron intactos (alimentan `color/text/secondary` en Light y `color/bg/component-focus`). Los 9 pasos intermedios se recalcularon a mano comprometiéndose con `H≈57–60°` (más cerca del matiz de `900`, el más "marrón" de los dos) y un croma algo más alto que el original pero **deliberadamente por debajo del pico de `Amber`** (`C≈0.05` frente a `≈0.135`): el rol de `Umber` es texto secundario y superficies discretas, no un acento de gráfica, así que no debe competir en viveza con `Amber`. Mismo patrón de ejecución que `Amber`: reasignar valor a las variables existentes (mismos IDs, sin recrear) y actualizar a mano las 9 etiquetas de texto del swatch, que no siguen el valor de la variable automáticamente.
+**`Umber` también rediseñada a mano (23-ago-2026).** Diagnóstico distinto al de `Amber`: aquí no hay un salto de croma entre anclas (`Umber/900` C≈0.025, `Umber/950` C≈0.022, muy parecidas), el problema era la **hue** — el spline promediaba entre `H=60.3°` (900) y `H=78.9°` (950) dando `H≈69.6°` constante, y con un croma bajo eso se leía como gris lavado, no como el marrón cálido que el nombre «Umber» promete. `Umber/900` y `Umber/950` se dejaron intactos (alimentan `color/text/secondary` en Light y `color/fill/component-focus`). Los 9 pasos intermedios se recalcularon a mano comprometiéndose con `H≈57–60°` (más cerca del matiz de `900`, el más "marrón" de los dos) y un croma algo más alto que el original pero **deliberadamente por debajo del pico de `Amber`** (`C≈0.05` frente a `≈0.135`): el rol de `Umber` es texto secundario y superficies discretas, no un acento de gráfica, así que no debe competir en viveza con `Amber`. Mismo patrón de ejecución que `Amber`: reasignar valor a las variables existentes (mismos IDs, sin recrear) y actualizar a mano las 9 etiquetas de texto del swatch, que no siguen el valor de la variable automáticamente.
 
 #### Rampa de radios: escala limpia de 4px (24-ago-2026)
 
@@ -161,48 +185,394 @@ Dos exclusiones deliberadas del barrido:
 
 **`spacing/18-4` (18.4px) eliminado el 24-ago-2026** — a diferencia de los tres anteriores, este no era un paso real de Tailwind, sino el espejo de un valor arbitrario hardcodeado en `switch.tsx`: `data-[size=default]:h-[18.4px] data-[size=default]:w-[32px]`. Su único consumidor en Figma (`size/interactive-track`, la altura del track del Switch por defecto) se repuntó al primitivo ya existente `spacing/20`, y el componente real se corrigió a la vez: `h-[18.4px] w-[32px]` → `h-5 w-8` (utilidades limpias de Tailwind para 20px y 32px — `w-8` ya daba exactamente 32px, solo se limpió la sintaxis de corchete). Mismo criterio que con `radius`: si el valor tiene un reflejo real en código (aunque sea un arbitrario suelto, no una variable), hay que tocar los dos lados a la vez. Verificado: `h-5` calcula 20px en el dev server; `w-8` no se pudo comprobar en directo porque el Switch solo vive detrás de login (Ajustes), pero usa el mismo `--spacing` base de Tailwind (sin sobreescribir en `globals.css`) que `h-5`, ya confirmado.
 
-#### Grupo `size/*` de primitivos: 0–32 px (24-ago-2026)
+#### Grupo `size/*` de primitivos: 0–44 px (24-ago-2026, ampliado el 25)
 
-Nueva familia de primitivos en `Primitives`, 9 variables en múltiplos de 4: `size/0, 4, 8, 12, 16, 20, 24, 28, 32`. Misma convención que `spacing`: **`size/N` significa N píxeles.** Scope vacío y ocultas al publicar, como el resto de la capa.
+Nueva familia de primitivos en `Primitives`, 12 variables en múltiplos de 4: `size/0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44`. Misma convención que `spacing`: **`size/N` significa N píxeles.** Scope vacío y ocultas al publicar, como el resto de la capa. Nació con 9 pasos (0–32) y el 25-ago-2026 se estiró a 44 al crear `sizing/*`, que necesitaba 36 y 44. **`size/40` se creó sin necesitarlo nadie**, solo para que la rampa no tenga un hueco entre 36 y 44 — el mismo criterio que en `spacing`, donde todos los múltiplos de 4 existen; su consumidor natural es `size/avatar/lg` (40px, hoy sobre `icon/10`).
 
 Existe para cerrar un desajuste de tipo que hasta ahora solo estaba resuelto en la capa semántica: los tokens de dimensión (`size/interactive-*`, `size/avatar/*`, `size/control/icon-*`) aliasan hoy a primitivos de **`spacing/*`** (6 casos) o de **`icon/*`** (15 casos), es decir, una medida de ancho/alto apuntando a un primitivo de separación. Con esta familia esas cadenas pueden apuntar a un primitivo del tipo correcto.
 
-**Todavía no consume nada ese grupo, a propósito.** Repuntar solo lo que cabe en 0–32 dejaría la familia semántica partida en tres convenciones a la vez: `size/*` para los ≤32, `icon/*` para 14/36/40/64/96 y `spacing/*` para los 240/480 de nivel de página. Serían 13 tokens migrables y 8 fuera de rango (`size/control/icon-sm` y `size/interactive-lg` a 14px; `size/icon/xl` 36; `size/avatar/lg` 40; `size/interactive-5xl` 64; `size/media-lg` 96; `size/sidebar/width` 240; `size/event-column/width` 480). Antes de migrar hay que decidir si la familia `size` se extiende para cubrir todo ese rango; media migración es peor que ninguna.
+**Ya lo consume `sizing/*`** (6 de los 12 pasos: 16, 20, 24, 32, 36 y 44), pero la familia vieja `size/interactive-*` de `Medidas` sigue apuntando a `icon/*` y `spacing/*`. Repuntar solo lo que cabe en 0–44 dejaría la familia semántica partida en tres convenciones a la vez: `size/*` para los ≤44, `icon/*` para 14/64/96 y `spacing/*` para los 240/480 de nivel de página. Serían 15 tokens migrables —con la rampa hasta 44, `size/icon/xl` (36) y `size/avatar/lg` (40) ya entran— y 6 fuera de rango (`size/control/icon-sm` y `size/interactive-lg` a 14px; `size/interactive-5xl` 64; `size/media-lg` 96; `size/sidebar/width` 240; `size/event-column/width` 480). Antes de migrar hay que decidir si la familia `size` se extiende para cubrir todo ese rango; media migración es peor que ninguna.
 
 **Trampa de nomenclatura, importante**: dentro de la misma colección conviven ahora dos convenciones opuestas para `N`. `spacing/N` y `size/N` significan **N píxeles** (`spacing/12` = 12px), pero **`icon/N` sigue la convención de índice de Tailwind** — `icon/3` = 12px, `icon/4` = 16px, `icon/8` = 32px. Al leer una cadena de alias hay que tener presente cuál de las dos se está usando. La familia `icon` conserva además su medio paso `icon/3-5` = 14px, fuera de la rejilla de 4 (30 usos de `size-3.5` en código; 14px es un tamaño de icono estándar y una rejilla estricta daría 12 o 16, perdiendo ese paso).
 
+#### Grupo `opacity/*` de primitivos: escala 0–100 (25-ago-2026)
+
+Nueva familia de primitivos en `Primitives`, hoy 7 variables: `opacity/0, 10, 50, 75, 80, 90, 100` — el 80 se añadió el 25-ago-2026 al crear la capa semántica (ver más abajo). Scope vacío y ocultas al publicar, como el resto de la capa.
+
+**La escala va de 0 a 100, no de 0 a 1, y esto no es cosmético.** Figma resuelve las variables vinculadas a opacidad en **porcentaje**: una variable a `0,5` pinta el nodo al 0,5 %, es decir invisible. Ya se pagó ese peaje con `opacity/disabled` (ver el Switch, más abajo), así que la familia nace en la unidad correcta y **`opacity/N` significa N por ciento** — el nombre y el valor coinciden. Las referencias de fuera (guías de tokens, kits de terceros) suelen listar esta misma rampa como `0 / 0,1 / 0,5 / 0,75 / 0,9 / 1`; copiarla literal aquí rompe todo binding.
+
+**Nació sin consumidores a propósito**, igual que `size/*`; los tiene desde el mismo 25-ago-2026, cuando se creó la capa semántica `opacity/*` (ver más abajo). En el mismo pase se repuntó `opacity/disabled` de `Medidas` —valor literal 50— a un alias de `opacity/50`: 0 cambios de valor resuelto, sus 8 bindings de nodo intactos, y con eso desaparece el último literal que existía *por falta de rampa*, que era el motivo de existir de esta familia. Los 6 de `z-index/*` que se crearon después son literales por decisión razonada, no por carencia — ver su sección.
+
+#### La tríada `space/*`: `inset`, `stack` e `inline` en 5 pasos (25-ago-2026)
+
+15 semánticos nuevos en `Semantic`: tres familias con la misma escala y scope `GAP`, aliasando a la rampa de primitivos —`xs`→`spacing/4` · `sm`→`spacing/8` · `md`→`spacing/16` · `lg`→`spacing/24` · `xl`→`spacing/32`—. `space/inset/*` es padding interior, `space/stack/*` gap vertical y `space/inline/*` gap horizontal: los tres ejes del patrón con un vocabulario de pasos común, para que elegir un espaciado sea elegir eje y tamaño, nada más. Publicadas (los semánticos no se ocultan) y sin `codeSyntax`, como el resto de familias que solo viven en Figma. Cada una lleva su uso en la descripción, aterrizado en el producto: `stack/sm` es el grupo label-input-error (8px), `inline/xs` el icono y el texto de un botón `sm` (4px), `stack/lg` la separación entre secciones de un formulario (24px).
+
+**Van en `Semantic`, no en `Medidas`, y son las primeras familias numéricas que lo hacen.** Con eso el criterio de «agrupar por tipo de dato» deja de describir el archivo: `Semantic` pasa a ser la colección de la capa semántica —el nombre empieza a decir la verdad— y `Medidas` queda como lo que aún no se ha movido, no como el sitio natural de las medidas. El peaje: `Semantic` tiene dos modos, así que un token de spacing, *mode-invariant* por definición, **guarda el mismo alias duplicado en Light y en Dark**. Es el mismo «espejismo de dos columnas idénticas» que motivó darle un solo modo a `Primitives`, aceptado aquí a cambio de tener la capa semántica junta. **Al crear más tokens numéricos ahí, rellenar los dos modos**: una variable nace a 0 en todos los modos, así que si solo se pone el valor en Light, en Dark el espaciado se va a 0 al cambiar de tema.
+
+**Las tres familias existen porque las viejas colapsaron o nacieron incompletas.** `spacing/inset/*` son 8 tokens que resuelven a cuatro valores (`2xs`=`xs`=4px, `sm`=`md`=8px, `lg`=`xl`=12px, y después 40 y 56), sin un solo paso entre 12 y 40; `spacing/stack/*` son 4 (4 · 8 · 12 · 16, sin `sm`) y `spacing/inline/*` solo 3 (8 · 8 · 12, con `sm`=`md`) — ver la rejilla estricta de 4px, más arriba. La escala nueva es idéntica en los tres ejes, sus cinco pasos se distinguen entre sí y llega hasta 32.
+
+**Conviven con las familias viejas de `Medidas`, así que el archivo tiene dos prefijos para la misma propiedad** (`space/` y `spacing/`), lo que contradice la regla de nomenclatura de más abajo. Se han creado aparte porque un nombre no se puede repetir dentro de una colección y porque las viejas tienen consumidores. **El coste de cerrar la duplicidad está medido y es muy distinto según la familia**:
+
+- `spacing/inset/*` (8 tokens): **7 referencias de alias** desde tokens de componente (`empty-state/padding-minimal`→`3xl`, `empty-state/padding-full`→`4xl`, `switch/track-inset`→`2xs`, `badge/padding-x`→`md`, `menu/padding`→`xs`, `menu/item-padding-x`→`sm`, `popover/padding`→`lg`) y solo **3 bindings de nodo**, todos de `inset/xl`.
+- `spacing/stack/*` y `spacing/inline/*` (7 tokens): **0 referencias de alias** y **65 bindings de nodo** fuera de instancias, más 30 dentro que siguen a su componente — `stack/lg` 14, `inline/sm` 13, `stack/xl` 12, `inline/lg` 9, `stack/xs` 6, `stack/md` 6, `inline/md` 5. Aquí el trabajo está en los nodos, no en los alias.
+
+**Trampa al migrar: hacerlo por valor, no por nombre.** Los pasos de una generación a otra no se corresponden — el viejo `stack/md` vale 8px y su equivalente nuevo es `stack/sm`; el viejo `stack/xl` vale 16 y es el nuevo `stack/md` —. Repuntar por nombre cambiaría el espaciado de decenas de nodos en silencio. Y hay valores sin destino en la escala nueva: los 12px de `stack/lg`, `inline/lg` e `inset/lg|xl` tienen que elegir entre 8 y 16, y los 40 y 56 de `empty-state/*` se salen del techo de 32 — o se extiende la escala con `2xl`/`3xl`, o esos tokens aliasan al primitivo saltándose el semántico. Lo mismo pasaría con los 20px de `field-group/gap` y `card/padding-lg` si algún día se les hace pasar por la capa semántica en vez de aliasar directo al primitivo. Mientras las dos generaciones existan, **al aplicar espaciado nuevo usar `space/*`**.
+
+#### Grupo `sizing/*`: interactive, control e icon en 3 pasos (25-ago-2026)
+
+9 semánticos nuevos en `Semantic`, scope `WIDTH_HEIGHT`, aliasando a la rampa `size/*` —el primitivo del tipo correcto, no a `icon/*` ni a `spacing/*`—: `sizing/interactive/{sm,md,lg}` = 32 · 36 · 44 px (altura de botón e input; los 44 son el touch target de WCAG 2.5.5, nivel AAA), `sizing/control/{sm,md,lg}` = 16 · 20 · 24 px (caja de checkbox y radio) y `sizing/icon/{sm,md,lg}` = 16 · 20 · 24 px (glifo). Publicados y sin `codeSyntax`, como el resto de familias que solo viven en Figma. Es la contrapartida de dimensión de la tríada `space/*`: mismo sitio, mismo patrón de tres pasos, y por eso el prefijo es `sizing/` y no `size/`, que ya nombra a los primitivos.
+
+**`control` e `icon` tienen los mismos tres valores (16 · 20 · 24) a propósito.** No se fusionan porque son roles distintos —la caja de un control y el glifo que va dentro escalan por motivos diferentes— y porque el día que el checkbox suba a 20px de base, solo debe moverse una de las dos familias. Es el mismo criterio que se aplicó al no fusionar los pasos colapsados de `spacing/inset/*`.
+
+**Se solapa con `size/interactive-*` de `Medidas`, que es la familia que esto viene a sustituir**, y el solape es más profundo que en `space/*`: la vieja tiene 11 pasos (`2xs`…`5xl` más `track`) que resuelven a 8 · 8 · 12 · 12 · 14 · 16 · 20 · 24 · 32 · 64 y 20, es decir dos parejas repetidas, un valor fuera de la rejilla de 4 (14px) y ningún paso entre 32 y 64. Además **aliasa a primitivos del tipo equivocado** (`icon/*` en 15 casos, `spacing/*` en 6), que es justo el desajuste que motivó crear `size/*`. La nueva no cubre todo ese rango: los 8 y 12 px de los badges de avatar y del thumb del switch, los 14 de `control/icon-sm`, los 64 del textarea y los 96 de `media-lg` se quedan fuera de 32–44 y de 16–24. Migrar implica decidir si `sizing/` crece con `2xs`/`xs`/`xl` o si esos tokens de componente aliasan al primitivo directamente.
+
+#### Grupo `radius/*` en `Semantic`: 4 roles (25-ago-2026)
+
+4 semánticos nuevos en `Semantic`, scope `CORNER_RADIUS`, aliasando a la rampa de primitivos: `radius/interactive`→`radius/lg` (16px, Button/Input/Select), `radius/surface`→`radius/xl` (20px, Card, modales, popovers), `radius/tag`→`radius/xs` (4px) y `radius/pill`→`radius/full` (999px, avatares, toggles, badges). Publicados y **con los dos modos rellenos** (`Semantic` tiene Light y Dark y una variable nace a 0 en todos los modos), igual que `space/*` y `sizing/*`.
+
+**Los valores salen del código, no de la guía de referencia.** El modelo canónico de tokens pinta este grupo como `interactive` 8px y `surface` 12px; copiarlo literal habría puesto en Figma un botón de 8 y una card de 12 frente a los 16 y 20 que renderiza la app (`rounded-lg` en [`button.tsx`](../src/components/ui/button.tsx) e [`input.tsx`](../src/components/ui/input.tsx), `rounded-xl` en [`card.tsx`](../src/components/ui/card.tsx)). Se ha mapeado cada rol al primitivo que el código usa de verdad — la regla de siempre: si Figma contradice el código, gana el código. Del modelo de referencia se toma la **estructura** (qué roles existen), nunca la escala.
+
+**Es la primera vez que el archivo repite un nombre completo en dos colecciones**: `radius/interactive`, `radius/surface` y `radius/pill` existen ahora en `Medidas` y en `Semantic`, con el mismo valor resuelto. En `space/`↔`spacing/` y `size/`↔`sizing/` la duplicidad se resolvió con un prefijo nuevo; aquí no hay prefijo alternativo honesto —`radius` es el nombre del rol— así que en el picker salen dos veces, desambiguados solo por la colección. **Cerrarlo no es borrar**: los de `Medidas` cargan los bindings caros del archivo (`radius/interactive` 620, `radius/pill` 424) y el `codeSyntax` que lee Dev Mode, así que la migración es repuntar nodos, no eliminar tokens.
+
+**Los nuevos nacen sin `codeSyntax` a propósito**, aunque el rol sí tenga variable CSS detrás (a diferencia de `space/*` y `sizing/*`, que solo viven en Figma). El gemelo de `Medidas` ya reclama `var(--radius-lg)`, `var(--radius-xl)` y compañía, y dos tokens ofreciendo la misma custom property en Dev Mode es peor que uno solo. **Al migrar hay que mover el `codeSyntax` junto con el rol**, no duplicarlo.
+
+**La familia no cubre todavía todo lo que el código redondea.** Fuera quedan los 24px de `rounded-2xl` (8 usos: cards de ideas, empty states, paneles — hoy `radius/panel`), los 12px de `rounded-md` (8 usos más los dos `rounded-[min(var(--radius-md),12px)]` de `button.tsx` — hoy `radius/control-sm`) y los 8px de `rounded-sm` (4 usos, logos de tienda — hoy `radius/logo`). Antes de migrar hay que decidir si `surface` gana un segundo paso y si `interactive` gana uno pequeño, o si esos tres roles se quedan en `Medidas`; media migración es peor que ninguna, igual que en `sizing/*`.
+
+**`radius/tag` es el único rol sin gemelo y también el único sin consumidor real.** El modelo de referencia lo describe como el radio de badges y tags, pero en este producto los badges son pill (`rounded-4xl` en Badge, que resuelve a `radius/pill`) y el único 4px del código es el checkbox de [`/settings`](<../src/app/(app)/settings/page.tsx>) (`className="rounded"`, la utilidad pelada de Tailwind, ajena a la escala `--radius-*`). Se ha creado porque el modelo lo pide y el paso existe, pero hoy nombra un rol que el producto no usa; su descripción en Figma lo dice para que nadie lo tome por el radio de los badges.
+
+#### Grupo `border-width/*` en `Semantic`: 3 roles (25-ago-2026)
+
+3 semánticos nuevos en `Semantic`, scope `STROKE_FLOAT`, con los dos modos rellenos y sin `codeSyntax` (aquí no hay variable CSS detrás: en código son las utilidades nativas `border`, `border-2` y `ring-3` de Tailwind): `border-width/default`→`border-width/1` (1px, Card, Input, Textarea, Select, separadores), `border-width/strong`→`border-width/2` (2px) y `border-width/focus`→`border-width/3` (3px).
+
+**`strong` y `focus` no son el mismo token con dos nombres, y por eso no valen lo mismo.** El modelo de referencia pinta los dos a 2px, lo que los volvía indistinguibles salvo por la descripción. En el código son dos cosas medibles y distintas: `strong` es **selección** —el swatch elegido de [`AvatarPicker`](../src/components/people/AvatarPicker.tsx) (`border-2`) y el subrayado del título editable de la ficha de persona (`border-b-2`)—, y `focus` es el **anillo de foco de teclado**, que en la capa `ui` vale **3px**: `focus-visible:ring-3` en Button, Input, Select, Textarea, Switch y Slider, `focus-visible:ring-[3px]` en Badge (mismo valor, sintaxis de corchete), 5 `aria-invalid:ring-3` y el `focus:ring-3` del enlace de salto de [`layout.tsx`](<../src/app/(app)/layout.tsx>). Gana el código, como siempre: `focus` es 3, no 2.
+
+**Ese 3px obligó a crear el primitivo `border-width/3`**, que no existía — la rampa se quedaba en 0 · 1 · 2. Regla aplicada, la misma que en el hub de marca: si el paso no existe en la capa de abajo, se crea ahí primero; nunca se aliasa a un paso aproximado ni se salta un eslabón con un valor literal.
+
+**Quedan 4 focus a `ring-2` escritos a mano**, fuera de la capa `ui` y por tanto fuera del token: la constante `FOCUS` de `AvatarPicker`, el botón de foto de la ficha de persona, [`UpcomingDateCard`](../src/components/dashboard/UpcomingDateCard.tsx) y [`DatePickerDialog`](../src/components/people/DatePickerDialog.tsx). Son deriva de código, no un rol distinto: lo coherente es subirlos a `ring-3`, no crear un `border-width/focus-sm` que la bendiga. Los otros `ring-2` del código **no son foco y sí encajan en `strong`**: el `SELECTED` de `AvatarPicker` (`ring-2 ring-primary`, selección expresada con anillo en vez de borde) y los 3 anillos de separación de [`avatar.tsx`](../src/components/ui/avatar.tsx) (`ring-2 ring-background`, el recorte del badge y del grupo apilado).
+
+**Los tres primitivos `border-width/0·1·2` estaban publicados y sin descripción**, únicos de toda la colección `Primitives` que se salían de la regla del párrafo de arriba (scope vacío + `hiddenFromPublishing`). Corregido en el mismo pase, sin coste: tenían **0 referencias de alias y 0 bindings de nodo** en las 34 páginas del archivo, comprobado con un recorrido completo antes de tocarlos. `border-width/3` nace ya oculto y descrito.
+
+#### Grupo `opacity/*` en `Semantic`: 4 estados (25-ago-2026)
+
+4 semánticos nuevos en `Semantic`, scope `OPACITY`, dos modos rellenos y sin `codeSyntax`: `opacity/disabled`→`opacity/50` (50 %), `opacity/hover`→`opacity/80` (80 %), `opacity/pressed`→`opacity/75` (75 %) y `opacity/skeleton`→`opacity/10` (10 %). Son los primeros consumidores de la rampa de primitivos creada el mismo día, y **la unidad sigue siendo el porcentaje**: aliasar es seguro porque el primitivo ya está en 0–100, pero cualquier valor literal que se escriba aquí a mano tiene que ser 50, no 0,5.
+
+**`hover` vale 80, no 90.** El modelo de referencia lo pone en 90; el único hover de opacidad que existe en el producto es el `hover:opacity-80` del thumb de [`UpcomingDateCard`](../src/components/dashboard/UpcomingDateCard.tsx), que es exactamente el rol que describe («hover de imágenes, thumbnails»). Gana el código. Eso obligó a **crear el primitivo `opacity/80`**, que no estaba en la rampa — misma regla que con `border-width/3`: el paso se crea abajo antes de aliasar, nunca se redondea al vecino.
+
+**`pressed` y `skeleton` son roles adelantados: hoy no tienen ni un consumidor en código**, y conviene saberlo antes de vincular nada a ellos.
+
+- **`pressed`**: no hay un solo `active:opacity-*` en el producto. Se crea porque el modelo lo pide y el paso ya existía, igual que nacieron `size/*` y la propia rampa de opacidad.
+- **`skeleton`**: los 5 loaders reales (agenda, seres queridos, `GiftsPanel`, `GenerationProgress`, `LoadingFallback`) **no usan opacidad de elemento**, sino alfa de color —`border-border/60`, `bg-muted/40`, `bg-muted-foreground/50`— más `animate-pulse`, cuyos keyframes oscilan entre 100 % y 50 %. Es decir: la opacidad más baja que un skeleton alcanza de verdad es 50, no 10. Vincular un skeleton de Figma a este token **no reproduce el loader del producto**; el aviso está en la descripción de la variable.
+
+**`opacity/disabled` duplica nombre con el de `Medidas`**, cuarto caso del archivo tras los tres de `radius/*`. Los dos resuelven ahora a 50 vía el mismo primitivo, pero el de `Medidas` es el que carga los **8 bindings de nodo** (estados `Disabled` de Input, Textarea y compañía), así que sigue siendo el que pinta. Retirarlo es rebindear esos 8 nodos, no borrar la variable.
+
+**Dos opacidades del código se quedan fuera de la familia, a propósito**: los `opacity-0`/`opacity-100` de los overlays que aparecen al hover (9 y 6 usos) son un interruptor de visibilidad, no un estado de énfasis —el rol lo cubriría un token de animación, no éste—, y el `opacity-40` del icono de regalo de [`NotificationBell`](../src/components/layout/NotificationBell.tsx) es un arbitrario suelto de un solo uso: mismo criterio que los `text-[10px]`, o se limpia en código o se promueve a rol, pero no se bendice creando un primitivo `opacity/40` para él.
+
+#### Grupo `z-index/*`: 6 capas de apilamiento (25-ago-2026)
+
+6 semánticos nuevos en `Semantic` —`dropdown` 1000 · `sticky` 1100 · `overlay` 1300 · `modal` 1400 · `popover` 1500 · `toast` 1700—, **con el valor escrito a mano en los dos modos y sin primitivo debajo**. Son la única familia del archivo que no aliasa a nada, y es deliberado: el porqué, más abajo.
+
+**Es el único grupo del archivo que no se puede vincular a nada.** Figma no tiene una propiedad de apilamiento, así que aquí el scope vacío no es la decisión de diseño que sí es en los primitivos: es que no existe picker donde ofrecerlo. Son **documentación pura** —el orden de capas escrito donde se consulta el sistema— y por eso los 6 semánticos van publicados pero sin scope, y sin `codeSyntax`, que hoy no tendría a qué apuntar.
+
+**No es un espejo del código, es una propuesta, y conviene decirlo sin rodeos**: el producto apila con la escala corta de Tailwind —`z-50` en 11 sitios (Dialog, Sheet, Popover, Select, las sugerencias de `InterestTagInput`, los dos botones flotantes de la ficha de persona y de Ajustes, y el enlace de salto), `z-40` en 1 (la barra superior móvil de `GiftsPanel`) y `z-10` en 4 (badge de avatar, `PersonCard`, los botones de scroll de `Select`)—. **Ni un solo valor entre 1000 y 1700 existe hoy en el código.** En los otros tres grupos de este pase la regla «gana el código» decidía un valor concreto; aquí decidiría el grupo entero, así que se documenta la escala propuesta y se deja el desajuste a la vista en la descripción de cada variable.
+
+**El desajuste que más importa: `overlay` y `modal` son hoy la misma capa.** En [`dialog.tsx`](../src/components/ui/dialog.tsx) (líneas 34 y 56) y [`sheet.tsx`](../src/components/ui/sheet.tsx) (31 y 56) el backdrop y el contenido comparten `z-50`; lo que los ordena es el orden del DOM, no el `z-index`. Separarlos en 1300 y 1400 no es renombrar nada: es cambiar cómo apila el producto. Mismo aviso con `popover`, que cubre solo popovers — **no hay componente Tooltip** en el sistema.
+
+**`toast` seguirá siendo documental aunque se migre el resto.** Los toasts los monta Sonner, que apila su propio contenedor fijo en `z-index: 999999999` (con su variable `--z-index`) y no toca ninguna utilidad `z-*` del proyecto. El 1700 describe la intención —los toasts van encima de todo—, no el número que se pinta.
+
+**Por qué van con valor literal y no sobre una rampa de primitivos.** Nacieron con una (`z-index/1000…1700`, 8 pasos) y se descartó el mismo día: **un primitivo se gana el sitio cuando varios roles lo comparten o cuando cambiarlo debe moverlos a todos**, y aquí la correspondencia era 1:1 —6 roles, 6 pasos, dos sin consumidor— así que el eslabón no gobernaba nada. Peor: **dos capas que compartieran valor serían un bug**, porque lo único que aporta un z-index es el orden total; el primitivo no puede llegar a tener un segundo consumidor legítimo. Es el mismo argumento por el que `opacity/disabled` fue literal mientras no hubo rampa («una familia de un solo miembro añade un eslabón sin nada que gobernar»), aquí multiplicado por seis.
+
+**Y hay una diferencia de fondo con las demás rampas**: en color, radio o espaciado el número *es* la decisión de diseño (16px, `#0C2912`) y el rol solo le pone nombre; en z-index el número no significa nada por sí mismo, solo su rango — 1400 no es «más modal» que 1300, es «después». No hay nada debajo del rol que merezca nombre propio. **El precio, asumido**: son los 6 únicos valores directos fuera de la capa primitiva, así que la heurística de recuento de más arriba necesita excluirlos a mano. `1200` y `1600` se quedan libres a propósito, para insertar una capa entre sticky y overlay o entre popover y toast sin renumerar nada.
+
+**Si algún día se migra el código**, el sitio es `globals.css` con `--z-dropdown`, `--z-modal` y compañía consumidas como `z-[var(--z-modal)]`, no arbitrarios sueltos por componente; y entonces estos 6 tokens sí llevarían `codeSyntax`, con la regla de siempre: no tocar un lado sin el otro.
+
+#### Escala de tipografía propia: 13 pasos (24-ago-2026)
+
+El grupo `typography/font-size/*` **ya no es la escala de serie de Tailwind**. Son 13 pasos elegidos a mano, y ni uno más: `2xs` 11 · `xs` 12 · `sm` 14 · `base` 16 · `lg` 18 · `xl` 20 · `2xl` 24 · `3xl` 28 · `4xl` 34 · `5xl` 40 · `6xl` 48 · `7xl` 60 · `8xl` 72. `9xl` (128) se eliminó del tema y de Figma.
+
+Es la primera vez que el proyecto se aparta de Tailwind en **valores**, no solo en nomenclatura, así que la regla de siempre —«si Figma contradice el código, gana el código»— solo se puede cumplir de una forma: **la escala se declara en `globals.css` y Figma la copia**. Está en un bloque `@theme` propio, el segundo del archivo, justo detrás del `@theme inline`, y sobreescribe únicamente los pasos que cambian; `--text-9xl: initial` es la manera de Tailwind de **quitar** un paso del tema, de modo que `text-9xl` deja de generar clase.
+
+**Los seis primeros pasos no se han tocado.** `xs`…`2xl` ya coincidían con Tailwind, así que sus ~233 usos en código (104 `text-xs`, 87 `text-sm`, 22 `text-xl`, 10 `text-lg`, 8 `text-base`, 2 `text-2xl`) calculan exactamente lo mismo que antes, interlineado incluido. Todo el movimiento está en el tramo de display, donde apenas hay uso.
+
+**Tres nombres cambian de valor, y el código se migró para que se vea igual que antes.** `5xl` pasa de 48 a 40, `6xl` de 60 a 48 y `7xl` de 72 a 60, así que el hero de la landing (`text-4xl sm:text-5xl md:text-6xl lg:text-7xl`) habría encogido en tres de sus cuatro breakpoints. Se subió un escalón cada uno → `sm:text-6xl md:text-7xl lg:text-8xl`, que da los mismos 34 → 48 → 60 → 72 px de antes. Regla para la próxima vez: al reasignar valores dentro de una familia de nombres, **migrar las clases para conservar el render** y decidir después si el diseño quiere otro tamaño; haciendo las dos cosas de golpe no se sabe qué causó qué.
+
+**`2xs` (11px) ya es una utilidad de verdad.** `--text-2xs` no existe en Tailwind y ahora se declara aquí, así que los 3 `text-[11px]` que había a mano se migraron a `text-2xs` —mismo valor, cero cambio visible—: el eyebrow de origen de tienda y el hint de fallback de [`GiftRecommendationCard`](../src/components/gifts/GiftRecommendationCard.tsx), y el badge numerado de la landing. Su `codeSyntax` en Figma pasó de vacío a `var(--text-2xs)`.
+
+**Cada tamaño arrastra su interlineado.** Tailwind acopla un `--text-*--line-height` a cada paso, así que los redefinidos necesitan el suyo o el interlineado se sale de la rejilla de 4px: `2xs` → 16px, `3xl` → 36px, `4xl` → 40px (sobre 34px el ratio de serie habría dado 37,8). Se declaran como ratio (`calc(2.25 / 1.75)`), que es como los expresa Tailwind, no como px. `5xl`…`8xl` se quedan con el ratio `1` de serie, que da 40/48/60/72 — todos múltiplos de 4, nada que compensar.
+
+**El override NO puede ir en el bloque `@theme inline`**, y ahí está la trampa del cambio. Dentro de `@theme inline` Tailwind sustituye el valor directamente en la utilidad y **deja de emitir la custom property**: la variable desaparece de `:root` y el `codeSyntax` `var(--text-4xl)` de Figma se queda apuntando a nada. Comprobado en runtime: con el override en `inline`, el `h1` medía 34px correctamente pero `getComputedStyle(document.documentElement)` devolvía vacío para `--text-4xl`. La misma mecánica explica una rareza que ya estaba ahí: de los 8 radios declarados en `@theme inline`, `--radius-md` sí aparece en `:root` y `--radius-xl` no — solo sobrevive la que algo referencia con `var()`, en este caso el `rounded-[min(var(--radius-md),12px)]` de `button.tsx`.
+
+**Quedan tres arbitrarios de tamaño de fuente fuera de la escala**, y no se les ha creado primitivo a propósito: `text-[0.8rem]` en la talla `sm` de [`button.tsx`](../src/components/ui/button.tsx) es 12,8px, un `text-xs` disfrazado a 0,8px de distancia, y debería migrarse en código; los 2 `text-[10px]` de [`NotificationBell`](../src/components/layout/NotificationBell.tsx) y [`PersonCard`](../src/components/people/PersonCard.tsx) son el caso a decidir. Mismo criterio que con `spacing/18-4`: un arbitrario suelto se limpia en código o se promueve a token, pero no se deja a medias.
+
+**El panel de Figma no ordena por valor.** Lista por orden de creación dentro del grupo, así que `2xs` y `3xl` aparecen detrás de `8xl`. No hay API de reordenación y recrear las 10 originales costaría sus 368 bindings de nodo (`sm` sola tiene 266): se convive con ello. Mismo motivo por el que las familias de color llevan mayúscula inicial.
+
+Verificado en el navegador tras el cambio: las 13 `--text-*` se emiten con su valor, `--text-9xl` ya no existe, el `h1` de `/privacidad` calcula 34/40px, `text-2xs` calcula 11/16px, `text-sm` sigue en 14/20px y el hero de la landing da 34 → 48 → 60 → 72 px a 375/700/820/1280 de ancho. `tsc --noEmit` limpio.
+
+#### Interlineado: ratios en código, px en Figma (24-ago-2026)
+
+La escala de interlineado son 5 ratios sin unidad: `tight` 1,1 · `snug` 1,2 · `snug-alt` 1,3 · `normal` 1,4 · `relaxed` 1,5. Se declaran como `--leading-*` en el mismo bloque `@theme` de `globals.css` que los tamaños, sobreescribiendo los de serie de Tailwind (1,25 · 1,375 · 1,5 · 1,625) y quitando `loose` con `--leading-loose: initial`.
+
+**Aprieta el interlineado en 20 sitios**, y es intencionado: `leading-tight` (14 usos: etiquetas de radio/checkbox en `PersonForm` e `ImportantDateForm`, lista de tareas de `GiftsPanel`, nombre en `PersonCard`, `GenerationProgress` y el H1 del panel de ideas) baja de 1,25 a 1,1; `leading-snug` (3: título de `Card`, H3 de `GiftRecommendationCard`, fecha en la ficha de persona) de 1,375 a 1,2; `leading-relaxed` (3 párrafos de cuerpo) de 1,625 a 1,5. `leading-none` (2 usos) no se toca porque en Tailwind es una utilidad estática igual a 1, no una variable de tema, y el `leading-[1.05]` del hero tampoco.
+
+**El límite duro está en Figma: una variable de interlineado se resuelve SIEMPRE en píxeles.** Comprobado con una prueba directa —variable FLOAT de valor 110 vinculada a un nodo de texto puesto en `PERCENT`— y Figma devuelve `{unit: "PIXELS", value: 110}`: la unidad del nodo se ignora al vincular. Es decir, una variable con 1,1 daría un interlineado de **1,1 px**, no de 1,1×, y el porcentaje tampoco es una salida. **Un ratio no es expresable como variable vinculable en Figma**, y por eso el grupo `typography/line-height/*` está partido en dos:
+
+- **Los 5 ratios, en la raíz del grupo.** Llevan scope `LINE_HEIGHT`, como el resto de la colección y como pide la §5 de la guía de tipografía, así que **aparecen en el picker de interlineado — y aplicarlos desde ahí colapsa el texto**: da 1,1 px, no 1,1×. Es una trampa real, no teórica, y lo único que la señala es la descripción de cada variable, que lleva la advertencia y la medición. Su `codeSyntax` apunta a `var(--leading-tight)` y compañía, que en código sí son ratios de verdad; en Figma sirven para documentar la escala y para que Dev Mode la muestre.
+- **El subgrupo `px/`**, completo en los 13 tamaños desde el 24-ago-2026 (`2xs` 16 · `xs` 16 · `sm` 20 · `base` 24 · `lg` 28 · `xl` 28 · `2xl` 32 · `3xl` 36 · `4xl` 40 · `5xl` 40 · `6xl` 48 · `7xl` 60 · `8xl` 72), es el único vinculable, y es donde viven los **303 bindings de nodo** del archivo (`sm` 213, `xs` 81, `base` 9). Se renombraron a `px/` en vez de recrearlos, así que los 303 siguen intactos. Su `codeSyntax` sigue apuntando al `--text-*--line-height` emparejado con cada tamaño, que es otra cosa que el ratio: son el interlineado ya resuelto de ese tamaño concreto. Los valores salen de la escala de Tailwind — `5xl`…`8xl` llevan ratio 1, así que su px coincide con el tamaño.
+
+Traducido a la práctica: **al diseñar en Figma se usa `px/`; al implementar se usa la utilidad `leading-*`**. Y si un tamaño necesita un ratio que no está en `px/`, el número correcto se calcula con la tabla de ratios, no se inventa.
+
+**Los ratios se guardan como float32, así que la API los devuelve como 1.100000023841858.** El panel de Figma muestra 1,1 y no es un error: es la misma imprecisión que arrastra cualquier FLOAT del archivo: los 5 pasos de `letter-spacing` también (-0,02 se lee como -0.019999999552965164). No intentar «arreglarlo» redondeando.
+
+Verificado en el navegador tras el cambio: `--leading-tight` resuelve a 1.1, `--leading-snug` a 1.2, `--leading-relaxed` a 1.5, `--leading-loose` ya no existe, y un párrafo `text-sm leading-relaxed` calcula 14/21px (antes 14/22,75). `--leading-snug-alt` y `--leading-normal` aún no se emiten porque ninguna utilidad los usa todavía — Tailwind solo emite las variables de tema en uso.
+
+#### Letter-spacing: grupo nuevo `letter-spacing/*` (24-ago-2026)
+
+Escala de 5 pasos en em: `tighter` -0,02 · `tight` -0,01 · `normal` 0 · `wide` 0,01 · `wider` 0,02. En código son `--tracking-*` en el mismo bloque `@theme`, sobreescribiendo los de serie de Tailwind (-0,05 · -0,025 · 0 · 0,025 · 0,05) y quitando `widest` con `--tracking-widest: initial`. Ojo al leerla: la escala nueva es **la mitad de agresiva** que la de Tailwind en todos sus pasos.
+
+**Afecta a 5 usos**, los de `tracking-tight`: el wordmark de la cabecera (landing, privacidad, términos), el importe de `GiftRecommendationCard` y el título de `DatePickerDialog`. Pasan de -0,025em a -0,01em; medido, sobre 18px van de -0,45px a -0,18px.
+
+**Mismo límite de Figma que el interlineado, y por el mismo motivo**: una variable de `letter-spacing` se resuelve siempre en px, y un valor en em depende del tamaño de fuente, así que no cabe en una sola variable. Los 5 pasos llevan scope `LETTER_SPACING` —como pide la §5 de la guía de tipografía, y como los demás primitivos de la colección—, así que **sí aparecen en el picker de tracking, y aplicarlos desde ahí da -0,01 px en vez de -0,01em**. La protección no es el scope sino la descripción de cada variable, que lleva la advertencia y la medición. Para aplicar tracking en Figma, porcentaje literal: -1 % = -0,01em.
+
+**El grupo antiguo `typography/tracking/*` se eliminó el 24-ago-2026, y con él un fallo que llevaba tiempo.** Era el grupo de letter-spacing anterior a la guía, nombrado por caso de uso (`heading`, `eyebrow-wide`, `eyebrow-narrow`) y con el nombre de la utilidad de Tailwind en vez del de la propiedad CSS. Guardaba valores en em con scope `LETTER_SPACING`, o sea vinculables, y `eyebrow-wide` (0,2) tenía **6 bindings de nodo** que renderizaban `{PIXELS, 0.2}`: 0,2 px de espaciado, prácticamente nada, mientras el código aplicaba `tracking-[0.2em]`, que a 12px son 2,4 px. Los seis textos «INTERESES» de `Person Card` llevaban tiempo pareciendo tokenizados sin espaciar.
+
+Se arreglaron primero y se borró después, en ese orden a propósito: borrar antes habría dejado los 6 nodos desvinculados conservando su 0,2 px inútil y el fallo se habría vuelto invisible. **Solo 2 de los 6 eran nodos reales** (dentro de los componentes `State=Default` y `State=Hover` del set `Person Card`); los otros 4 eran hijos de instancia que los espejan, así que editando 2 se arreglaron los 6 sin crear un solo override. Se desvincularon y se les puso `{PERCENT, 20}`, que es como Figma sí expresa 0,2em: pasaron de 65 a 82 px de ancho, la primera vez que se ven como en producción. Las tres variables se borraron después de comprobar 0 bindings, 0 alias y 0 estilos apuntando a ellas.
+
+Los valores de eyebrow (0,18em · 0,2em · 0,12em) viven ahora en los tres estilos `Eyebrow/`, como 18 % · 20 % · 12 % literales, que es el equivalente exacto. No tienen variable propia y no la necesitan: son el rol de versalitas espaciadas, fuera de la rampa de ±0,02. El grupo borrado además nunca cubrió el 0,12em del rótulo de tienda, así que ya estaba incompleto.
+
+**Cómo aterriza la escala en los titulares, y qué se queda fuera:**
+
+- **Los titulares bajaron a `tight` (-0,01em).** El `letter-spacing` de `h1/h2/h3` del `@layer base` era `-0.015em`, un valor que no existía en ninguna escala y caía justo entre `tight` y `tighter`. Se eligió -0,01 y no -0,02 mirando dónde vive la masa de titulares: de los 29 `h1/h2/h3` del producto, **19 son de 20px** y unos 9 de 34px; solo el hero de la landing pasa de ahí. Un `h2` de 20px no es texto display, y el tracking negativo es una herramienta de tamaño display: a 20px, -0,4px (-0,02em) empieza a cerrar los espacios de un serif de contraste alto como Fraunces, que además **se carga sin eje óptico** (pesos 400-700, sin `opsz`), así que la fuente no compensa nada por su cuenta al crecer. Aflojar es también el lado seguro del error: un serif demasiado apretado en pequeño se lee como defecto de renderizado. Los 28 titulares no-hero pasan de -0,30 a -0,20px (20px) y de -0,51 a -0,34px (34px). Sigue hardcodeado como literal y no como `var(--tracking-tight)`, a propósito: Tailwind solo emite las variables de tema que alguna utilidad usa, así que si los 5 `tracking-tight` del código desaparecieran, la variable dejaría de existir y el base layer se rompería en silencio. En Figma no queda ninguna variable que afirme -0,015: `tracking/heading` fue primero alias de `letter-spacing/tight` y se borró con el resto de su grupo el mismo día.
+- **El caso display se aprieta en el elemento, no en el default.** El `h1` del hero lleva ahora `tracking-tighter` explícito: a 72px son -1,44px. Ojo, eso es **más apretado que antes** (-1,08px con el -0,015em global), no una restauración — el valor anterior no es un paso de la escala. Es la estructura correcta de todas formas: default neutro para los 28 titulares normales, apretado explícito para el único que es display.
+- **Los 17 arbitrarios de eyebrow** (`tracking-[0.18em]` ×15, `tracking-[0.2em]`, `tracking-[0.12em]`). Están un orden de magnitud por encima del tope de la escala (±0,02), y no es un descuido: el rol «eyebrow» es versalitas muy espaciadas, otra cosa que el ajuste fino de un titular. La escala de ±0,02 no pretende cubrirlo: viven en los tres estilos `Eyebrow/` como porcentaje literal (18 % · 20 % · 12 %), fuera de la rampa y sin variable propia. Si algún día se tokenizan, el sitio es un grupo de uso o un estilo, no un paso más de la rampa.
+
+Verificado en el navegador tras el cambio: `--tracking-tight` resuelve a `-.01em` y `--tracking-tighter` a `-.02em`, `--tracking-widest` ya no existe, el wordmark calcula 18px/-0,18px, los `h2` de la landing 20px/-0,20px, el `h1` de `/privacidad` 34px/-0,34px y el hero 72px/-1,44px. Los pasos `normal`, `wide` y `wider` aún no se emiten porque ninguna clase los usa todavía.
+
+#### Estilos de texto: escala Display→Caption, 22 estilos (24-ago-2026)
+
+El archivo no tenía ni un text style; ahora tiene 22, siguiendo la **escala estándar de comunidad** (Display · Heading · Label · Body · Caption, la misma forma que Material 3, Ant Design o Radix Themes) de la guía externa `guia-tipografia-figma.md`: 19 estilos de la guía más 3 añadidos que se explican abajo. Los nombres llevan `/` para que el panel de Figma los agrupe en carpetas, y la descripción de cada estilo guarda su nombre técnico plano (`text-body-3`, `text-heading-h2`…) más el rol que cubre en el producto.
+
+| Familia | Estilos | px | Fuente | Peso |
+|---|---|---|---|---|
+| `Display/` | 1 · 2 · 3 | 72 · 60 · 48 | Fraunces | Bold 700 |
+| `Heading/` | H1 → H6 | 40 · 34 · 28 · 24 · 20 · 18 | Fraunces | SemiBold 600 |
+| `Label/` | 1 · 2 · 3 | 16 · 14 · 12 | Geist | Medium 500 |
+| `Body/` | 1 → 5 | 20 · 18 · 16 · 14 · 12 | Geist | Regular 400 |
+| `Caption/` | 1 · 2 | 12 · 11 | Geist | Regular 400 |
+| `Eyebrow/` **(añadido)** | Section · Hero · Micro | 12 · 12 · 11 | Geist | Medium 500 |
+
+Interlineados y tracking salen tal cual de la guía: Display 110 %, H1-H2 120 %, H3-H5 130 %, H6 140 %, Label 120 %, Body 1-3 150 %, Body 4-5 140 %, Caption 1 130 %, Caption 2 120 %; tracking de -2 % (Display 1-2) a +2 % (Caption 2).
+
+**Los 13 tamaños, los 5 ratios de interlineado y los 5 letter-spacings de la guía ya existían idénticos en `Typography`** — es de donde salieron los tres cambios anteriores de esta sección. Lo que sigue es lo que **no** se pudo adoptar, con el motivo, porque conviene no volver a intentarlo a ciegas:
+
+- **El mecanismo central de la guía se sigue en tres de sus cinco columnas.** Sus tablas de §3 vinculan cinco variables por estilo, incluidas `line-height-*` (ratio sin unidad) y `letter-spacing-*` (em). Se vinculan las cinco. Lo que hay que saber es que **Figma resuelve interlineado y tracking siempre en píxeles**: una variable de valor 1,2 da 1,2 px, no 1,2×. Medido con geometría, y con las variables correctamente scopeadas —el scope no influye, solo decide en qué picker aparece cada una—: 10 caracteres a 20px miden 134 px sin espaciado, 152 con `{PERCENT, 10}` y 224 con `{PIXELS, 10}`; vinculando una variable de valor 10 miden **224**. Igual con interlineado: 3 líneas a 20px miden 120 px al 200 % y 600 px a 200 px; vinculando una variable de valor 200 miden **600**. En ambas pruebas el nodo estaba en `PERCENT` antes de vincular, y vincular lo pasó a píxeles.
+- **La nomenclatura plana en `Primitives` (`font-size-16`, `line-height-tight`) no se adopta.** Dos razones: Figma no permite mover una variable de colección, así que sería recrear y repuntar **1.036 bindings de nodo**; y los nombres actuales son portantes — `font-size/base` ↔ `text-base` ↔ `--text-base` es la cadena 1:1 con el código que este documento protege, y `font-size-16` la rompe. Sí coincide con la guía, en cambio, su §5: los primitivos de tipografía conservan scope porque el text style **es** la capa semántica.
+- **La guía asume una sola familia para los 19 estilos.** PickPal tiene dos, y el serif es la identidad. `Display/` y `Heading/` van a Fraunces (`font-family/heading`), `Label/`, `Body/` y `Caption/` a Geist (`font-family/sans`).
+- **§1.1 y §3 de la guía no dicen lo mismo.** La tabla maestra pide interlineados de 1,15 · 1,25 · 1,35 · 1,45 que los 5 tokens de ratio no pueden expresar; §3, que es la que mapea a variables reales, los ajusta a los 5 disponibles. **Se sigue §3.**
+- **No hay hueco para las versalitas espaciadas**, que en el producto son 17 usos y un patrón documentado (`tracking-[0.18em]`, `[0.2em]`, `[0.12em]`). De ahí los 3 `Eyebrow/`, marcados como añadido en su descripción. Son los únicos que vinculan interlineado (a `line-height/px/*`), porque espejan el del código en vez de un ratio de la escala.
+
+**Dos desajustes con el producto que la escala deja a la vista y que no se han tocado:**
+
+- **Los tamaños de titular no coinciden.** La guía pone H1 en 40px y H2 en 34; el producto tiene sus 9 `h1` en 34px y sus 19 `h2` en 20px. Es decir, hoy el título de página es `Heading/H2` y el de sección es `Heading/H5`. O el producto sube (títulos de página a 40px) o se acepta el desfase de nombre; documentado, sin cambiar código.
+- **Los pesos.** La guía pide 700 en Display —que encaja con la regla de «`font-bold` solo en el hero de la landing»— y 600 en Heading, lo cual **de paso resuelve** que Fraunces no tenga instancia Medium en Figma. Pero el código sigue usando `font-medium` (500) en los 9 `h1` y en el hero, así que la divergencia de peso sigue abierta: los titulares se ven más pesados en Figma que en producción. Cerrarla es instalar Fraunces variable en Figma o mover el código a `font-semibold`.
+
+**Los 22 estilos vinculan familia, peso y tamaño a variables; interlineado y tracking van como porcentaje literal.** Es 3 de 5 filas con token en 19 estilos y 4 de 5 en los tres `Eyebrow/`, que sí vinculan su interlineado a `line-height/px/xs` y `px/2xs` (16 px, el que `text-xs` trae de serie en Tailwind). Los valores son exactamente los de la guía: `110%` en Display, `120%` en H1-H2, Labels y Caption 2, `130%` en H3-H5 y Caption 1, `140%` en H6 y Body 4-5, `150%` en Body 1-3; tracking de `-2%` a `+2%`, y 18/20/12 % en los eyebrows.
+
+**El porcentaje de Figma es el equivalente exacto del ratio y del em**, no una conversión con pérdida: `110%` sobre 72px da 79,2px igual que `line-height: 1.1`, y `-2%` es «-2 % del tamaño de fuente», que es la definición de `em`. Verificado en render: el hero con `Display/Display 1` mide 158 px a dos líneas (2 × 79,2) y un párrafo con `Body/Body 3` mide 48 (2 × 24).
+
+**La traza al token vive en la descripción de cada estilo**, que dice de dónde sale cada número: «Interlineado 120% = ratio de `line-height/snug` (1,2). Tracking -1% = `letter-spacing/tight` (-0,01em)». Es la misma información que daría un chip de variable, en texto. Los 5 ratios y los 5 pasos en em siguen existiendo en `Typography`, pero conviene saber qué son hoy: **variables sin consumidor**, 0 bindings de nodo, 0 alias y 0 estilos, con un `codeSyntax` que Dev Mode no llega a mostrar porque solo aparece cuando algo está vinculado. Son una tabla de referencia en el panel, no tokens en uso. Se dejan a sabiendas — la escala real vive en `--leading-*` y `--tracking-*` de `globals.css` —, así que **no es un cabo suelto que haya que atar**: o se borran, o se vuelve al modelo de píxel resuelto que sí las usaría, y las dos opciones están descritas arriba. `line-height/px/*` es distinto: esas 13 sí se usan, con 303 bindings de nodo y 3 estilos.
+
+**Por qué no se vinculan esas dos, y las cuatro cosas ya probadas que no funcionan.** La razón de fondo: **la unidad no vive en la variable, vive en la propiedad**. Una variable es un número y el binding de interlineado y tracking lo lee siempre en píxeles. De ahí que fallen las cuatro: (1) vincular el token de ratio da 1,2 px y el texto se solapa; (2) guardar el número en notación de porcentaje da 110 px, que es ratio 1,53 a 72px y 10 a 11px — un valor absoluto no puede ser un ratio para trece tamaños; (3) vincular y luego forzar `PERCENT` **borra el binding** (Figma lo pasa a `bound: false`), y al revés vuelve a píxeles; (4) crear una variable por combinación ratio × tamaño sí funciona —se montó y se revirtió— pero son 31 variables casi todas de un solo uso con valores fuera de la rejilla de 4px (79,2 · 52,8 · 40,8 · 36,4 · 31,2 · 25,2 · 19,6 · 19,2 · 16,8 · 15,6 · 14,4 · 13,2). Nada de esto es cuestión de scope: el scope decide en qué picker aparece la variable, no en qué unidad se resuelve.
+
+**Y una quinta vía que se consideró y no se aplicó**: vincular cada estilo al interlineado que su tamaño trae emparejado en `line-height/px/*` (0 variables nuevas, 4 de 5 filas con token, y son los interlineados que el código renderiza de verdad). Se descartó porque mueve los ratios de la guía en la mitad de los estilos: `Display` caería a 1,0 y los `Label` subirían a 1,33-1,5, demasiado aire para una etiqueta de botón. Si algún día se prioriza tener el token en esa fila por encima de los ratios, es la opción a mirar.
+
+**Por qué no se vinculan los tokens de ratio y em directamente**, que es lo primero que uno intenta: **la unidad no vive en la variable, vive en la propiedad**. Una variable es solo un número y el binding de estas dos propiedades lo lee siempre en píxeles, así que `line-height/snug` (1,2) da 1,2 px y el texto multilínea se solapa. Tampoco arregla nada guardar el número en notación de porcentaje: una variable de valor 110 da 110 px, que es ratio 1,53 a 72px y ratio 10 a 11px — un valor absoluto no puede ser un ratio para trece tamaños a la vez. Y no es cuestión de scope. Las tres combinaciones probadas, para no repetirlas: vincular y luego forzar `PERCENT` **borra el binding** (Figma lo pasa a `bound: false`); poner `PERCENT` y luego vincular vuelve a píxeles; y una variable de valor 150 vinculada da 150 px por línea (450 de alto en 3 líneas, no 90).
+
+**Ojo con el panel al diagnosticar esto**: el campo de line height muestra `1.1` tanto si son 1,1 px como si son 110 %, y el diálogo «Edit text style» previsualiza **una sola línea**, donde los glifos se dibujan perfectos porque lo que se colapsa es la caja de línea. Ninguna de las dos cosas se ve desde ese panel: hay que aplicar el estilo a un texto de dos líneas y mirar el alto.
+
+**La página `Foundations - Typography` es el especimen vivo de los 22**, junto a `Foundations - Color` y `Foundations - Excepciones`. Cada familia lleva su descripción y cada fila muestra el nombre del estilo, su ficha (`34 · 1,2 · -0,01em`) y una frase de ejemplo del producto. Los 81 textos de la página **aplican el estilo de verdad y tienen el color vinculado a `color/text`, `color/text/secondary` y `color/bg`**, así que la página se actualiza sola cuando cambia un estilo y responde al modo claro/oscuro. Si se añade un estilo nuevo, añadir también su fila: hoy están representados los 22 de 22.
+
+**Trampa al montar páginas así**: en un auto-layout, llamar a `resize()` **después** de fijar `primaryAxisSizingMode`/`counterAxisSizingMode` los devuelve a FIXED y el frame deja de crecer con el contenido — la primera versión de esta página se quedó recortada a 128 px de alto con todo dentro. Fijar los modos al final, o volver a aplicarlos después de cada `resize()`.
+
+Los 15 estilos anteriores (`Heading/Page`, `Body/Small`, `UI/Control`…) se borraron al aplicar la guía: tenían 0 usos y estaban sin publicar, así que no rompió nada. Y sigue en pie lo que esto desbloquea: cerrar las 35 variables de `Typography` que aún aparecen en los pickers, decisión aparte.
+
 #### Dónde Figma tiene más estructura que el código
 
-Las familias `spacing/stack/*`, `spacing/inline/*`, `spacing/inset/*` y `size/interactive-*` (28 variables), más los primitivos `spacing/240` y `spacing/480` (existen solo para que el ancho del sidebar y el de la columna de eventos tengan a qué aliasar), **no existen en `globals.css`**: en el código esos valores son clases utilitarias (`gap-2`, `p-4`), no custom properties. Viven solo en Figma para que la cadena de alias llegue completa hasta el componente. Lo que implica en la práctica:
+Las familias `spacing/stack/*`, `spacing/inline/*`, `spacing/inset/*`, `space/*` (las tres), `sizing/*` (las tres) y `size/interactive-*` (52 variables), más los primitivos `spacing/240` y `spacing/480` (existen solo para que el ancho del sidebar y el de la columna de eventos tengan a qué aliasar), **no existen en `globals.css`**: en el código esos valores son clases utilitarias (`gap-2`, `p-4`), no custom properties. Viven solo en Figma para que la cadena de alias llegue completa hasta el componente. Lo que implica en la práctica:
 
 - Nacen **sin `codeSyntax`**, así que Dev Mode muestra el valor crudo (`12px`) en vez de un `var()` que no compilaría.
 - **No añadirlas a `globals.css`** para "cuadrar" los dos lados: ningún componente las consumiría.
 - Al implementar desde Figma, traducir a la utilidad de Tailwind equivalente, no a una variable CSS.
 
-Los `codeSyntax` que **sí** apuntan a código real son los 28 semánticos de color (`--primary`, `--muted-foreground`, `--sidebar*`…) y los 7 radios (`--radius-sm` … `--radius-4xl`). Ahí Figma y código están 1:1, y conviene no romperlo.
+Los `codeSyntax` que **sí** apuntan a código real son los semánticos de color (`--primary`, `--muted-foreground`, `--destructive`…), los 8 radios (`--radius-xs` … `--radius-4xl`), los 4 pesos (`--font-weight-*`), los 13 tamaños de fuente (`--text-2xs` … `--text-8xl`, escala propia: 7 sobreescritos en `globals.css`), los 6 interlineados en px (`--text-*--line-height`), los 5 ratios de interlineado (`--leading-*`) y los 5 pasos de letter-spacing (`--tracking-*`). Ahí Figma y código están 1:1, y conviene no romperlo.
 
 #### Cómo se nombran las variables
 
-El primer segmento del nombre dice **qué propiedad controla** el token, y no se omite nunca. En concreto `spacing/*` es separación (padding, gap) y `size/*` es dimensión (ancho, alto). Al crear una variable numérica, mirar su scope: `GAP` → `spacing/`, `WIDTH_HEIGHT` → `size/`. Había 16 que mentían (los seis del switch, los seis del avatar, los tres iconos de control y el mínimo del textarea, todas `spacing/*` con scope `WIDTH_HEIGHT`) y se renombraron a `size/*` el 23-ago-2026. La familia `layout/*`, que no tenía segmento de tipo, desapareció en el mismo pase: `size/sidebar/width`, `size/event-column/width`, `spacing/panel/gap` y `spacing/page/padding-lg`.
+El primer segmento del nombre dice **qué propiedad controla** el token, y no se omite nunca. En concreto `spacing/*` es separación (padding, gap) y `size/*` es dimensión (ancho, alto). Al crear una variable numérica, mirar su scope: `GAP` → `spacing/`, `WIDTH_HEIGHT` → `size/`. **Desde el 25-ago-2026 esa regla solo describe la capa primitiva**: la generación nueva de semánticos usa `space/*` para `GAP` y `sizing/*` para `WIDTH_HEIGHT`, dejando `spacing/*` y `size/*` como prefijos de primitivo (más los semánticos viejos de `Medidas`, aún sin migrar). Ver la tríada `space/*` y el grupo `sizing/*`, más arriba. Había 16 que mentían (los seis del switch, los seis del avatar, los tres iconos de control y el mínimo del textarea, todas `spacing/*` con scope `WIDTH_HEIGHT`) y se renombraron a `size/*` el 23-ago-2026. La familia `layout/*`, que no tenía segmento de tipo, desapareció en el mismo pase: `size/sidebar/width`, `size/event-column/width`, `spacing/panel/gap` y `spacing/page/padding-lg`.
 
 El `role` sigue el mismo criterio: nombrar por el uso documentado en la tabla 2.7 del patrón canónico, no por el componente donde se usó primero. `radius/control` → `radius/interactive` y `radius/card` → `radius/surface` (23-ago-2026, renombrados puros, `codeSyntax` y los 620 + 138 bindings intactos). `size/icon-display` → `size/icon/xl`, porque el documento nombra los tamaños de icono por escala (`sm`/`md`/`lg`/`xl`), no por uso.
 
-Los 29 semánticos de color siguen la fórmula `type-element-role-emphasis-state`, con los segmentos `emphasis` y `state` omitidos cuando valen *default*. El `element` es `bg`, `text` o `border`; **el nombre de la variable en Figma ya no coincide con el de la variable CSS**, y el puente entre los dos es el `codeSyntax`, que sigue apuntando a la custom property real. Dev Mode muestra `var(--primary)` aunque el token se llame `color/bg/brand`.
+Los 59 semánticos de color siguen la fórmula `type-element-role-emphasis-state`, con los segmentos `emphasis` y `state` omitidos cuando valen *default*. El `element` es `bg`, `fill`, `text`, `border` o `icon` — `bg` y `fill` se separaron el 25-ago-2026, ver más abajo; **el nombre de la variable en Figma ya no coincide con el de la variable CSS**, y el puente entre los dos es el `codeSyntax`, que sigue apuntando a la custom property real. Dev Mode muestra `var(--primary)` aunque el token se llame `color/fill/brand`.
 
 | Figma | CSS | Qué es |
 |---|---|---|
 | `color/bg` | `--background` | Canvas de página |
 | `color/bg/surface` · `color/bg/surface-raised` | `--card` · `--popover` | Card · popover y dropdown |
-| `color/bg/sunken` | `--input` | Track del Switch apagado. **No es «el fondo del input»**: el campo de `Input` va `bg-transparent` y solo tiene borde. Nace sin `codeSyntax` porque `bg-input` se usa en un único sitio |
-| `color/bg/component` | `--muted` | **Superficie interactiva neutra**: hover de Button outline y ghost, hover de Badge, link del sidebar, footer de Card, track del Slider |
-| `color/bg/component-focus` | `--accent` | **Solo el item de menú resaltado**: `focus:bg-accent` en `SelectItem` y la opción activa del combobox de intereses |
-| `color/bg/brand` · `color/bg/brand-secondary` | `--primary` · `--secondary` | Verde de CTA · terracota |
-| `color/bg/danger-solid` | `--destructive` | Rojo sólido |
+| `color/fill/sunken` | `--input` | **Superficie de control hundida.** No es «el fondo del input»: en Light el campo va `bg-transparent` y solo tiene borde. `bg-input` aparece en **12 sitios de 5 componentes**: el track del `Switch` apagado (único uso sólido en Light) y, en Dark, el fondo en reposo y el hover de `Input`, `Textarea`, `Button` outline y `Select` trigger (`/30`, `/50`, `/80`) |
+| `color/fill/field-disabled` | — | **Relleno del campo deshabilitado**, `Input` y `Textarea`: los dos únicos sitios del producto donde deshabilitar pinta color. Paso sólido, no el alfa del código — ver más abajo |
+| `color/fill/component` | `--muted` | **Superficie interactiva neutra**: hover de Button outline y ghost, hover de Badge, link del sidebar, footer de Card, track del Slider |
+| `color/fill/component-focus` | `--accent` | **Solo el item de menú resaltado**: `focus:bg-accent` en `SelectItem` y la opción activa del combobox de intereses |
+| `color/fill/brand` · `color/fill/brand-secondary` | `--primary` · `--secondary` | Verde de CTA · terracota |
+| `color/fill/danger-solid` | `--destructive` | Rojo sólido |
+| `color/fill/danger` · `color/fill/danger-hover` | — | **El fondo real** del `Button` y el `Badge` destructive (`bg-destructive/10` → `/20` → `/30`). `danger-solid` no lo pinta nada en el producto |
+| `color/fill/brand-subtle` · `color/fill/brand-hover` · `color/fill/brand-secondary-hover` | — | Capa de *emphasis* y *state* de marca (creada 25-ago-2026) |
+| `color/border/subtle` · `color/border/brand` · `color/border/brand-secondary` | — | Separador tenue (`border-border/40…/70`, 40 usos) y bordes de marca |
+| `color/bg/subtle` · `color/text/tertiary` · `color/icon/strong` | — | Roles del patrón canónico que faltaban. Sin uso en el producto todavía |
+| `color/text/success` · `color/icon/success` | — | Éxito en la rampa verde: en PickPal el verde es identidad **y** confirmación, no hay un verde de éxito aparte |
+| `color/text/info` · `color/icon/info` | — | Informativo en la rampa **Bronze**: PickPal no tiene azul, y Bronze estaba sin asignar y es lo bastante neutra para no competir con la marca |
+| `color/text/warning` | `--warning` | **Único uso**: el contador de `NotificationBell` cuando un evento cae dentro de 7 días. No hay `color/icon/warning`: el icono `Bell` hereda color, el ámbar va sobre un span de texto |
+| `color/icon/category-amber` | `--category-amber` | Glifo de las ~15 categorías de regalo ámbar de `giftImages.ts`, sobre `bg-chart-3/15`. **Decorativo, no un aviso** |
+| `color/fill/success` · `color/fill/warning` · `color/fill/error` (+ `-solid` cada uno) | — | **Fondos de estado**: par sutil + sólido. `error` (algo ha fallado) es un rol **distinto** de `danger` (acción destructiva) — ver más abajo |
 | `color/text` · `color/text/secondary` | `--foreground` · `--muted-foreground` | Texto principal · de apoyo |
 | `color/text/brand` | — | Links y texto de marca (aliasa a marca solo en Light) |
 | `color/text/on-*` | `--*-foreground` | El prefijo `on-` significa siempre «encima de esta superficie» |
 | `color/border` · `color/border/component` | `--border` · `--input` | Borde estándar · borde de `Input` y `Textarea` |
 | `color/icon` · `/secondary` · `/danger` · `/brand` · `/on-brand` · `/on-brand-secondary` | — | Fill y stroke de icono. Nacieron el 23-ago-2026 copiando el mismo primitivo que su equivalente de `color/text/*` — no un alias al semántico de texto — porque los iconos ya llevaban 369 bindings a esos tokens y **`color/text/*` solo tiene scope `TEXT_FILL`**, invisible en el picker de Fill de un vector. Son los 6 roles que el uso real demostró necesarios, no los 7 que sugiere el documento (no hay uso de `success` en iconos propios) |
+
+#### `danger` y `error`: dos rojos con el mismo hex (25-ago-2026)
+
+Nacen seis fondos de estado — `color/fill/success`, `fill/warning`, `fill/error` y su `-solid` cada uno — y `color/border/danger` pasa a llamarse **`color/border/error`**. Es el primer sitio donde el sistema distingue **`danger`** (acción destructiva, irreversible: borrar) de **`error`** (algo ha fallado o falta: validación, campo inválido).
+
+| Token | Light | Dark |
+|---|---|---|
+| `color/fill/success` | `Green/100` #E8ECE8 | `Green/800` #203322 |
+| `color/fill/success-solid` | `Green/850` #0C2912 | `Green/400` #89968B |
+| `color/fill/error` | `Red/200` #FFE8E3 | `red-alpha/20` |
+| `color/fill/error-solid` | `Red/950` #CC2823 | `Red/900` #FA6863 |
+| `color/fill/warning` | `Amber/200` #FDE2B8 | `Amber/950` #66341C |
+| `color/fill/warning-solid` | `Amber/800` #B45309 | `Amber/500` #F3AE51 |
+
+**Por qué `error` no es `danger`, con datos.** El archivo ya lo confesaba en sus propias descripciones: `color/text/danger` decía «mensajes de validación **y** labels destructivos», e `color/icon/danger` «papelera de acciones destructivas **e** iconos dentro de mensajes de validación». Dos significados dentro de un token. El código lo confirma con la proporción invertida respecto al nombre — de los **29 `text-destructive`**:
+
+- **23 son error**: los 21 mensajes de validación de `PersonForm`, `GiftHistoryForm`, `ImportantDateForm` y `BudgetRangeSlider`, más el «No encontramos tu email» de `/settings`.
+- **5 son danger**: papelera de persona, Label «Eliminar cuenta», las variantes `destructive` de `Button` y `Badge`, y el hover del «No me interesa».
+- **1 no es ninguno de los dos**: [NotificationBell.tsx](../src/components/layout/NotificationBell.tsx) pinta `text-destructive` cuando el evento es **hoy** (`days === 0`), escalando desde `text-warning` a ≤7 días. Ese rojo significa **inminencia**, y sigue sin token propio.
+
+El precedente es el ámbar de este mismo día: `--warning` servía a un aviso real y a glifos decorativos, se partió en dos, y la conclusión fue que **comparten hex hoy y pueden divergir mañana sin arrastrarse**. Aquí igual: `fill/error` y `fill/danger` resuelven al mismo color y son roles distintos a propósito.
+
+**`border/error` es un rename puro**: 9 bindings intactos — los masters `State=Error` de `Input` y `Textarea` (el nombre de la variante ya decía «error»), sus instancias, el `Budget Slider` y los dos swatches — y su capa de componente ya se llamaba `color/field/border-invalid`, así que el nombre nuevo la deja coherente. El `codeSyntax` se queda en `var(--destructive)` porque en código no existe `--error`.
+
+**El grupo nació como `color/feedback/*` y se renombró a `fill/*` el mismo día.** Venía de copiar un modelo externo que agrupa por categoría. No sobrevivió al primer examen: `feedback/*` no tiene eje de elemento, así que **solo puede contener rellenos**, y un alert necesita fondo + texto + borde. Habría dejado `feedback/error` conviviendo con `text/danger` y `border/danger` — dos vocabularios en una sola pieza de UI — más un `fill/danger-hover` huérfano.
+
+**Tres decisiones de valor que no conviene deshacer:**
+
+- **El paso sutil no es el 50, es el 100 o el 200.** El modelo de referencia usaba `50`, pero `color/bg` es crema (#FAF6F1), no blanco: `Green/50` da **1,03:1** y literalmente no se ve. `Green/100` da 1,11:1, el mismo tinte que ya tenía `color/fill/danger` (1,09:1) — esa es la vara. En ámbar hay que llegar al `200` (1,17:1) porque el crema ya es cálido y se come el `Amber/100` (1,03:1). **Regla: el paso sutil se elige por contraste contra `color/bg`, no por número de paso.**
+- **Los tres `-solid` invierten entre modos**, igual que `color/fill/danger-solid`: paso oscuro de la rampa en Light, claro en Dark. El verde de marca (`Green/850`) como relleno en Dark sería un cuadrado casi negro sobre fondo negro. Cada `-solid` comparte primitivos con su `color/text/*` equivalente, que ya tenía resuelto el par de modos.
+- **Scopes `FRAME_FILL` + `SHAPE_FILL`**, no `ALL_SCOPES` como el modelo de referencia: un token de fondo asomando en el picker de texto y de trazo es ruido, y este archivo mantiene `color/text/*` y `color/icon/*` separados justamente porque los scopes importan.
+
+**Fase 2 del split, pendiente.** Hay que partir `color/text/danger` (20 bindings) e `color/icon/danger` (24) en su hermano `error`. El reparto real en Figma **no es el del código**, y es más pequeño de lo que parece:
+
+| Token | Bindings | Reparto |
+|---|---|---|
+| `text/danger` | 20 | 11 en `Button` (danger, se quedan) · **4 en `Notification Bell`** (inminencia, ni una cosa ni la otra) · 1 en `Budget Slider` (error) · 4 swatches |
+| `icon/danger` | 24 | 22 en `Button` (danger, se quedan) · 2 swatches |
+
+O sea: en Figma los mensajes de validación casi no están construidos, así que el trabajo de verdad son **los 4 bindings de la campana**, que no pertenecen a ninguno de los dos roles. En código sí hace falta el pase grande: solo existe `--destructive` y cubre los tres sentidos en 29 sitios, así que o nace un `--error` en `globals.css` con sus ~23 sustituciones, o se acepta que Figma tenga más estructura que el código (patrón ya documentado más arriba).
+
+**Otros huecos abiertos:**
+
+- **No existen `color/text/on-success-solid` ni `on-warning-solid`** (el de error sí: `color/text/on-danger-solid`). Los contrastes están comprobados y anotados en la descripción de cada token: texto claro (`Cream/600`) en Light, oscuro (`Neutral/950`) en Dark, y los cuatro pasan AA — 14,5:1 y 6,1:1 el verde, 4,7:1 y 9,8:1 el ámbar.
+- **Los seis fondos nuevos no tienen tarjeta en `Foundations - Color`**, que documenta todos los demás semánticos.
+- Sin uso en el producto todavía, y el archivo está publicado como librería: los seis llegan a los consumidores en la siguiente publicación.
+
+### La rampa Amber estaba rota (25-ago-2026)
+
+`color/text/warning` guardaba un hex crudo en vez de aliasar, y la causa estaba en el primitivo: **la rampa Amber no tenía ningún paso capaz de llevar ese texto**. Su paso más oscuro daba 1,97:1 sobre `color/bg`, cuando hacen falta 4,5:1.
+
+Y estaba defectuosa de base: de 600 a 900 la luminancia no bajaba —se quedaba plana en torno a 0,47— y **subía dos veces**, así que no era monótona. Su mitad oscura no existía: eran cinco nombres para el mismo tono. La causa es que metía dentro dos colores de familias distintas, un ámbar saturado y un arena desaturado que alimentaba `--chart-4`.
+
+Se reescribieron los pasos 600–950 (del 50 al 500 no se tocó nada, ya eran monótonos), con **dos anclajes que evitan cualquier deriva**:
+
+- **600 conserva el hex exacto del antiguo 950** (`#e3a757`), así que `color/chart/3` no se mueve ni un dígito respecto a `--chart-3` y el código no se entera.
+- **800 es exactamente `#b45309`**, el `amber-700` de Tailwind que el producto ya pintaba. Al pasar el código al token, **el modo claro no cambió ni un píxel**.
+
+El arena del antiguo 900 se fue a `color/Umber/400`, su vecino más cercano, y `--chart-4` se actualizó en `globals.css` para seguir cuadrando — se pudo mover con libertad porque ningún componente consume `chart/4`.
+
+**Los dos usos del ámbar se separaron el mismo día.** Venían del mismo literal de Tailwind por accidente histórico, no porque compartan significado: el de `NotificationBell` es un aviso real (evento a 7 días o menos) y el de `giftImages.ts` es decorativo. Ahora `--warning` se queda solo con la campana y nace `--category-amber` para los glifos. **Comparten hex hoy y pueden divergir mañana sin arrastrarse**, que es justo lo que un token separado compra.
+
+Para el glifo se reaprovechó `color/icon/warning`, que **no tenía ningún consumidor**: en la campana el ámbar va sobre un `<span>` de texto y el icono `Bell` hereda el color, así que un icono de aviso no existe en el producto. Se renombró a `color/icon/category-amber`. Las otras dos categorías no necesitan token propio porque sí tienen marca detrás: la verde usa `color/icon/brand` y la terracota `color/text/brand-secondary`.
+
+**Cambio de código en el mismo pase**: nace `--warning` (en `:root`, `.dark` y el mapeo `--color-warning` de `@theme inline`) y los dos consumidores pasan a `text-warning`: [NotificationBell.tsx](../src/components/layout/NotificationBell.tsx) y [giftImages.ts](../src/lib/giftImages.ts). **Ojo con el segundo**: usa el ámbar como color de glifo para unas 15 categorías de regalo, así que el token llamado `warning` tiene un uso mayoritario que no es de aviso. Verificado en el navegador: `text-warning` resuelve a `#b45309` en claro (idéntico a antes) y `#f3ae51` en oscuro (antes `#f59e0b`; un matiz menos amarillo y algo más contrastado, 9,86:1 frente a 8,78:1).
+
+Con esto **no queda ni un valor literal de color en la colección `Semantic`**, y desde el 25-ago-2026 tampoco ninguno *por carencia* en el resto del archivo: el último era `opacity/disabled` de `Medidas`, que lo era **por falta de familia primitiva de opacidad** —crear una de un solo miembro añadía un eslabón sin nada que gobernar— y ya aliasa a `opacity/50` (0 cambios de valor resuelto, sus 8 bindings intactos). **Los únicos valores directos que quedan fuera de `Primitives` son los 6 de `z-index/*`**, literales por decisión razonada y no por falta de rampa — ver su sección.
+
+### El Switch tenía tres estados y dos tokens (25-ago-2026)
+
+`color/switch/thumb-bg` cubría solo dos de los tres estados del componente. En [switch.tsx](../src/components/ui/switch.tsx) el thumb es `bg-background` en claro, `dark:data-checked:bg-primary-foreground` encendido y `dark:data-unchecked:bg-foreground` apagado — tres valores, no dos. El token guardaba el encendido, así que **en modo oscuro el thumb apagado se pintaba `cream/600` cuando debía ser `cream/700`**.
+
+Se partió en `color/switch/thumb-bg-checked` (renombrado: los bindings van por id, así que no se tocó ninguno) y `color/switch/thumb-bg-unchecked` (nuevo), y se repuntaron las variantes `Unchecked` y `Disabled` de los dos tamaños. El `Disabled` usa el token de apagado porque es exactamente eso: un apagado atenuado.
+
+**Y esa atenuación ya no es un número suelto**: la opacidad de las dos variantes `Disabled` está vinculada a `opacity/disabled`. **Cuidado con la unidad** — Figma resuelve las variables vinculadas a opacidad en **porcentaje (0–100)**, no en 0–1. El token nació con `0,5` y pintó las variantes al 0,5 %, es decir invisibles; el valor correcto es `50`.
+
+### Los tres tokens que cerraban huecos de pareja
+
+`color/text/on-danger-solid` y `color/icon/on-danger-solid` completan el par de `color/fill/danger-solid`, que existía sin decir de qué color va lo que se pone encima. **Invierten entre modos**, al revés que `on-brand` y `on-brand-secondary`, porque el rojo también invierte: es oscuro en Light (`red/950`) y claro en Dark (`red/900`). Contraste 5,02:1 y 6,52:1, pasan AA. Son Figma-only, como el propio `danger-solid`: el producto pinta el tinte, no el sólido.
+
+`color/icon/tertiary` es la pareja de `color/text/tertiary`, y hereda su aviso de contraste.
+
+**Lo que NO se creó, y por qué**: `text-on-solid` genérico (aquí hay tres superficies sólidas con primer plano distinto, así que están `on-brand`, `on-brand-secondary` y `on-component-focus` — un token único no podría servir a las tres); `text/inverse` (el único `bg-foreground` del código es el thumb del switch, no una superficie invertida para texto); y cualquier `*-active`/pressed, porque **el pulsado de PickPal es `translate-y-px`, un movimiento, no un color** — no hay ni un estado presionado de color en todo el código. Los `*-hover` de texto y borde que pide el patrón canónico tampoco hacen falta: aquí son **transiciones entre dos tokens que ya existen** (`hover:text-foreground` va de `text/secondary` a `text`; `hover:border-border` va de `border/subtle` a `border`).
+
+### Alfa o paso sólido (25-ago-2026)
+
+La capa de `emphasis` y `state` de color no existía porque **en el código todos los estados se escriben como alfa sobre otro token** (`border-border/60`, `hover:bg-primary/80`, `bg-destructive/10`), y una variable de Figma no puede aliasar «a otro token al 60%». La regla que se adoptó:
+
+- **Paso sólido de la rampa** cuando el color va sobre una superficie opaca y conocida (página o card), que es la inmensa mayoría de los casos. Con alfa el contraste depende de lo que haya detrás, así que no se puede garantizar AA, y dos bordes translúcidos que se cruzan se oscurecen.
+- **Alfa** solo donde es la herramienta correcta: overlays, cabeceras con blur y **bordes en modo oscuro** (`color/white-alpha/8|10|12` está bien puesto — un blanco al 8 % funciona sobre cualquier superficie oscura).
+
+Consecuencia práctica: las rampas **Red, Terracotta y Amber no tienen pasos oscuros** (están diseñadas como rampas claras sobre fondo oscuro), así que sus tintes en modo oscuro sí necesitan alfa. Para eso nacieron `color/red-alpha/20`, `color/red-alpha/30` y `color/terracotta-alpha/40`, con el mismo patrón de nombre que `white-alpha`.
+
+**Los 17 tokens nuevos no existen en `globals.css`**, así que nacen sin `codeSyntax`. Figma va por delante del código a propósito: al adoptarlos hay que sustituir las utilidades con alfa por la custom property nueva, y entonces rellenar el `codeSyntax`. Dos de ellos son además una **corrección**, no un espejo:
+
+- `color/fill/brand-hover` sube un paso de rampa en Dark en vez de diluirse. `hover:bg-primary/80` sobre fondo oscuro **oscurece** el botón al pasar el ratón y el cambio queda casi invisible.
+- `color/text/tertiary` da 3,97:1 en Light: **no pasa AA** para texto normal y solo debe usarse en texto no esencial. La rampa Umber está comprimida ahí y el paso siguiente es indistinguible de `secondary`.
+
+**«Deshabilitado» es opacidad en casi todo el sistema, menos en dos componentes.** `Button` (sus 6 tipos), `Button Icon`, `Select`, `Switch`, `Label` y `GiftRecommendationCard` apagan con `disabled:opacity-50` más `cursor-not-allowed`, que atenúa fondo, texto e icono de una vez; para eso está `opacity/disabled` (50) en `Medidas`. Pero **`Input` y `Textarea` sí pintan color**: `disabled:bg-input/50` en Light y `dark:disabled:bg-input/80` en Dark, encima del `opacity-50`. De ahí `color/fill/field-disabled` (ver abajo), y de ahí que **no** exista un `fill/disabled` genérico ni la familia entera (`text/disabled`, `border/disabled`, `icon/disabled`): en todo lo demás el apagado es de verdad solo opacidad. Los `bg/disabled/*` que se crearon y se borraron el 25-ago-2026 eran otra cosa —grises de superficie sin consumidor—, ver más arriba.
+
+### El único disabled con color: `fill/field-disabled` (25-ago-2026)
+
+Hasta este día el sistema afirmaba que deshabilitar nunca pinta, y esa frase fue la que justificó borrar `bg/disabled`. Era falsa para dos componentes: [input.tsx:13](../src/components/ui/input.tsx:13) y [textarea.tsx:10](../src/components/ui/textarea.tsx:10) llevan `disabled:bg-input/50` y `dark:disabled:bg-input/80` desde siempre. La maqueta de Figma tampoco lo pintaba: las variantes `State=Disabled` de `Input` y `Textarea` tenían `fills: []` y un `0,5` suelto de opacidad, así que documentaban un estado que el producto no tiene.
+
+**Tres decisiones metidas en el nombre:**
+
+- **`fill` y no `bg`**, porque un campo es una pieza, no una capa que contiene (el eje de más arriba).
+- **`field-` y no `fill/disabled` a secas.** Un nombre genérico promete el gris universal que `Button`, `Select`, `Switch` y `Label` no pintan — exactamente la trampa que se llevó por delante al token anterior. El alcance va en el nombre para que la promesa sea del tamaño del uso real.
+- **Paso sólido, no el alfa del código**, aplicando la regla de la sección anterior: el campo se apoya siempre en una superficie opaca y conocida (página o card).
+
+**El valor se calculó componiendo, no a ojo.** `bg-input/50` sobre `--card` (`Cream/500`, `#fffbf6`) da `#f0e9de`, y sobre `--background` (`Cream/600`, `#faf6f1`) da `#eee6dc`; el escalón más próximo a los dos es **`Cream/700`** (`#efeae2`, a 1–6 unidades de RGB). En Dark, `bg-input/80` es blanco al 9,6 % —`color-mix` multiplica el 12 % de `--input` por el 80 %— y compuesto sobre `Neutral/900` da `#362f2b`, sobre `Neutral/950` da `#2c2724`, y el escalón más próximo es **`Neutral/800`** (`#302621`). Ambos se aplican con la opacidad del nodo vinculada a `opacity/disabled`, igual que hace el código al encadenar `opacity-50`.
+
+**En Light comparte valor con `bg/subtle`** (los dos son `Cream/700`): roles distintos que hoy coinciden, como ya pasa entre `bg/surface` y `bg/surface-raised`.
+
+**Pendiente en código**: el token nace sin `codeSyntax`, porque Figma va por delante a propósito. Al adoptarlo hay que sustituir `disabled:bg-input/50` y `dark:disabled:bg-input/80` por una custom property nueva en los dos componentes, y entonces rellenar el `codeSyntax`.
+
+**De paso, dos correcciones en la misma sesión.** `color/fill/sunken` aliasaba a `color/white-alpha/10` en Dark cuando `--input` en `.dark` es `oklch(1 0 0 / 12%)` ([globals.css:123](../src/app/globals.css:123)): repuntado a `white-alpha/12`, que manda el código. Y su descripción decía que `bg-input` «se usa en un único sitio», cuando aparece en **12 sitios de 5 componentes**.
+
+### `color/field/*`: capa de componente creada por si acaso (25-ago-2026)
+
+Cinco tokens de **capa de componente** para los campos de formulario, siguiendo la página *Field Colors* de la guía canónica. Cada uno aliasa 1:1 a un semántico que ya existía, en los dos modos, así que **hoy resuelven idéntico**:
+
+| Token | Aliasa a | Lo que hay detrás en código |
+|---|---|---|
+| `color/field/border` | `color/border/component` | `border-input` |
+| `color/field/border-focus` | `color/border/focus` | `focus-visible:border-ring` |
+| `color/field/border-invalid` | `color/border/error` | `aria-invalid:border-destructive` |
+| `color/field/fill-disabled` | `color/fill/field-disabled` | `disabled:bg-input/50` |
+| `color/field/placeholder` | `color/text/secondary` | `placeholder:text-muted-foreground` |
+
+**Se creó como indirección preventiva, no por un uso divergente**, y el coste conviene tenerlo escrito: en este sistema el vocabulario de borde **no es de los campos**. `focus-visible:border-ring` y `aria-invalid:border-destructive` los comparten `Input`, `Textarea`, `Select`, `Button`, `Badge` y `Switch`, así que `field/border-focus` es un segundo nombre para el mismo píxel y abre la puerta a `button/border-focus`, `badge/border-focus` y así hasta duplicar el sistema entero en la capa de componente. **Lo único que puede divergir de verdad es `field/border`**: `--input` lo comparten los campos, `Button` outline y `Select` trigger, y con esta capa separarlos pasa a ser un solo cambio. `field/placeholder` es el miembro mejor justificado — solo los campos tienen placeholder, así que ahí el rol sí es del componente.
+
+**No es una promesa vacía.** Los consumidores se repuntaron el mismo día: los 4 estados de `Input` y `Textarea` y los 4 de `Select Trigger` — 12 strokes, 2 fills y los placeholders. La captura antes/después es idéntica al byte, porque ningún valor resuelto cambia.
+
+**Dos miembros de la guía no se crearon.** `field/bg`, porque no puede tener un valor correcto en ningún modo: en Light el campo va `bg-transparent` (no hay nada que pintar) y en Dark el compuesto de `dark:bg-input/30` —blanco al 3,6 %— cae **entre `Neutral/900` y `Neutral/800`**, sin escalón donde aterrizar; es el mismo obstáculo que ya descartó `fill/component-subtle`. Y `field/border-hover`, porque no hay **ni un** `hover:border-*` en todo `src/`.
+
+**En código no existe esta indirección**: un solo `--input` sirve a los cuatro componentes. Separar el borde del campo de verdad exige una custom property nueva, no solo este token.
 
 **Dos palabras que hay que vigilar al cruzar de un lado al otro:**
 
@@ -212,6 +582,65 @@ Los 29 semánticos de color siguen la fórmula `type-element-role-emphasis-state
 Al mapear un token de color nuevo, **decidir el rol por cómo lo usa el código, no por cómo se llama la variable CSS**: `--muted` parece "zona secundaria" por el nombre y resultó ser la superficie interactiva de medio sistema, y `--accent` parece un color de identidad y resultó ser un solo estado de foco.
 
 Las desviaciones deliberadas están todas en la página **`Foundations - Excepciones`** del archivo: 10 entradas, cada una con su motivo y su "no hacer". Si algo en Figma parece un error, mirar ahí antes de tocarlo.
+
+### `bg` y `fill`: el `element` se partió en dos (25-ago-2026)
+
+Hasta este día todo color de relleno vivía en `color/bg/*`: el canvas de página, la card, el botón de marca y el track del Slider en un mismo grupo de 15. Se partió siguiendo la guía canónica de tokens, que separa *Background Colors* de *Fill Colors*:
+
+- **`bg/*` (4)** — la capa que **contiene**: `color/bg` (canvas), `bg/surface` (card), `bg/surface-raised` (popover), `bg/subtle` (zona secundaria, todavía sin uso).
+- **`fill/*` (11)** — el **relleno de una pieza**: `fill/brand` · `-hover` · `-subtle`, `fill/brand-secondary` · `-hover`, `fill/component`, `fill/component-focus`, `fill/danger` · `-hover` · `-solid`, `fill/sunken`.
+
+**El eje es contener vs pintar, NO interactivo vs no.** Con el criterio de interactividad `bg/surface` tendría que haberse movido: `PersonCard` es un `<Link>` entero con `hover:bg-muted/40`, así que `--card` es el relleno en reposo de un elemento pulsable. Pero una card **contiene** contenido, así que se queda en `bg`.
+
+**Dos tokens quedan a caballo y están decididos por escrito**, cada uno con el motivo en su descripción de Figma, porque el nombre no lo dice:
+
+- `fill/component` (`--muted`) es `fill` aunque también pinte el **footer de Card** y el track del Slider. Manda su uso mayoritario: hover de Button ghost y outline, hover de Badge, enlace del sidebar.
+- `fill/sunken` (`--input`) tenía nombre de superficie siendo relleno de control (track del Switch apagado, campo en Dark). Su propia descripción ya lo decía antes del cambio: «se aplica como relleno».
+
+**Coste real: 0 bindings.** Un rename puro conserva id, valores, alias, bindings y `codeSyntax` — `color/fill/brand` sigue mostrando `var(--primary)` en Dev Mode, igual que pasó con `radius/control` → `radius/interactive` y sus 620 bindings. El trabajo estuvo en otra parte: 11 renames, **12 descripciones** de otras variables que citaban los nombres viejos, **11 rótulos de swatch** en `Foundations - Color` (son texto y **no siguen a la variable**), **6 bloques de prosa** en páginas de componente y en `Foundations - Excepciones`, y esta tabla. El archivo está publicado como librería, así que los nombres nuevos llegan a los archivos consumidores en la siguiente publicación.
+
+**Se adopta el grupo, no el vocabulario de la guía.** Ella llama `fill/primary`, `fill/secondary` y `fill/muted` a lo que aquí es `fill/brand`, `fill/brand-secondary` y `fill/component`: su `secondary` es un sólido neutro, mientras que aquí `--secondary` es la terracota de identidad, y `muted`/`accent` son palabras ya vigiladas (ver más abajo). Sus tres pasos `*-active` tampoco se crearon, por lo de siempre: el pulsado de PickPal es `translate-y-px`.
+
+**Lo que NO se importó de esa página**: el anidado `bg/surface/{subtle, secondary, strong, dark}` —probado y revertido el mismo día, sección siguiente— que además hoy es inexpresable, porque `bg/surface` y `bg/surface-raised` resuelven al **mismo valor en los dos modos** (`Cream/500` en Light, `Neutral/900` en Dark) y `bg/subtle` se les une en Dark: son 2 valores distintos en claro y 1 en oscuro, no 4 pasos. Y `bg/disabled/*`, que aquí se creó y se borró el mismo 25-ago-2026 porque deshabilitado es `opacity/disabled`.
+
+**Pendiente**: `color/switch/thumb-bg-checked` y `-unchecked` siguen diciendo `bg` en el nombre siendo el relleno de una pieza. Sus swatch ya se movieron al grupo *Rellenos*, pero el rename no se hizo: son capa de componente y conviene decidirlo junto al resto de tokens de componente, no a mitad de este pase.
+
+### Anidar `color/bg` en subgrupos: probado y revertido (25-ago-2026)
+
+Se renombraron `bg/surface`, `bg/surface-raised` y `bg/subtle` a un grupo `bg/surface/{strong, secondary, subtle}`, y se crearon `bg/disabled/{subtle, strong}`. **Todo revertido el mismo día**; queda escrito para no repetirlo. Tres motivos:
+
+- **La rampa no era una rampa.** Los tres tokens resuelven a Cream/700, Cream/500 y Cream/500 en Light, y a Neutral/900 los tres en Dark: nombres que prometen intensidad creciente sobre dos valores en un modo y uno solo en el otro. Con los nombres planos ese empate se explica solo —`surface` y `surface-raised` comparten pintura y difieren en elevación, y así lo dice su descripción—; con `secondary`/`strong` no lo explica nada.
+- **Dejaba el grupo a medias.** `brand-*` y `danger-*` siguen con sufijo plano, así que dentro de `bg` convivían dos convenciones. Eso es peor que cualquiera de las dos puras.
+- **Rompía el puente con el código** —`--card` pasaba a llamarse `surface/strong`— sin ganar navegación a cambio: anidar paga cuando el grupo tiene muchos miembros, y aquí eran tres, uno de ellos sin uso.
+
+`bg/disabled` se borró por lo que ya decide la sección de abajo: sin consumidor, y para un estado que el producto resuelve atenuando.
+
+**Si algún día se anida, hacerlo entero** — y tras el reparto `bg`/`fill` eso significa dentro de `fill/*` (`fill/brand/*`, `fill/danger/*`), porque `bg/*` se ha quedado en cuatro miembros y anidar solo paga con muchos. Con el patrón que el archivo ya usa en `color/bg`, que es a la vez variable y raíz de su grupo. Así cada raíz conserva el nombre de rol y el vínculo con `globals.css`.
+
+**Trampa que causó el error al hacerlo**: el nombre de un token de fondo no dice su rol. `bg/surface` suena a `--background` y es `--card`; `fill/sunken` (entonces `bg/sunken`) suena a "la superficie más profunda" y es relleno de control (`--input`). **Antes de mover un token de fondo, leer su descripción y su `codeSyntax`, no su posición en la rampa.**
+
+### Figma — anatomía de una página de componente (26-ago-2026)
+
+Las 29 páginas de componente comparten la misma estructura, tomada de cómo documenta Atlassian las suyas. De sus tres zonas se adoptó una y se descartaron dos con motivo: *Stickers* (ejemplos listos para pegar) y *Parts* (piezas internas del ensamblaje) existen porque miles de diseñadores externos consumen esa librería, y este archivo no tiene ese consumidor — duplicarían superficie que caduca sola.
+
+**1. Etiquetas de variante alrededor de la rejilla.** Cada `COMPONENT_SET` lleva, fuera del set y dentro de su `SECTION`, etiquetas monoespaciadas `Propiedad=Valor` que nombran cada fila y cada columna: el mismo texto que muestra el panel de Figma. Se generan leyendo la posición de cada variante, no a mano.
+
+- El eje se deduce solo: una propiedad constante a lo largo de una fila se etiqueta a la derecha del set; constante a lo largo de una columna, debajo.
+- Si la propiedad cambia en cada paso es **hoja** (Geist Mono Regular 10, `color/text/secondary`) y va pegada al set; si agrupa varios pasos seguidos es **bloque** (Geist Mono Medium 11, `color/text`) y va por fuera, centrada sobre su grupo. `Button`, con `Type × Size × State`, queda con `State=…` fila a fila y `Type=…` centrado sobre cada bloque de tres.
+- Si las etiquetas de columna no caben en una línea, cada una baja a la suya en escalera en vez de solaparse — pasa en los sets estrechos (`Button Icon`, `Bell Trigger`).
+- Los sets de una sola variante (`Spinner`, `Gift Recommendation Card`) no se etiquetan: la etiqueta no distinguiría nada.
+
+Todas se llaman `vlabel/…`, así que regenerarlas es idempotente: el script las borra por prefijo antes de recrearlas. **No recolocarlas a mano**, el siguiente pase las volverá a mover.
+
+**2. Metadatos en el `Header`.** Bajo la descripción, una línea monoespaciada `Fuente: <ruta>   ·   Revisado: <fecha>`. La ruta es el archivo del que se espeja el componente; la fecha, el último contraste real contra ese archivo. Dos páginas no apuntan a un componente porque no existe: `Checkbox` apunta a `settings/page.tsx:266` y `:310`, y `Spinner` a `LoadingFallback.tsx`.
+
+**3. Aviso `nota/divergencia`.** Un bloque `color/bg/subtle` con borde `color/border/subtle` y radio `radius/surface`, titulado «Divergencia con el código», con **una** divergencia concreta y su `archivo:línea`. Va en la página del componente, no centralizado: quien abre `Switch` necesita ver ahí que su tamaño `sm` usa arbitrarios. **`Foundations - Excepciones` sigue siendo el sitio de las desviaciones del sistema de tokens**; esta nota es para lo que el espejo no puede reproducir del componente concreto.
+
+Las 29 páginas llevan aviso, así que el bloque no significa «esta página es especial» sino «aquí está el límite de fidelidad de esta página». Si alguna deja de tener divergencia, se borra el bloque en vez de escribir «ninguna».
+
+**Consecuencias de formato, ya aplicadas**: el `Header` se ensancha al mayor de 640 px y el ancho de la sección más ancha de su página, para que el párrafo y el aviso tengan medida legible también en páginas estrechas (`Label` mide 312 px de sección y 640 de cabecera); el párrafo de descripción va siempre en `FILL`, nunca en ancho fijo; y cada página se reapila en vertical con 40 px entre bloques, agrupando en una misma fila los hermanos que comparten `y`.
+
+**Dos defectos preexistentes que salieron al hacerlo.** Los `Header` de `LogoMark` y `Theme Toggle` no eran auto-layout —los otros 27 sí—, así que no podían crecer con su contenido; convertidos a `VERTICAL` con el mismo padding 24/32 y gap 8 que el resto. Y en `Select`, el frame `Preview Light (mode override explicito)` estaba aparcado en (0,0) encima del `Header`: el mismo tipo de nodo huérfano que ya apareció en `Theme Toggle`, movido ahora a su propia fila entre `Select Item` y la validación en oscuro.
 
 ---
 
@@ -228,7 +657,7 @@ Cargadas en [`src/app/layout.tsx`](../src/app/layout.tsx) y expuestas como varia
 ### Reglas
 
 - **Pesos válidos en Fraunces**: 400, 500, 600, 700. Para titulares de página preferir `font-medium` (500) o `font-semibold` (600). `font-bold` (700) solo en hero de la landing.
-- **Letter spacing en headings**: `-0.015em` aplicado en base layer. No añadir `tracking-tight` adicional encima.
+- **Letter spacing en headings**: `-0.01em` aplicado en base layer (= `letter-spacing/tight`). No añadir `tracking-tight` encima: sería el mismo valor. La excepción sancionada es `tracking-tighter` en titulares display de 60px o más — hoy solo el `h1` del hero de la landing.
 - **Body**: tamaños `text-sm` o `text-base`, `leading-relaxed` cuando hay párrafo de varias líneas.
 - **Eyebrows / labels**: sans, `text-xs uppercase tracking-[0.2em] text-muted-foreground`. Ejemplo en el hero de la landing.
 - **Eyebrows dentro de `<h2>`**: añadir `font-sans` explícito (`className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground"`). Sin él, el base layer aplica Fraunces serif a todo `h2` y los headers de sección quedan en serif, visualmente distintos a los mismos labels en `<p>` dentro de formularios.
@@ -249,7 +678,7 @@ Visible a partir de `lg` (1024px). Implementado en `src/app/(app)/layout.tsx`.
 - Fondo: `bg-background text-foreground border-r border-border`. **Es un panel claro, no el verde oscuro**: comparte fondo con el contenido y se separa solo por el borde derecho.
 - Links activos: `bg-muted text-foreground font-medium` (en `SidebarLink`).
 - Links inactivos: `text-muted-foreground hover:bg-muted hover:text-foreground`.
-- **Las 13 variables `--sidebar-*` de `globals.css` no se usan en ninguna parte de la app.** Son el set que arrastra shadcn y quedaron huérfanas al pasar el sidebar a panel claro. Verificado el 23-ago-2026 sobre `layout.tsx` y `SidebarLink.tsx`; este documento describía hasta entonces el sidebar verde que ya no existe. Los 7 tokens equivalentes en Figma (`color/bg/sidebar*`, `color/text/on-sidebar*`, `color/border/*-sidebar`) siguen ahí porque espejan `globals.css`, pero tienen 2–4 bindings cada uno y todos son swatches de documentación. Antes de darles uso, decidir si el sidebar oscuro vuelve o si toca borrar la familia de los dos lados.
+- **Las 13 variables `--sidebar-*` se eliminaron el 25-ago-2026, de `globals.css` y de Figma a la vez.** Eran el set que arrastra shadcn y quedaron huérfanas al pasar el sidebar a panel claro: ningún componente las leía. Se borraron las 8 declaraciones de `:root`, las 8 de `.dark` y los 8 mapeos `--color-sidebar*` de `@theme inline`, más los 7 tokens semánticos de Figma (`color/bg/sidebar*`, `color/text/on-sidebar*`, `color/border/*-sidebar`) y los 2 de marca que solo ellos consumían (`color/brand/primary-deep` y `color/brand/primary-muted`). La maqueta «Vista en contexto» de `Foundations - Color` no se borró: se repuntó a los tokens que el sidebar usa de verdad (`color/bg`, `color/text`, `color/text/secondary`, y `color/fill/component` para el enlace activo), así que la documentación describe ahora el sidebar que existe. Si algún día vuelve un sidebar oscuro, se crean tokens nuevos con el rol correcto en vez de resucitar el vocabulario de shadcn.
 - El componente `SidebarLink` usa `usePathname()` y compara con `startsWith` para resaltar rutas anidadas.
 - El `<aside>` usa `h-screen sticky top-0` para que el pie quede siempre visible sin que el contenido principal lo desplace.
 - **Header del sidebar**: `<LogoMark size-7>` + texto "PickPal" (link) a la izquierda + `SafeNotificationBell` a la derecha. `flex items-center justify-between`.
@@ -330,8 +759,8 @@ Las tarjetas de regalo físico muestran 1–N chips, uno por tienda relevante. L
 - **Layout**: rejilla `grid grid-cols-2 gap-2` — dos botones por fila. Cuando el número de tiendas es impar, el último ocupa el ancho completo (`col-span-2`). Botones más grandes y a alturas predecibles (1–2 filas para 1–4 tiendas), en lugar del `flex flex-wrap` anterior que los dejaba pequeños y de altura variable (lo que además desalineaba el precio entre cards).
 - **Orden**: canónico de `ALL_STORES` siempre, no el orden en que el usuario los marcó. Predecibilidad > preferencia.
 - **Etiqueta**: nombre legible de la tienda (`STORE_LABELS[store]`), no el ID. "El Corte Inglés", no "elcorteingles".
-- **Hint de fallback**: cuando la IA sugiere tiendas que no coinciden con las favoritas del usuario, debajo de la fila de chips aparece `<p className="text-[11px] text-muted-foreground">Búsqueda genérica — esta idea encaja mejor en otras tiendas.</p>`.
-- **Eyebrows de origen (solo cuando hay botón de marca)**: si la idea matchea una marca favorita, los botones de compra se separan en **dos grupos rotulados** con eyebrow `STORE_SECTION_LABEL_CLASS` (`font-sans text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground`): "Tienda de marca" sobre el/los `BrandStoreLink` y "Buscar en tiendas" sobre la rejilla de marketplaces. El porqué: las marcas se añaden en la **ficha de la persona** (`people.favoriteBrands`) y los marketplaces en **Ajustes > Tiendas** (`userSettings.favoriteStores`) — dos entradas distintas que producen botones de aspecto similar, y sin rótulo el usuario no entiende por qué aparece la tienda de una marca que no marcó en Ajustes. **Cuando NO hay marca matcheada no se rotula nada** (caso mayoritario): la rejilla de marketplaces se muestra sola, sin eyebrow, como antes. El eyebrow del marketplace dice "Buscar en tiendas" (neutro, no "tus tiendas") para no contradecir el hint de fallback cuando las tiendas mostradas no son las favoritas del usuario.
+- **Hint de fallback**: cuando la IA sugiere tiendas que no coinciden con las favoritas del usuario, debajo de la fila de chips aparece `<p className="text-2xs text-muted-foreground">Búsqueda genérica — esta idea encaja mejor en otras tiendas.</p>`.
+- **Eyebrows de origen (solo cuando hay botón de marca)**: si la idea matchea una marca favorita, los botones de compra se separan en **dos grupos rotulados** con eyebrow `STORE_SECTION_LABEL_CLASS` (`font-sans text-2xs font-medium uppercase tracking-[0.12em] text-muted-foreground`): "Tienda de marca" sobre el/los `BrandStoreLink` y "Buscar en tiendas" sobre la rejilla de marketplaces. El porqué: las marcas se añaden en la **ficha de la persona** (`people.favoriteBrands`) y los marketplaces en **Ajustes > Tiendas** (`userSettings.favoriteStores`) — dos entradas distintas que producen botones de aspecto similar, y sin rótulo el usuario no entiende por qué aparece la tienda de una marca que no marcó en Ajustes. **Cuando NO hay marca matcheada no se rotula nada** (caso mayoritario): la rejilla de marketplaces se muestra sola, sin eyebrow, como antes. El eyebrow del marketplace dice "Buscar en tiendas" (neutro, no "tus tiendas") para no contradecir el hint de fallback cuando las tiendas mostradas no son las favoritas del usuario.
 - **No mezclar con icon-only buttons**: si en algún momento se quiere reducir el espacio (más de 4 tiendas, móvil pequeño), usar un overflow menu en vez de quitar las labels — los logos de tienda sin texto son fáciles de confundir.
 - **Botón de marca favorita** (`BrandStoreLink`, componente compartido en [`src/components/gifts/BrandStoreLink.tsx`](../src/components/gifts/BrandStoreLink.tsx)): cuando la idea matchea una marca favorita (`matchFavoriteBrands`), antes de la rejilla de tiendas se renderiza un botón por marca a **ancho completo** (`col-span-2`), `buttonVariants({ size: "default", variant: "outline" })` tintado en `border-secondary/40 text-secondary hover:text-secondary` (mismo registro que el badge de marca), con nombre de la marca (`<span className="truncate">`) + `ExternalLink` (`size-3.5`). Va **primero, a ancho completo y bajo el eyebrow "Tienda de marca"** (ver punto anterior) porque es la vía que de verdad funciona: muchas marcas favoritas son DTC (Brandy Melville y similares) que no se venden en los marketplaces. El componente recibe los campos sueltos (`brand`, `query`, `title`, `matchedBrandStores`) y un `size` (`default` en la card de generación, `sm` en la lista de guardadas) para servir a ambos contextos. Dos variantes según si la tienda oficial se resolvió (campo `matchedBrandStores` de la idea, vía Brandfetch):
   - **Resuelta**: muestra el **logo de la marca** (`<img>` con `rounded-sm object-contain bg-white p-px` — mismo tratamiento que los logos de tienda para que se vea en modo oscuro; `onError` cae al icono `Tags`) y enlaza **a la web de la marca**: a la búsqueda del producto dentro de la tienda (`generateBrandProductSearchUrl`) si la idea trae `supportsSearch`, o a su home (`generateBrandStoreUrl`) si no. El `aria-label` es "Ir a la tienda de {marca}" cuando va a la home; "Buscar {idea} en {marca}" cuando va a la búsqueda interna.
@@ -346,12 +775,12 @@ Ver lógica completa en [`docs/ia-regalos.md`](ia-regalos.md#multi-tienda) y la 
 Página de marketing, server component. Estructura:
 
 - **Header**: logo + "PickPal" a la izquierda, `UserButton` de Clerk a la derecha (solo si autenticado).
-- **Hero**: H1 serif escalado (`text-4xl → lg:text-7xl`) + subtítulo + CTAs. Sin eyebrow — se eliminó "Para las personas que te importan".
+- **Hero**: H1 serif escalado (`text-4xl → lg:text-8xl`) + subtítulo + CTAs. Sin eyebrow — se eliminó "Para las personas que te importan".
   - Autenticado: un botón "Ir a la agenda" → `/agenda`.
   - No autenticado: "Empezar gratis" (primary) + "Iniciar sesión" (outline).
 - **Steps**: grid `grid-cols-1 sm:grid-cols-3`, tres `Card` estáticas (sin hover). Cada card tiene:
   - **Pictograma de marca** arriba: componente SVG de [`src/components/landing/StepIllustrations.tsx`](../src/components/landing/StepIllustrations.tsx), centrado en un contenedor `flex h-24 items-center justify-center`, tamaño `h-20 w-auto`. Flotan directamente sobre la card, sin banda de tinte detrás — los círculos crema del propio pictograma hacen de fondo.
-  - Badge de número: `size-6 rounded-full bg-secondary text-secondary-foreground text-[11px] font-semibold`.
+  - Badge de número: `size-6 rounded-full bg-secondary text-secondary-foreground text-2xs font-semibold`.
   - Título `text-xl font-medium` (serif heredado), en fila con el badge (flex row, `gap-3`).
   - Cuerpo `text-sm leading-relaxed text-muted-foreground`.
 - **Footer**: una línea centrada `text-xs text-muted-foreground`.
@@ -652,7 +1081,7 @@ Iconos en uso:
 - `Menu` — hamburguesa, abre el `Sheet` de navegación en móvil.
 - `Plus` — crear nueva entidad.
 - `Sparkles` — reservado; el botón "Ideas de regalo" usa `Gift` (ver regla más abajo).
-- `Pencil` — editar (botón de cabecera, navegación a página de edición).
+- ~~`Pencil`~~ — **no se usa**: el código solo importa `PencilLine`. Verificado el 25-ago-2026 al inventariar los imports para la librería de Figma.
 - `PencilLine` — editar inline dentro de una lista (abre formulario en lugar, sin navegar).
 - `Trash2` — eliminar (siempre con `text-destructive`).
 - `X` — cerrar / quitar elemento de una lista.
@@ -682,6 +1111,51 @@ Iconos en uso:
 - **No mezclar sets**: no usar Heroicons / Phosphor / SVG inline como icono funcional. Si lucide no tiene un icono concreto, abrir issue en pendientes antes de meter algo ad-hoc. **Excepción**: las ilustraciones de marca (logo-mark, pictogramas de la landing en `src/components/landing/StepIllustrations.tsx`) sí son SVG propio — son ilustración, no iconografía. Ver Componentes · Landing page.
 - **NADA de emojis en ningún sitio de la UI** (botones, chips, tarjetas, headers, navegación y también empty states). Siempre el icono de lucide más cercano. Equivalencias usadas en empty states: libreta → `Notebook`, café/calma → `Coffee`, ideas/destellos → `Sparkles`.
 - **Iconos decorativos**: `aria-hidden`. Solo los que aportan información llevan label.
+
+#### Figma — librería de iconos (25-ago-2026)
+
+Página **`Foundations - Iconography`** → sección `Iconography` → frame `Lucide icons`: **66 componentes sueltos**, uno por glifo, nombrados `icon/<nombre-kebab>`, en rejilla de 11×6. Hasta esta fecha el archivo no tenía **ni un solo componente de icono**.
+
+- **Generados desde `node_modules`, no desde el plugin de comunidad de Lucide.** Los path data salen de `lucide-react/dist/esm/icons/*.mjs` de la versión instalada, así que el archivo de Figma no puede divergir de lo que renderiza la app. Es la regla de siempre —si Figma contradice el código, gana el código— aplicada al origen del asset, no solo a su valor. Regenerar tras un bump de `lucide-react` es rehacer el mismo paso.
+- **`package.json` pide `^1.33.0` y `node_modules` tiene 1.31.0.** Los componentes se generaron desde el instalado; la descripción de cada uno lo deja escrito. Si el lockfile sube, hay que regenerar.
+- **66 glifos frente a 68 imports**: `X`/`XIcon` y `Check`/`CheckIcon` son alias del mismo módulo. 33 de los 66 son el catálogo cerrado de categorías de regalo de `src/lib/giftImages.ts`.
+- **El nombre kebab es el canónico de lucide y no siempre coincide con el export que usa el código**: `Loader2Icon` → `icon/loader-circle`, `TriangleAlertIcon` → `icon/triangle-alert`, `InfoIcon` → `icon/info`. La descripción de cada componente guarda el export real y el JSX (`<Gift />`), que es lo que hace que el buscador de instance swap encuentre las dos formas.
+- **Un componente por glifo, no un component set con 66 variantes.** Es como lo montan Material, Radix y la propia librería oficial de Lucide: el `/` del nombre ya agrupa en carpeta en el instance swap, y un desplegable de 66 valores sería impracticable.
+- **Estructura de cada componente**: frame 24×24 (el viewBox nativo de lucide) con `clipsContent` desactivado —el trazo centrado se sale hasta 1px—, trazo 2, cap y join `round`, e hijos con constraints `SCALE` para que el glifo escale al redimensionar la instancia a 16 · 20 · 24 (`sizing/icon/*`).
+- **El trazo va vinculado a `color/icon`**, no pintado. Los dos glifos que llevan relleno (`palette` y `tags`) lo tienen vinculado también en el fill: lucide los declara `fill="currentColor"`, que Figma no entiende y habría dejado en negro fijo.
+- **El alcance es lo que el producto usa, no la librería entera** (2.025 iconos disponibles). Si un diseño necesita uno nuevo se añade en el momento y se anota aquí — mismo criterio que con los tokens sin consumidor.
+
+#### Migración de los glifos dibujados a mano (25-ago-2026)
+
+Los iconos vivían como vectores sueltos dentro de cada componente, redibujados a mano. Se sustituyeron **30 nodos reales** por instancias de la librería. El recuento bruto de nodos «con pinta de icono» da ~86, pero la mayoría son espejos de instancia y los paths del logo, que no es lucide:
+
+| Componente | Nodos | Icono | Qué estaba mal |
+|---|---|---|---|
+| `Sidebar Link` | 4 | `calendar-days` | Un frame de 4 rectángulos llamado literalmente `Icon (CalendarDays, simplified)`, sin los 6 puntos del glifo real y con los rellenos sin vincular a ninguna variable |
+| `Button Icon` | 12 | `x` | Vector 10×10; en código `size="icon"` y `size="icon-sm"` heredan ambos `size-4` = **16px** |
+| `Toast` | 4 | `circle-check` · `info` · `triangle-alert` · `octagon-x` | Frames de elipses y rectángulos montados a mano |
+| `Select` | 5 | `chevron-down` ×4 · `check` | Vectores con bbox ajustado (16×9,6 y 10×7) en vez de la caja de 16 |
+| `Back Link` | 2 | `arrow-left` | Vector 14×12; en código es `size-3.5` = 14×14 |
+| `Theme Toggle` | 2 | `moon` · `sun` | Dos **rectángulos grises** de 16×16 haciendo de marcador |
+| `Tag Input` | 1 | `plus` | Vector suelto, ya a 16×16 |
+
+Dos divergencias que la migración cierra de paso, y que conviene no reintroducir:
+
+- **El trazo era 1,5 (y 1,6 en el checkbox), no 2.** Todos los vectores a mano se dibujaron finos. En el producto solo hay **un** sitio con `strokeWidth={1.5}`: la cabecera de `GiftRecommendationCard` a `size-9`. Todo lo demás usa el default de lucide, que es 2. Los componentes ahora se ven más pesados que antes en Figma, y esa es la forma correcta.
+- **Los glifos aliasaban a `color/text/*`.** Se repuntaron a su pareja `color/icon/*` — que existe justamente para esto, porque `color/text/*` solo tiene scope `TEXT_FILL` y no aparece en el picker de Fill de un vector. El color por estado se conserva: en `Sidebar Link`, Default → `color/icon/secondary`, Desktop Active → `color/icon`, Mobile Active → `color/icon/brand`, que es lo que hacen `text-muted-foreground`, `text-foreground` y `text-primary` en `SidebarLink.tsx` y `MobileNav.tsx`.
+
+**Lo que se dejó fuera a propósito:**
+
+- **`Checkbox`** (2 vectores `Check`). No es un icono lucide: en el producto el checkbox es un `<input type="checkbox">` nativo con `accent-primary` (`/settings`), así que la marca la dibuja el navegador. Meter un `icon/check` afirmaría algo falso. No existe `src/components/ui/checkbox.tsx`.
+- **`Button` (108) y `Badge` (12), rectángulos `Icon Left` / `Icon Right`.** Son *slots* genéricos —«aquí va un icono»—, no un glifo concreto divergente. Convertirlos en instancias daría instance swap gratis, pero obliga a elegir un glifo por defecto que el componente hoy no afirma. Decisión pendiente, no un descuido.
+- **`Gift Recommendation Card` y `Empty State`**, elipse `Icon` de 36×36. Es el hueco de la cabecera visual (`size-9`, `strokeWidth={1.5}`, tinte por categoría) y del empty state; migrarlos es elegir glifo y tinte por variante, no un reemplazo mecánico.
+- **`Theme Toggle`**: quedan 3 nodos huérfanos en la raíz de la página (dos `BOOLEAN_OPERATION` y un grupo con `rays`) — los Sun/Moon viejos, ya fuera de todo componente **antes** de esta migración. Son basura, pero borrarlos es destructivo y no se hizo sin pedirlo.
+
+**Dos cosas que aparecieron al mirar y que no son de iconografía:**
+
+- **`Sidebar Link`, variante `Platform=Mobile, State=Active`** se pinta como pastilla verde sólida con el contenido invisible. El código dice `bg-primary/10 text-primary` (tinte al 10 % + texto verde). El icono ya está bien; el fondo no.
+- **`cn-toast`**, la única clase que `sonner.tsx` pasa en `toastOptions.classNames`, **no está definida en ningún sitio** del proyecto. Los cuatro iconos de Toast en Figma comparten `color/icon`, que es lo que había; el color por tipo no se pudo verificar contra CSS que no existe.
+
 
 ---
 
@@ -801,7 +1275,21 @@ Medido con conversión OKLCH→sRGB (objetivo 4.5:1 texto normal, 3:1 texto gran
 - **`text-amber-500`** sobre superficies claras: ~2.0:1 → **fallaba** (era el contador "≤7 días" de la campana). Corregido a **`text-amber-700 dark:text-amber-500`** (claro 4.91:1, oscuro 8.1:1). Para texto de aviso ámbar sobre fondo claro, usar `amber-700` (no `amber-500/600`).
 - **`text-destructive`** ("Hoy") sobre `card` claro: ~5.2:1 → pasa.
 - **`--secondary-foreground` sobre `--secondary`** (botones/badges `secondary`, terracota): en claro el texto era casi blanco (`oklch(0.985 0.005 80)`) sobre terracota → **3.66:1**, no pasaba AA de texto normal (4.5:1), solo el umbral de texto grande/UI (3:1). **Corregido**: `--secondary-foreground` en claro pasa a texto oscuro `oklch(0.18 0.012 50)` → **4.92:1** (pasa AA). Se conserva el terracota de marca (`--secondary` sin tocar) y queda coherente con dark, que ya usaba texto oscuro sobre terracota (6.78:1). Nota WCAG: `font-medium` (500) no cuenta como "bold", así que estos botones no se acogen al umbral de texto grande (3:1); por eso hay que cumplir los 4.5:1. Detectado auditando las variables de Figma (ver "Tokens · Figma — arquitectura de variables").
-- **Verde de marca sin variante clara para texto sobre fondo oscuro**: `--primary` en dark (`#315837`) sobre `--background` dark da **2.32:1** — no pasa ni el umbral de texto grande. El verde de marca solo está pensado como *fondo* de botón/badge (con `--primary-foreground` encima), nunca como color de texto sobre la página; no crear un token de "texto de marca/acción" verde para dark mode sin antes añadir un primitivo más claro.
+- **Verde de marca como texto sobre fondo oscuro** → **resuelto el 26-ago-2026 con `--brand`**. El problema: `--primary` en dark (`#315837`) daba **2.30:1** sobre `--background` y **2.18:1** sobre `bg-primary/10` — no pasaba ni el umbral de texto grande. La causa es que `--primary` es el *relleno* del botón primario (con `--primary-foreground` encima) y en claro resulta ser además un verde casi negro que funciona bien como texto; en oscuro se aclara lo justo para seguir sirviendo de fondo y dejar de servir de texto. Un mismo token con dos requisitos de contraste opuestos.
+
+  **La solución es un token aparte solo para primer plano** (texto e iconos): `--brand` vale lo mismo que `--primary` en claro (`oklch(0.25 0.055 148)`, **14.55:1**, sin ningún cambio visual) y en oscuro sube a `oklch(0.71 0.047 148)` = `#8eaa91` → **7.46:1**. Medido, no calculado: en el navegador resolviendo el color en un canvas y en Figma leyendo el nodo real, y ambos dan lo mismo. Ese valor **es exactamente `Green/400`**, un paso que ya existía en la rampa, así que no hizo falta inventar ningún primitivo. El `oklch` de tres decimales hace ida y vuelta exacta al hex, de modo que Figma y CSS no difieren ni un bit.
+
+  **Por qué `Green/400` y no un verde más vivo**: el primer intento fue `oklch(0.72 0.11 148)`, que contrasta algo más (7.97) pero lleva el doble de croma que cualquier paso de la rampa `Green`, cuyo máximo es 0.071. El verde de PickPal es el apagado **por diseño**, también en claro: ahí convive con terracota (C 0.13) y ámbar (C 0.1455) siendo él 0.055. Subirle el croma solo en oscuro le habría cambiado el carácter y roto esa relación. Con `Green/400` sigue siendo el sobrio de los tres y aun así cae en la misma banda de contraste que ellos (terracota 6.76, ámbar 9.85). **Regla que se deriva: al buscar una variante clara de un color de marca para oscuro, coger un paso de su rampa antes que inventar un valor — la rampa ya codifica el croma que le corresponde a esa familia.**
+
+  **Por qué un verde y no crema**: el token `color/text/brand` de Figma resolvía a crema en oscuro, que contrasta de sobra pero queda a un pelo de `--foreground` — un enlace indistinguible del texto normal. Y sobre todo, uno de los cinco usos es el glifo de la **categoría verde** de `giftImages.ts`, que convive con categorías terracota y ámbar: en crema esa categoría perdería su color mientras las otras dos lo mantienen.
+
+  **Los cinco usos migrados** de `text-primary` a `text-brand`: variante `link` de `button.tsx` y de `badge.tsx`, el `Sparkles` de `GenerationProgress`, el glifo de categoría verde de `giftImages.ts` y el item activo de `MobileNav`. Tras el cambio **`text-primary` no aparece en ningún archivo**: si vuelve, es un bug. `bg-primary` sigue siendo lo correcto para rellenos. Nota: hoy ningún componente instancia `variant="link"`, así que esas dos variantes están vivas solo en el sistema de diseño.
+
+  **En Figma** se creó el token de hub `color/brand/primary-text` (`Green/950` en claro, `Green/400` en oscuro) que pide la regla de la capa de marca, y **`color/text/brand` y `color/icon/brand` aliasan ahora a él en los dos modos**, ambos con `codeSyntax` `var(--brand)`. Los dos caían antes a `color/Cream/200` en oscuro, que contrasta de sobra pero queda a un pelo de `--foreground`.
+
+  El fallo de binding estaba en el componente: **los 9 nodos de texto de las variantes `Type=Link` del Button (3 tamaños × 3 estados) usaban `color/fill/brand` como relleno de texto**, es decir el token de fondo. Repuntados a `color/text/brand`. Un barrido del archivo confirmó que no había ningún otro `TEXT` ni `VECTOR` bindeado al token de relleno, así que el Link era el único caso.
+
+  **Al cambiar el valor de un token, acordarse de las leyendas del swatch**: las tarjetas de `Foundations - Color` llevan el nombre del primitivo como texto estático y no siguen a la variable. Hubo que reescribir las de `card/text/brand` y `card/icon/brand` a `brand/primary-text`, y añadir la tarjeta del token de hub nuevo para que la página siga siendo 1:1 tarjeta↔token (verificado: 0 tokens sin tarjeta).
 
 ---
 
@@ -832,14 +1320,18 @@ Lista de cosas que sé que faltan o que no han recibido pasada todavía. Se irá
 - [ ] **Mobile < 380px**: sin probar. Hero de landing podría descuadrar.
 - [x] ~~Tono de los toasts de error~~ → fallbacks genéricos actualizados: "No se pudo guardar / añadir / eliminar…" en lugar de "Error". Los mensajes del servidor se siguen mostrando cuando están disponibles.
 - [ ] **Estado de loading global / transiciones de página**: actualmente cada página gestiona el suyo. ¿Vale la pena una skeleton global o no?
-- [x] ~~ThemeToggle en sidebar~~ → retirado. El toggle vive solo en `/settings`. Tema fijo: `dark` por defecto.
+- [x] ~~ThemeToggle en sidebar~~ → retirado. El toggle vive solo en `/settings`. El tema por defecto es **`light`** (`src/app/layout.tsx:52`, `defaultTheme="light"`): el oscuro es opt-in. Esta línea decía `dark` y era falso; corregido el 26-ago-2026 al verificarlo contra el código.
 - [x] ~~Navegación móvil~~ → hamburguesa + Sheet lateral (`MobileNav`).
 - [x] ~~Grids fijos en desktop~~ → todos los grids son ahora responsive con columnas dinámicas.
 - [x] ~~Panel lateral de regalos en Agenda~~ → layout master-detail en desktop con CSS Grid `[480px_1fr]`. Ver "Dashboard" y "GiftsPanel".
 - [x] ~~Footer global~~ → decisión tomada: la landing tiene un footer mínimo de una línea. Las páginas de la app (autenticadas) no tienen footer — no es un sitio web, es una herramienta.
 - [x] ~~Estado de loading global~~ → decisión tomada: cada página gestiona su propio estado. Las páginas de lista usan skeletons inline con `animate-pulse rounded-2xl border-dashed`. Las páginas de detalle/edición usan `LoadingFallback` (tres puntos con stagger de 150ms). No se introduce un skeleton global porque no hay estructura de página compartida que lo justifique.
-- [x] ~~Mobile < 380px (landing)~~ → h1 reducido a `text-4xl` base con escalado `sm:text-5xl md:text-6xl lg:text-7xl`. Feature cards con `grid-cols-1` base. `ThemeToggle` eliminado de la landing (tema dark fijo).
+- [x] ~~Mobile < 380px (landing)~~ → h1 reducido a `text-4xl` base con escalado `sm:text-6xl md:text-7xl lg:text-8xl`. Feature cards con `grid-cols-1` base. `ThemeToggle` eliminado de la landing (tema dark fijo).
 - [x] ~~MobileNav sin user info~~ → `SidebarUserInfo` añadido al pie del Sheet (mismo patrón que sidebar desktop).
+- [ ] **Adoptar `color/fill/field-disabled` en código**: sustituir `disabled:bg-input/50` y `dark:disabled:bg-input/80` de `Input` y `Textarea` por una custom property nueva, y rellenar el `codeSyntax` del token. Ver "El único disabled con color".
+- [ ] **`color/switch/thumb-bg-checked` / `-unchecked`**: siguen diciendo `bg` siendo relleno de una pieza. Decidir el rename junto al resto de la capa de componente.
+- [ ] **Revisar `color/field/*`**: se creó como indirección preventiva y sus 5 miembros resuelven igual que el semántico al que aliasan. Si `field/border` nunca llega a divergir de `border/component`, decidir si la capa se queda o se retira — y mientras esté, no ampliarla a `button/*` o `badge/*` por simetría.
+- [ ] **Disabled: opacidad global o familia completa**: hoy el apagado es `opacity-50` sobre el elemento entero, que también atenúa el texto y deja el placeholder por debajo de AA. Si algún día se cambia, hacen falta las cuatro familias (`fill`, `text`, `border`, `icon` en `-disabled`) y desaparece `opacity/disabled` de los componentes. **No mezclar los dos mecanismos**: un color ya apagado más la opacidad del nodo se atenúa dos veces.
 
 ---
 

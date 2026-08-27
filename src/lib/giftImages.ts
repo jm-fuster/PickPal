@@ -37,12 +37,13 @@ import {
 import type { GiftImageKey, GiftType } from "./gifts";
 
 // Tintes planos derivados de los tokens del design system (nada de gradients).
-// El ámbar usa amber-700/amber-500 para el glifo — mismo criterio de contraste
-// que el contador de la campana (ver docs/design-system.md · Contraste).
+// El glifo ámbar usa --category-amber, no --warning: aquí es decorativo, no un
+// aviso. Comparten valor hoy y pueden divergir sin arrastrarse
+// (ver docs/design-system.md · Contraste).
 const TINTS = {
-  green: { container: "bg-primary/10", icon: "text-primary" },
+  green: { container: "bg-primary/10", icon: "text-brand" },
   terracotta: { container: "bg-secondary/15", icon: "text-secondary" },
-  amber: { container: "bg-chart-3/15", icon: "text-amber-700 dark:text-amber-500" },
+  amber: { container: "bg-chart-3/15", icon: "text-category-amber" },
 } as const;
 
 type GiftImageTint = keyof typeof TINTS;

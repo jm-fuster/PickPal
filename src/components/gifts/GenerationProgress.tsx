@@ -47,7 +47,7 @@ export function GenerationProgress({ regenerate = false }: { regenerate?: boolea
       className="rounded-2xl border border-border/70 bg-card/40 p-6 animate-in fade-in duration-300"
     >
       <div className="mb-4 flex items-center gap-3">
-        <Sparkles className="size-5 shrink-0 text-primary animate-pulse" />
+        <Sparkles className="size-5 shrink-0 text-brand animate-pulse" />
         <div className="min-w-0 flex-1">
           <p className="font-medium leading-tight">
             {regenerate ? "Regenerando ideas…" : "Generando 9 ideas…"}

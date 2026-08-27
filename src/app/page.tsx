@@ -58,7 +58,7 @@ export default async function Home() {
 
       <main className="flex flex-1 flex-col items-center justify-center gap-16 px-6 py-16">
         <section className="space-y-6 max-w-3xl text-center">
-          <h1 className="text-balance text-4xl font-medium leading-[1.05] sm:text-5xl md:text-6xl lg:text-7xl">
+          <h1 className="text-balance text-4xl font-medium leading-[1.05] tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl">
             El regalo perfecto para quien más te importa.
           </h1>
           <p className="mx-auto max-w-xl text-lg text-muted-foreground">
@@ -88,7 +88,7 @@ export default async function Home() {
                   {illustration}
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-secondary text-[11px] font-semibold text-secondary-foreground">
+                  <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-secondary text-2xs font-semibold text-secondary-foreground">
                     {number}
                   </span>
                   <h2 className="text-xl font-medium">{title}</h2>

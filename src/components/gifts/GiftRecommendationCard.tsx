@@ -32,7 +32,7 @@ const generateGoogleUrl = (query: string) =>
 // tienda oficial de la marca (que añadió en la ficha de la persona) vs. los
 // marketplaces (que eligió en Ajustes > Tiendas).
 const STORE_SECTION_LABEL_CLASS =
-  "font-sans text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground";
+  "font-sans text-2xs font-medium uppercase tracking-[0.12em] text-muted-foreground";
 
 interface GiftRecommendationCardProps {
   idea: GiftRecommendation;
@@ -257,7 +257,7 @@ export function GiftRecommendationCard({
                     })}
                   </div>
                   {isFallback && (
-                    <p className="text-[11px] text-muted-foreground">
+                    <p className="text-2xs text-muted-foreground">
                       Búsqueda genérica — esta idea encaja mejor en otras tiendas.
                     </p>
                   )}

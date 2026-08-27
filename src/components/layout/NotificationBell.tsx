@@ -83,7 +83,7 @@ export function NotificationBell() {
                     days === 0
                       ? "text-destructive"
                       : days <= 7
-                        ? "text-amber-700 dark:text-amber-500"
+                        ? "text-warning"
                         : "text-muted-foreground",
                   ].join(" ")}>
                     {days === 0 ? "Hoy" : days === 1 ? "Mañana" : `${days}d`}
