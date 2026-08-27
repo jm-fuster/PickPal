@@ -1,0 +1,41 @@
+{
+  "$comment": "Divergencias Figma↔código conocidas. Este archivo SÍ se edita a mano: es donde se declara qué desacuerdos están vistos y por qué. Todo lo que no esté aquí y diverja hace fallar scripts/token-map.mjs, que es el punto — una divergencia nueva no debe pasar desapercibida.",
+  "estados": {
+    "pendiente": "Sabido y hay que arreglarlo. Lleva quién gana y qué hay que tocar.",
+    "aceptada": "Deliberado y permanente. Lleva el motivo por el que los dos lados no deben coincidir."
+  },
+  "divergencias": [
+    {
+      "css": "--primary",
+      "modo": "dark",
+      "estado": "pendiente",
+      "gana": "figma",
+      "motivo": "Auditoría WCAG 2.2 AA del 26-ago-2026. Figma ya está en Green/600 (#547959): es el único paso de la rampa con ≥3:1 sobre color/bg (3.82:1) que mantiene ≥4.5:1 con el texto on-brand encima (4.59:1). El código sigue en oklch(0.42 0.07 148) (#315837), que se queda a 2.99:1.",
+      "accion": "globals.css .dark → --primary: oklch(0.539 0.065 148)"
+    },
+    {
+      "css": "--ring",
+      "modo": "dark",
+      "estado": "pendiente",
+      "gana": "figma",
+      "motivo": "Mismo cambio que --primary en oscuro: color/border/focus aliasa a color/brand/primary, así que el anillo de foco sigue al relleno de marca.",
+      "accion": "globals.css .dark → --ring: oklch(0.539 0.065 148)"
+    },
+    {
+      "css": "--chart-1",
+      "modo": "dark",
+      "estado": "pendiente",
+      "gana": "figma",
+      "motivo": "Mismo cambio: color/chart/1 aliasa a color/brand/primary. Arrastrado por la corrección de a11y, no es una decisión propia de la serie 1.",
+      "accion": "globals.css .dark → --chart-1: oklch(0.539 0.065 148)"
+    },
+    {
+      "css": "--secondary",
+      "modo": "light",
+      "estado": "pendiente",
+      "gana": "figma",
+      "motivo": "El código tiene una sola prop donde Figma tiene dos tokens con valores distintos en claro: color/fill/brand-secondary (#c56a3e, el relleno) y color/text/brand-secondary (#a44c1d, Terracotta/text, el primer plano). --secondary coincide con el relleno y por tanto no coincide con el texto. Es exactamente la distinción relleno/primer plano que --brand acaba de resolver para el verde, sin resolver para la terracota.",
+      "accion": "Decidir si se parte en --secondary (relleno) + una prop de texto, siguiendo la forma de --brand. Ver la sección de conflictos de docs/token-map.md."
+    }
+  ]
+}

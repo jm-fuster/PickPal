@@ -64,9 +64,9 @@ Definidos en [`src/app/globals.css`](../src/app/globals.css). Todos los colores 
 |---|---|---|
 | `--background` | `oklch(0.975 0.012 80)` (~`#FBF7EE`) | Crema cálida. Evoca papel ligeramente envejecido, no blanco quirófano. |
 | `--foreground` | `oklch(0.27 0.02 50)` | Marrón cálido oscuro, no negro puro. Acompaña al fondo crema sin chocar. |
-| `--primary` | `oklch(0.25 0.055 148)` (~`#2D4033`) | Verde bosque. Arraigado, cálido-natural, sin ser "eco startup". **Solo relleno**, nunca color de texto (ver Accesibilidad · Contraste). |
+| `--primary` | `oklch(0.25 0.055 148)` (~`#0C2912`) | Verde bosque. Arraigado, cálido-natural, sin ser "eco startup". **Solo relleno**, nunca color de texto (ver Accesibilidad · Contraste). |
 | `--brand` | `oklch(0.25 0.055 148)` (~`#0C2912`) | El mismo verde, pero como **primer plano**: texto e iconos de marca. En claro coincide con `--primary`; existe porque en oscuro no puede coincidir. |
-| `--secondary` | `oklch(0.62 0.13 45)` (~`#D97757`) | Terracota. Acento cálido para badges de relación y elementos de énfasis. |
+| `--secondary` | `oklch(0.62 0.13 45)` (~`#C56A3E`) | Terracota. Acento cálido para badges de relación y elementos de énfasis. |
 | `--muted` / `--accent` | `oklch(0.93 0.022 75)` / `oklch(0.93 0.03 78)` | Beige/ámbar sutil — fondos de hover, badges neutros. |
 | `--border` | `oklch(0.88 0.025 75)` | Tostado discreto. Define sin gritar. |
 | `--chart-3` | `oklch(0.77 0.12 72)` (~`#E8B059`) | Ámbar dorado — acento terciario para gráficas y datos. |
@@ -95,7 +95,9 @@ Mantenemos calidez también en oscuro. Nada de marrón griseado.
 
 ### Figma — arquitectura de variables
 
-El archivo [PickPal — Design System](https://www.figma.com/design/4hQt4BnsEluKsYk5qbKkCz/PickPal---Design-System) espeja este documento y `globals.css`, no al revés: **si Figma contradice el código, gana el código**. Sus 372 variables están organizadas en las cuatro capas del patrón de design tokens, y cada una aliasa a la de abajo sin saltarse eslabones.
+El archivo [PickPal — Design System](https://www.figma.com/design/4hQt4BnsEluKsYk5qbKkCz/PickPal---Design-System) espeja este documento y `globals.css`, no al revés: **si Figma contradice el código, gana el código**. Sus 373 variables están organizadas en las cuatro capas del patrón de design tokens, y cada una aliasa a la de abajo sin saltarse eslabones.
+
+> **Esa regla está en revisión (27-ago-2026).** La intención es invertirla —Figma como fuente de verdad de los tokens, el código de estados y comportamiento— pero no está decidida ni aplicada. Mientras no lo esté, el desempate sigue siendo el de arriba. Lo que sí existe ya es la medida del desacuerdo: [`docs/token-map.md`](token-map.md), generado por `npm run token-map`, que cruza las 373 variables con las custom properties reales y lista divergencia por divergencia. **Las cifras de tokens viven allí, no aquí**: este documento guarda intención y reglas, que es lo que no se puede generar.
 
 | Capa | Nº | Colección | Ejemplos | Aliasa a |
 |---|---|---|---|---|
