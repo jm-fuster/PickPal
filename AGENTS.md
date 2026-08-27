@@ -21,3 +21,9 @@ Convex agent skills for common tasks can be installed by running
 # Seguridad
 
 Antes de añadir endpoints, mutations Convex, rutas o variables de entorno, **lee [`docs/security.md`](docs/security.md)**. Contiene los patrones obligatorios (auth, ownership, validación, rate limit, sanitización de errores) y el checklist de PR. Actualízalo en el mismo commit si introduces un patrón nuevo o tomas una decisión explícita de "ahora no".
+
+# Tokens en Figma
+
+Antes de crear, renombrar, reasignar o borrar una variable, un estilo de texto o un estilo de efecto en el archivo Figma, **lee [`docs/figma-tokens.md`](docs/figma-tokens.md)**: el modelo canónico de cuatro capas (primitivo · semántico · marca · componente), las reglas de alias, scope y publicación, y las divergencias asumidas de este archivo respecto al modelo.
+
+**Regla que no se salta: toda variable y todo estilo nuevo nace con una descripción de cómo y dónde se usa.** Sin descripción el token no está terminado. La fórmula y los recortes están en ese documento; el registro de decisiones del archivo, en [`docs/design-system.md`](docs/design-system.md).
