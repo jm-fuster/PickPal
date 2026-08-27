@@ -11,7 +11,7 @@
           "Light",
           "Dark"
         ],
-        "count": 177
+        "count": 175
       },
       {
         "name": "Typography",
@@ -28,7 +28,7 @@
         "count": 166
       }
     ],
-    "total": 373
+    "total": 371
   },
   "fields": [
     "figma",
@@ -95,35 +95,35 @@
       "#f3ae51"
     ],
     [
-      "color/chart/1",
+      "color/bg/category/green",
       "Semantic",
       "--chart-1",
       "#0c2912",
       "#547959"
     ],
     [
-      "color/chart/2",
+      "color/bg/category/terracotta",
       "Semantic",
       "--chart-2",
       "#c56a3e",
       "#dc855d"
     ],
     [
-      "color/chart/3",
+      "color/bg/category/amber",
       "Semantic",
       "--chart-3",
       "#e3a757",
       "#e3a757"
     ],
     [
-      "color/chart/4",
+      "color/bg/category/umber",
       "Semantic",
       "--chart-4",
       "#d5b59e",
       "#6f6149"
     ],
     [
-      "color/chart/5",
+      "color/bg/category/neutral",
       "Semantic",
       "--chart-5",
       "#775e50",
@@ -534,20 +534,20 @@
       "border-width/default",
       "border-width/focus",
       "border-width/strong",
+      "brand/logo",
+      "brand/primary",
+      "brand/primary-border",
+      "brand/primary-hover",
+      "brand/primary-subtle",
+      "brand/primary-text",
+      "brand/secondary",
+      "brand/secondary-border",
+      "brand/secondary-hover",
+      "brand/secondary-text",
       "color/bg/subtle",
       "color/border/brand",
       "color/border/brand-secondary",
       "color/border/subtle",
-      "color/brand/logo",
-      "color/brand/primary",
-      "color/brand/primary-border",
-      "color/brand/primary-hover",
-      "color/brand/primary-subtle",
-      "color/brand/primary-text",
-      "color/brand/secondary",
-      "color/brand/secondary-border",
-      "color/brand/secondary-hover",
-      "color/brand/secondary-text",
       "color/field/border",
       "color/field/border-focus",
       "color/field/border-invalid",
@@ -574,8 +574,6 @@
       "color/icon/secondary",
       "color/icon/strong",
       "color/icon/success",
-      "color/switch/thumb-bg-checked",
-      "color/switch/thumb-bg-unchecked",
       "color/text/info",
       "color/text/on-danger-solid",
       "color/text/on-success-solid",
