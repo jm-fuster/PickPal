@@ -568,6 +568,27 @@ Se partió en `color/switch/thumb-bg-checked` (renombrado: los bindings van por 
 
 **Y esa atenuación ya no es un número suelto**: la opacidad de las dos variantes `Disabled` está vinculada a `opacity/disabled`. **Cuidado con la unidad** — Figma resuelve las variables vinculadas a opacidad en **porcentaje (0–100)**, no en 0–1. El token nació con `0,5` y pintó las variantes al 0,5 %, es decir invisibles; el valor correcto es `50`.
 
+### El thumb del Switch: espejar un error no lo arregla (27-ago-2026)
+
+La sección anterior partió el token en `checked` / `unchecked` **para ser fiel a los tres valores de `switch.tsx`**. Eso era espejar fielmente una implementación que ya estaba mal, y el resultado en Figma no tenía sentido leído solo:
+
+| Token | Light | Dark |
+|---|---|---|
+| `thumb-bg-checked` | → `color/bg` | → `color/text/on-brand` |
+| `thumb-bg-unchecked` | → `color/bg` | → `color/text` |
+
+Dos problemas de capa, no de valor. En claro, el **fondo de la página** haciendo de relleno de una pieza. Y en oscuro, los dos aliasan a tokens con **scope `TEXT_FILL`**: el relleno de una elipse dependiendo de un token que Figma no te dejaría aplicar a una elipse. Además `thumb-bg-checked` resolvía al mismo `#FAF6F1` en los dos modos por dos rutas distintas, así que el baile de modos no compraba nada.
+
+**Los dos aliasan ahora a `color/icon/on-brand` en los dos modos.** Es el único semántico que ya existía con las tres cosas a la vez: scope de forma (`SHAPE_FILL`, `STROKE_COLOR`), el significado correcto —una forma sobre el relleno de marca del track— y el mismo `Cream/100` en claro y en oscuro. La cadena queda `thumb-* → color/icon/on-brand → Cream/100`.
+
+**Y el código se colapsó a un solo token**: el thumb pasa de `bg-background` + `dark:data-checked:bg-primary-foreground` + `dark:data-unchecked:bg-foreground` a **`bg-primary-foreground`** y nada más. Los tres resolvían casi al mismo crema; uno era el fondo de la página y otro el texto del cuerpo, ninguno un relleno. Aquí el arreglo fue del código, y Figma lo sigue.
+
+**Efecto visible: casi ninguno.** Tres de los cuatro estados ya valían `#FAF6F1`; solo el apagado en oscuro se mueve de `Cream/200` a `Cream/100`, un paso de rampa. Los 22 bindings de nodo siguen intactos —repuntar un alias no los toca— y las 14 instancias de thumb del archivo se verificaron a `#FAF6F1` con su vínculo puesto.
+
+**Los dos tokens tienen ahora el mismo valor en todos los modos y se quedan separados a propósito**, igual que `--muted` y `--accent`: el `Disabled` consume el de apagado, y si algún día el disco apagado necesita un crema distinto, el sitio donde separarlo ya existe. Lo que sigue abierto es el nombre: dicen `bg` siendo relleno de una pieza (ver Pendientes).
+
+**La regla que deja esto**: cuando Figma tiene que retorcerse para espejar el código, **mirar si el código es lo que está mal**. Un token de componente que aliasa a tres semánticos distintos según el modo es la señal.
+
 ### Los tres tokens que cerraban huecos de pareja
 
 `color/text/on-danger-solid` y `color/icon/on-danger-solid` completan el par de `color/fill/danger-solid`, que existía sin decir de qué color va lo que se pone encima. **Invierten entre modos**, al revés que `on-brand` y `on-brand-secondary`, porque el rojo también invierte: es oscuro en Light (`red/950`) y claro en Dark (`red/900`). Contraste 5,02:1 y 6,52:1, pasan AA. Son Figma-only, como el propio `danger-solid`: el producto pinta el tinte, no el sólido.
@@ -1387,7 +1408,7 @@ Lista de cosas que sé que faltan o que no han recibido pasada todavía. Se irá
 - [x] ~~Mobile < 380px (landing)~~ → h1 reducido a `text-4xl` base con escalado `sm:text-6xl md:text-7xl lg:text-8xl`. Feature cards con `grid-cols-1` base. `ThemeToggle` eliminado de la landing (tema dark fijo).
 - [x] ~~MobileNav sin user info~~ → `SidebarUserInfo` añadido al pie del Sheet (mismo patrón que sidebar desktop).
 - [ ] **Adoptar `color/fill/field-disabled` en código**: sustituir `disabled:bg-input/50` y `dark:disabled:bg-input/80` de `Input` y `Textarea` por una custom property nueva, y rellenar el `codeSyntax` del token. Ver "El único disabled con color".
-- [ ] **`color/switch/thumb-bg-checked` / `-unchecked`**: siguen diciendo `bg` siendo relleno de una pieza. Decidir el rename junto al resto de la capa de componente.
+- [ ] **`color/switch/thumb-bg-checked` / `-unchecked`**: siguen diciendo `bg` siendo relleno de una pieza. Decidir el rename junto al resto de la capa de componente. Sus alias ya se arreglaron el 27-ago (ver «El thumb del Switch»); lo que queda es solo el nombre. Y como los dos resuelven ya al mismo valor en todos los modos, decidir a la vez si se fusionan en uno.
 - [ ] **Revisar `color/field/*`**: se creó como indirección preventiva y sus 5 miembros resuelven igual que el semántico al que aliasan. Si `field/border` nunca llega a divergir de `border/component`, decidir si la capa se queda o se retira — y mientras esté, no ampliarla a `button/*` o `badge/*` por simetría.
 - [ ] **Disabled: opacidad global o familia completa**: hoy el apagado es `opacity-50` sobre el elemento entero, que también atenúa el texto y deja el placeholder por debajo de AA. Si algún día se cambia, hacen falta las cuatro familias (`fill`, `text`, `border`, `icon` en `-disabled`) y desaparece `opacity/disabled` de los componentes. **No mezclar los dos mecanismos**: un color ya apagado más la opacidad del nodo se atenúa dos veces.
 

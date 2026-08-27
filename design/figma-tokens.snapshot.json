@@ -277,6 +277,13 @@
       "#547959"
     ],
     [
+      "color/icon/on-brand",
+      "Semantic",
+      "--primary-foreground",
+      "#faf6f1",
+      "#faf6f1"
+    ],
+    [
       "color/text/on-brand",
       "Semantic",
       "--primary-foreground",
@@ -560,7 +567,6 @@
       "color/icon",
       "color/icon/danger",
       "color/icon/info",
-      "color/icon/on-brand",
       "color/icon/on-brand-secondary",
       "color/icon/on-danger-solid",
       "color/icon/on-success-solid",
