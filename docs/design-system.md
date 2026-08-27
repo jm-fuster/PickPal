@@ -111,7 +111,23 @@ Seis tokens de modo claro pasan a los valores de Figma. Los encontró [`docs/tok
 
 **Dos concesiones, dichas en voz alta.** `--accent-foreground` **pierde** contraste (9.27 → 7.54:1, sigue en AAA) a cambio de caer en un paso de rampa en vez de un oklch suelto; son 2 usos, los dos el ítem resaltado de un select. Y `--card-foreground` y `--popover-foreground` se movieron con `--foreground` sin que Figma lo pidiera: eran idénticos a él y dejarlos atrás habría creado una diferencia entre el texto de la página y el de las tarjetas que antes no existía. Figma no tiene variable para ninguno de los dos — un relleno sin su primer plano, contra su propia regla de parejas.
 
-**Y una donde gana el código**, la única de las siete: en oscuro, `--muted-foreground` se queda en `Cream/500` (`#A99C8E`) y **no** adopta el `Cream/400` de Figma. Medido, `Cream/500` ya da 7.03:1, que es AAA, así que Figma no corrige ningún fallo; lo que haría es subir el secundario a 13.14:1 cuando el normal está en 15.74:1, y a esa distancia deja de leerse como secundario. Anotado en [`design/token-divergences.json`](../design/token-divergences.json) con la acción al revés: cambiar Figma.
+**Y una sin resolver**: en oscuro, `--muted-foreground` se queda de momento en `Cream/500` (`#A99C8E`). La primera lectura fue «gana el código, hay que bajar Figma a `Cream/500`», y era falsa — ver la sección siguiente.
+
+#### El código tiene dos niveles de texto donde Figma tiene tres (27-ago-2026)
+
+Al ir a aplicar ese cambio en Figma se vio que **`Cream/500` no está libre: es el escalón de `color/text/tertiary`**. Moverle `secondary` encima habría colapsado los dos niveles, y arrastrado también los iconos, porque `color/icon/secondary` comparte el primitivo a propósito para que icono y texto casen.
+
+| Nivel | Claro | ratio | Oscuro | ratio |
+|---|---|---|---|---|
+| `color/text` | `Neutral/800` `#302621` | 13.70:1 | `Cream/200` `#EFEAE2` | 15.74:1 |
+| `color/text/secondary` | `Neutral/700` `#5A4234` | 8.62:1 | `Cream/400` `#E1D6C6` | 13.14:1 |
+| `color/text/tertiary` | `Umber/900` `#6E6055` | 5.63:1 | `Cream/500` `#A99C8E` | 7.03:1 |
+
+**El diagnóstico real es otro.** Antes de esta pasada, `--muted-foreground` valía `#6E6055` en claro y `#A99C8E` en oscuro: estaba exactamente sobre el nivel **terciario** en los dos modos. El `codeSyntax var(--muted-foreground)` lo lleva `color/text/secondary`, así que el mapa comparaba contra el nivel equivocado — **no era deriva de valor, era un mapeo mal puesto**. Tras la pasada el código quedó en secundario en claro y terciario en oscuro: visualmente correcto (8.62:1 y 7.03:1, los dos AAA) pero cruzando niveles.
+
+**Tres salidas, sin decidir**: (a) el código adopta secundario en los dos modos, con oscuro a `Cream/400` — pero eso deja solo 2.60 de distancia con el texto normal y el secundario deja de leerse como tal; (b) vuelve a terciario en los dos modos, con claro a `Umber/900` y su 5.63:1 de AA raspado; (c) el código crece un token terciario y se reparten los 151 usos de `--muted-foreground`, que es lo que pide el modelo de Figma. Lo que se decida arrastra el `codeSyntax`.
+
+**Y un hallazgo estructural de propina**: la escalera de oscuro está desequilibrada (2.60 de hueco entre normal y secundario, 6.11 entre secundario y terciario) y **no se puede equilibrar solo con `Cream`**, porque la rampa no tiene ningún paso entre `400` y `500` — un salto de L de 0.1806, el mayor de toda la familia. `Cream` se diseñó para vivir en la mitad clara (ver Rampas de color) y aquí se le está pidiendo cubrir primer plano sobre fondo oscuro, que es justo el tramo que no tiene.
 
 Verificado en el navegador midiendo con canvas, no parseando `getComputedStyle` — devuelve `lab()` y parsear la cadena da contrastes falsos sin lanzar error.
 

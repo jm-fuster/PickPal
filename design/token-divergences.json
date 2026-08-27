@@ -33,9 +33,9 @@
       "css": "--muted-foreground",
       "modo": "dark",
       "estado": "pendiente",
-      "gana": "codigo",
-      "motivo": "La única de las siete donde gana el código, y va contra la dirección general. Figma tiene Cream/400 (#e1d6c6) y el código Cream/500 (#a99c8e) — los dos son pasos de la rampa, no valores sueltos. Medido: Cream/500 da 7.03:1 sobre el fondo oscuro, que ya es AAA, así que Figma no corrige ningún fallo. Lo que hace es subir el texto secundario a 13.14:1 cuando el texto normal está en 15.74:1: a esa distancia deja de leerse como secundario. Con 151 usos de --muted-foreground, eso aplana la jerarquía en toda la app a cambio de nada.",
-      "accion": "Cambiar en Figma color/text/secondary del modo Dark de Cream/400 a Cream/500. Pendiente de confirmación del usuario porque escribe en el archivo compartido."
+      "gana": "sin decidir",
+      "motivo": "Al ir a aplicar el cambio se vio que Cream/500 NO está libre: es el escalón de color/text/tertiary y color/icon/tertiary en oscuro, así que moverle secondary encima colapsaría los dos niveles. Y el diagnóstico de fondo era otro: --muted-foreground valía Umber/900 en claro (#6E6055) y Cream/500 en oscuro (#A99C8E) — estaba exactamente sobre el nivel TERCIARIO de Figma en los dos modos, no sobre el secundario. El codeSyntax var(--muted-foreground) lo lleva color/text/secondary, de modo que el mapa comparaba contra el nivel equivocado: no era deriva de valor, era un mapeo mal puesto. Figma tiene tres niveles de texto (13.70/8.62/5.63 en claro, 15.74/13.14/7.03 en oscuro) y el código solo dos.",
+      "accion": "Decidir entre: (a) el código adopta el nivel secundario en los dos modos — oscuro a Cream/400, 13.14:1, pero deja solo 2.60 de distancia con el texto normal; (b) vuelve al terciario en los dos modos — claro a Umber/900, 5.63:1, AA raspado; (c) el código crece un token terciario y se reparten los 151 usos de --muted-foreground, que es lo que pide el modelo de Figma. Lo que se decida arrastra el codeSyntax: si el código se queda en terciario, var(--muted-foreground) tiene que pasar de color/text/secondary a color/text/tertiary. Nota estructural: la rampa Cream no tiene ningún paso entre 400 y 500 (salto de L de 0.1806, el mayor de la rampa), así que la escalera de oscuro no se puede equilibrar solo con Cream."
     },
     {
       "css": "--secondary",
