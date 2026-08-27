@@ -62,12 +62,13 @@ Definidos en [`src/app/globals.css`](../src/app/globals.css). Todos los colores 
 
 | Token | Valor | Por qué |
 |---|---|---|
-| `--background` | `oklch(0.975 0.012 80)` (~`#FBF7EE`) | Crema cálida. Evoca papel ligeramente envejecido, no blanco quirófano. |
-| `--foreground` | `oklch(0.27 0.02 50)` | Marrón cálido oscuro, no negro puro. Acompaña al fondo crema sin chocar. |
+| `--background` | `oklch(0.9748 0.0079 73.74)` (`#FAF6F1`) | Crema cálida. Evoca papel ligeramente envejecido, no blanco quirófano. Es `Cream/100` de la rampa. |
+| `--foreground` | `oklch(0.2784 0.0176 48.07)` (`#302621`) | Marrón cálido oscuro, no negro puro. Acompaña al fondo crema sin chocar. Es `Neutral/800`. 13.70:1 sobre el fondo. |
 | `--primary` | `oklch(0.25 0.055 148)` (~`#0C2912`) | Verde bosque. Arraigado, cálido-natural, sin ser "eco startup". **Solo relleno**, nunca color de texto (ver Accesibilidad · Contraste). |
 | `--brand` | `oklch(0.25 0.055 148)` (~`#0C2912`) | El mismo verde, pero como **primer plano**: texto e iconos de marca. En claro coincide con `--primary`; existe porque en oscuro no puede coincidir. |
 | `--secondary` | `oklch(0.62 0.13 45)` (~`#C56A3E`) | Terracota. Acento cálido para badges de relación y elementos de énfasis. |
-| `--muted` / `--accent` | `oklch(0.93 0.022 75)` / `oklch(0.93 0.03 78)` | Beige/ámbar sutil — fondos de hover, badges neutros. |
+| `--muted` / `--accent` | `oklch(0.93 0.03 78)` los dos (`#F3E6D2`) | Beige/ámbar sutil — fondos de hover, badges neutros. **Mismo valor a propósito**: en Figma los dos aliasan a `Cream/300`. |
+| `--muted-foreground` | `oklch(0.4014 0.0404 51.47)` (`#5A4234`) | Texto secundario, el token de color más usado del código después de `--foreground` (151 usos). Es `Neutral/700`. 8.62:1 sobre el fondo. |
 | `--border` | `oklch(0.88 0.025 75)` | Tostado discreto. Define sin gritar. |
 | `--chart-3` | `oklch(0.77 0.12 72)` (~`#E8B059`) | Ámbar dorado — acento terciario para gráficas y datos. |
 
@@ -92,6 +93,27 @@ Mantenemos calidez también en oscuro. Nada de marrón griseado.
 - **Default**: `shadow-sm` para cards y elementos elevados ligeros.
 - **Hover de cards interactivas**: aún por consolidar (ver Pendientes).
 - **No usar**: `shadow-lg`, `shadow-xl`, `shadow-2xl`. Rompen la sensación de papel y suenan a Material.
+
+### Primera sincronización de color desde Figma (27-ago-2026)
+
+Seis tokens de modo claro pasan a los valores de Figma. Los encontró [`docs/token-map.md`](token-map.md) al cruzar las variables con las custom properties reales: no estaban a la vista porque el código los tenía escritos a mano en oklch y Figma en pasos de rampa, y nadie había comparado los dos lados.
+
+| Token | Antes | Ahora | Paso de rampa | Contraste |
+|---|---|---|---|---|
+| `--muted-foreground` | `#6E6055` | `#5A4234` | `Neutral/700` | **5.63 → 8.62:1** |
+| `--accent-foreground` | `#48362D` | `#5A4234` | `Neutral/700` | 9.27 → 7.54:1 |
+| `--chart-5` | `#6C4D3C` | `#775E50` | `Neutral/600` | sin uso |
+| `--muted` | `#F1E6D8` | `#F3E6D2` | `Cream/300` | fondo |
+| `--background` | `#FBF6EE` | `#FAF6F1` | `Cream/100` | fondo |
+| `--foreground` | `#2F241E` | `#302621` | `Neutral/800` | 14.02 → 13.70:1 |
+
+**El cambio que importa es `--muted-foreground`**, con 151 usos: el texto secundario sube de 5.63:1 a 8.62:1, de AA raspado a AAA, y sigue a 8.62 frente a los 13.70 del texto normal, así que la jerarquía se mantiene legible. Los demás son de coherencia de rampa: deltas de 3 a 20 por canal que nadie habría visto a ojo.
+
+**Dos concesiones, dichas en voz alta.** `--accent-foreground` **pierde** contraste (9.27 → 7.54:1, sigue en AAA) a cambio de caer en un paso de rampa en vez de un oklch suelto; son 2 usos, los dos el ítem resaltado de un select. Y `--card-foreground` y `--popover-foreground` se movieron con `--foreground` sin que Figma lo pidiera: eran idénticos a él y dejarlos atrás habría creado una diferencia entre el texto de la página y el de las tarjetas que antes no existía. Figma no tiene variable para ninguno de los dos — un relleno sin su primer plano, contra su propia regla de parejas.
+
+**Y una donde gana el código**, la única de las siete: en oscuro, `--muted-foreground` se queda en `Cream/500` (`#A99C8E`) y **no** adopta el `Cream/400` de Figma. Medido, `Cream/500` ya da 7.03:1, que es AAA, así que Figma no corrige ningún fallo; lo que haría es subir el secundario a 13.14:1 cuando el normal está en 15.74:1, y a esa distancia deja de leerse como secundario. Anotado en [`design/token-divergences.json`](../design/token-divergences.json) con la acción al revés: cambiar Figma.
+
+Verificado en el navegador midiendo con canvas, no parseando `getComputedStyle` — devuelve `lab()` y parsear la cadena da contrastes falsos sin lanzar error.
 
 ### Figma — arquitectura de variables
 

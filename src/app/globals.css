@@ -74,12 +74,12 @@
 }
 
 :root {
-  --background: oklch(0.975 0.012 80);
-  --foreground: oklch(0.27 0.02 50);
+  --background: oklch(0.9748 0.0079 73.74);
+  --foreground: oklch(0.2784 0.0176 48.07);
   --card: oklch(0.99 0.008 80);
-  --card-foreground: oklch(0.27 0.02 50);
+  --card-foreground: oklch(0.2784 0.0176 48.07);
   --popover: oklch(0.99 0.008 80);
-  --popover-foreground: oklch(0.27 0.02 50);
+  --popover-foreground: oklch(0.2784 0.0176 48.07);
   --primary: oklch(0.25 0.055 148);
   --primary-foreground: oklch(0.975 0.008 80);
   /* Verde de marca como primer plano (texto e iconos). No usar --primary para
@@ -88,10 +88,12 @@
   --brand: oklch(0.25 0.055 148);
   --secondary: oklch(0.62 0.13 45);
   --secondary-foreground: oklch(0.18 0.012 50);
-  --muted: oklch(0.93 0.022 75);
-  --muted-foreground: oklch(0.5 0.025 60);
+  /* Mismo valor que --accent a propósito: en Figma los dos aliasan a Cream/300.
+     No es un descuido — si algún día deben separarse, se separan en Figma primero. */
+  --muted: oklch(0.93 0.03 78);
+  --muted-foreground: oklch(0.4014 0.0404 51.47);
   --accent: oklch(0.93 0.03 78);
-  --accent-foreground: oklch(0.35 0.03 50);
+  --accent-foreground: oklch(0.4014 0.0404 51.47);
   --destructive: oklch(0.55 0.2 28);
   --warning: oklch(0.5553 0.1455 49);
   --category-amber: oklch(0.5553 0.1455 49);
@@ -102,7 +104,7 @@
   --chart-2: oklch(0.62 0.13 45);
   --chart-3: oklch(0.77 0.12 72);
   --chart-4: oklch(0.795 0.0487 57.66);
-  --chart-5: oklch(0.45 0.05 50);
+  --chart-5: oklch(0.5031 0.0393 50.73);
   --radius: 1rem;
 }
 

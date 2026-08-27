@@ -14,30 +14,14 @@ No genera CSS desde Figma — solo 67 de las 373 variables tienen contraparte en
 | | Nº |
 |---|---|
 | Espejados (Figma ↔ código) | 67 |
-| … de acuerdo | 55 |
+| … de acuerdo | 60 |
 | … iguales salvo redondeo oklch↔hex | 2 |
-| … en divergencia **ya declarada** | 4 |
-| … en divergencia **nueva, sin declarar** | 7 |
+| … en divergencia **ya declarada** | 5 |
+| … en divergencia **nueva, sin declarar** | 0 |
 | Props del código que varias variables de Figma reclaman con valores distintos | 1 |
 | Solo-código (sin variable en Figma) | 5 |
 | Solo-Figma · capa Semantic (decisión pendiente) | 149 |
 | Solo-Figma · Primitives (por diseño: ocultos al publicar) | 157 |
-
-## Divergencias nuevas
-
-Sin declarar en [`design/token-divergences.json`](../design/token-divergences.json), así que
-hacen fallar el script. Por cada una hay que decidir qué lado gana y anotarlo allí — o corregir
-el código.
-
-| Variable Figma | Custom property | Modo | Figma | Código | Delta |
-|---|---|---|---|---|---|
-| `color/text/on-component-focus` | `--accent-foreground` | Light | #5a4234 | #48362d | Δ canal 18 |
-| `color/bg` | `--background` | Light | #faf6f1 | #fbf6ee | Δ canal 3 |
-| `color/chart/5` | `--chart-5` | Light | #775e50 | #6c4d3c | Δ canal 20 |
-| `color/text` | `--foreground` | Light | #302621 | #2f241e | Δ canal 3 |
-| `color/fill/component` | `--muted` | Light | #f3e6d2 | #f1e6d8 | Δ canal 6 |
-| `color/text/secondary` | `--muted-foreground` | Light | #5a4234 | #6e6055 | Δ canal 33 |
-| `color/text/secondary` | `--muted-foreground` | Dark | #e1d6c6 | #a99c8e | Δ canal 58 |
 
 ## Divergencias ya declaradas
 
@@ -46,6 +30,7 @@ Desacuerdos vistos y anotados. No hacen fallar el script, pero siguen siendo tra
 | Custom property | Modo | Figma | Código | Estado | Qué hacer |
 |---|---|---|---|---|---|
 | `--chart-1` | Dark | #547959 | #315837 | pendiente · gana figma | globals.css .dark → --chart-1: oklch(0.539 0.065 148) |
+| `--muted-foreground` | Dark | #e1d6c6 | #a99c8e | pendiente · gana codigo | Cambiar en Figma color/text/secondary del modo Dark de Cream/400 a Cream/500. Pendiente de confirmación del usuario porque escribe en el archivo compartido. |
 | `--primary` | Dark | #547959 | #315837 | pendiente · gana figma | globals.css .dark → --primary: oklch(0.539 0.065 148) |
 | `--ring` | Dark | #547959 | #315837 | pendiente · gana figma | globals.css .dark → --ring: oklch(0.539 0.065 148) |
 | `--secondary` | Light | #a44c1d | #c56a3e | pendiente · gana figma | Decidir si se parte en --secondary (relleno) + una prop de texto, siguiendo la forma de --brand. Ver la sección de conflictos de docs/token-map.md. |
@@ -70,8 +55,8 @@ Valores: `Figma / código`. `≈` = mismo color, ±1 por canal del ida y vuelta 
 | Variable Figma | Colección | Custom property | Origen del valor | Light | Dark |
 |---|---|---|---|---|---|
 | `color/fill/component-focus` | Semantic | `--accent` | :root / .dark | ✅ #f3e6d2 / #f3e6d2 | ✅ #2f281d / #2f281d |
-| `color/text/on-component-focus` | Semantic | `--accent-foreground` | :root / .dark | ❌ #5a4234 / #48362d | ✅ #efeae2 / #efeae2 |
-| `color/bg` | Semantic | `--background` | :root / .dark | ❌ #faf6f1 / #fbf6ee | ✅ #16100d / #16100d |
+| `color/text/on-component-focus` | Semantic | `--accent-foreground` | :root / .dark | ✅ #5a4234 / #5a4234 | ✅ #efeae2 / #efeae2 |
+| `color/bg` | Semantic | `--background` | :root / .dark | ✅ #faf6f1 / #faf6f1 | ✅ #16100d / #16100d |
 | `color/border` | Semantic | `--border` | :root / .dark | ✅ #e1d6c6 / #e1d6c6 | ≈ #ffffff/10.2 / #ffffff/10 |
 | `color/icon/brand` | Semantic | `--brand` | :root / .dark | ✅ #0c2912 / #0c2912 | ✅ #8eaa91 / #8eaa91 |
 | `color/text/brand` | Semantic | `--brand` | :root / .dark | ✅ #0c2912 / #0c2912 | ✅ #8eaa91 / #8eaa91 |
@@ -81,14 +66,14 @@ Valores: `Figma / código`. `≈` = mismo color, ±1 por canal del ida y vuelta 
 | `color/chart/2` | Semantic | `--chart-2` | :root / .dark | ✅ #c56a3e / #c56a3e | ✅ #dc855d / #dc855d |
 | `color/chart/3` | Semantic | `--chart-3` | :root / .dark | ✅ #e3a757 / #e3a757 | ✅ #e3a757 / #e3a757 |
 | `color/chart/4` | Semantic | `--chart-4` | :root / .dark | ✅ #d5b59e / #d5b59e | ✅ #6f6149 / #6f6149 |
-| `color/chart/5` | Semantic | `--chart-5` | :root / .dark | ❌ #775e50 / #6c4d3c | ✅ #5a4234 / #5a4234 |
+| `color/chart/5` | Semantic | `--chart-5` | :root / .dark | ✅ #775e50 / #775e50 | ✅ #5a4234 / #5a4234 |
 | `color/border/danger` | Semantic | `--destructive` | :root / .dark | ✅ #cc2823 / #cc2823 | ✅ #fa6863 / #fa6863 |
 | `color/fill/danger-solid` | Semantic | `--destructive` | :root / .dark | ✅ #cc2823 / #cc2823 | ✅ #fa6863 / #fa6863 |
 | `color/text/danger` | Semantic | `--destructive` | :root / .dark | ✅ #cc2823 / #cc2823 | ✅ #fa6863 / #fa6863 |
-| `color/text` | Semantic | `--foreground` | :root / .dark | ❌ #302621 / #2f241e | ✅ #efeae2 / #efeae2 |
+| `color/text` | Semantic | `--foreground` | :root / .dark | ✅ #302621 / #302621 | ✅ #efeae2 / #efeae2 |
 | `color/border/component` | Semantic | `--input` | :root / .dark | ✅ #e1d6c6 / #e1d6c6 | ≈ #ffffff/12.16 / #ffffff/12 |
-| `color/fill/component` | Semantic | `--muted` | :root / .dark | ❌ #f3e6d2 / #f1e6d8 | ✅ #302621 / #302621 |
-| `color/text/secondary` | Semantic | `--muted-foreground` | :root / .dark | ❌ #5a4234 / #6e6055 | ❌ #e1d6c6 / #a99c8e |
+| `color/fill/component` | Semantic | `--muted` | :root / .dark | ✅ #f3e6d2 / #f3e6d2 | ✅ #302621 / #302621 |
+| `color/text/secondary` | Semantic | `--muted-foreground` | :root / .dark | ✅ #5a4234 / #5a4234 | ❌ #e1d6c6 / #a99c8e |
 | `color/bg/surface-raised` | Semantic | `--popover` | :root / .dark | ✅ #fffbf6 / #fffbf6 | ✅ #211914 / #211914 |
 | `color/fill/brand` | Semantic | `--primary` | :root / .dark | ✅ #0c2912 / #0c2912 | ❌ #547959 / #315837 |
 | `color/text/on-brand` | Semantic | `--primary-foreground` | :root / .dark | ✅ #faf6f1 / #faf6f1 | ✅ #faf6f1 / #faf6f1 |
@@ -144,8 +129,8 @@ decisión: o se crea la variable en Figma, o se documenta por qué el código va
 
 Capa de tokens (`:root` / `.dark`):
 
-- `--card-foreground` — Light `#2f241e` · Dark `#efeae2`
-- `--popover-foreground` — Light `#2f241e` · Dark `#efeae2`
+- `--card-foreground` — Light `#302621` · Dark `#efeae2`
+- `--popover-foreground` — Light `#302621` · Dark `#efeae2`
 
 Escalas propias en `@theme` sin variable equivalente:
 

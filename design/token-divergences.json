@@ -30,6 +30,14 @@
       "accion": "globals.css .dark → --chart-1: oklch(0.539 0.065 148)"
     },
     {
+      "css": "--muted-foreground",
+      "modo": "dark",
+      "estado": "pendiente",
+      "gana": "codigo",
+      "motivo": "La única de las siete donde gana el código, y va contra la dirección general. Figma tiene Cream/400 (#e1d6c6) y el código Cream/500 (#a99c8e) — los dos son pasos de la rampa, no valores sueltos. Medido: Cream/500 da 7.03:1 sobre el fondo oscuro, que ya es AAA, así que Figma no corrige ningún fallo. Lo que hace es subir el texto secundario a 13.14:1 cuando el texto normal está en 15.74:1: a esa distancia deja de leerse como secundario. Con 151 usos de --muted-foreground, eso aplana la jerarquía en toda la app a cambio de nada.",
+      "accion": "Cambiar en Figma color/text/secondary del modo Dark de Cream/400 a Cream/500. Pendiente de confirmación del usuario porque escribe en el archivo compartido."
+    },
+    {
       "css": "--secondary",
       "modo": "light",
       "estado": "pendiente",
