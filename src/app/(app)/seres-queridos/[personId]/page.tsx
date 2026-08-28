@@ -537,7 +537,7 @@ function PersonDetailContent({
                           <Badge
                             key={`brand-${brand}`}
                             variant="outline"
-                            className="gap-1 text-xs text-secondary border-secondary/40"
+                            className="gap-1 text-xs text-brand-secondary border-secondary/40"
                           >
                             <Tags className="size-3" aria-hidden />
                             <span className="sr-only">Marca favorita: </span>

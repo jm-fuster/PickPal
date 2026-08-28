@@ -14,34 +14,14 @@ No genera CSS desde Figma — solo 67 de las 373 variables tienen contraparte en
 | | Nº |
 |---|---|
 | Espejados (Figma ↔ código) | 71 |
-| … de acuerdo | 69 |
+| … de acuerdo | 70 |
 | … iguales salvo redondeo oklch↔hex | 1 |
-| … en divergencia **ya declarada** | 1 |
+| … en divergencia **ya declarada** | 0 |
 | … en divergencia **nueva, sin declarar** | 0 |
-| Props del código que varias variables de Figma reclaman con valores distintos | 1 |
+| Props del código que varias variables de Figma reclaman con valores distintos | 0 |
 | Solo-código (sin variable en Figma) | 5 |
 | Solo-Figma · capa Semantic (decisión pendiente) | 145 |
 | Solo-Figma · Primitives (por diseño: ocultos al publicar) | 157 |
-
-## Divergencias ya declaradas
-
-Desacuerdos vistos y anotados. No hacen fallar el script, pero siguen siendo trabajo.
-
-| Custom property | Modo | Figma | Código | Estado | Qué hacer |
-|---|---|---|---|---|---|
-| `--secondary` | Light | #a44c1d | #c56a3e | pendiente · gana figma | Decidir si se parte en --secondary (relleno) + una prop de texto, siguiendo la forma de --brand. Ver la sección de conflictos de docs/token-map.md. |
-
-## Una prop del código, varias variables de Figma que no coinciden
-
-Figma distingue algo que el código no puede expresar con una sola propiedad.
-Cada fila es un candidato a partirse en dos props, como se hizo con `--brand`.
-
-**`--secondary`** — discrepan en Light:
-
-| Variable Figma | Light | Dark |
-|---|---|---|
-| `color/fill/brand-secondary` | #c56a3e | #dc855d |
-| `color/text/brand-secondary` | #a44c1d | #dc855d |
 
 ## Espejados
 
@@ -98,7 +78,7 @@ Valores: `Figma / código`. `≈` = mismo color, ±1 por canal del ida y vuelta 
 | `radius/xs` | Primitives | `--radius-xs` | @theme inline | ✅ 4 / 4 | ✅ 4 / 4 |
 | `color/border/focus` | Semantic | `--ring` | :root / .dark | ✅ #0c2912 / #0c2912 | ✅ #547959 / #547959 |
 | `color/fill/brand-secondary` | Semantic | `--secondary` | :root / .dark | ✅ #c56a3e / #c56a3e | ✅ #dc855d / #dc855d |
-| `color/text/brand-secondary` | Semantic | `--secondary` | :root / .dark | ❌ #a44c1d / #c56a3e | ✅ #dc855d / #dc855d |
+| `color/text/brand-secondary` | Semantic | `--brand-secondary` | :root / .dark | ✅ #a44c1d / #a44c1d | ✅ #dc855d / #dc855d |
 | `color/text/on-brand-secondary` | Semantic | `--secondary-foreground` | :root / .dark | ✅ #16100d / #16100d | ✅ #16100d / #16100d |
 | `color/icon/tertiary` | Semantic | `--subtle-foreground` | :root / .dark | ✅ #6e6055 / #6e6055 | ✅ #a99c8e / #a99c8e |
 | `color/text/tertiary` | Semantic | `--subtle-foreground` | :root / .dark | ✅ #6e6055 / #6e6055 | ✅ #a99c8e / #a99c8e |

@@ -63,7 +63,7 @@ export function BrandStoreLink({
       }
       className={cn(
         buttonVariants({ size, variant: "outline" }),
-        "min-w-0 border-secondary/40 text-secondary hover:text-secondary",
+        "min-w-0 border-secondary/40 text-brand-secondary hover:text-brand-secondary",
         className,
       )}
     >

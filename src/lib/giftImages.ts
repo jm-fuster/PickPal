@@ -42,7 +42,7 @@ import type { GiftImageKey, GiftType } from "./gifts";
 // (ver docs/design-system.md · Contraste).
 const TINTS = {
   green: { container: "bg-primary/10", icon: "text-brand" },
-  terracotta: { container: "bg-secondary/15", icon: "text-secondary" },
+  terracotta: { container: "bg-secondary/15", icon: "text-brand-secondary" },
   amber: { container: "bg-chart-3/15", icon: "text-category-amber" },
 } as const;
 

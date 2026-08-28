@@ -32,6 +32,7 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
   --color-brand: var(--brand);
+  --color-brand-secondary: var(--brand-secondary);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -91,6 +92,10 @@
   --brand: oklch(0.25 0.055 148);
   --secondary: oklch(0.62 0.13 45);
   --secondary-foreground: oklch(0.18 0.012 50);
+  /* Terracota como primer plano (texto e iconos). No usar --secondary para eso:
+     es el relleno y como texto se queda a 3.7:1 en claro. En oscuro coinciden.
+     Mismo patrón que --primary/--brand. */
+  --brand-secondary: oklch(0.52 0.13 45.3);
   /* Mismo valor que --accent a propósito: en Figma los dos aliasan a Cream/300.
      No es un descuido — si algún día deben separarse, se separan en Figma primero. */
   --muted: oklch(0.93 0.03 78);
@@ -129,6 +134,7 @@
   --brand: oklch(0.71 0.047 148);
   --secondary: oklch(0.70 0.12 45);
   --secondary-foreground: oklch(0.18 0.012 50);
+  --brand-secondary: oklch(0.70 0.12 45);
   --muted: oklch(0.28 0.018 50);
   --muted-foreground: oklch(0.8806 0.0248 77.44);
   --subtle-foreground: oklch(0.7 0.0252 69.47);

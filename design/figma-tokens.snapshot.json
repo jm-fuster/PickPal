@@ -377,7 +377,7 @@
     [
       "color/text/brand-secondary",
       "Semantic",
-      "--secondary",
+      "--brand-secondary",
       "#a44c1d",
       "#dc855d"
     ],

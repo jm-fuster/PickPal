@@ -4,14 +4,5 @@
     "pendiente": "Sabido y hay que arreglarlo. Lleva quién gana y qué hay que tocar.",
     "aceptada": "Deliberado y permanente. Lleva el motivo por el que los dos lados no deben coincidir."
   },
-  "divergencias": [
-    {
-      "css": "--secondary",
-      "modo": "light",
-      "estado": "pendiente",
-      "gana": "figma",
-      "motivo": "El código tiene una sola prop donde Figma tiene dos tokens con valores distintos en claro: color/fill/brand-secondary (#c56a3e, el relleno) y color/text/brand-secondary (#a44c1d, Terracotta/text, el primer plano). --secondary coincide con el relleno y por tanto no coincide con el texto. Es exactamente la distinción relleno/primer plano que --brand acaba de resolver para el verde, sin resolver para la terracota.",
-      "accion": "Decidir si se parte en --secondary (relleno) + una prop de texto, siguiendo la forma de --brand. Ver la sección de conflictos de docs/token-map.md."
-    }
-  ]
+  "divergencias": []
 }
