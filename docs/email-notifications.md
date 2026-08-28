@@ -94,50 +94,64 @@ El HTML se genera en `convex/emails.ts` (`buildHtml()`). No usa React Email ni n
 
 ### Estructura visual
 
+La plantilla es **oscura por diseño** (verde profundo + coral), en los dos modos del cliente — el email no tiene tema claro.
+
 ```
 ┌─────────────────────────────────────────┐
-│  Header verde (#2D4033)                 │
-│  [logo 40px] PickPal                    │
+│  Página #141e17                         │
+│  Header #2D4033                         │
+│  [logo 36px] PickPal (#FBF7EE)          │
 │              "Recordatorio de evento"   │
 ├─────────────────────────────────────────┤
-│  Fondo crema (#FBF7EE)                  │
-│  "Tienes un evento próximo:"            │
-│  ┌─ card por evento ─────────────────┐  │
-│  │  [avatar 44px]  Nombre (negrita)  │  │
+│  Body #1E2D24                           │
+│  "Tienes un evento próximo:" (#a8c0a0)  │
+│  ┌─ card por evento (#2D4033) ───────┐  │
+│  │  [avatar 44px]  Nombre (#FBF7EE)  │  │
 │  │                 Etiqueta · dd/mm  │  │
-│  │                 "en X días"       │  │
+│  │                 "en X días" coral │  │
 │  └───────────────────────────────────┘  │
-│  [ 🎁 Ideas para {nombre} ]             │
+│  [ 🎁 Ideas para {nombre} ] (#F1704B)   │
 ├─────────────────────────────────────────┤
-│  Footer crema · texto opt-out           │
+│  Footer #1E2D24 · opt-out (#5a7a5e)     │
 └─────────────────────────────────────────┘
 ```
 
 ### Paleta
 
-Los tokens del design system se traducen a hex porque los clientes de correo no soportan CSS variables ni `oklch`.
+Hex fijos porque los clientes de correo no soportan CSS variables ni `oklch`. Es una paleta **propia del email** (verdes oscuros + el coral del logo), no una traducción 1:1 de los tokens de la app — contrastada con el código el 28-ago-2026.
 
-| Token app | Hex en email | Uso |
-|---|---|---|
-| `--primary` | `#2D4033` | Fondo header, fondo botón CTA |
-| `--background` | `#FBF7EE` | Fondo body y footer |
-| `--secondary` | `#D97757` | Texto del countdown ("en X días") |
-| `--foreground` | `#3D2E1E` | Texto principal del body |
-| `--border` | `#E0D5C5` | Borde de cards y secciones |
-| muted | `#9A8A75` | Texto secundario, footer |
-| avatar fallback | `#D4C4A8` | Fondo círculo de inicial cuando no hay foto |
+| Hex | Uso |
+|---|---|
+| `#141e17` | Fondo de página |
+| `#1E2D24` | Fondo de body y footer |
+| `#2D4033` | Header y cards |
+| `#3D5040` | Borde del avatar y fondo del círculo de inicial |
+| `#FBF7EE` | Texto principal (nombre, wordmark) |
+| `#a8c0a0` | Texto secundario (intro, etiqueta · fecha, subtítulo) |
+| `#F1704B` | Countdown "en X días" y fondo del CTA (el coral del logo) |
+| `#5a7a5e` | Footer y su enlace |
 
 ### Logo en cabecera
 
-`icon-192.png` servido desde `APP_BASE_URL/icon-192.png` (Next.js public folder, siempre accesible). Se renderiza a 40 × 40 px con `border-radius:10px`. Los clientes de correo que bloqueen imágenes remotas mostrarán solo el texto "PickPal".
+`logo-mark-email.png` servido desde `APP_BASE_URL` (Next.js public folder). Se renderiza a 36 × 36 px como `background-image` de un `<div role="img">` — no como `<img>`, ver «Modo oscuro» abajo. Los clientes que bloqueen imágenes remotas muestran solo el texto "PickPal".
 
 ### Avatar de la persona
 
 Cada tarjeta incluye el avatar circular de la persona (44 × 44 px):
-- Si `personAvatarUrl` está disponible: `<img>` con `border-radius:50%` y borde `#E0D5C5`.
-- Si no hay URL: círculo `#D4C4A8` con la inicial del nombre centrada mediante `line-height:44px`.
+- Si `personAvatarUrl` está disponible: `<div role="img">` con la foto como `background-image`, `border-radius:50%` y borde de 2 px `#3D5040`.
+- Si no hay URL: tabla de 44 × 44 con fondo `#3D5040` y la inicial del nombre en `#FBF7EE` centrada.
 
 El campo `personAvatarUrl` se propaga desde `person.avatarUrl` en `convex/notifications.ts` (`findEventsNeedingEmail`) y se declara como `v.optional(v.string())` en el validator de `sendBatchedReminderEmail`.
+
+### Modo oscuro en clientes de correo (resuelto 28-ago-2026)
+
+Gmail en móvil "ayuda" invirtiendo los colores de los emails cuando el sistema está en oscuro, y **aplica filtros a los `<img>` ignorando `filter:none` y el meta `color-scheme`**. Como esta plantilla ya es oscura, la inversión la destrozaba: logo, icono de regalo y avatar salían alterados.
+
+La defensa aplicada, de más a menos peso:
+1. **Toda imagen va como `background-image`** de un `<div>`/`<span>` (logo, icono del CTA, avatar) — los filtros de Gmail atacan elementos `<img>`, no fondos.
+2. `<meta name="color-scheme" content="light">` + `supported-color-schemes` para que los clientes que sí lo respetan no re-tematicen.
+
+**Verificado el 28-ago-2026** con `emails:sendTestEmail` en la app de Gmail en móvil con el modo oscuro del sistema activo: logo, icono y avatar intactos. Si algún cliente vuelve a distorsionar, el siguiente escalón es servir las imágenes con el fondo oscuro horneado en el propio PNG.
 
 ### Botón CTA
 
