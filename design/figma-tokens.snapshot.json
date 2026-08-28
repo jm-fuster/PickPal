@@ -151,6 +151,13 @@
       "#fa6863"
     ],
     [
+      "color/fill/field-disabled",
+      "Semantic",
+      "--field-disabled",
+      "#efeae2",
+      "#302621"
+    ],
+    [
       "typography/font-family/heading",
       "Typography",
       "--font-heading",
@@ -559,7 +566,6 @@
       "color/fill/brand-subtle",
       "color/fill/danger",
       "color/fill/danger-hover",
-      "color/fill/field-disabled",
       "color/fill/success",
       "color/fill/success-solid",
       "color/fill/sunken",

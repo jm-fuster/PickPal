@@ -17,6 +17,7 @@
   --color-chart-1: var(--chart-1);
   --color-ring: var(--ring);
   --color-input: var(--input);
+  --color-field-disabled: var(--field-disabled);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
   --color-warning: var(--warning);
@@ -106,6 +107,7 @@
   --category-amber: oklch(0.5553 0.1455 49);
   --border: oklch(0.88 0.025 75);
   --input: oklch(0.597 0.035 51);
+  --field-disabled: oklch(0.94 0.012 80);
   --ring: oklch(0.25 0.055 148);
   --chart-1: oklch(0.25 0.055 148);
   --chart-2: oklch(0.62 0.13 45);
@@ -137,6 +139,7 @@
   --category-amber: oklch(0.7993 0.1349 71.71);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 36%);
+  --field-disabled: oklch(0.2784 0.0176 48.07);
   --ring: oklch(0.539 0.065 148);
   --chart-1: oklch(0.539 0.065 148);
   --chart-2: oklch(0.70 0.12 45);
