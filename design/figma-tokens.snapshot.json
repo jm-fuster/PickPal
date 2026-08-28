@@ -207,11 +207,11 @@
       "#efeae2"
     ],
     [
-      "color/border/component",
+      "color/field/border",
       "Semantic",
       "--input",
-      "#e1d6c6",
-      "#ffffff/12.16"
+      "#917a6d",
+      "#ffffff/36"
     ],
     [
       "typography/line-height/normal",
@@ -547,8 +547,8 @@
       "color/bg/subtle",
       "color/border/brand",
       "color/border/brand-secondary",
+      "color/border/component",
       "color/border/subtle",
-      "color/field/border",
       "color/field/border-focus",
       "color/field/border-invalid",
       "color/field/fill-disabled",

@@ -70,7 +70,8 @@ Definidos en [`src/app/globals.css`](../src/app/globals.css). Todos los colores 
 | `--muted` / `--accent` | `oklch(0.93 0.03 78)` los dos (`#F3E6D2`) | Beige/ámbar sutil — fondos de hover, badges neutros. **Mismo valor a propósito**: en Figma los dos aliasan a `Cream/300`. |
 | `--muted-foreground` | `oklch(0.4014 0.0404 51.47)` (`#5A4234`) | Texto secundario: descripciones, metadatos, rótulos de sección, reposo de lo clicable. Es `Neutral/700`. 8.62:1 sobre el fondo. |
 | `--subtle-foreground` | `oklch(0.4992 0.0249 60.35)` (`#6E6055`) | **Tercer nivel**, más débil que el anterior: placeholders y decoración. Es `Umber/900`. 5.63:1 — suficiente porque nunca lleva contenido que haya que leer. |
-| `--border` | `oklch(0.88 0.025 75)` | Tostado discreto. Define sin gritar. |
+| `--border` | `oklch(0.88 0.025 75)` | Tostado discreto. Define sin gritar. Decorativo: WCAG 1.4.11 no lo cubre. |
+| `--input` | `oklch(0.597 0.035 51)` (`#917A6D`) | **Borde de control**: campos, checkbox, `Button` outline y track del `Switch` apagado. Es el único límite visual de esos controles, así que 1.4.11 le exige 3:1 — da **3.75:1**. Es `Neutral/500`, vía `color/field/border`. Sincronizado desde Figma el 28-ago-2026. |
 | `--chart-3` | `oklch(0.77 0.12 72)` (~`#E8B059`) | Ámbar dorado — acento terciario para gráficas y datos. |
 
 ### Colores · dark
@@ -81,9 +82,10 @@ Mantenemos calidez también en oscuro. Nada de marrón griseado.
 |---|---|---|
 | `--background` | `oklch(0.18 0.012 50)` | Marrón profundo, no negro. Sigue evocando papel a baja luz. |
 | `--foreground` | `oklch(0.94 0.012 80)` | Crema clara con un toque cálido. |
-| `--primary` | `oklch(0.42 0.07 148)` | Verde bosque más luminoso para contrastar sobre el fondo oscuro. Como **relleno** funciona; como texto da 2.30:1 — por eso existe `--brand`. |
+| `--primary` | `oklch(0.539 0.065 148)` (`#547959`) | Es `Green/600`: el único paso de la rampa con ≥3:1 sobre el fondo (**3.82:1**, WCAG 1.4.11) que mantiene 4.59:1 con `--primary-foreground` encima. Como **relleno** funciona; como texto sigue sin llegar a 4.5:1 — por eso existe `--brand`. Sincronizado desde Figma el 28-ago-2026. |
 | `--brand` | `oklch(0.71 0.047 148)` (`#8EAA91`) | Verde claro para texto e iconos de marca: **7.46:1** sobre el fondo. Es `Green/400` de la rampa, no un valor inventado. Aquí es donde se separa de `--primary`. |
 | `--secondary` | `oklch(0.70 0.12 45)` | Terracota más luminosa para badges sobre fondo oscuro. |
+| `--input` | `oklch(1 0 0 / 36%)` | Borde de control en oscuro: **3.32:1** sobre el fondo (antes blanco/12 %, 1.39:1 — invisible). Aclara de paso los rellenos `bg-input/30·50` de campos y outline, asumido en la sincronización a11y. |
 
 ### Radii
 
@@ -146,6 +148,24 @@ El inventario completo, uso por uso y agrupado por pantalla, se generó con un c
 **Y un hallazgo estructural que sigue abierto**: la escalera de oscuro queda desequilibrada (2.60 de hueco entre normal y secundario, 6.11 entre secundario y terciario) y **no se puede equilibrar solo con `Cream`**, porque la rampa no tiene ningún paso entre `400` y `500` — un salto de L de 0.1806, el mayor de toda la familia, mientras que `200`→`300` es de 0.0087. De hecho `Cream/300` no es un escalón de luminosidad sino un tinte cálido de superficie con número de rampa (+0.0181 de croma a igual L). `Cream` se diseñó para vivir en la mitad clara (ver Rampas de color) y aquí se le pide cubrir primer plano sobre fondo oscuro, que es justo el tramo que no tiene. `Neutral` sí está bien espaciada —pasos regulares de ~0.085, y su `300` da los 9.06:1 que faltan— pero es más griseada y choca con «mantenemos calidez también en oscuro». Ver Pendientes.
 
 Verificado en el navegador midiendo con canvas, no parseando `getComputedStyle` — devuelve `lab()` y parsear la cadena da contrastes falsos sin lanzar error.
+
+### Segunda sincronización: la auditoría a11y llega al código (28-ago-2026)
+
+La auditoría WCAG 2.2 AA del 26-ago se corrigió en Figma y quedó en `design/token-divergences.json` como «pendiente · gana figma». Hoy el código la alcanza y esas tres entradas salen del registro (queda `--secondary`, que es otra decisión):
+
+| Token | Antes | Ahora | Paso | Contraste |
+|---|---|---|---|---|
+| `--input` light | `#E1D6C6` | `#917A6D` | `Neutral/500` vía `border/strong` | 1.33 → **3.75:1** |
+| `--input` dark | blanco/12 % | blanco/36 % | `white-alpha/36` | 1.39 → **3.32:1** |
+| `--primary` dark | `#315837` | `#547959` | `Green/600` | 2.99 → **3.82:1** |
+| `--ring` dark | `#315837` | `#547959` | `Green/600` | sigue a `--primary` |
+| `--chart-1` dark | `#315837` | `#547959` | `Green/600` | arrastrado, no decisión propia |
+
+Y las clases que la auditoría pedía: `button.tsx` outline pasa de `border-border` a `border-input` (y cae `dark:border-input`, ya redundante), `switch.tsx` pierde `dark:data-unchecked:bg-input/80` (la pista apagada va con `bg-input` a secas en los dos modos) y los dos checkbox nativos de `/settings` pasan a `border-input`. Los oklch de tres decimales hacen ida y vuelta exacta al hex de Figma, verificados con la conversión del propio `token-map.mjs`.
+
+**El puente de `--input` cambió de dueño.** Lo llevaba `color/border/component` (`#E1D6C6`, blanco/12); lo que el código pinta ahora es `color/field/border` (≥3:1), así que el `codeSyntax` se movió a él, los 5 especímenes de `Preview Dark` de Input, Select y Textarea que aún lo usaban se repuntaron, y `border/component` queda a **cero bindings** — candidato a retirarse, dicho también en su descripción. `color/fill/sunken` pierde a su vez la contraparte: los rellenos oscuros `bg-input/30·50` parten ahora del blanco al 36 % (10,8 % y 18 % efectivos, antes 3,6 % y 6 %), así que **campos y outline en oscuro se aclaran un punto**. Asumido: es la misma custom property que el borde; si algún día duele, se parte en dos props como se hizo con `--brand` — la forma exacta del conflicto abierto de `--secondary`.
+
+De la pasada salió una leyenda mentirosa: `card/field/border` en `Foundations - Color` decía «L/D border/component» cuando el alias real es `color/border/strong` desde el 27-ago — reescrita. Las leyendas del swatch son texto estático y no siguen a la variable; ya pasó con `brand/primary-text` (ver Contraste).
 
 ### Figma — arquitectura de variables
 
@@ -566,7 +586,7 @@ Los 59 semánticos de color siguen la fórmula `type-element-role-emphasis-state
 |---|---|---|
 | `color/bg` | `--background` | Canvas de página |
 | `color/bg/surface` · `color/bg/surface-raised` | `--card` · `--popover` | Card · popover y dropdown |
-| `color/fill/sunken` | `--input` | **Superficie de control hundida.** No es «el fondo del input»: en Light el campo va `bg-transparent` y solo tiene borde. `bg-input` aparece en **12 sitios de 5 componentes**: el track del `Switch` apagado (único uso sólido en Light) y, en Dark, el fondo en reposo y el hover de `Input`, `Textarea`, `Button` outline y `Select` trigger (`/30`, `/50`, `/80`) |
+| `color/fill/sunken` | — | **Superficie de control hundida, sin puente desde el 28-ago-2026**: `--input` pasó a `color/field/border` con la sincronización a11y. `bg-input` sigue en **11 sitios de 5 componentes** — el track del `Switch` apagado (los dos modos) y, en Dark, el fondo en reposo y el hover de `Input`, `Textarea`, `Button` outline y `Select` trigger (`/30`, `/50`) — pero parte del blanco al 36 %, no del 12 % de este token |
 | `color/fill/field-disabled` | — | **Relleno del campo deshabilitado**, `Input` y `Textarea`: los dos únicos sitios del producto donde deshabilitar pinta color. Paso sólido, no el alfa del código — ver más abajo |
 | `color/fill/component` | `--muted` | **Superficie interactiva neutra**: hover de Button outline y ghost, hover de Badge, link del sidebar, footer de Card, track del Slider |
 | `color/fill/component-focus` | `--accent` | **Solo el item de menú resaltado**: `focus:bg-accent` en `SelectItem` y la opción activa del combobox de intereses |
@@ -584,7 +604,7 @@ Los 59 semánticos de color siguen la fórmula `type-element-role-emphasis-state
 | `color/text` · `color/text/secondary` | `--foreground` · `--muted-foreground` | Texto principal · de apoyo |
 | `color/text/brand` | — | Links y texto de marca (aliasa a marca solo en Light) |
 | `color/text/on-*` | `--*-foreground` | El prefijo `on-` significa siempre «encima de esta superficie» |
-| `color/border` · `color/border/component` | `--border` · `--input` | Borde estándar · borde de `Input` y `Textarea` |
+| `color/border` · `color/field/border` | `--border` · `--input` | Borde estándar decorativo · borde de control a ≥3:1 (campos, checkbox, outline, track del switch). `color/border/component` perdió el puente y los bindings el 28-ago-2026: candidato a retirarse |
 | `color/icon` · `/secondary` · `/danger` · `/brand` · `/on-brand` · `/on-brand-secondary` | — | Fill y stroke de icono. Nacieron el 23-ago-2026 copiando el mismo primitivo que su equivalente de `color/text/*` — no un alias al semántico de texto — porque los iconos ya llevaban 369 bindings a esos tokens y **`color/text/*` solo tiene scope `TEXT_FILL`**, invisible en el picker de Fill de un vector. Son los 6 roles que el uso real demostró necesarios, no los 7 que sugiere el documento (no hay uso de `success` en iconos propios) |
 
 #### `danger` y `error`: dos rojos con el mismo hex (25-ago-2026)
@@ -1542,6 +1562,7 @@ Lista de cosas que sé que faltan o que no han recibido pasada todavía. Se irá
 - [ ] **Montar el grupo label–input–error en una página del Figma**: Input, Textarea y Label son especímenes sueltos, y por eso `space/field/gap` no tiene destino. Es el único de los 25 semánticos sin uso que se resolvería con un especimen nuevo en vez de con una decisión.
 - [ ] **28 textos de especímenes sin hueco en la escala**: `Geist Medium 12` con tracking 0 (9), `Geist Medium 11` con 12 % sin mayúsculas (6), `Geist Medium 18` (6), `Geist Light 24` (2), `Geist Medium 13` (2), `Geist Regular 24` (1), más las 3 iniciales del Avatar (Regular, y por rol pedirían un `Label`) y 3 etiquetas de Button subrayadas, que perderían el subrayado al tomar `Label 2`. Decidir si nacen 3–4 estilos o se normalizan los nodos.
 - [ ] **Huecos de icono: rectángulo o instancia**: 122 huecos son rectángulos tokenizados (color y tamaño vinculados) y 28 son instancias reales, a veces en la misma página — `Button Icon` usa `icon/x` y el resto de Button, rectángulos. Decidir el patrón único. Pasar todo a instancias cuesta ~200 ediciones, elegir glifo por componente y ~74 sobrescrituras de trazo; dejarlo en rectángulos es barato pero la librería no enseña iconos de verdad. Ver «Pasada de uso».
+- [ ] **Retirar `color/border/component`**: sin puente y sin bindings desde el 28-ago-2026 (la sincronización a11y movió los bordes de campo a `color/field/border` y `var(--input)` se fue con ellos). Decidirlo junto a la revisión de `color/field/*`: si esa capa se retirase, el borde de campo volvería a necesitar un semántico con nombre.
 - [ ] **`color/icon/category-amber` desapareció de Figma y el código lo sigue usando**: `--category-amber` vive en `globals.css` (claro y oscuro) y lo consume `giftImages.ts` para el glifo de ~15 categorías de regalo, pero el token se perdió al reducir `color/` a grupos de rol el 27-ago-2026. Recrearlo es un alias a `color/Amber/800` (claro) y `color/Amber/500` (oscuro), los mismos pasos que `color/text/warning` — pero conviene decidirlo junto al pendiente de `bg/category/*`, que va a renombrar la familia entera.
 
 ---

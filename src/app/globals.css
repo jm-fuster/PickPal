@@ -84,8 +84,9 @@
   --primary: oklch(0.25 0.055 148);
   --primary-foreground: oklch(0.975 0.008 80);
   /* Verde de marca como primer plano (texto e iconos). No usar --primary para
-     eso: es el relleno del botón primario y en oscuro se queda a 2.3:1 sobre la
-     página. En claro ambos coinciden. Ver docs/design-system.md · Contraste. */
+     eso: es el relleno del botón primario y en oscuro se queda a 3.8:1 sobre la
+     página — vale como relleno (1.4.11), no como texto (4.5:1). En claro ambos
+     coinciden. Ver docs/design-system.md · Contraste. */
   --brand: oklch(0.25 0.055 148);
   --secondary: oklch(0.62 0.13 45);
   --secondary-foreground: oklch(0.18 0.012 50);
@@ -104,7 +105,7 @@
   --warning: oklch(0.5553 0.1455 49);
   --category-amber: oklch(0.5553 0.1455 49);
   --border: oklch(0.88 0.025 75);
-  --input: oklch(0.88 0.025 75);
+  --input: oklch(0.597 0.035 51);
   --ring: oklch(0.25 0.055 148);
   --chart-1: oklch(0.25 0.055 148);
   --chart-2: oklch(0.62 0.13 45);
@@ -121,7 +122,7 @@
   --card-foreground: oklch(0.94 0.012 80);
   --popover: oklch(0.22 0.015 50);
   --popover-foreground: oklch(0.94 0.012 80);
-  --primary: oklch(0.42 0.07 148);
+  --primary: oklch(0.539 0.065 148);
   --primary-foreground: oklch(0.975 0.008 80);
   --brand: oklch(0.71 0.047 148);
   --secondary: oklch(0.70 0.12 45);
@@ -135,9 +136,9 @@
   --warning: oklch(0.7993 0.1349 71.71);
   --category-amber: oklch(0.7993 0.1349 71.71);
   --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.42 0.07 148);
-  --chart-1: oklch(0.42 0.07 148);
+  --input: oklch(1 0 0 / 36%);
+  --ring: oklch(0.539 0.065 148);
+  --chart-1: oklch(0.539 0.065 148);
   --chart-2: oklch(0.70 0.12 45);
   --chart-3: oklch(0.77 0.12 72);
   --chart-4: oklch(0.5 0.04 80);

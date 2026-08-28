@@ -14,9 +14,9 @@ No genera CSS desde Figma — solo 67 de las 373 variables tienen contraparte en
 | | Nº |
 |---|---|
 | Espejados (Figma ↔ código) | 70 |
-| … de acuerdo | 64 |
-| … iguales salvo redondeo oklch↔hex | 2 |
-| … en divergencia **ya declarada** | 4 |
+| … de acuerdo | 68 |
+| … iguales salvo redondeo oklch↔hex | 1 |
+| … en divergencia **ya declarada** | 1 |
 | … en divergencia **nueva, sin declarar** | 0 |
 | Props del código que varias variables de Figma reclaman con valores distintos | 1 |
 | Solo-código (sin variable en Figma) | 5 |
@@ -29,9 +29,6 @@ Desacuerdos vistos y anotados. No hacen fallar el script, pero siguen siendo tra
 
 | Custom property | Modo | Figma | Código | Estado | Qué hacer |
 |---|---|---|---|---|---|
-| `--chart-1` | Dark | #547959 | #315837 | pendiente · gana figma | globals.css .dark → --chart-1: oklch(0.539 0.065 148) |
-| `--primary` | Dark | #547959 | #315837 | pendiente · gana figma | globals.css .dark → --primary: oklch(0.539 0.065 148) |
-| `--ring` | Dark | #547959 | #315837 | pendiente · gana figma | globals.css .dark → --ring: oklch(0.539 0.065 148) |
 | `--secondary` | Light | #a44c1d | #c56a3e | pendiente · gana figma | Decidir si se parte en --secondary (relleno) + una prop de texto, siguiendo la forma de --brand. Ver la sección de conflictos de docs/token-map.md. |
 
 ## Una prop del código, varias variables de Figma que no coinciden
@@ -61,7 +58,7 @@ Valores: `Figma / código`. `≈` = mismo color, ±1 por canal del ida y vuelta 
 | `color/text/brand` | Semantic | `--brand` | :root / .dark | ✅ #0c2912 / #0c2912 | ✅ #8eaa91 / #8eaa91 |
 | `color/bg/surface` | Semantic | `--card` | :root / .dark | ✅ #fffbf6 / #fffbf6 | ✅ #211914 / #211914 |
 | `color/icon/warning` | Semantic | `--category-amber` | :root / .dark | ✅ #b45309 / #b45309 | ✅ #f3ae51 / #f3ae51 |
-| `color/bg/category/green` | Semantic | `--chart-1` | :root / .dark | ✅ #0c2912 / #0c2912 | ❌ #547959 / #315837 |
+| `color/bg/category/green` | Semantic | `--chart-1` | :root / .dark | ✅ #0c2912 / #0c2912 | ✅ #547959 / #547959 |
 | `color/bg/category/terracotta` | Semantic | `--chart-2` | :root / .dark | ✅ #c56a3e / #c56a3e | ✅ #dc855d / #dc855d |
 | `color/bg/category/amber` | Semantic | `--chart-3` | :root / .dark | ✅ #e3a757 / #e3a757 | ✅ #e3a757 / #e3a757 |
 | `color/bg/category/umber` | Semantic | `--chart-4` | :root / .dark | ✅ #d5b59e / #d5b59e | ✅ #6f6149 / #6f6149 |
@@ -77,7 +74,7 @@ Valores: `Figma / código`. `≈` = mismo color, ±1 por canal del ida y vuelta 
 | `typography/font-weight/regular` | Typography | `--font-weight-normal` | — | — 400 / — | — 400 / — |
 | `typography/font-weight/semibold` | Typography | `--font-weight-semibold` | — | — 600 / — | — 600 / — |
 | `color/text` | Semantic | `--foreground` | :root / .dark | ✅ #302621 / #302621 | ✅ #efeae2 / #efeae2 |
-| `color/border/component` | Semantic | `--input` | :root / .dark | ✅ #e1d6c6 / #e1d6c6 | ≈ #ffffff/12.16 / #ffffff/12 |
+| `color/field/border` | Semantic | `--input` | :root / .dark | ✅ #917a6d / #917a6d | ✅ #ffffff/36 / #ffffff/36 |
 | `typography/line-height/normal` | Typography | `--leading-normal` | @theme | ✅ 1.4 / 1.4 | ✅ 1.4 / 1.4 |
 | `typography/line-height/relaxed` | Typography | `--leading-relaxed` | @theme | ✅ 1.5 / 1.5 | ✅ 1.5 / 1.5 |
 | `typography/line-height/snug` | Typography | `--leading-snug` | @theme | ✅ 1.2 / 1.2 | ✅ 1.2 / 1.2 |
@@ -86,7 +83,7 @@ Valores: `Figma / código`. `≈` = mismo color, ±1 por canal del ida y vuelta 
 | `color/fill/component` | Semantic | `--muted` | :root / .dark | ✅ #f3e6d2 / #f3e6d2 | ✅ #302621 / #302621 |
 | `color/text/secondary` | Semantic | `--muted-foreground` | :root / .dark | ✅ #5a4234 / #5a4234 | ✅ #e1d6c6 / #e1d6c6 |
 | `color/bg/surface-raised` | Semantic | `--popover` | :root / .dark | ✅ #fffbf6 / #fffbf6 | ✅ #211914 / #211914 |
-| `color/fill/brand` | Semantic | `--primary` | :root / .dark | ✅ #0c2912 / #0c2912 | ❌ #547959 / #315837 |
+| `color/fill/brand` | Semantic | `--primary` | :root / .dark | ✅ #0c2912 / #0c2912 | ✅ #547959 / #547959 |
 | `color/icon/on-brand` | Semantic | `--primary-foreground` | :root / .dark | ✅ #faf6f1 / #faf6f1 | ✅ #faf6f1 / #faf6f1 |
 | `color/text/on-brand` | Semantic | `--primary-foreground` | :root / .dark | ✅ #faf6f1 / #faf6f1 | ✅ #faf6f1 / #faf6f1 |
 | `radius/base` | Primitives | `--radius` | :root | ✅ 16 / 16 | ✅ 16 / 16 |
@@ -98,7 +95,7 @@ Valores: `Figma / código`. `≈` = mismo color, ±1 por canal del ida y vuelta 
 | `radius/sm` | Primitives | `--radius-sm` | @theme inline | ✅ 8 / 8 | ✅ 8 / 8 |
 | `radius/xl` | Primitives | `--radius-xl` | @theme inline | ✅ 20 / 20 | ✅ 20 / 20 |
 | `radius/xs` | Primitives | `--radius-xs` | @theme inline | ✅ 4 / 4 | ✅ 4 / 4 |
-| `color/border/focus` | Semantic | `--ring` | :root / .dark | ✅ #0c2912 / #0c2912 | ❌ #547959 / #315837 |
+| `color/border/focus` | Semantic | `--ring` | :root / .dark | ✅ #0c2912 / #0c2912 | ✅ #547959 / #547959 |
 | `color/fill/brand-secondary` | Semantic | `--secondary` | :root / .dark | ✅ #c56a3e / #c56a3e | ✅ #dc855d / #dc855d |
 | `color/text/brand-secondary` | Semantic | `--secondary` | :root / .dark | ❌ #a44c1d / #c56a3e | ✅ #dc855d / #dc855d |
 | `color/text/on-brand-secondary` | Semantic | `--secondary-foreground` | :root / .dark | ✅ #16100d / #16100d | ✅ #16100d / #16100d |
@@ -157,11 +154,11 @@ Mientras no se decida, ni Figma ni el código están completos.
 | `color/icon/` | 10 | `color/icon`, `color/icon/danger`, `color/icon/info`, `color/icon/on-brand-secondary`, `color/icon/on-danger-solid`, `color/icon/on-success-solid`, `color/icon/on-warning-solid`, `color/icon/secondary`, `color/icon/strong`, `color/icon/success` |
 | `radius/` | 8 | `radius/checkbox`, `radius/control-sm`, `radius/interactive`, `radius/logo`, `radius/panel`, `radius/pill`, `radius/surface`, `radius/tag` |
 | `z-index/` | 6 | `z-index/dropdown`, `z-index/modal`, `z-index/overlay`, `z-index/popover`, `z-index/sticky`, `z-index/toast` |
-| `color/field/` | 5 | `color/field/border`, `color/field/border-focus`, `color/field/border-invalid`, `color/field/fill-disabled`, `color/field/placeholder` |
 | `color/text/` | 5 | `color/text/info`, `color/text/on-danger-solid`, `color/text/on-success-solid`, `color/text/on-warning-solid`, `color/text/success` |
+| `color/border/` | 4 | `color/border/brand`, `color/border/brand-secondary`, `color/border/component`, `color/border/subtle` |
+| `color/field/` | 4 | `color/field/border-focus`, `color/field/border-invalid`, `color/field/fill-disabled`, `color/field/placeholder` |
 | `opacity/` | 4 | `opacity/disabled`, `opacity/hover`, `opacity/pressed`, `opacity/skeleton` |
 | `border-width/` | 3 | `border-width/default`, `border-width/focus`, `border-width/strong` |
-| `color/border/` | 3 | `color/border/brand`, `color/border/brand-secondary`, `color/border/subtle` |
 | `color/bg/` | 1 | `color/bg/subtle` |
 
 ### Primitives — 157 variables, y está bien así

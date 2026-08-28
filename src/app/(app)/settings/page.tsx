@@ -268,7 +268,7 @@ export default function SettingsPage() {
                           type="checkbox"
                           checked={checked}
                           onChange={() => handleEmailDayToggle(opt.value)}
-                          className="size-4 rounded border-border accent-primary"
+                          className="size-4 rounded border-input accent-primary"
                         />
                         <span className="font-medium">{opt.label}</span>
                       </label>
@@ -312,7 +312,7 @@ export default function SettingsPage() {
                   type="checkbox"
                   checked={checked}
                   onChange={() => handleStoreToggle(store)}
-                  className="size-4 rounded border-border accent-primary"
+                  className="size-4 rounded border-input accent-primary"
                 />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={STORE_ICONS[store]} alt="" className="size-4 rounded-sm object-contain bg-white p-px" aria-hidden />
