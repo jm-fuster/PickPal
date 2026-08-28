@@ -831,6 +831,18 @@ Las 29 páginas llevan aviso, así que el bloque no significa «esta página es 
 
 **Dos defectos preexistentes que salieron al hacerlo.** Los `Header` de `LogoMark` y `Theme Toggle` no eran auto-layout —los otros 27 sí—, así que no podían crecer con su contenido; convertidos a `VERTICAL` con el mismo padding 24/32 y gap 8 que el resto. Y en `Select`, el frame `Preview Light (mode override explicito)` estaba aparcado en (0,0) encima del `Header`: el mismo tipo de nodo huérfano que ya apareció en `Theme Toggle`, movido ahora a su propia fila entre `Select Item` y la validación en oscuro.
 
+### Los placeholders de Button: las variantes ya existían (28-ago-2026)
+
+El archivo llevaba siete marcas «placeholder — falta Button …» (seis nodos y una frase en la descripción de Sheet) esperando variantes que, al ir a crearlas, **ya existían**: `Button` tiene los 6 tipos del código (`Outline`, `Destructive` y `Link` incluidos) y el set aparte `Button Icon` cubre Ghost/Outline × Icon/Icon-Sm, todo bindeado a `color/bg` + `color/field/border` como pide su nota de a11y. Lo desactualizado eran **los textos de la propia página Button**: la prosa del header seguía diciendo «Type (Primary/Secondary/Ghost)». Es el mismo agujero que el de los renames (regla 8 de `figma-tokens.md`): el panel de variantes crece solo, pero **la prosa que lo cita no sigue a nadie** — al ampliar un set, repasar su header y su `nota/divergencia` en el mismo pase.
+
+Con las variantes en pie, lo pendiente real eran las sustituciones. De las siete marcas solo dos eran nodos editables (las otras cuatro, proyecciones de instancia en las previews claro/oscuro que se actualizaron solas):
+
+- **Gift Recommendation Card**: los dos `StoreChip` a mano → dos instancias `Button · Outline/Md/Default` («Amazon», «El Corte Inglés»), y el gap de la fila rebindeado de `space/control/gap-sm` a `space/control/gap` — los 8 px del `gap-2` de la rejilla real (`GiftRecommendationCard.tsx:230`). Van **sin logo de tienda ni `ExternalLink`** (`:252-254`): con las etiquetas reales no caben en los 240 px de esta tarjeta. Anotado como divergencia en la página.
+- **Tag Input**: el frame placeholder → instancia `Button Icon · Outline/Icon` con el glifo cambiado a `icon/plus` por instance swap, espejo de `InterestTagInput.tsx:159-160`. Sigue contando entre las pocas instancias de icono reales del archivo (ver el pendiente de huecos de icono).
+- **Sheet**: nada que construir — el cierre **ya era** una instancia `Button Icon · Ghost/Icon-Sm` en absoluto (top-3 right-3, `sheet.tsx:66-70`); solo se corrigió la descripción de página que aún decía «falta Button icon-only».
+
+Textos repasados en el mismo pase: la prosa de `Button` lista ahora los 6 tipos y remite a `Button Icon` para los icon-only, y su `nota/divergencia` dice lo que falta de verdad — los tamaños `xs`, `icon-xs` e `icon-lg` (`button.tsx:22-34`), sin consumidor en ningún espejo, y que los icon-only solo existen en Ghost y Outline, los dos pares que el producto usa.
+
 ---
 
 ## Tipografía
