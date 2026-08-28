@@ -2,7 +2,7 @@
 
 <!-- GENERADO por scripts/token-map.mjs. No editar a mano: se regenera. -->
 
-Figma: **PickPal - Design System** · volcado del 2026-08-27 · 371 variables.
+Figma: **PickPal - Design System** · volcado del 2026-08-28 · 373 variables.
 Código: [`src/app/globals.css`](../src/app/globals.css).
 
 Este documento responde a una sola pregunta: **¿dónde dicen Figma y el código cosas distintas?**
@@ -20,7 +20,7 @@ No genera CSS desde Figma — solo 67 de las 373 variables tienen contraparte en
 | … en divergencia **nueva, sin declarar** | 0 |
 | Props del código que varias variables de Figma reclaman con valores distintos | 1 |
 | Solo-código (sin variable en Figma) | 5 |
-| Solo-Figma · capa Semantic (decisión pendiente) | 144 |
+| Solo-Figma · capa Semantic (decisión pendiente) | 146 |
 | Solo-Figma · Primitives (por diseño: ocultos al publicar) | 157 |
 
 ## Divergencias ya declaradas
@@ -57,7 +57,7 @@ Valores: `Figma / código`. `≈` = mismo color, ±1 por canal del ida y vuelta 
 | `color/icon/brand` | Semantic | `--brand` | :root / .dark | ✅ #0c2912 / #0c2912 | ✅ #8eaa91 / #8eaa91 |
 | `color/text/brand` | Semantic | `--brand` | :root / .dark | ✅ #0c2912 / #0c2912 | ✅ #8eaa91 / #8eaa91 |
 | `color/bg/surface` | Semantic | `--card` | :root / .dark | ✅ #fffbf6 / #fffbf6 | ✅ #211914 / #211914 |
-| `color/icon/warning` | Semantic | `--category-amber` | :root / .dark | ✅ #b45309 / #b45309 | ✅ #f3ae51 / #f3ae51 |
+| `color/icon/category-amber` | Semantic | `--category-amber` | :root / .dark | ✅ #b45309 / #b45309 | ✅ #f3ae51 / #f3ae51 |
 | `color/bg/category/green` | Semantic | `--chart-1` | :root / .dark | ✅ #0c2912 / #0c2912 | ✅ #547959 / #547959 |
 | `color/bg/category/terracotta` | Semantic | `--chart-2` | :root / .dark | ✅ #c56a3e / #c56a3e | ✅ #dc855d / #dc855d |
 | `color/bg/category/amber` | Semantic | `--chart-3` | :root / .dark | ✅ #e3a757 / #e3a757 | ✅ #e3a757 / #e3a757 |
@@ -139,7 +139,7 @@ Escalas propias en `@theme` sin variable equivalente:
 
 ## Solo-Figma
 
-### Capa Semantic — 144 variables sin contraparte
+### Capa Semantic — 146 variables sin contraparte
 
 Aquí está el trabajo pendiente de verdad: por cada una hay que decidir si merece una custom
 property, si el código ya lo resuelve con utilidades de Tailwind, o si es de uso exclusivo en Figma.
@@ -150,12 +150,12 @@ Mientras no se decida, ni Figma ni el código están completos.
 | `space/` | 44 | `space/badge/padding-x`, `space/card/padding-default`, `space/card/padding-dense`, `space/card/padding-lg`, `space/container/padding`, `space/container/padding-lg`, `space/control/gap`, `space/control/gap-sm`, `space/control/padding-x`, `space/control/padding-x-sm`, `space/control/padding-y-lg`, `space/control/padding-y-md`, `space/control/padding-y-sm`, `space/control/padding-y-xs`, `space/empty-state/padding-full`, `space/empty-state/padding-minimal`, `space/field-group/gap`, `space/field/gap`, `space/inline/2xs`, `space/inline/lg`, `space/inline/md`, `space/inline/sm`, `space/inline/xl`, `space/inline/xs`, `space/inset/2xs`, `space/inset/lg`, `space/inset/md`, `space/inset/sm`, `space/inset/xl`, `space/inset/xs`, `space/layout/grid-gap`, `space/menu/item-padding-x`, `space/menu/padding`, `space/page/padding-lg`, `space/panel/gap`, `space/popover/padding`, `space/section/gap`, `space/stack/2xs`, `space/stack/lg`, `space/stack/md`, `space/stack/sm`, `space/stack/xl`, `space/stack/xs`, `space/switch/track-inset` |
 | `sizing/` | 34 | `sizing/avatar/badge-lg`, `sizing/avatar/badge-md`, `sizing/avatar/badge-sm`, `sizing/avatar/lg`, `sizing/avatar/md`, `sizing/avatar/sm`, `sizing/card-visual-header`, `sizing/checkbox`, `sizing/control/icon-md`, `sizing/control/icon-sm`, `sizing/control/icon-xs`, `sizing/control/lg`, `sizing/control/md`, `sizing/control/sm`, `sizing/event-column/width`, `sizing/icon/lg`, `sizing/icon/md`, `sizing/icon/sm`, `sizing/icon/xl`, `sizing/interactive/lg`, `sizing/interactive/md`, `sizing/interactive/sm`, `sizing/sidebar/width`, `sizing/slider-thumb`, `sizing/slider-thumb-dragging`, `sizing/slider-track`, `sizing/spinner-dot`, `sizing/switch/thumb-default`, `sizing/switch/thumb-sm`, `sizing/switch/track-height-default`, `sizing/switch/track-height-sm`, `sizing/switch/track-width-default`, `sizing/switch/track-width-sm`, `sizing/textarea/min-height` |
 | `color/fill/` | 11 | `color/fill/brand-hover`, `color/fill/brand-secondary-hover`, `color/fill/brand-subtle`, `color/fill/danger`, `color/fill/danger-hover`, `color/fill/field-disabled`, `color/fill/success`, `color/fill/success-solid`, `color/fill/sunken`, `color/fill/warning`, `color/fill/warning-solid` |
+| `color/icon/` | 11 | `color/icon`, `color/icon/danger`, `color/icon/info`, `color/icon/on-brand-secondary`, `color/icon/on-danger-solid`, `color/icon/on-success-solid`, `color/icon/on-warning-solid`, `color/icon/secondary`, `color/icon/strong`, `color/icon/success`, `color/icon/warning` |
 | `brand/` | 10 | `brand/logo`, `brand/primary`, `brand/primary-border`, `brand/primary-hover`, `brand/primary-subtle`, `brand/primary-text`, `brand/secondary`, `brand/secondary-border`, `brand/secondary-hover`, `brand/secondary-text` |
-| `color/icon/` | 10 | `color/icon`, `color/icon/danger`, `color/icon/info`, `color/icon/on-brand-secondary`, `color/icon/on-danger-solid`, `color/icon/on-success-solid`, `color/icon/on-warning-solid`, `color/icon/secondary`, `color/icon/strong`, `color/icon/success` |
 | `radius/` | 8 | `radius/checkbox`, `radius/control-sm`, `radius/interactive`, `radius/logo`, `radius/panel`, `radius/pill`, `radius/surface`, `radius/tag` |
 | `z-index/` | 6 | `z-index/dropdown`, `z-index/modal`, `z-index/overlay`, `z-index/popover`, `z-index/sticky`, `z-index/toast` |
+| `color/border/` | 5 | `color/border/brand`, `color/border/brand-secondary`, `color/border/component`, `color/border/strong`, `color/border/subtle` |
 | `color/text/` | 5 | `color/text/info`, `color/text/on-danger-solid`, `color/text/on-success-solid`, `color/text/on-warning-solid`, `color/text/success` |
-| `color/border/` | 4 | `color/border/brand`, `color/border/brand-secondary`, `color/border/component`, `color/border/subtle` |
 | `color/field/` | 4 | `color/field/border-focus`, `color/field/border-invalid`, `color/field/fill-disabled`, `color/field/placeholder` |
 | `opacity/` | 4 | `opacity/disabled`, `opacity/hover`, `opacity/pressed`, `opacity/skeleton` |
 | `border-width/` | 3 | `border-width/default`, `border-width/focus`, `border-width/strong` |
