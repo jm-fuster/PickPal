@@ -3,7 +3,7 @@
   "meta": {
     "fileName": "PickPal - Design System",
     "fileKey": "4hQt4BnsEluKsYk5qbKkCz",
-    "capturedAt": "2026-08-28",
+    "capturedAt": "2026-09-11",
     "collections": [
       {
         "name": "Semantic",
@@ -11,7 +11,7 @@
           "Light",
           "Dark"
         ],
-        "count": 177
+        "count": 178
       },
       {
         "name": "Typography",
@@ -28,7 +28,7 @@
         "count": 166
       }
     ],
-    "total": 373
+    "total": 374
   },
   "fields": [
     "figma",
@@ -64,7 +64,7 @@
       "Semantic",
       "--border",
       "#e1d6c6",
-      "#ffffff/10.2"
+      "#ffffff/10"
     ],
     [
       "color/icon/brand",
@@ -79,6 +79,13 @@
       "--brand",
       "#0c2912",
       "#8eaa91"
+    ],
+    [
+      "color/text/brand-secondary",
+      "Semantic",
+      "--brand-secondary",
+      "#a44c1d",
+      "#dc855d"
     ],
     [
       "color/bg/surface",
@@ -375,13 +382,6 @@
       "#dc855d"
     ],
     [
-      "color/text/brand-secondary",
-      "Semantic",
-      "--brand-secondary",
-      "#a44c1d",
-      "#dc855d"
-    ],
-    [
       "color/text/on-brand-secondary",
       "Semantic",
       "--secondary-foreground",
@@ -670,6 +670,7 @@
       "space/panel/gap",
       "space/popover/padding",
       "space/section/gap",
+      "space/section/gap-hero",
       "space/stack/2xs",
       "space/stack/lg",
       "space/stack/md",
