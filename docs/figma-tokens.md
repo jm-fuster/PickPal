@@ -28,6 +28,8 @@ Tres documentos, tres papeles — no duplicar contenido entre ellos:
 10. **Verificar después de escribir.** `figma_execute` tiene un techo de 30 s que **no revierte lo ya escrito**: tras un timeout, leer el estado real antes de reintentar y escribir los bucles idempotentes por nombre. Y tras un cambio visible, captura de pantalla — no fiarse del valor de retorno.
 11. **La descripción y el `.md` se actualizan en el mismo cambio que el token.** Si una descripción cita un valor o un alias concreto, comprobarlo antes de fiarse: envejecen en silencio.
 
+12. **Todo componente publicable lleva descripción, igual que una variable.** Los 27 component sets y los 6 componentes sueltos del archivo son lo que un consumidor ve en el panel de Assets y en cada instancia que coloca, así que la regla 1 se aplica igual a ellos. Un archivo que la exige en 373 variables y la salta en 33 componentes es inconsistente en la dirección que un revisor nota. La fórmula es la misma; el sitio del producto donde aparece el componente y el archivo fuente que espeja son obligatorios, y la advertencia solo si evita un error (que los tamaños icon-only viven en otro set, que un estado se hereda del DOM y no es una prop, que un set es una reconstrucción y no una API real).
+
 ---
 
 ## La descripción obligatoria
@@ -51,6 +53,8 @@ Toda variable y todo estilo llevan descripción, y todas responden a la misma pr
 
 1. **No repetir el dato que Figma ya enseña al lado.** El panel muestra el valor de la variable y, en un estilo de texto, su tamaño, interlineado y tracking. Abrir con «20 px de la rampa…» o con una ficha `72 px / 1,1 / -0,02em` gasta la primera línea en algo que el ojo ya tiene.
 2. **Cada descripción explica lo suyo, no lo de al lado.** La advertencia de no vincular interlineado ni tracking vive en `line-height/*` y `letter-spacing/*`, no repetida en los 22 estilos de texto que las rozan.
+
+**En un componente**, la primera frase dice qué es y en qué pantalla del producto aparece, y la última nombra el archivo que espeja. Lo que el panel de variantes ya enseña al lado —los ejes Type, Size y State— no se enumera en la descripción: gasta la primera línea en algo que el ojo ya tiene.
 
 **Familias uniformes**: las rampas de color y `spacing/N`, `size/N`, `opacity/N` usan una plantilla con el paso interpolado. Al añadir un paso a una familia se copia la plantilla de sus vecinos, y solo se añade frase propia si el paso tiene un rol propio (ancla de marca, alimenta un semántico concreto).
 
