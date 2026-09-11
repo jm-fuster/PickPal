@@ -28,7 +28,8 @@ Tres documentos, tres papeles — no duplicar contenido entre ellos:
 10. **Verificar después de escribir.** `figma_execute` tiene un techo de 30 s que **no revierte lo ya escrito**: tras un timeout, leer el estado real antes de reintentar y escribir los bucles idempotentes por nombre. Y tras un cambio visible, captura de pantalla — no fiarse del valor de retorno.
 11. **La descripción y el `.md` se actualizan en el mismo cambio que el token.** Si una descripción cita un valor o un alias concreto, comprobarlo antes de fiarse: envejecen en silencio.
 
-12. **Todo componente publicable lleva descripción, igual que una variable.** Los 27 component sets y los 6 componentes sueltos del archivo son lo que un consumidor ve en el panel de Assets y en cada instancia que coloca, así que la regla 1 se aplica igual a ellos. Un archivo que la exige en 373 variables y la salta en 33 componentes es inconsistente en la dirección que un revisor nota. La fórmula es la misma; el sitio del producto donde aparece el componente y el archivo fuente que espeja son obligatorios, y la advertencia solo si evita un error (que los tamaños icon-only viven en otro set, que un estado se hereda del DOM y no es una prop, que un set es una reconstrucción y no una API real).
+12. **Todo componente publicable lleva descripción, igual que una variable.** Los 28 component sets, los 9 componentes sueltos y los 66 iconos del archivo son lo que un consumidor ve en el panel de Assets y en cada instancia que coloca, así que la regla 1 se aplica igual a ellos. La fórmula es la misma; el sitio del producto donde aparece el componente es obligatorio, y la advertencia solo si evita un error (que los tamaños icon-only viven en otro set, que un estado se decide en tiempo de ejecución y no es una prop, que un set es una reconstrucción y no una API real). **Desde el 11-sep-2026 la descripción no nombra el archivo fuente ni ningún identificador de código**: el archivo es una pieza de portfolio y el puente con el código vive en `codeSyntax`.
+13. **Toda la documentación del archivo va en inglés** (descripciones, cabeceras, prosa, rótulos y nombres de capa de documentación). El copy del producto que aparece en especímenes, pantallas y prototipo se queda en español a propósito, porque es lo que el producto enseña; About PickPal lo explica al visitante.
 
 ---
 
@@ -38,23 +39,24 @@ Toda variable y todo estilo llevan descripción, y todas responden a la misma pr
 
 **Fórmula**, en 1–2 frases (máximo 250 caracteres; la media del archivo es 95 en variables y 61 en estilos):
 
-> «[Qué es y dónde se usa en el producto]. [Advertencia breve, solo si evita un error]. Espeja `utilidad-de-código`.»
+> «[Qué es y dónde se usa en el producto]. [Advertencia breve, solo si evita un error].»
+
+En inglés (regla 13). Hasta el 11-sep-2026 la fórmula terminaba en «Espeja `utilidad-de-código`»; esa coletilla se retiró en la pasada de portfolio y **no vuelve**: el puente con el código es `codeSyntax`, que es el campo que Figma tiene para eso y el que enseña Dev Mode, y la descripción tiene que leerse sin el repositorio.
 
 **Lo que sí va**:
 
-- El sitio concreto del producto donde se aplica (PersonCard, botón primario, la Agenda).
-- La utilidad de código que espeja (`--primary`, `text-sm`, `p-4`) — no es visible en Figma y es el puente real hacia el código.
-- «Sin uso todavía» cuando el rol está adelantado al producto.
-- La advertencia, **solo si evita romper algo**: el par obligatorio `on-*-solid` de cada relleno sólido, la escala 0–100 de `opacity/*`, que `line-height/*` y `letter-spacing/*` no se vinculan nunca, o que `icon/N` sigue el índice de Tailwind mientras `spacing/N` y `size/N` son píxeles.
+- El sitio concreto del producto donde se aplica (Person Card, primary button, the Agenda).
+- «No use in the product yet» cuando el rol está adelantado al producto.
+- La advertencia, **solo si evita romper algo**: el par obligatorio `on-*-solid` de cada relleno sólido, la escala 0–100 de `opacity/*`, que `line-height/*` y `letter-spacing/*` no se vinculan nunca, o que `icon/N` es un índice en pasos de 4 px mientras `spacing/N` y `size/N` son píxeles.
 
-**Lo que no va, porque su sitio es [`docs/design-system.md`](design-system.md)**: fechas y changelog, metodología de generación (splines, OKLCH, anclas), recuentos de bindings, justificaciones de arquitectura y ratios de contraste que no sean la advertencia en sí.
+**Lo que no va**: nada del código (utilidades, custom properties, rutas, nombres de archivo, versiones de paquete) — su sitio es `codeSyntax` y [`docs/token-map.md`](token-map.md); y nada de historia — fechas, «desde el 28-ago», «se perdió y se recreó», metodología de generación (splines, OKLCH, anclas), recuentos de bindings, justificaciones de arquitectura y ratios de contraste que no sean la advertencia en sí — cuyo sitio es [`docs/design-system.md`](design-system.md).
 
 **Dos reglas de recorte, que son las que mantienen esto legible**:
 
 1. **No repetir el dato que Figma ya enseña al lado.** El panel muestra el valor de la variable y, en un estilo de texto, su tamaño, interlineado y tracking. Abrir con «20 px de la rampa…» o con una ficha `72 px / 1,1 / -0,02em` gasta la primera línea en algo que el ojo ya tiene.
 2. **Cada descripción explica lo suyo, no lo de al lado.** La advertencia de no vincular interlineado ni tracking vive en `line-height/*` y `letter-spacing/*`, no repetida en los 22 estilos de texto que las rozan.
 
-**En un componente**, la primera frase dice qué es y en qué pantalla del producto aparece, y la última nombra el archivo que espeja. Lo que el panel de variantes ya enseña al lado —los ejes Type, Size y State— no se enumera en la descripción: gasta la primera línea en algo que el ojo ya tiene.
+**En un componente**, la primera frase dice qué es y en qué pantalla del producto aparece, y la última, si hace falta, qué no cubre el set (una variante sin consumidor, un estado que se decide en tiempo de ejecución). No nombra archivos ni identificadores de código. Lo que el panel de variantes ya enseña al lado —los ejes Type, Size y State— no se enumera en la descripción: gasta la primera línea en algo que el ojo ya tiene. **En un icono**, la plantilla es «Lucide «slug» · 24 × 24, 2 px stroke, round caps. Scales to 16, 20 and 24 px through sizing/icon/*; the stroke is bound to color/icon.»
 
 **Familias uniformes**: las rampas de color y `spacing/N`, `size/N`, `opacity/N` usan una plantilla con el paso interpolado. Al añadir un paso a una familia se copia la plantilla de sus vecinos, y solo se añade frase propia si el paso tiene un rol propio (ancla de marca, alimenta un semántico concreto).
 
@@ -69,7 +71,7 @@ La guía canónica de abajo describe un sistema de referencia con paletas Radix.
 | `color-bg-brand` (guiones) | `brand/primary`, `color/fill/component` (barras) | Las `/` agrupan en carpetas en el panel de Figma. Los segmentos de la fórmula son los mismos; cambia el separador. |
 | `element` = `bg` · `text` · `border` · `icon` · `overlay` | `bg` y `fill` separados | El fondo de una página o superficie no es el relleno de un control. Ver § «`bg` y `fill`: el `element` se partió en dos». |
 | Colección `Component` aparte (opcional) | Los tokens de componente viven en `Semantic` | Figma no permite mover una variable de colección y ahí están los bindings caros. Decidido y documentado. |
-| Rampas Radix de 12 pasos, con rol fijo por paso | Rampas propias de 11 pasos `50…950` (`Cream` llega a 500, `Green` tiene 12) | El producto espeja Tailwind. **La tabla «paso según uso» de la guía no se aplica**: aquí no hay paso 9 ni paso 11. |
+| Rampas Radix de 12 pasos, con rol fijo por paso | Rampas propias de 11 pasos `50…950` (`Cream` llega a 500; `Terracotta` añade dos pasos con nombre, `brand` y `text`) | El producto espeja Tailwind. **La tabla «paso según uso» de la guía no se aplica**: aquí no hay paso 9 ni paso 11. |
 | Todo en minúsculas | Familias de color con mayúscula inicial (`Cream/500`) | Única excepción de capitalización del archivo; el panel ordena por creación y así se leen mejor. No aplica a nada más. |
 | Token de marca → alias al primitivo | Token de marca → alias al hub `brand/*` | Regla más estricta a propósito (regla 4 de arriba). |
 | El semántico es siempre un alias | `z-index/*` lleva valor literal | Es una propuesta, no un espejo del código: ni un valor entre 1000 y 1700 existe hoy en la app. El desajuste está a la vista en cada descripción. |
