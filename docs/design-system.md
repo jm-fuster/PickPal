@@ -363,13 +363,13 @@ La pasada de portfolio dejó un sistema de diseño presentable, y el usuario se�
 
 El archivo [PickPal — Design System](https://www.figma.com/design/4hQt4BnsEluKsYk5qbKkCz/PickPal---Design-System) espeja este documento y `globals.css`, no al revés: **si Figma contradice el código, gana el código**. Sus 372 variables están organizadas en las cuatro capas del patrón de design tokens, y cada una aliasa a la de abajo sin saltarse eslabones.
 
-> **Esa regla está en revisión (27-ago-2026).** La intención es invertirla —Figma como fuente de verdad de los tokens, el código de estados y comportamiento— pero no está decidida ni aplicada. Mientras no lo esté, el desempate sigue siendo el de arriba. Lo que sí existe ya es la medida del desacuerdo: [`docs/token-map.md`](token-map.md), generado por `npm run token-map`, que cruza las 373 variables con las custom properties reales y lista divergencia por divergencia. **Las cifras de tokens viven allí, no aquí**: este documento guarda intención y reglas, que es lo que no se puede generar.
+> **Esa regla está en revisión (27-ago-2026).** La intención es invertirla —Figma como fuente de verdad de los tokens, el código de estados y comportamiento— pero no está decidida ni aplicada. Mientras no lo esté, el desempate sigue siendo el de arriba. Lo que sí existe ya es la medida del desacuerdo: [`docs/token-map.md`](token-map.md), generado por `npm run token-map`, que cruza las 349 variables con las custom properties reales y lista divergencia por divergencia. **Las cifras de tokens viven allí, no aquí**: este documento guarda intención y reglas, que es lo que no se puede generar.
 
 **Las normas de manipulación viven en [`docs/figma-tokens.md`](figma-tokens.md)**, no aquí: el modelo canónico de las cuatro capas, las reglas de alias, scope y descripción obligatoria, y la tabla de divergencias asumidas de este archivo. Ese documento dice **cómo debe hacerse**; este sigue guardando **qué es el archivo hoy y por qué** — el registro de decisiones. Al crear una variable o un estilo nuevo, la descripción de cómo y dónde se usa es parte del trabajo, no un extra.
 
 | Capa | Nº | Colección | Ejemplos | Aliasa a |
 |---|---|---|---|---|
-| Primitivo | 196 | `Primitives` (166) · `Typography` (30) | `color/Green/900`, `spacing/4`, `size/16`, `radius/md`, `opacity/50` | valor directo |
+| Primitivo | 171 | `Primitives` (141) · `Typography` (30) | `color/Green/900`, `spacing/4`, `radius/md`, `opacity/50`, `typography/font-size/lg` | valor directo |
 | Semántico | 137 | `Semantic` | `color/fill/component`, `color/icon/secondary`, `space/stack/lg` | primitivo, o marca si el token es de identidad |
 | Marca | 10 | `Semantic` | `brand/primary`, `brand/primary-hover`, `brand/primary-text`, `brand/logo` | primitivo |
 | Componente | 30 | `Semantic` | `color/field/placeholder`, `space/card/padding-default`, `sizing/checkbox` | **semántico**, nunca primitivo |
@@ -394,15 +394,15 @@ Y pasó de 8 a **10** el 26-ago-2026, aplicando esa misma regla: `brand/primary-
 
 #### Descripciones de variables y estilos (26-ago-2026)
 
-Las 372 variables y los 26 estilos llevan descripción, y todas responden a la misma pregunta: **¿cómo o dónde se usa esto?** — no a cómo se generó ni cuándo. La fórmula es *«[Qué es y dónde se usa en el producto]. [Advertencia breve, solo si evita un error]. Espeja `utilidad-de-código`.»*, en 1–2 frases (media actual: 95 caracteres en variables y 61 en estilos, máximo 250).
+Las 349 variables y los 29 estilos llevan descripción, y todas responden a la misma pregunta: **¿cómo o dónde se usa esto?** — no a cómo se generó ni cuándo. La fórmula es *«[Qué es y dónde se usa en el producto]. [Advertencia breve, solo si evita un error]. Espeja `utilidad-de-código`.»*, en 1–2 frases (media actual: 95 caracteres en variables y 61 en estilos, máximo 250).
 
 **Dos reglas de recorte, que son las que mantienen esto legible**: (1) **no repetir el dato que Figma ya enseña al lado** — el panel muestra el valor de la variable y, en un estilo de texto, su tamaño, interlineado y tracking; una descripción que abre con «20 px de la rampa…» o con una ficha `72 px / 1,1 / -0,02em` gasta la primera línea en algo que el ojo ya tiene. (2) **Cada descripción explica lo suyo, no lo de al lado**: la advertencia de no vincular interlineado ni tracking vive en `line-height/*` y `letter-spacing/*`, no repetida en los 22 estilos de texto que las rozan.
 
 **Lo que sí va**: el sitio concreto del producto donde se aplica (PersonCard, botón primario, la Agenda), la utilidad de código que espeja (`--primary`, `text-sm`, `p-4`) —que no es visible en Figma y es el puente real hacia el código—, y «sin uso todavía» cuando el rol está adelantado al producto. **Lo que no va, porque su sitio es este documento**: fechas y changelog, metodología de generación (splines, OKLCH, anclas), recuentos de bindings, justificaciones de arquitectura y ratios de contraste que no sean la advertencia en sí.
 
-**Las advertencias que sí se conservan** son las que evitan romper algo, y conviene repetirlas en cada variable afectada aunque canse: el par obligatorio `on-*-solid` de cada relleno sólido, la escala 0–100 de `opacity/*`, que `line-height/*` y `letter-spacing/*` **no se vinculan nunca** en Figma, y que `icon/N` sigue la convención de índice de Tailwind mientras `spacing/N` y `size/N` significan píxeles.
+**Las advertencias que sí se conservan** son las que evitan romper algo, y conviene repetirlas en cada variable afectada aunque canse: el par obligatorio `on-*-solid` de cada relleno sólido, la escala 0–100 de `opacity/*`, que `line-height/*` y `letter-spacing/*` **no se vinculan nunca** en Figma, y que `spacing/14` es el único paso fuera de la rejilla de 4 px.
 
-**Las familias uniformes usan una plantilla con el paso interpolado** (rampas de color, `spacing/N`, `size/N`, `opacity/N`), y solo los pasos con un rol propio —las anclas de marca, los que alimentan un semántico concreto— añaden una frase extra. Así se mantienen las 372 sin reescribirlas una a una: al añadir un paso a una familia, se copia la plantilla de sus vecinos.
+**Las familias uniformes usan una plantilla con el paso interpolado** (rampas de color, `spacing/N`, `opacity/N`), y solo los pasos con un rol propio —las anclas de marca, los que alimentan un semántico concreto— añaden una frase extra. Así se mantienen las 349 sin reescribirlas una a una: al añadir un paso a una familia, se copia la plantilla de sus vecinos.
 
 Al tocar el archivo, **la descripción se actualiza con el cambio**, igual que este documento. Y al revés: si una descripción cita un valor o un alias concreto, comprobarlo antes de fiarse — el pase de agosto de 2026 corrigió `radius/base`, que seguía diciendo 14 px meses después de subir a 16, y seis radios que aún describían las fórmulas `base * 0.6` del sistema de multiplicadores ya retirado.
 
@@ -549,6 +549,8 @@ Dos exclusiones deliberadas del barrido:
 
 #### Grupo `size/*` de primitivos: 0–44 px (24-ago-2026, ampliado el 25)
 
+> **Familia retirada el 15-sep-2026**; ver «Una sola rampa de píxeles», justo debajo. Lo que sigue es el registro de por qué se creó, que sigue explicando el archivo aunque la familia ya no exista.
+
 Nueva familia de primitivos en `Primitives`, 12 variables en múltiplos de 4: `size/0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44`. Misma convención que `spacing`: **`size/N` significa N píxeles.** Scope vacío y ocultas al publicar, como el resto de la capa. Nació con 9 pasos (0–32) y el 25-ago-2026 se estiró a 44 al crear `sizing/*`, que necesitaba 36 y 44. **`size/40` se creó sin necesitarlo nadie**, solo para que la rampa no tenga un hueco entre 36 y 44 — el mismo criterio que en `spacing`, donde todos los múltiplos de 4 existen; su consumidor natural es `size/avatar/lg` (40px, hoy sobre `icon/10`).
 
 Existe para cerrar un desajuste de tipo que hasta ahora solo estaba resuelto en la capa semántica: los tokens de dimensión (`size/interactive-*`, `size/avatar/*`, `size/control/icon-*`) aliasan hoy a primitivos de **`spacing/*`** (6 casos) o de **`icon/*`** (15 casos), es decir, una medida de ancho/alto apuntando a un primitivo de separación. Con esta familia esas cadenas pueden apuntar a un primitivo del tipo correcto.
@@ -556,6 +558,22 @@ Existe para cerrar un desajuste de tipo que hasta ahora solo estaba resuelto en 
 **Ya lo consume `sizing/*`** (6 de los 12 pasos: 16, 20, 24, 32, 36 y 44), pero la familia vieja `size/interactive-*` de `Medidas` sigue apuntando a `icon/*` y `spacing/*`. Repuntar solo lo que cabe en 0–44 dejaría la familia semántica partida en tres convenciones a la vez: `size/*` para los ≤44, `icon/*` para 14/64/96 y `spacing/*` para los 240/480 de nivel de página. Serían 15 tokens migrables —con la rampa hasta 44, `size/icon/xl` (36) y `size/avatar/lg` (40) ya entran— y 6 fuera de rango (`size/control/icon-sm` y `size/interactive-lg` a 14px; `size/interactive-5xl` 64; `size/media-lg` 96; `size/sidebar/width` 240; `size/event-column/width` 480). Antes de migrar hay que decidir si la familia `size` se extiende para cubrir todo ese rango; media migración es peor que ninguna.
 
 **Trampa de nomenclatura, importante**: dentro de la misma colección conviven ahora dos convenciones opuestas para `N`. `spacing/N` y `size/N` significan **N píxeles** (`spacing/12` = 12px), pero **`icon/N` sigue la convención de índice de Tailwind** — `icon/3` = 12px, `icon/4` = 16px, `icon/8` = 32px. Al leer una cadena de alias hay que tener presente cuál de las dos se está usando. La familia `icon` conserva además su medio paso `icon/3-5` = 14px, fuera de la rejilla de 4 (30 usos de `size-3.5` en código; 14px es un tamaño de icono estándar y una rejilla estricta daría 12 o 16, perdiendo ese paso).
+
+#### Una sola rampa de píxeles: se retiran `size/*` e `icon/*` (15-sep-2026)
+
+`Primitives` tenía tres familias numéricas en píxeles a la vez —`spacing/*` (27 pasos), `size/*` (12) e `icon/*` (14)— y dos convenciones opuestas para el número: `spacing/N` y `size/N` significaban N píxeles, `icon/N` era un índice en pasos de 4. Queda solo `spacing/*`, más el medio paso de 14 px que aportaba `icon/3-5`. El archivo baja de 374 a 349 variables y `Primitives` de 166 a 141.
+
+**Lo que decidió el caso**: los 12 valores de `size/*` tenían gemelo exacto en `spacing/*` —los 12, no la mayoría— y 13 de los 14 de `icon/*` también. Ninguna de las dos aportaba un número que no existiera ya, solo un segundo nombre para el mismo número. Y el nombre no era inocuo: **`icon/16` valía 64 px mientras `size/16` valía 16**, así que el mismo número decía dos cosas dentro de la misma colección.
+
+**Esto revierte la decisión del 24-ago-2026** que creó `size/*` (sección de arriba). El argumento de entonces era real —una anchura no debería aliasar un primitivo de separación— pero se resolvió en la capa equivocada. Un primitivo, por la definición que usa este mismo documento, «no dice para qué sirve, solo dice cuánto vale»: partirlo por uso contradice lo que es. Esa distinción ya estaba hecha donde importa, en la capa semántica —`space/*` separa, `sizing/*` dimensiona—, y duplicarla abajo no la reforzaba, obligaba a elegir dos veces. Es además lo que hacen Tailwind y Radix, que este archivo espeja: una sola escala alimenta `p-4`, `gap-4`, `w-4` y `h-4`.
+
+**Sobrevive `spacing/*` y no `size/*`** por ser el superconjunto (27 pasos contra 12) y por ser el nombre que Tailwind da a esa escala unificada. Que «spacing» suene a separación y una anchura no lo sea es el peaje aceptado: renombrar la superviviente a algo neutro añadiría un dialecto más al archivo.
+
+**Cómo se hizo, y por qué no se movió un píxel**: se creó `spacing/14`; se repuntaron los 28 alias semánticos que colgaban de las dos familias (9 de `icon/*`, 19 de `size/*`) al paso de `spacing/*` con el mismo valor; se compararon los 79 tokens de `space/*` y `sizing/*` resueltos antes y después —cero diferencias— y solo entonces se borraron los 26 primitivos. **Cero bindings de nodo directos** a las tres familias en los 12.124 nodos del archivo, y ninguna tenía `codeSyntax`, así que ni el picker de un diseñador ni el puente con el código se enteran del cambio.
+
+**Las descripciones de `spacing/*` se reescribieron enteras**, y no por estética: la plantilla decía «apply spacing through the space/* tokens» y la rampa alimenta ahora también a `sizing/*`. En el mismo pase absorbieron los usos de producto que documentaban las familias borradas —el avatar de 48 px de las tarjetas de lista, el de 80 del perfil, los iconos del catálogo visual a 36— que si no se habrían ido con ellas.
+
+**Lo que queda abierto**, y es de la auditoría de nomenclatura, no de este pase: `sizing/control/*` y `sizing/icon/*` siguen teniendo los mismos tres valores (16 · 20 · 24) separados a propósito desde el 25-ago-2026, y `sizing/control/*` colisiona de nombre con `sizing/interactive/*` sin que ninguno de los dos diga cuál es la caja y cuál la altura.
 
 #### Grupo `opacity/*` de primitivos: escala 0–100 (25-ago-2026)
 
@@ -581,6 +599,8 @@ Nueva familia de primitivos en `Primitives`, hoy 7 variables: `opacity/0, 10, 50
 **Trampa al migrar: hacerlo por valor, no por nombre.** Los pasos de una generación a otra no se corresponden — el viejo `stack/md` vale 8px y su equivalente nuevo es `stack/sm`; el viejo `stack/xl` vale 16 y es el nuevo `stack/md` —. Repuntar por nombre cambiaría el espaciado de decenas de nodos en silencio. Y hay valores sin destino en la escala nueva: los 12px de `stack/lg`, `inline/lg` e `inset/lg|xl` tienen que elegir entre 8 y 16, y los 40 y 56 de `empty-state/*` se salen del techo de 32 — o se extiende la escala con `2xl`/`3xl`, o esos tokens aliasan al primitivo saltándose el semántico. Lo mismo pasaría con los 20px de `field-group/gap` y `card/padding-lg` si algún día se les hace pasar por la capa semántica en vez de aliasar directo al primitivo. Mientras las dos generaciones existan, **al aplicar espaciado nuevo usar `space/*`**.
 
 #### Grupo `sizing/*`: interactive, control e icon en 3 pasos (25-ago-2026)
+
+> **Desde el 15-sep-2026 aliasan a `spacing/*`**, no a `size/*`: esa familia se retiró. Valores idénticos, cero cambios resueltos.
 
 9 semánticos nuevos en `Semantic`, scope `WIDTH_HEIGHT`, aliasando a la rampa `size/*` —el primitivo del tipo correcto, no a `icon/*` ni a `spacing/*`—: `sizing/interactive/{sm,md,lg}` = 32 · 36 · 44 px (altura de botón e input; los 44 son el touch target de WCAG 2.5.5, nivel AAA), `sizing/control/{sm,md,lg}` = 16 · 20 · 24 px (caja de checkbox y radio) y `sizing/icon/{sm,md,lg}` = 16 · 20 · 24 px (glifo). Publicados y sin `codeSyntax`, como el resto de familias que solo viven en Figma. Es la contrapartida de dimensión de la tríada `space/*`: mismo sitio, mismo patrón de tres pasos, y por eso el prefijo es `sizing/` y no `size/`, que ya nombra a los primitivos.
 

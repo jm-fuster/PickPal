@@ -14,8 +14,8 @@
  * de cada variable a un valor concreto en Light y Dark, con su codeSyntax.WEB.
  * El snapshot es derivado: no se edita a mano.
  *
- * Lo que este script NO hace, a propósito: generar CSS desde Figma. Solo 67 de
- * las 373 variables tienen contraparte en código, y las otras 306 no deben
+ * Lo que este script NO hace, a propósito: generar CSS desde Figma. Solo una
+ * minoría de las variables tiene contraparte en código, y el resto no debe
  * tenerla. Un generador aplanaría el criterio; esto solo informa de dónde los
  * dos lados dicen cosas distintas.
  */
@@ -303,8 +303,8 @@ w(`Figma: **${snap.meta.fileName}** · volcado del ${snap.meta.capturedAt} · ${
 w("Código: [`src/app/globals.css`](../src/app/globals.css).");
 w();
 w("Este documento responde a una sola pregunta: **¿dónde dicen Figma y el código cosas distintas?**");
-w("No genera CSS desde Figma — solo 67 de las 373 variables tienen contraparte en código y las otras");
-w("306 no deben tenerla, así que un generador aplanaría el criterio en vez de aplicarlo.");
+w(`No genera CSS desde Figma — solo ${snap.mapped.length} de las ${snap.meta.total} variables tienen contraparte en código`);
+w(`y las otras ${snap.meta.total - snap.mapped.length} no deben tenerla, así que un generador aplanaría el criterio en vez de aplicarlo.`);
 w();
 w("## Resumen");
 w();

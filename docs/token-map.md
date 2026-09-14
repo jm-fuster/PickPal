@@ -2,12 +2,12 @@
 
 <!-- GENERADO por scripts/token-map.mjs. No editar a mano: se regenera. -->
 
-Figma: **PickPal - Design System** · volcado del 2026-09-11 · 374 variables.
+Figma: **PickPal · Product case study & design system** · volcado del 2026-09-15 · 349 variables.
 Código: [`src/app/globals.css`](../src/app/globals.css).
 
 Este documento responde a una sola pregunta: **¿dónde dicen Figma y el código cosas distintas?**
-No genera CSS desde Figma — solo 67 de las 373 variables tienen contraparte en código y las otras
-306 no deben tenerla, así que un generador aplanaría el criterio en vez de aplicarlo.
+No genera CSS desde Figma — solo 71 de las 349 variables tienen contraparte en código
+y las otras 278 no deben tenerla, así que un generador aplanaría el criterio en vez de aplicarlo.
 
 ## Resumen
 
@@ -21,7 +21,7 @@ No genera CSS desde Figma — solo 67 de las 373 variables tienen contraparte en
 | Props del código que varias variables de Figma reclaman con valores distintos | 0 |
 | Solo-código (sin variable en Figma) | 5 |
 | Solo-Figma · capa Semantic (decisión pendiente) | 146 |
-| Solo-Figma · Primitives (por diseño: ocultos al publicar) | 157 |
+| Solo-Figma · Primitives (por diseño: ocultos al publicar) | 132 |
 
 ## Espejados
 
@@ -142,7 +142,7 @@ Mientras no se decida, ni Figma ni el código están completos.
 | `border-width/` | 3 | `border-width/default`, `border-width/focus`, `border-width/strong` |
 | `color/bg/` | 1 | `color/bg/subtle` |
 
-### Primitives — 157 variables, y está bien así
+### Primitives — 132 variables, y está bien así
 
 Los primitivos tienen scope vacío y están ocultos al publicar: no viajan a los archivos que
 consumen la librería y no deben aparecer en el CSS. El código consume la capa semántica, no la rampa.
@@ -150,10 +150,8 @@ Los 9 `radius/*` que sí cruzan son la excepción documentada.
 
 | Grupo | Nº |
 |---|---|
-| `spacing/` | 27 |
-| `icon/` | 14 |
+| `spacing/` | 28 |
 | `color/Terracotta/` | 13 |
-| `size/` | 12 |
 | `color/Amber/` | 11 |
 | `color/Bronze/` | 11 |
 | `color/Green/` | 11 |

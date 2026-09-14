@@ -47,7 +47,7 @@ En inglés (regla 13). Hasta el 11-sep-2026 la fórmula terminaba en «Espeja `u
 
 - El sitio concreto del producto donde se aplica (Person Card, primary button, the Agenda).
 - «No use in the product yet» cuando el rol está adelantado al producto.
-- La advertencia, **solo si evita romper algo**: el par obligatorio `on-*-solid` de cada relleno sólido, la escala 0–100 de `opacity/*`, que `line-height/*` y `letter-spacing/*` no se vinculan nunca, o que `icon/N` es un índice en pasos de 4 px mientras `spacing/N` y `size/N` son píxeles.
+- La advertencia, **solo si evita romper algo**: el par obligatorio `on-*-solid` de cada relleno sólido, la escala 0–100 de `opacity/*`, que `line-height/*` y `letter-spacing/*` no se vinculan nunca, o que `spacing/14` es el único paso fuera de la rejilla de 4 px.
 
 **Lo que no va**: nada del código (utilidades, custom properties, rutas, nombres de archivo, versiones de paquete) — su sitio es `codeSyntax` y [`docs/token-map.md`](token-map.md); y nada de historia — fechas, «desde el 28-ago», «se perdió y se recreó», metodología de generación (splines, OKLCH, anclas), recuentos de bindings, justificaciones de arquitectura y ratios de contraste que no sean la advertencia en sí — cuyo sitio es [`docs/design-system.md`](design-system.md).
 
@@ -58,7 +58,7 @@ En inglés (regla 13). Hasta el 11-sep-2026 la fórmula terminaba en «Espeja `u
 
 **En un componente**, la primera frase dice qué es y en qué pantalla del producto aparece, y la última, si hace falta, qué no cubre el set (una variante sin consumidor, un estado que se decide en tiempo de ejecución). No nombra archivos ni identificadores de código. Lo que el panel de variantes ya enseña al lado —los ejes Type, Size y State— no se enumera en la descripción: gasta la primera línea en algo que el ojo ya tiene. **En un icono**, la plantilla es «Lucide «slug» · 24 × 24, 2 px stroke, round caps. Scales to 16, 20 and 24 px through sizing/icon/*; the stroke is bound to color/icon.»
 
-**Familias uniformes**: las rampas de color y `spacing/N`, `size/N`, `opacity/N` usan una plantilla con el paso interpolado. Al añadir un paso a una familia se copia la plantilla de sus vecinos, y solo se añade frase propia si el paso tiene un rol propio (ancla de marca, alimenta un semántico concreto).
+**Familias uniformes**: las rampas de color y `spacing/N`, `opacity/N` usan una plantilla con el paso interpolado. Al añadir un paso a una familia se copia la plantilla de sus vecinos, y solo se añade frase propia si el paso tiene un rol propio (ancla de marca, alimenta un semántico concreto).
 
 ---
 
