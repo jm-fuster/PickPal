@@ -77,6 +77,7 @@ La guía canónica de abajo describe un sistema de referencia con paletas Radix.
 | El semántico es siempre un alias | `z-index/*` lleva valor literal | Es una propuesta, no un espejo del código: ni un valor entre 1000 y 1700 existe hoy en la app. El desajuste está a la vista en cada descripción. |
 | Los primitivos se ocultan y no tienen scope | `Typography` está publicada y con scope | En tipografía el text style hace de capa semántica y consume el primitivo directamente. Con excepción dentro de la excepción: `line-height/*` y `letter-spacing/*` van con **scope vacío**, porque Figma resuelve esas dos propiedades en píxeles y vincularlas rompe el texto. |
 | `radius-tag` es el radio de badges y tags | `radius/tag` existe sin consumidor real | Los badges del producto son pill. Su descripción lo dice para que nadie lo tome por el radio de los badges. |
+| Rol `interactive` (`radius-interactive`, `size-interactive-*`) | `radius/control`, `sizing/control/*` | La guía nombra ese rol pero no cubre el padding, el gap, el icono interior ni un radio pequeño del mismo objeto, que el archivo ya llamaba `control` en 14 tokens. Un objeto, una palabra. La caja de checkbox y radio, que antes ocupaba ese nombre, es `sizing/selection/*`. |
 
 ---
 
