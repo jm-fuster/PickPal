@@ -48,7 +48,7 @@ Valores: `Figma / código`. `≈` = mismo color, ±1 por canal del ida y vuelta 
 | `color/fill/danger-solid` | Semantic | `--destructive` | :root / .dark | ✅ #cc2823 / #cc2823 | ✅ #fa6863 / #fa6863 |
 | `color/text/danger` | Semantic | `--destructive` | :root / .dark | ✅ #cc2823 / #cc2823 | ✅ #fa6863 / #fa6863 |
 | `color/fill/field-disabled` | Semantic | `--field-disabled` | :root / .dark | ✅ #efeae2 / #efeae2 | ✅ #302621 / #302621 |
-| `typography/font-family/heading` | Typography | `--font-heading` | @theme inline | — Fraunces / var(--font-fraunces) | — Fraunces / var(--font-fraunces) |
+| `typography/font-family/serif` | Typography | `--font-heading` | @theme inline | — Fraunces / var(--font-fraunces) | — Fraunces / var(--font-fraunces) |
 | `typography/font-family/mono` | Typography | `--font-mono` | @theme inline | — Geist Mono / var(--font-geist-mono) | — Geist Mono / var(--font-geist-mono) |
 | `typography/font-family/sans` | Typography | `--font-sans` | @theme inline | — Geist / var(--font-geist-sans) | — Geist / var(--font-geist-sans) |
 | `typography/font-weight/bold` | Typography | `--font-weight-bold` | — | — 700 / — | — 700 / — |
@@ -128,8 +128,8 @@ Mientras no se decida, ni Figma ni el código están completos.
 
 | Grupo | Nº | Variables |
 |---|---|---|
-| `space/` | 45 | `space/badge/padding-x`, `space/card/padding-default`, `space/card/padding-dense`, `space/card/padding-lg`, `space/container/padding`, `space/container/padding-lg`, `space/control/gap`, `space/control/gap-sm`, `space/control/padding-x`, `space/control/padding-x-sm`, `space/control/padding-y-lg`, `space/control/padding-y-md`, `space/control/padding-y-sm`, `space/control/padding-y-xs`, `space/empty-state/padding-full`, `space/empty-state/padding-minimal`, `space/field-group/gap`, `space/field/gap`, `space/inline/2xs`, `space/inline/lg`, `space/inline/md`, `space/inline/sm`, `space/inline/xl`, `space/inline/xs`, `space/inset/2xs`, `space/inset/lg`, `space/inset/md`, `space/inset/sm`, `space/inset/xl`, `space/inset/xs`, `space/layout/grid-gap`, `space/menu/item-padding-x`, `space/menu/padding`, `space/page/padding-lg`, `space/panel/gap`, `space/popover/padding`, `space/section/gap`, `space/section/gap-hero`, `space/stack/2xs`, `space/stack/lg`, `space/stack/md`, `space/stack/sm`, `space/stack/xl`, `space/stack/xs`, `space/switch/track-inset` |
-| `sizing/` | 34 | `sizing/avatar/badge-lg`, `sizing/avatar/badge-md`, `sizing/avatar/badge-sm`, `sizing/avatar/lg`, `sizing/avatar/md`, `sizing/avatar/sm`, `sizing/card-visual-header`, `sizing/checkbox`, `sizing/control/icon-md`, `sizing/control/icon-sm`, `sizing/control/icon-xs`, `sizing/selection/lg`, `sizing/selection/md`, `sizing/selection/sm`, `sizing/event-column/width`, `sizing/icon/lg`, `sizing/icon/md`, `sizing/icon/sm`, `sizing/icon/xl`, `sizing/control/lg`, `sizing/control/md`, `sizing/control/sm`, `sizing/sidebar/width`, `sizing/slider-thumb`, `sizing/slider-thumb-dragging`, `sizing/slider-track`, `sizing/spinner-dot`, `sizing/switch/thumb-default`, `sizing/switch/thumb-sm`, `sizing/switch/track-height-default`, `sizing/switch/track-height-sm`, `sizing/switch/track-width-default`, `sizing/switch/track-width-sm`, `sizing/textarea/min-height` |
+| `space/` | 45 | `space/badge/padding-x`, `space/card/padding`, `space/card/padding-dense`, `space/card/padding-lg`, `space/container/padding`, `space/container/padding-lg`, `space/control/gap`, `space/control/gap-sm`, `space/control/padding-x`, `space/control/padding-x-sm`, `space/control/padding-y-lg`, `space/control/padding-y-md`, `space/control/padding-y-sm`, `space/control/padding-y-xs`, `space/empty-state/padding-full`, `space/empty-state/padding-minimal`, `space/field-group/gap`, `space/field/gap`, `space/inline/2xs`, `space/inline/lg`, `space/inline/md`, `space/inline/sm`, `space/inline/xl`, `space/inline/xs`, `space/inset/2xs`, `space/inset/lg`, `space/inset/md`, `space/inset/sm`, `space/inset/xl`, `space/inset/xs`, `space/layout/grid-gap`, `space/menu/item-padding-x`, `space/menu/padding`, `space/page/padding-lg`, `space/panel/gap`, `space/popover/padding`, `space/section/gap`, `space/section/gap-hero`, `space/stack/2xs`, `space/stack/lg`, `space/stack/md`, `space/stack/sm`, `space/stack/xl`, `space/stack/xs`, `space/switch/track-inset` |
+| `sizing/` | 34 | `sizing/avatar/badge-lg`, `sizing/avatar/badge-md`, `sizing/avatar/badge-sm`, `sizing/avatar/lg`, `sizing/avatar/md`, `sizing/avatar/sm`, `sizing/card/visual-header`, `sizing/checkbox`, `sizing/control/icon-md`, `sizing/control/icon-sm`, `sizing/control/icon-xs`, `sizing/selection/lg`, `sizing/selection/md`, `sizing/selection/sm`, `sizing/event-column/width`, `sizing/icon/lg`, `sizing/icon/md`, `sizing/icon/sm`, `sizing/icon/xl`, `sizing/control/lg`, `sizing/control/md`, `sizing/control/sm`, `sizing/sidebar/width`, `sizing/slider/thumb`, `sizing/slider/thumb-dragging`, `sizing/slider/track`, `sizing/spinner/dot`, `sizing/switch/thumb-default`, `sizing/switch/thumb-sm`, `sizing/switch/track-height-default`, `sizing/switch/track-height-sm`, `sizing/switch/track-width-default`, `sizing/switch/track-width-sm`, `sizing/textarea/min-height` |
 | `color/icon/` | 11 | `color/icon`, `color/icon/danger`, `color/icon/info`, `color/icon/on-brand-secondary-solid`, `color/icon/on-danger-solid`, `color/icon/on-success-solid`, `color/icon/on-warning-solid`, `color/icon/secondary`, `color/icon/strong`, `color/icon/success`, `color/icon/warning` |
 | `brand/` | 10 | `brand/logo`, `brand/primary`, `brand/primary-border`, `brand/primary-hover`, `brand/primary-subtle`, `brand/primary-text`, `brand/secondary`, `brand/secondary-border`, `brand/secondary-hover`, `brand/secondary-text` |
 | `color/fill/` | 10 | `color/fill/brand-solid-hover`, `color/fill/brand-secondary-solid-hover`, `color/fill/brand-subtle`, `color/fill/danger-subtle`, `color/fill/danger-subtle-hover`, `color/fill/success-subtle`, `color/fill/success-solid`, `color/fill/sunken`, `color/fill/warning-subtle`, `color/fill/warning-solid` |
@@ -137,7 +137,7 @@ Mientras no se decida, ni Figma ni el código están completos.
 | `z-index/` | 6 | `z-index/dropdown`, `z-index/modal`, `z-index/overlay`, `z-index/popover`, `z-index/sticky`, `z-index/toast` |
 | `color/border/` | 5 | `color/border/brand`, `color/border/brand-secondary`, `color/border/component`, `color/border/strong`, `color/border/subtle` |
 | `color/text/` | 5 | `color/text/info`, `color/text/on-danger-solid`, `color/text/on-success-solid`, `color/text/on-warning-solid`, `color/text/success` |
-| `color/field/` | 4 | `color/field/border-focus`, `color/field/border-invalid`, `color/field/fill-disabled`, `color/field/placeholder` |
+| `color/field/` | 4 | `color/field/border-focus`, `color/field/border-danger`, `color/field/fill-disabled`, `color/field/placeholder` |
 | `opacity/` | 4 | `opacity/disabled`, `opacity/hover`, `opacity/pressed`, `opacity/skeleton` |
 | `border-width/` | 3 | `border-width/default`, `border-width/focus`, `border-width/strong` |
 | `color/bg/` | 1 | `color/bg/subtle` |
@@ -151,19 +151,17 @@ Los 9 `radius/*` que sí cruzan son la excepción documentada.
 | Grupo | Nº |
 |---|---|
 | `spacing/` | 28 |
-| `color/Terracotta/` | 13 |
+| `color/Terracotta/` | 14 |
+| `color/Red/` | 13 |
 | `color/Amber/` | 11 |
 | `color/Bronze/` | 11 |
 | `color/Green/` | 11 |
 | `color/Neutral/` | 11 |
-| `color/Red/` | 11 |
 | `color/Umber/` | 11 |
 | `opacity/` | 7 |
 | `color/Cream/` | 6 |
 | `border-width/` | 4 |
-| `color/white-alpha/` | 4 |
-| `color/red-alpha/` | 2 |
-| `color/terracotta-alpha/` | 1 |
+| `color/White/` | 4 |
 | `radius/` | 1 |
 
 ---

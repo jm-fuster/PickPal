@@ -370,13 +370,13 @@ El archivo [PickPal — Design System](https://www.figma.com/design/4hQt4BnsEluK
 | Capa | Nº | Colección | Ejemplos | Aliasa a |
 |---|---|---|---|---|
 | Primitivo | 171 | `Primitives` (141) · `Typography` (30) | `color/Green/900`, `spacing/4`, `radius/md`, `opacity/50`, `typography/font-size/lg` | valor directo |
-| Semántico | 137 | `Semantic` | `color/fill/component`, `color/icon/secondary`, `space/stack/lg` | primitivo, o marca si el token es de identidad |
+| Semántico | 138 | `Semantic` | `color/fill/component`, `color/icon/secondary`, `space/stack/lg` | primitivo, o marca si el token es de identidad |
 | Marca | 10 | `Semantic` | `brand/primary`, `brand/primary-hover`, `brand/primary-text`, `brand/logo` | primitivo |
-| Componente | 30 | `Semantic` | `color/field/placeholder`, `space/card/padding-default`, `sizing/checkbox` | **semántico**, nunca primitivo |
+| Componente | 30 | `Semantic` | `color/field/placeholder`, `space/card/padding`, `sizing/checkbox` | **semántico**, nunca primitivo |
 
 **La colección `Medidas` se eliminó el 26-ago-2026**: sus 86 variables (spacing/size legacy) tenían 0 bindings de nodo y 0 alias entrantes desde cualquier otra variable del archivo — comprobado escaneando los 4.285 nodos de las 8 páginas antes de borrar. `Semantic` ya cubría el mismo terreno bajo `space/*` (44) y `sizing/*` (34), con las mismas hojas de nombre (`space/inset/md`, `sizing/avatar/sm`…), así que no hubo nada que repuntar. El archivo pasó de 401 a 371 variables y de cuatro colecciones a tres (`Primitives` · `Semantic` · `Typography`), sin ningún nombre en español.
 
-**Cómo recontar esta tabla sin auditar nada**: la capa primitiva son las variables con valor directo (`Primitives` 166 + las 30 de `Typography`); la capa componente son las que aliasan a otra variable **de su misma colección** (`Semantic`); marca son las 10 de `brand/*`; semántico es el resto. Las cuatro suman las 373 del archivo. **Tres puntos ciegos**: (1) un semántico que aliasa al hub de marca apunta a su misma colección y saldría contado como componente — hay que excluir los **13** con destino `brand/*` (43 variables aliasan dentro de `Semantic`: 13 al hub, 30 son componente); (2) los **6 tokens de `z-index/*` de `Semantic` llevan valor literal a propósito** (ver su sección) y parecen primitivos sin serlo — por eso el recuento bruto da 202 valores directos y la tabla dice 196; (3) la heurística mira el alias, no el nombre, así que **al menos 26 tokens que nombran una pieza concreta caen en «semántico» porque aliasan directo a un primitivo**: `sizing/switch/*` (6), `sizing/avatar/*` (6), `space/empty-state/*` (2), `space/card/padding-lg`, `space/field-group/gap`, `space/switch/track-inset`, `sizing/textarea/min-height`, `sizing/slider-track`, `sizing/spinner-dot`, `sizing/card-visual-header`, `sizing/sidebar/width`, `sizing/event-column/width`, `radius/checkbox`, `radius/logo` y `radius/panel`. Todos son numéricos y lo hacen porque su valor no existe en la tríada `space/*`, cosa que su descripción explica; **en color ya no queda ninguno**, desde que `color/field/border` pasó a aliasar `color/border/strong` (ver «Pasada de uso»). Con las dos primeras correcciones el bruto cuadra exacto con la tabla —**196 · 137 · 10 · 30 = 373**—, recontado el 10-sep-2026. Al tocar el archivo, recontar así con `figma_get_variables` y no fiarse de las cifras de este documento, que envejecen a cada cambio.
+**Cómo recontar esta tabla sin auditar nada**: la capa primitiva son las variables con valor directo (`Primitives` 141 + las 30 de `Typography`); la capa componente son las que aliasan a otra variable **de su misma colección** (`Semantic`); marca son las 10 de `brand/*`; semántico es el resto. Las cuatro suman las 349 del archivo. **Tres puntos ciegos**: (1) un semántico que aliasa al hub de marca apunta a su misma colección y saldría contado como componente — hay que excluir los **13** con destino `brand/*` (43 variables aliasan dentro de `Semantic`: 13 al hub, 30 son componente); (2) los **6 tokens de `z-index/*` de `Semantic` llevan valor literal a propósito** (ver su sección) y parecen primitivos sin serlo — por eso el recuento bruto da 177 valores directos y la tabla dice 171; (3) la heurística mira el alias, no el nombre, así que **al menos 26 tokens que nombran una pieza concreta caen en «semántico» porque aliasan directo a un primitivo**: `sizing/switch/*` (6), `sizing/avatar/*` (6), `space/empty-state/*` (2), `space/card/padding-lg`, `space/field-group/gap`, `space/switch/track-inset`, `sizing/textarea/min-height`, `sizing/slider/track`, `sizing/spinner/dot`, `sizing/card/visual-header`, `sizing/sidebar/width`, `sizing/event-column/width`, `radius/checkbox`, `radius/logo` y `radius/panel`. Todos son numéricos y lo hacen porque su valor no existe en la tríada `space/*`, cosa que su descripción explica; **en color ya no queda ninguno**, desde que `color/field/border` pasó a aliasar `color/border/strong` (ver «Pasada de uso»). Con las dos primeras correcciones el bruto cuadra exacto con la tabla —**171 · 138 · 10 · 30 = 349**—, recontado el 15-sep-2026. Al tocar el archivo, recontar así con `figma_get_variables` y no fiarse de las cifras de este documento, que envejecen a cada cambio.
 
 **Los primitivos tienen scope vacío y están ocultos al publicar** (`hiddenFromPublishing`): no aparecen en ningún picker ni viajan a los archivos que consumen la librería, para que nadie aplique `spacing/4` donde toca `spacing/container/padding`. **La excepción es `Typography`, que está publicada**: sus 20 variables aplicables llevan el scope de su propiedad (`FONT_FAMILY` 3 · `FONT_WEIGHT` 4 · `FONT_SIZE` 13), que es lo que pide la §5 de la guía de tipografía — en tipografía el text style hace de capa semántica y consume el primitivo directamente. **Las 10 de ratio y em (`line-height/*` 5 y `letter-spacing/*` 5) tienen scope vacío a propósito**: son solo referencia de código y **vincularlas rompe el texto**, porque Figma resuelve esas dos propiedades en píxeles (un ratio de 1,4 se aplicaría como 1,4 px). Con el scope vacío ya no aparecen en los pickers de interlineado y tracking; la advertencia vive además en la descripción de cada una.
 
@@ -630,7 +630,7 @@ Nueve renombrados puros lo dejan en una palabra por objeto:
 
 **Coste: cero.** Renombrado puro: id, valores, alias, bindings y `codeSyntax` intactos. Verificado token a token —19 valores resueltos sin una sola diferencia, ningún alias roto, y los bindings donde estaban: `radius/control` conserva sus 2.204 y `sizing/control/icon-*` sus 1.664 · 1.054 · 324—. Las seis variables de `sizing/control/*` y `sizing/selection/*` tenían 0 bindings de nodo entre todas; sus consumidores son alias, que van por id.
 
-**Lo que no cambia**: `sizing/selection/*` y `sizing/icon/*` siguen compartiendo los tres valores 16 · 20 · 24 a propósito, por el motivo del 25-ago-2026 —la caja y el glifo escalan por razones distintas—. Y `sizing/slider-thumb` sigue aliasando `sizing/selection/sm` aunque un slider no sea un control de selección: eso es una elección del consumidor, no del nombre de la familia.
+**Lo que no cambia**: `sizing/selection/*` y `sizing/icon/*` siguen compartiendo los tres valores 16 · 20 · 24 a propósito, por el motivo del 25-ago-2026 —la caja y el glifo escalan por razones distintas—. Y `sizing/slider/thumb` sigue aliasando `sizing/selection/sm` aunque un slider no sea un control de selección: eso es una elección del consumidor, no del nombre de la familia.
 
 #### Grupo `radius/*` en `Semantic`: 4 roles (25-ago-2026)
 
@@ -773,7 +773,7 @@ Interlineados y tracking salen tal cual de la guía: Display 110 %, H1-H2 120 %,
 
 - **El mecanismo central de la guía se sigue en tres de sus cinco columnas.** Sus tablas de §3 vinculan cinco variables por estilo, incluidas `line-height-*` (ratio sin unidad) y `letter-spacing-*` (em). Se vinculan las cinco. Lo que hay que saber es que **Figma resuelve interlineado y tracking siempre en píxeles**: una variable de valor 1,2 da 1,2 px, no 1,2×. Medido con geometría, y con las variables correctamente scopeadas —el scope no influye, solo decide en qué picker aparece cada una—: 10 caracteres a 20px miden 134 px sin espaciado, 152 con `{PERCENT, 10}` y 224 con `{PIXELS, 10}`; vinculando una variable de valor 10 miden **224**. Igual con interlineado: 3 líneas a 20px miden 120 px al 200 % y 600 px a 200 px; vinculando una variable de valor 200 miden **600**. En ambas pruebas el nodo estaba en `PERCENT` antes de vincular, y vincular lo pasó a píxeles.
 - **La nomenclatura plana en `Primitives` (`font-size-16`, `line-height-tight`) no se adopta.** Dos razones: Figma no permite mover una variable de colección, así que sería recrear y repuntar **1.036 bindings de nodo**; y los nombres actuales son portantes — `font-size/base` ↔ `text-base` ↔ `--text-base` es la cadena 1:1 con el código que este documento protege, y `font-size-16` la rompe. Sí coincide con la guía, en cambio, su §5: los primitivos de tipografía conservan scope porque el text style **es** la capa semántica.
-- **La guía asume una sola familia para los 19 estilos.** PickPal tiene dos, y el serif es la identidad. `Display/` y `Heading/` van a Fraunces (`font-family/heading`), `Label/`, `Body/` y `Caption/` a Geist (`font-family/sans`).
+- **La guía asume una sola familia para los 19 estilos.** PickPal tiene dos, y el serif es la identidad. `Display/` y `Heading/` van a Fraunces (`font-family/serif`), `Label/`, `Body/` y `Caption/` a Geist (`font-family/sans`).
 - **§1.1 y §3 de la guía no dicen lo mismo.** La tabla maestra pide interlineados de 1,15 · 1,25 · 1,35 · 1,45 que los 5 tokens de ratio no pueden expresar; §3, que es la que mapea a variables reales, los ajusta a los 5 disponibles. **Se sigue §3.**
 - **No hay hueco para las versalitas espaciadas**, que en el producto son 17 usos y un patrón documentado (`tracking-[0.18em]`, `[0.2em]`, `[0.12em]`). De ahí los 3 `Eyebrow/`, marcados como añadido en su descripción. Son los únicos que vinculan interlineado (a `line-height/px/*`), porque espejan el del código en vez de un ratio de la escala.
 
@@ -882,6 +882,31 @@ En el mismo movimiento `color/icon/category-amber` pasa a `color/icon/category/3
 
 **Coste: cero de valor.** Ocho renombrados puros, 12 descripciones que citaban los nombres viejos, 3 descripciones afinadas y 2 nodos de texto en `Design decisions`. Verificado: 9 valores resueltos sin diferencia, los bindings donde estaban (`icon/category/3` 33, `brand/logo` 37, las cinco de `bg/category` a 4), los 6 `codeSyntax` intactos y ningún nombre viejo vivo en el archivo.
 
+#### Barrido de consistencia menor, y cuatro hallazgos retirados (15-sep-2026)
+
+Última pasada de la auditoría de nomenclatura, ya sin nada de severidad alta. Quince renombrados puros y —tan importante como ellos— cuatro cosas que la auditoría marcaba y que al mirarlas de cerca no eran defectos.
+
+**Lo que se renombró:**
+
+| Antes | Ahora | Por qué |
+|---|---|---|
+| `sizing/slider-thumb`, `-thumb-dragging`, `-track`, `sizing/spinner-dot`, `sizing/card-visual-header` | `sizing/slider/thumb`, `/thumb-dragging`, `/track`, `sizing/spinner/dot`, `sizing/card/visual-header` | La anatomía de un componente se escribe con carpeta, como ya hacían `sizing/switch/*` y todo `space/*`. Eran 5 de 34 con guion |
+| `color/field/border-invalid` | `color/field/border-danger` | `invalid` era el único de su bloque de vocabulario frente a ocho `danger` |
+| `space/card/padding-default` | `space/card/padding` | El nombre pelado es el por defecto, como en `space/container/padding` |
+| `typography/font-family/heading` | `typography/font-family/serif` | Sus hermanos son `sans` y `mono`, que son clasificaciones; su propia descripción ya decía «the serif» |
+| `color/red-alpha/*`, `color/terracotta-alpha/*`, `color/white-alpha/*` | `color/Red/alpha-*`, `color/Terracotta/alpha-*`, `color/White/alpha-*` | Dos arreglos de una vez: la mayúscula inicial que el resto de familias de color sí tiene, y un número que ya no se confunde con un paso de rampa (`alpha-20` frente a `Red/200`) |
+
+**Lo que se retiró, y por qué conviene dejarlo escrito:**
+
+- **La hoja y la carpeta con el mismo nombre** (`color/bg`, `color/text`, `color/icon`, `color/border`) no es un descuido: la sección «Anidar `color/bg` en subgrupos» lo llama «el patrón que el archivo ya usa» y lo prescribe para el día que se anide `fill/*`. Imponer `color/text/default` habría sido llevarle la contraria a una decisión ya tomada y escrita.
+- **`radius/base` = `radius/lg` = 16 px** no es un paso duplicado: `base` es el ancla `--radius` de la que el CSS deriva los demás. Que coincida con `lg` es una consecuencia, no una redundancia.
+- **Las seis palabras para el escalón por defecto** (`base`, `normal`, `regular`, `default`, `md` y el nombre pelado) son tres de Tailwind —`font-size/base`, `line-height/normal`, `font-weight/regular`— más la del archivo, que sí es una sola y consistente: `default`. Unificarlas costaría dejar de espejar Tailwind, que es un precio mayor que el defecto.
+- **`secondary` con dos sentidos** —prominencia de texto y segundo color de marca— ya lo resuelve una regla escrita: el de marca siempre lleva `brand-` delante. El prefijo es el desambiguador y funciona.
+
+**Lo que queda abierto**, todo de severidad media o baja y ninguno resoluble solo en Figma: `typography/line-height/snug-alt`, que es el quinto escalón de una escala de cinco nombrado con un parche, pero `--leading-snug-alt` existe igual en el código; la gramática del hub `brand/*`, internamente consistente pero distinta de la de la capa semántica; y `component` como rol en `color/fill/component`, que choca con el nombre de la cuarta capa del modelo y para el que no hay palabra mejor —`control` ya es el botón, y este token pinta también el pie de una Card y un enlace del sidebar—.
+
+**Coste: cero de valor.** Quince renombrados puros, ninguna descripción afectada y 3 nodos de texto. En la tabla alineada de `03 · Space, Radius & Elevation` los cuatro cambios son guion por barra, misma longitud, así que la columna no se movió. Verificado: valores y bindings intactos, ningún nombre viejo vivo en el archivo.
+
 #### `danger` y `error`: dos rojos con el mismo hex (25-ago-2026)
 
 Nacen seis fondos de estado — `color/fill/success`, `fill/warning`, `fill/error` y su `-solid` cada uno — y `color/border/danger` pasa a llamarse **`color/border/error`**. Es el primer sitio donde el sistema distingue **`danger`** (acción destructiva, irreversible: borrar) de **`error`** (algo ha fallado o falta: validación, campo inválido).
@@ -903,7 +928,7 @@ Nacen seis fondos de estado — `color/fill/success`, `fill/warning`, `fill/erro
 
 El precedente es el ámbar de este mismo día: `--warning` servía a un aviso real y a glifos decorativos, se partió en dos, y la conclusión fue que **comparten hex hoy y pueden divergir mañana sin arrastrarse**. Aquí igual: `fill/error` y `fill/danger` resuelven al mismo color y son roles distintos a propósito.
 
-**`border/error` es un rename puro**: 9 bindings intactos — los masters `State=Error` de `Input` y `Textarea` (el nombre de la variante ya decía «error»), sus instancias, el `Budget Slider` y los dos swatches — y su capa de componente ya se llamaba `color/field/border-invalid`, así que el nombre nuevo la deja coherente. El `codeSyntax` se queda en `var(--destructive)` porque en código no existe `--error`.
+**`border/error` es un rename puro**: 9 bindings intactos — los masters `State=Error` de `Input` y `Textarea` (el nombre de la variante ya decía «error»), sus instancias, el `Budget Slider` y los dos swatches — y su capa de componente ya se llamaba `color/field/border-invalid` —hoy `color/field/border-danger`—, así que el nombre nuevo la deja coherente. El `codeSyntax` se queda en `var(--destructive)` porque en código no existe `--error`.
 
 **El grupo nació como `color/feedback/*` y se renombró a `fill/*` el mismo día.** Venía de copiar un modelo externo que agrupa por categoría. No sobrevivió al primer examen: `feedback/*` no tiene eje de elemento, así que **solo puede contener rellenos**, y un alert necesita fondo + texto + borde. Habría dejado `feedback/error` conviviendo con `text/danger` y `border/danger` — dos vocabularios en una sola pieza de UI — más un `fill/danger-hover` huérfano.
 
@@ -1011,7 +1036,7 @@ La capa de `emphasis` y `state` de color no existía porque **en el código todo
 - **Paso sólido de la rampa** cuando el color va sobre una superficie opaca y conocida (página o card), que es la inmensa mayoría de los casos. Con alfa el contraste depende de lo que haya detrás, así que no se puede garantizar AA, y dos bordes translúcidos que se cruzan se oscurecen.
 - **Alfa** solo donde es la herramienta correcta: overlays, cabeceras con blur y **bordes en modo oscuro** (`color/white-alpha/8|10|12` está bien puesto — un blanco al 8 % funciona sobre cualquier superficie oscura).
 
-Consecuencia práctica: las rampas **Red, Terracotta y Amber no tienen pasos oscuros** (están diseñadas como rampas claras sobre fondo oscuro), así que sus tintes en modo oscuro sí necesitan alfa. Para eso nacieron `color/red-alpha/20`, `color/red-alpha/30` y `color/terracotta-alpha/40`, con el mismo patrón de nombre que `white-alpha`.
+Consecuencia práctica: las rampas **Red, Terracotta y Amber no tienen pasos oscuros** (están diseñadas como rampas claras sobre fondo oscuro), así que sus tintes en modo oscuro sí necesitan alfa. Para eso nacieron `color/Red/alpha-20`, `color/Red/alpha-30` y `color/Terracotta/alpha-40`, con el mismo patrón de nombre que las alfas de blanco.
 
 **Los 17 tokens nuevos no existen en `globals.css`**, así que nacen sin `codeSyntax`. Figma va por delante del código a propósito: al adoptarlos hay que sustituir las utilidades con alfa por la custom property nueva, y entonces rellenar el `codeSyntax`. Dos de ellos son además una **corrección**, no un espejo:
 
@@ -1046,7 +1071,7 @@ Cinco tokens de **capa de componente** para los campos de formulario, siguiendo 
 |---|---|---|
 | `color/field/border` | `color/border/component` | `border-input` |
 | `color/field/border-focus` | `color/border/focus` | `focus-visible:border-ring` |
-| `color/field/border-invalid` | `color/border/error` | `aria-invalid:border-destructive` |
+| `color/field/border-danger` | `color/border/error` | `aria-invalid:border-destructive` |
 | `color/field/fill-disabled` | `color/fill/field-disabled` | `disabled:bg-input/50` |
 | `color/field/placeholder` | `color/text/secondary` | `placeholder:text-muted-foreground` |
 
