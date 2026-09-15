@@ -606,7 +606,7 @@
       "sizing/avatar/md",
       "sizing/avatar/sm",
       "sizing/card/visual-header",
-      "sizing/checkbox",
+      "sizing/checkbox/box",
       "sizing/control/icon-md",
       "sizing/control/icon-sm",
       "sizing/control/icon-xs",

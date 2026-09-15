@@ -372,7 +372,7 @@ El archivo [PickPal — Design System](https://www.figma.com/design/4hQt4BnsEluK
 | Primitivo | 171 | `Primitives` (141) · `Typography` (30) | `color/Green/900`, `spacing/4`, `radius/md`, `opacity/50`, `typography/font-size/lg` | valor directo |
 | Semántico | 138 | `Semantic` | `color/fill/component`, `color/icon/secondary`, `space/stack/lg` | primitivo, o marca si el token es de identidad |
 | Marca | 10 | `Semantic` | `brand/primary`, `brand/primary-hover`, `brand/primary-text`, `brand/logo` | primitivo |
-| Componente | 30 | `Semantic` | `color/field/placeholder`, `space/card/padding`, `sizing/checkbox` | **semántico**, nunca primitivo |
+| Componente | 30 | `Semantic` | `color/field/placeholder`, `space/card/padding`, `sizing/checkbox/box` | **semántico**, nunca primitivo |
 
 **La colección `Medidas` se eliminó el 26-ago-2026**: sus 86 variables (spacing/size legacy) tenían 0 bindings de nodo y 0 alias entrantes desde cualquier otra variable del archivo — comprobado escaneando los 4.285 nodos de las 8 páginas antes de borrar. `Semantic` ya cubría el mismo terreno bajo `space/*` (44) y `sizing/*` (34), con las mismas hojas de nombre (`space/inset/md`, `sizing/avatar/sm`…), así que no hubo nada que repuntar. El archivo pasó de 401 a 371 variables y de cuatro colecciones a tres (`Primitives` · `Semantic` · `Typography`), sin ningún nombre en español.
 
@@ -930,6 +930,19 @@ La página del producto es `p-4 sm:p-6 lg:p-8`. El `-lg` del token no es un esca
 **Lo que sí es cierto es la ambigüedad del slot**: `-lg` es breakpoint en `space/page/padding-lg` y `space/container/padding-lg`, y variante de tamaño en `space/card/padding-lg` (20 px, el `p-5` de `PersonCard` y `GiftRecommendationCard`, sin breakpoint de por medio). Como el archivo espeja Tailwind a propósito y `lg` es literalmente el nombre del breakpoint allí, **renombrar sería imponerle a este sistema un vocabulario que no es el suyo**. Se resuelve donde toca: la descripción de los dos tokens de breakpoint dice ahora que su `-lg` no es un escalón.
 
 **Regla que deja el caso**: antes de llamar «modificador huérfano» a un sufijo, buscar el hermano **en el producto**, no en la lista de variables. Que un valor no esté tokenizado en esa carpeta no significa que no exista.
+
+#### El último slot pelado de `sizing/`, y dos descripciones que no cabían (15-sep-2026)
+
+**`sizing/checkbox` → `sizing/checkbox/box`.** Tras el barrido de consistencia era el único de los 34 tokens de `sizing/` sin carpeta de objeto: los otros 33 son `sizing/<objeto>/<parte>` o `<objeto>/<propiedad>`. El nombre nuevo lo deja calcado a su gemelo exacto, **`sizing/slider/thumb`**, que mide lo mismo y aliasa el mismo escalón (`sizing/selection/sm` → `spacing/16`). No se toca `radius/checkbox`: en `radius/` **todas** las hojas van peladas (`panel`, `surface`, `pill`, `control`, `logo`, `tag`), así que ahí la pelada es la forma consistente.
+
+Coste: 82 bindings intactos, renombrado puro. La prosa repasada en el mismo pase: la descripción de `sizing/selection/lg`, que lo citaba entre paréntesis; el párrafo de las cuatro capas de `Start here`; y la fila de la tabla de `Foundations · Space, Radius & Elevation`, que es texto monoespaciado alineado por columnas y hubo que recomponer para que el valor siguiera cuadrando.
+
+**Y dos descripciones pasaban del tope de 250 caracteres** de la fórmula de [`figma-tokens.md`](figma-tokens.md). Las dos se pasaban por lo mismo: llevaban dentro la justificación de arquitectura, cuyo sitio es este documento.
+
+- **`brand/primary`** (261 → 223): salen los dos ratios entre paréntesis —3,82:1 y 4,59:1—, que ya están en la tabla de `--primary` de «Sincronización a11y». Se queda el hecho (`Green/600` es el único paso que aguanta las dos cosas) y la advertencia (no moverlo sin volver a medir).
+- **`space/switch/track-inset`** (322 → 213): sale la evidencia de por qué no son 4 px, que **se aparca aquí para no perderla**: con un inset de 4 px el pulgar solo recorría 4 px en el tamaño `Sm` y 8 px en el `Default`, y a esa distancia el estado del switch no se lee por posición. Se queda lo que evita el error de verdad — que ese 1 px viene de un borde transparente del producto, no de padding, y por eso aliasa `border-width/1` y no la escala de espaciado.
+
+**Lo que esto deja como regla**: cuando una descripción no cabe, lo que sobra casi nunca es la advertencia — es el porqué. El porqué va al `.md` y la descripción se queda con el qué y el aviso.
 
 #### `danger` y `error`: dos rojos con el mismo hex (25-ago-2026)
 
