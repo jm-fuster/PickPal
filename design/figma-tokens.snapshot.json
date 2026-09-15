@@ -95,42 +95,42 @@
       "#211914"
     ],
     [
-      "color/icon/category-amber",
+      "color/icon/category/3",
       "Semantic",
       "--category-amber",
       "#b45309",
       "#f3ae51"
     ],
     [
-      "color/bg/category/green",
+      "color/bg/category/1",
       "Semantic",
       "--chart-1",
       "#0c2912",
       "#547959"
     ],
     [
-      "color/bg/category/terracotta",
+      "color/bg/category/2",
       "Semantic",
       "--chart-2",
       "#c56a3e",
       "#dc855d"
     ],
     [
-      "color/bg/category/amber",
+      "color/bg/category/3",
       "Semantic",
       "--chart-3",
       "#e3a757",
       "#e3a757"
     ],
     [
-      "color/bg/category/umber",
+      "color/bg/category/4",
       "Semantic",
       "--chart-4",
       "#d5b59e",
       "#6f6149"
     ],
     [
-      "color/bg/category/neutral",
+      "color/bg/category/5",
       "Semantic",
       "--chart-5",
       "#775e50",
@@ -762,8 +762,8 @@
       "color/Terracotta/800",
       "color/Terracotta/900",
       "color/Terracotta/950",
-      "color/Terracotta/brand",
-      "color/Terracotta/text",
+      "color/Terracotta/vivid",
+      "color/Terracotta/1000",
       "color/Umber/50",
       "color/Umber/100",
       "color/Umber/200",
