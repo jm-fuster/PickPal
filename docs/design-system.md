@@ -818,7 +818,7 @@ El primer segmento del nombre dice **qué propiedad controla** el token, y no se
 
 El `role` sigue el mismo criterio: nombrar por el uso documentado en la tabla 2.7 del patrón canónico, no por el componente donde se usó primero. `radius/control` → `radius/interactive` y `radius/card` → `radius/surface` (23-ago-2026, renombrados puros, `codeSyntax` y los 620 + 138 bindings intactos). **El primero se deshizo el 15-sep-2026** y volvió a `radius/control`, porque para entonces `control` era ya la palabra del botón en las otras dos categorías; ver «Una palabra por objeto». `size/icon-display` → `size/icon/xl`, porque el documento nombra los tamaños de icono por escala (`sm`/`md`/`lg`/`xl`), no por uso.
 
-Los 59 semánticos de color siguen la fórmula `type-element-role-emphasis-state`, con los segmentos `emphasis` y `state` omitidos cuando valen *default*. El `element` es `bg`, `fill`, `text`, `border` o `icon` — `bg` y `fill` se separaron el 25-ago-2026, ver más abajo; **el nombre de la variable en Figma ya no coincide con el de la variable CSS**, y el puente entre los dos es el `codeSyntax`, que sigue apuntando a la custom property real. Dev Mode muestra `var(--primary)` aunque el token se llame `color/fill/brand`.
+Los 59 semánticos de color siguen la fórmula `type-element-role-emphasis-state`, con `state` omitido en reposo y `emphasis` omitido solo donde el rol tiene un único peso — todo relleno que exista en sutil y en sólido escribe cuál es (15-sep-2026, ver más abajo). El `element` es `bg`, `fill`, `text`, `border` o `icon` — `bg` y `fill` se separaron el 25-ago-2026, ver más abajo; **el nombre de la variable en Figma ya no coincide con el de la variable CSS**, y el puente entre los dos es el `codeSyntax`, que sigue apuntando a la custom property real. Dev Mode muestra `var(--primary)` aunque el token se llame `color/fill/brand-solid`.
 
 | Figma | CSS | Qué es |
 |---|---|---|
@@ -828,22 +828,45 @@ Los 59 semánticos de color siguen la fórmula `type-element-role-emphasis-state
 | `color/fill/field-disabled` | `--field-disabled` | **Relleno del campo deshabilitado**, `Input` y `Textarea`: los dos únicos sitios del producto donde deshabilitar pinta color. Paso sólido (`Cream/200` · `Neutral/800`), adoptado en código el 28-ago-2026 — ver más abajo |
 | `color/fill/component` | `--muted` | **Superficie interactiva neutra**: hover de Button outline y ghost, hover de Badge, link del sidebar, footer de Card, track del Slider |
 | `color/fill/component-focus` | `--accent` | **Solo el item de menú resaltado**: `focus:bg-accent` en `SelectItem` y la opción activa del combobox de intereses |
-| `color/fill/brand` · `color/fill/brand-secondary` | `--primary` · `--secondary` | Verde de CTA · terracota |
+| `color/fill/brand-solid` · `color/fill/brand-secondary-solid` | `--primary` · `--secondary` | Verde de CTA · terracota |
 | `color/fill/danger-solid` | `--destructive` | Rojo sólido |
-| `color/fill/danger` · `color/fill/danger-hover` | — | **El fondo real** del `Button` y el `Badge` destructive (`bg-destructive/10` → `/20` → `/30`). `danger-solid` no lo pinta nada en el producto |
-| `color/fill/brand-subtle` · `color/fill/brand-hover` · `color/fill/brand-secondary-hover` | — | Capa de *emphasis* y *state* de marca (creada 25-ago-2026) |
+| `color/fill/danger-subtle` · `color/fill/danger-subtle-hover` | — | **El fondo real** del `Button` y el `Badge` destructive (`bg-destructive/10` → `/20` → `/30`). `danger-solid` no lo pinta nada en el producto |
+| `color/fill/brand-subtle` · `color/fill/brand-solid-hover` · `color/fill/brand-secondary-solid-hover` | — | Capa de *emphasis* y *state* de marca (creada 25-ago-2026) |
 | `color/border/subtle` · `color/border/brand` · `color/border/brand-secondary` | — | Separador tenue (`border-border/40…/70`, 40 usos) y bordes de marca |
 | `color/bg/subtle` · `color/text/tertiary` · `color/icon/strong` | — | Roles del patrón canónico que faltaban. Sin uso en el producto todavía |
 | `color/text/success` · `color/icon/success` | — | Éxito en la rampa verde: en PickPal el verde es identidad **y** confirmación, no hay un verde de éxito aparte |
 | `color/text/info` · `color/icon/info` | — | Informativo en la rampa **Bronze**: PickPal no tiene azul, y Bronze estaba sin asignar y es lo bastante neutra para no competir con la marca |
 | `color/text/warning` | `--warning` | **Único uso**: el contador de `NotificationBell` cuando un evento cae dentro de 7 días. `color/icon/warning` existe pero sin puente: el icono `Bell` hereda el color del texto |
 | `color/icon/category-amber` | `--category-amber` | Glifo de las ~15 categorías de regalo ámbar de `giftImages.ts`, sobre `bg-chart-3/15`. **Decorativo, no un aviso**: comparte primitivos (`Amber/800`·`500`) con `color/text/warning` pero es otro rol. Se perdió al reducir `color/` a grupos de rol y **se recreó el 28-ago-2026**, recuperando el puente que `color/icon/warning` llevaba prestado |
-| `color/fill/success` · `color/fill/warning` · `color/fill/error` (+ `-solid` cada uno) | — | **Fondos de estado**: par sutil + sólido. `error` (algo ha fallado) es un rol **distinto** de `danger` (acción destructiva) — ver más abajo |
+| `color/fill/success-subtle` · `color/fill/warning-subtle` · `color/fill/error` (+ su `-solid` cada uno) | — | **Fondos de estado**: par sutil + sólido. `error` (algo ha fallado) es un rol **distinto** de `danger` (acción destructiva) — ver más abajo |
 | `color/text` · `color/text/secondary` | `--foreground` · `--muted-foreground` | Texto principal · de apoyo |
 | `color/text/brand` · `color/text/brand-secondary` | `--brand` · `--brand-secondary` | El primer plano de las dos marcas: verde para links y texto de marca, terracota para etiquetas de marca favorita y `BrandStoreLink`. Cada una partida de su relleno (26 y 28-ago-2026) |
 | `color/text/on-*` | `--*-foreground` | El prefijo `on-` significa siempre «encima de esta superficie» |
 | `color/border` · `color/field/border` | `--border` · `--input` | Borde estándar decorativo · borde de control a ≥3:1 (campos, checkbox, outline, track del switch). `color/border/component` perdió el puente y los bindings el 28-ago-2026: candidato a retirarse |
 | `color/icon` · `/secondary` · `/danger` · `/brand` · `/on-brand` · `/on-brand-secondary` | — | Fill y stroke de icono. Nacieron el 23-ago-2026 copiando el mismo primitivo que su equivalente de `color/text/*` — no un alias al semántico de texto — porque los iconos ya llevaban 369 bindings a esos tokens y **`color/text/*` solo tiene scope `TEXT_FILL`**, invisible en el picker de Fill de un vector. Son los 6 roles que el uso real demostró necesarios, no los 7 que sugiere el documento (no hay uso de `success` en iconos propios) |
+
+#### El énfasis deja de ser implícito en los rellenos (15-sep-2026)
+
+`color/fill/brand` valía #0c2912 —verde casi negro, luminancia 0,017— y `color/fill/danger` valía #ffe8e3 —rosa casi blanco, 0,845—. Misma gramática, extremos opuestos de la escala: **el nombre pelado significaba *sólido* en los roles de marca y *sutil* en los de estado**. La prueba más corta de que el hueco se leía al revés es que `color/fill/success-solid` y `color/fill/brand` eran el mismo hex.
+
+Doce renombrados puros dejan el énfasis escrito siempre que el rol existe en dos pesos:
+
+| Antes | Ahora |
+|---|---|
+| `color/fill/brand` · `-hover` | `color/fill/brand-solid` · `-solid-hover` |
+| `color/fill/brand-secondary` · `-hover` | `color/fill/brand-secondary-solid` · `-solid-hover` |
+| `color/fill/danger` · `-hover` | `color/fill/danger-subtle` · `-subtle-hover` |
+| `color/fill/success` · `color/fill/warning` | `color/fill/success-subtle` · `color/fill/warning-subtle` |
+| `color/text|icon/on-brand` | `…/on-brand-solid` |
+| `color/text|icon/on-brand-secondary` | `…/on-brand-secondary-solid` |
+
+**Por qué explícito y no «pelado = sutil», que era la propuesta inicial de la auditoría.** Unificar hacia el sentido mayoritario obligaba a que `color/fill/danger` pasara de rosa pálido a rojo sólido **conservando el nombre**. Un nombre que cambia de significado en silencio es exactamente el fallo que este pase viene a cerrar, y no hay manera de avisar a quien lleve la referencia vieja en la cabeza. Con el énfasis explícito ningún nombre existente cambia de significado: cada uno se queda igual o gana un sufijo.
+
+**La regla queda así**: el `state` se omite en reposo, y el `emphasis` solo se omite donde el rol tiene un único peso —`color/fill/component`, `color/fill/field-disabled`, `color/fill/sunken`—. Todo relleno que exista en sutil y en sólido escribe cuál es.
+
+**Es divergencia con la guía canónica, y esta vez la guía es el origen del defecto.** Su tabla 2.1 lista `color-bg-success` con *emphasis: subtle* y `color-bg-brand` con *emphasis: default*, los dos sin sufijo: documenta por escrito que el mismo hueco vacío significa dos cosas. Registrada en la tabla de divergencias de [`docs/figma-tokens.md`](figma-tokens.md).
+
+**Coste: cero de valor.** Doce renombrados puros, **22 descripciones** de otras variables que citaban los nombres viejos y **4 nodos de texto** en `Start here`, `Design decisions`, `Switch` y `Store Link Chip` —los rótulos son texto y no siguen a la variable—. Verificado: 14 valores resueltos sin una diferencia, los bindings donde estaban (`brand-solid` 386, `brand-secondary-solid` 442, `on-brand-secondary-solid` 432 + 225), los 5 `codeSyntax` intactos y ni un nombre viejo vivo en el archivo.
 
 #### `danger` y `error`: dos rojos con el mismo hex (25-ago-2026)
 
@@ -949,7 +972,7 @@ La sección anterior partió el token en `checked` / `unchecked` **para ser fiel
 
 Dos problemas de capa, no de valor. En claro, el **fondo de la página** haciendo de relleno de una pieza. Y en oscuro, los dos aliasan a tokens con **scope `TEXT_FILL`**: el relleno de una elipse dependiendo de un token que Figma no te dejaría aplicar a una elipse. Además `thumb-bg-checked` resolvía al mismo `#FAF6F1` en los dos modos por dos rutas distintas, así que el baile de modos no compraba nada.
 
-**Los dos aliasan ahora a `color/icon/on-brand` en los dos modos.** Es el único semántico que ya existía con las tres cosas a la vez: scope de forma (`SHAPE_FILL`, `STROKE_COLOR`), el significado correcto —una forma sobre el relleno de marca del track— y el mismo `Cream/100` en claro y en oscuro. La cadena queda `thumb-* → color/icon/on-brand → Cream/100`.
+**Los dos aliasan ahora a `color/icon/on-brand-solid` en los dos modos.** Es el único semántico que ya existía con las tres cosas a la vez: scope de forma (`SHAPE_FILL`, `STROKE_COLOR`), el significado correcto —una forma sobre el relleno de marca del track— y el mismo `Cream/100` en claro y en oscuro. La cadena queda `thumb-* → color/icon/on-brand → Cream/100`.
 
 **Y el código se colapsó a un solo token**: el thumb pasa de `bg-background` + `dark:data-checked:bg-primary-foreground` + `dark:data-unchecked:bg-foreground` a **`bg-primary-foreground`** y nada más. Los tres resolvían casi al mismo crema; uno era el fondo de la página y otro el texto del cuerpo, ninguno un relleno. Aquí el arreglo fue del código, y Figma lo sigue.
 
@@ -978,7 +1001,7 @@ Consecuencia práctica: las rampas **Red, Terracotta y Amber no tienen pasos osc
 
 **Los 17 tokens nuevos no existen en `globals.css`**, así que nacen sin `codeSyntax`. Figma va por delante del código a propósito: al adoptarlos hay que sustituir las utilidades con alfa por la custom property nueva, y entonces rellenar el `codeSyntax`. Dos de ellos son además una **corrección**, no un espejo:
 
-- `color/fill/brand-hover` sube un paso de rampa en Dark en vez de diluirse. `hover:bg-primary/80` sobre fondo oscuro **oscurece** el botón al pasar el ratón y el cambio queda casi invisible.
+- `color/fill/brand-solid-hover` sube un paso de rampa en Dark en vez de diluirse. `hover:bg-primary/80` sobre fondo oscuro **oscurece** el botón al pasar el ratón y el cambio queda casi invisible.
 - `color/text/tertiary` da 3,97:1 en Light: **no pasa AA** para texto normal y solo debe usarse en texto no esencial. La rampa Umber está comprimida ahí y el paso siguiente es indistinguible de `secondary`.
 
 **«Deshabilitado» es opacidad en casi todo el sistema, menos en dos componentes.** `Button` (sus 6 tipos), `Button Icon`, `Select`, `Switch`, `Label` y `GiftRecommendationCard` apagan con `disabled:opacity-50` más `cursor-not-allowed`, que atenúa fondo, texto e icono de una vez; para eso está `opacity/disabled` (50) en `Medidas`. Pero **`Input` y `Textarea` sí pintan color**: `disabled:bg-input/50` en Light y `dark:disabled:bg-input/80` en Dark, encima del `opacity-50`. De ahí `color/fill/field-disabled` (ver abajo), y de ahí que **no** exista un `fill/disabled` genérico ni la familia entera (`text/disabled`, `border/disabled`, `icon/disabled`): en todo lo demás el apagado es de verdad solo opacidad. Los `bg/disabled/*` que se crearon y se borraron el 25-ago-2026 eran otra cosa —grises de superficie sin consumidor—, ver más arriba.
@@ -1024,7 +1047,7 @@ Cinco tokens de **capa de componente** para los campos de formulario, siguiendo 
 **Dos palabras que hay que vigilar al cruzar de un lado al otro:**
 
 - **`accent`.** El patrón canónico llama `accent` al color secundario de identidad; shadcn llama `--accent` al beige del item de menú enfocado. Son cosas opuestas, así que la palabra **no se usa como rol en Figma**: la terracota es `brand-secondary` y el beige es `component-focus`.
-- **`secondary`.** En la familia de texto, `color/text/secondary` es el texto de apoyo (el sentido del patrón canónico), mientras `color/text/on-brand-secondary` es el texto que va encima de la terracota. El prefijo `on-` es lo que los distingue.
+- **`secondary`.** En la familia de texto, `color/text/secondary` es el texto de apoyo (el sentido del patrón canónico), mientras `color/text/on-brand-secondary-solid` es el texto que va encima de la terracota. El prefijo `on-` es lo que los distingue.
 
 Al mapear un token de color nuevo, **decidir el rol por cómo lo usa el código, no por cómo se llama la variable CSS**: `--muted` parece "zona secundaria" por el nombre y resultó ser la superficie interactiva de medio sistema, y `--accent` parece un color de identidad y resultó ser un solo estado de foco.
 

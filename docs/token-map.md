@@ -65,9 +65,9 @@ Valores: `Figma / código`. `≈` = mismo color, ±1 por canal del ida y vuelta 
 | `color/fill/component` | Semantic | `--muted` | :root / .dark | ✅ #f3e6d2 / #f3e6d2 | ✅ #302621 / #302621 |
 | `color/text/secondary` | Semantic | `--muted-foreground` | :root / .dark | ✅ #5a4234 / #5a4234 | ✅ #e1d6c6 / #e1d6c6 |
 | `color/bg/surface-raised` | Semantic | `--popover` | :root / .dark | ✅ #fffbf6 / #fffbf6 | ✅ #211914 / #211914 |
-| `color/fill/brand` | Semantic | `--primary` | :root / .dark | ✅ #0c2912 / #0c2912 | ✅ #547959 / #547959 |
-| `color/icon/on-brand` | Semantic | `--primary-foreground` | :root / .dark | ✅ #faf6f1 / #faf6f1 | ✅ #faf6f1 / #faf6f1 |
-| `color/text/on-brand` | Semantic | `--primary-foreground` | :root / .dark | ✅ #faf6f1 / #faf6f1 | ✅ #faf6f1 / #faf6f1 |
+| `color/fill/brand-solid` | Semantic | `--primary` | :root / .dark | ✅ #0c2912 / #0c2912 | ✅ #547959 / #547959 |
+| `color/icon/on-brand-solid` | Semantic | `--primary-foreground` | :root / .dark | ✅ #faf6f1 / #faf6f1 | ✅ #faf6f1 / #faf6f1 |
+| `color/text/on-brand-solid` | Semantic | `--primary-foreground` | :root / .dark | ✅ #faf6f1 / #faf6f1 | ✅ #faf6f1 / #faf6f1 |
 | `radius/base` | Primitives | `--radius` | :root | ✅ 16 / 16 | ✅ 16 / 16 |
 | `radius/2xl` | Primitives | `--radius-2xl` | @theme inline | ✅ 24 / 24 | ✅ 24 / 24 |
 | `radius/3xl` | Primitives | `--radius-3xl` | @theme inline | ✅ 28 / 28 | ✅ 28 / 28 |
@@ -78,8 +78,8 @@ Valores: `Figma / código`. `≈` = mismo color, ±1 por canal del ida y vuelta 
 | `radius/xl` | Primitives | `--radius-xl` | @theme inline | ✅ 20 / 20 | ✅ 20 / 20 |
 | `radius/xs` | Primitives | `--radius-xs` | @theme inline | ✅ 4 / 4 | ✅ 4 / 4 |
 | `color/border/focus` | Semantic | `--ring` | :root / .dark | ✅ #0c2912 / #0c2912 | ✅ #547959 / #547959 |
-| `color/fill/brand-secondary` | Semantic | `--secondary` | :root / .dark | ✅ #c56a3e / #c56a3e | ✅ #dc855d / #dc855d |
-| `color/text/on-brand-secondary` | Semantic | `--secondary-foreground` | :root / .dark | ✅ #16100d / #16100d | ✅ #16100d / #16100d |
+| `color/fill/brand-secondary-solid` | Semantic | `--secondary` | :root / .dark | ✅ #c56a3e / #c56a3e | ✅ #dc855d / #dc855d |
+| `color/text/on-brand-secondary-solid` | Semantic | `--secondary-foreground` | :root / .dark | ✅ #16100d / #16100d | ✅ #16100d / #16100d |
 | `color/icon/tertiary` | Semantic | `--subtle-foreground` | :root / .dark | ✅ #6e6055 / #6e6055 | ✅ #a99c8e / #a99c8e |
 | `color/text/tertiary` | Semantic | `--subtle-foreground` | :root / .dark | ✅ #6e6055 / #6e6055 | ✅ #a99c8e / #a99c8e |
 | `typography/font-size/2xl` | Typography | `--text-2xl` | — | — 24 / — | — 24 / — |
@@ -130,9 +130,9 @@ Mientras no se decida, ni Figma ni el código están completos.
 |---|---|---|
 | `space/` | 45 | `space/badge/padding-x`, `space/card/padding-default`, `space/card/padding-dense`, `space/card/padding-lg`, `space/container/padding`, `space/container/padding-lg`, `space/control/gap`, `space/control/gap-sm`, `space/control/padding-x`, `space/control/padding-x-sm`, `space/control/padding-y-lg`, `space/control/padding-y-md`, `space/control/padding-y-sm`, `space/control/padding-y-xs`, `space/empty-state/padding-full`, `space/empty-state/padding-minimal`, `space/field-group/gap`, `space/field/gap`, `space/inline/2xs`, `space/inline/lg`, `space/inline/md`, `space/inline/sm`, `space/inline/xl`, `space/inline/xs`, `space/inset/2xs`, `space/inset/lg`, `space/inset/md`, `space/inset/sm`, `space/inset/xl`, `space/inset/xs`, `space/layout/grid-gap`, `space/menu/item-padding-x`, `space/menu/padding`, `space/page/padding-lg`, `space/panel/gap`, `space/popover/padding`, `space/section/gap`, `space/section/gap-hero`, `space/stack/2xs`, `space/stack/lg`, `space/stack/md`, `space/stack/sm`, `space/stack/xl`, `space/stack/xs`, `space/switch/track-inset` |
 | `sizing/` | 34 | `sizing/avatar/badge-lg`, `sizing/avatar/badge-md`, `sizing/avatar/badge-sm`, `sizing/avatar/lg`, `sizing/avatar/md`, `sizing/avatar/sm`, `sizing/card-visual-header`, `sizing/checkbox`, `sizing/control/icon-md`, `sizing/control/icon-sm`, `sizing/control/icon-xs`, `sizing/selection/lg`, `sizing/selection/md`, `sizing/selection/sm`, `sizing/event-column/width`, `sizing/icon/lg`, `sizing/icon/md`, `sizing/icon/sm`, `sizing/icon/xl`, `sizing/control/lg`, `sizing/control/md`, `sizing/control/sm`, `sizing/sidebar/width`, `sizing/slider-thumb`, `sizing/slider-thumb-dragging`, `sizing/slider-track`, `sizing/spinner-dot`, `sizing/switch/thumb-default`, `sizing/switch/thumb-sm`, `sizing/switch/track-height-default`, `sizing/switch/track-height-sm`, `sizing/switch/track-width-default`, `sizing/switch/track-width-sm`, `sizing/textarea/min-height` |
-| `color/icon/` | 11 | `color/icon`, `color/icon/danger`, `color/icon/info`, `color/icon/on-brand-secondary`, `color/icon/on-danger-solid`, `color/icon/on-success-solid`, `color/icon/on-warning-solid`, `color/icon/secondary`, `color/icon/strong`, `color/icon/success`, `color/icon/warning` |
+| `color/icon/` | 11 | `color/icon`, `color/icon/danger`, `color/icon/info`, `color/icon/on-brand-secondary-solid`, `color/icon/on-danger-solid`, `color/icon/on-success-solid`, `color/icon/on-warning-solid`, `color/icon/secondary`, `color/icon/strong`, `color/icon/success`, `color/icon/warning` |
 | `brand/` | 10 | `brand/logo`, `brand/primary`, `brand/primary-border`, `brand/primary-hover`, `brand/primary-subtle`, `brand/primary-text`, `brand/secondary`, `brand/secondary-border`, `brand/secondary-hover`, `brand/secondary-text` |
-| `color/fill/` | 10 | `color/fill/brand-hover`, `color/fill/brand-secondary-hover`, `color/fill/brand-subtle`, `color/fill/danger`, `color/fill/danger-hover`, `color/fill/success`, `color/fill/success-solid`, `color/fill/sunken`, `color/fill/warning`, `color/fill/warning-solid` |
+| `color/fill/` | 10 | `color/fill/brand-solid-hover`, `color/fill/brand-secondary-solid-hover`, `color/fill/brand-subtle`, `color/fill/danger-subtle`, `color/fill/danger-subtle-hover`, `color/fill/success-subtle`, `color/fill/success-solid`, `color/fill/sunken`, `color/fill/warning-subtle`, `color/fill/warning-solid` |
 | `radius/` | 8 | `radius/checkbox`, `radius/control-sm`, `radius/control`, `radius/logo`, `radius/panel`, `radius/pill`, `radius/surface`, `radius/tag` |
 | `z-index/` | 6 | `z-index/dropdown`, `z-index/modal`, `z-index/overlay`, `z-index/popover`, `z-index/sticky`, `z-index/toast` |
 | `color/border/` | 5 | `color/border/brand`, `color/border/brand-secondary`, `color/border/component`, `color/border/strong`, `color/border/subtle` |

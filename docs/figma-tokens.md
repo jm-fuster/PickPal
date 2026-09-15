@@ -78,6 +78,7 @@ La guía canónica de abajo describe un sistema de referencia con paletas Radix.
 | Los primitivos se ocultan y no tienen scope | `Typography` está publicada y con scope | En tipografía el text style hace de capa semántica y consume el primitivo directamente. Con excepción dentro de la excepción: `line-height/*` y `letter-spacing/*` van con **scope vacío**, porque Figma resuelve esas dos propiedades en píxeles y vincularlas rompe el texto. |
 | `radius-tag` es el radio de badges y tags | `radius/tag` existe sin consumidor real | Los badges del producto son pill. Su descripción lo dice para que nadie lo tome por el radio de los badges. |
 | Rol `interactive` (`radius-interactive`, `size-interactive-*`) | `radius/control`, `sizing/control/*` | La guía nombra ese rol pero no cubre el padding, el gap, el icono interior ni un radio pequeño del mismo objeto, que el archivo ya llamaba `control` en 14 tokens. Un objeto, una palabra. La caja de checkbox y radio, que antes ocupaba ese nombre, es `sizing/selection/*`. |
+| `emphasis` se omite cuando vale *default* — y la tabla 2.1 lo deja *default* en `color-bg-brand` (sólido) y *subtle* en `color-bg-success` (pálido) | Todo relleno con dos pesos lo escribe: `color/fill/brand-solid` · `brand-subtle`, `danger-subtle` · `danger-solid` | El hueco vacío significaba cosas opuestas según el rol, y el propio cuadro de la guía lo documenta. Solo se omite donde el rol tiene un único peso (`fill/component`, `fill/field-disabled`). Ver § «El énfasis deja de ser implícito en los rellenos». |
 
 ---
 
