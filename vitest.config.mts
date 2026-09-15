@@ -1,5 +1,9 @@
 import { defineConfig } from "vitest/config";
+import { fileURLToPath } from "node:url";
 import path from "node:path";
+
+// En ESM no hay __dirname. Mismo patrón que scripts/token-map.mjs.
+const rootDir = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   test: {
@@ -9,7 +13,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": path.resolve(rootDir, "./src"),
     },
   },
 });
