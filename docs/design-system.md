@@ -333,11 +333,11 @@ El archivo se auditó con tres criterios del usuario —que no dependa del códi
 
 > My phone reminds me of a birthday on the day, when it is too late to give anything good, and I am worse at the second half: a gift that fits the person. PickPal is the notebook I built to fix that. It keeps the people you care about next to their dates and, when one gets close, drafts nine gift ideas from what you know about them, with a budget for that occasion and links to the stores you actually use.
 >
-> This file is the case, start to finish: the problem, the decisions made before designing, how a date becomes a gift, what a ten-person private beta changed, six paths not taken, and an accessibility pass with its measurements. Behind it sits the design system that made it hold up: 374 variables in four layers with Light and Dark as real modes, 28 component sets on 30 documented pages, 66 icons, 25 text styles and 21 product screens with two click-through flows.
+> This file is the case, start to finish: the problem, the decisions made before designing, how a date becomes a gift, what a ten-person private beta changed, six paths not taken, and an accessibility pass with its measurements. Behind it sits the design system that made it hold up: 349 variables in four layers with Light and Dark as real modes, 28 component sets on 30 documented pages, 66 icons, 25 text styles and 21 product screens with two click-through flows.
 >
 > Documentation in English. The product is Spanish and its copy stays that way, as it ships.
 
-Carrusel, nueve imágenes en este orden: portada; Agenda de escritorio en claro; Agenda de escritorio en oscuro; 01 · Color; 02 · Typography; 04 · Iconography; la página Button; los marcos móviles con la hoja de navegación; el prototipo. La miniatura sigue siendo la sección `Cover Art` (1920 × 1080), estática: una vista previa de prototipo como miniatura bloquea el carrusel.
+Carrusel, nueve imágenes en este orden: portada; Agenda de escritorio en claro; Agenda de escritorio en oscuro; 01 · Colour; 02 · Typography; 04 · Iconography; la página Button; los marcos móviles con la hoja de navegación; el prototipo. La miniatura sigue siendo la sección `Cover Art` (1920 × 1080), estática: una vista previa de prototipo como miniatura bloquea el carrusel.
 
 **Lo que sigue abierto.** Los 108 rectángulos ocultos `Icon Left`/`Icon Right` de Button (pendiente A6). Rellenar el formulario y exportar las nueve imágenes. Y tres preguntas de diseño que el borrador de decisiones dejó a la vista y esta pasada no resuelve: `brand/primary-hover` aclara en claro y oscurece en oscuro; los dos pasos con nombre de `Terracotta` rompen la convención numérica; y el set Button dibuja Md y Lg iguales a 36 px mientras el producto tiene 32 por defecto.
 
