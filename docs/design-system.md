@@ -339,7 +339,7 @@ El archivo se auditó con tres criterios del usuario —que no dependa del códi
 
 Carrusel, nueve imágenes en este orden: portada; Agenda de escritorio en claro; Agenda de escritorio en oscuro; 01 · Colour; 02 · Typography; 04 · Iconography; la página Button; los marcos móviles con la hoja de navegación; el prototipo. La miniatura sigue siendo la sección `Cover Art` (1920 × 1080), estática: una vista previa de prototipo como miniatura bloquea el carrusel.
 
-**Lo que sigue abierto.** Los 108 rectángulos ocultos `Icon Left`/`Icon Right` de Button (pendiente A6). Rellenar el formulario y exportar las nueve imágenes. Y tres preguntas de diseño que el borrador de decisiones dejó a la vista y esta pasada no resuelve: `brand/primary-hover` aclara en claro y oscurece en oscuro; los dos pasos con nombre de `Terracotta` rompen la convención numérica; y el set Button dibuja Md y Lg iguales a 36 px mientras el producto tiene 32 por defecto.
+**Lo que sigue abierto.** Rellenar el formulario y exportar las nueve imágenes. Los otros cuatro puntos que esta pasada dejó a la vista se cerraron el 18-sep-2026; ver «Cuatro pendientes de Figma se cierran» más abajo.
 
 ### El archivo pasa a caso de producto (11-sep-2026, tarde)
 
@@ -1906,9 +1906,23 @@ Lista de cosas que sé que faltan o que no han recibido pasada todavía. Se irá
 - [ ] **Los estados `Focus` del Figma dibujan un borde, no un anillo**: las 5 variantes `State=Focus` del archivo (Input, Textarea, Select ×2 y una `State=Focused` sin trazo) usan el borde de 1 px en color de foco, así que `border-width/focus` (3 px) no tiene ni un nodo que lo aplique. O se dibuja el anillo en esas variantes, o el token se queda como documentación del código. Ver «Pasada de uso».
 - [x] ~~Montar el grupo label–input–error en una página del Figma~~ → hecho el 28-ago-2026: página `Field Group` (30ª de componente) con set State=Default/Error y un especimen `Formulario` de dos grupos. Da consumidor a `space/field/gap` **y también** a `space/field-group/gap`, que estaba igual de huérfano. Ver «El grupo de campo se monta».
 - [ ] **28 textos de especímenes sin hueco en la escala**: `Geist Medium 12` con tracking 0 (9), `Geist Medium 11` con 12 % sin mayúsculas (6), `Geist Medium 18` (6), `Geist Light 24` (2), `Geist Medium 13` (2), `Geist Regular 24` (1), más las 3 iniciales del Avatar (Regular, y por rol pedirían un `Label`) y 3 etiquetas de Button subrayadas, que perderían el subrayado al tomar `Label 2`. Decidir si nacen 3–4 estilos o se normalizan los nodos.
-- [ ] **Huecos de icono: rectángulo o instancia**: 122 huecos son rectángulos tokenizados (color y tamaño vinculados) y 28 son instancias reales, a veces en la misma página — `Button Icon` usa `icon/x` y el resto de Button, rectángulos. Decidir el patrón único. Pasar todo a instancias cuesta ~200 ediciones, elegir glifo por componente y ~74 sobrescrituras de trazo; dejarlo en rectángulos es barato pero la librería no enseña iconos de verdad. Ver «Pasada de uso».
+- [x] ~~Huecos de icono: rectángulo o instancia~~ → instancias, hecho el 18-sep-2026: los 119 rectángulos `Icon Left`/`Icon Right` de los componentes Button (108) y Badge (11) son ahora instancias de `icon/plus` ocultas, con el mismo nombre, la misma propiedad booleana de visibilidad y el mismo tamaño vinculado; el resto de páginas los heredan por instancia. Los seis huecos visibles llevan su glifo real: `gift` en el CTA de Upcoming Date Card, `dices` en «Aleatorio» del Avatar Picker, `x` en los chips de Tag Input. El trazo se escala con el tamaño (1 px a 12, 1,17 a 14, 1,33 a 16), como hace el SVG de lucide. Ver «Cuatro pendientes de Figma se cierran».
 - [ ] **Retirar `color/border/component`**: sin puente y sin bindings desde el 28-ago-2026 (la sincronización a11y movió los bordes de campo a `color/field/border` y `var(--input)` se fue con ellos). Decidirlo junto a la revisión de `color/field/*`: si esa capa se retirase, el borde de campo volvería a necesitar un semántico con nombre.
 - [x] ~~`color/icon/category/3` desapareció de Figma y el código lo sigue usando~~ → recreado el 28-ago-2026 tal como estaba prescrito: alias a `Amber/800`/`Amber/500`, puente `var(--category-amber)` recuperado de `color/icon/warning` (que lo llevaba prestado) y tarjeta nueva en `Foundations - Color`. La decisión de `bg/category/*` (hue o tinte, y la colisión contenedor/icono del ámbar) sigue abierta en su propio pendiente: un rename futuro de la familia arrastrará también a este token, y renombrar es barato. Ver «El préstamo de `--category-amber`».
+
+---
+
+## Cuatro pendientes de Figma se cierran (18-sep-2026)
+
+Los cuatro puntos de diseño que la pasada de Community dejó abiertos, resueltos en el archivo el mismo día que la auditoría de textos.
+
+**Button: Md mide 32 px.** `Size=Md` bajaba de la rampa de espaciado (`paddingTop`/`paddingBottom` a 8) y salía a 36, igual que Lg, mientras el producto tiene `h-8` por defecto y `h-9` en grande. Las 18 variantes Md llevan ahora un relleno vertical literal de 6, sin variable, porque 32 menos la línea de 20 son 12 y la rampa no tiene paso de 6; es la única medida fuera de la cuadrícula de 4 en el set, y la nota de la página lo dice. Sm (28), Md (32) y Lg (36) coinciden con `sm`, `default` y `lg` del código. **Queda por revisar** `sizing/control/*`: sus descripciones dicen sm 32, md 36, lg 44, que no es la escala del Button del producto (28 · 32 · 36); ningún nodo los aplica.
+
+**Hover de marca en oscuro: se queda oscureciendo, y ahora con razón escrita.** `brand/primary-hover` es `Green/800` en claro (aclara) y `Green/700` en oscuro (oscurece). Medido antes de cambiarlo: `text/on-brand-solid` da 4,59:1 sobre el relleno en reposo `Green/600`, 5,85:1 sobre `Green/700` y **3,30:1 sobre `Green/500`**. Subir un paso dejaría el texto de todos los botones primarios por debajo de AA mientras el puntero está encima. El producto llega al mismo sitio con `hover:bg-primary/80` (solo en `<a>`), que sobre página oscura también oscurece. Decisión 20 en el apéndice de Figma.
+
+**Terracota: la convención ya era numérica.** El rename `text` → `1000` y `brand` → `vivid` se hizo el 11-sep (A5/A6) pero dos textos del archivo seguían diciendo lo viejo: el swatch de la rampa en 01 · Colour y la decisión 11 del apéndice. Corregidos. `vivid` no es un paso y no lo pretende.
+
+**Huecos de icono: instancias.** Ver el pendiente tachado en «Pendientes». Sustituir un hueco fue: crear instancia de `icon/plus`, copiar tamaño, nombre, visibilidad y `componentPropertyReferences.visible`, insertar en el mismo índice, escalar el trazo y borrar el rectángulo. 119 nodos en dos lotes de 60; las páginas que consumen Button y Badge no hubo que tocarlas.
 
 ---
 
