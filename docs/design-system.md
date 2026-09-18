@@ -1180,7 +1180,7 @@ Todas se llaman `vlabel/…`, así que regenerarlas es idempotente: el script la
 
 **2. Callouts en el `Header` (estado desde el 11-sep-2026).** Hasta esa fecha el `Header` llevaba una línea monoespaciada `Fuente: <ruta> · Revisado: <fecha>` y un aviso «Divergencia con el código» en las 30 páginas, con `archivo:línea`. Los dos se retiraron en la pasada de portfolio (§ «Pasada de portfolio para Figma Community»), porque un visitante de Community no tiene el repositorio y la fecha de revisión no le dice nada. Hoy el `Header` es título, descripción en inglés y, solo donde hace falta, dos callouts con el mismo bloque `color/bg/subtle` + `color/border/subtle` + `radius/surface`: **«Note»** en ocho páginas (Button, Empty State, Toast, Store Link Chip, Upcoming Date Card, Sheet, Select, Notification Bell), que dice qué no puede enseñar un marco estático —un estado decidido en tiempo de ejecución, un tamaño que el producto tiene y el set no— sin rutas ni líneas; y **«Accessibility · WCAG 2.2 AA»** en siete (Button, Checkbox, Input, Slider, Switch, Back Link, Store Link Chip), con la medida antes y después. Las divergencias con el código siguen midiéndose, pero viven en [`docs/token-map.md`](token-map.md) y aquí, no en el archivo.
 
-**3. Validación en claro y oscuro.** El marco del pie se llama `Light & Dark` (antes «Modo oscuro - validacion») y sus dos mitades llevan los rótulos `Light` y `Dark` (antes «Light (mode override explícito)»). Sigue siendo el mismo par de copias con la colección Semantic forzada a cada modo.
+**3. Validación en oscuro.** El marco del pie se llamó `Modo oscuro - validacion`, luego `Light & Dark` con dos mitades, y desde el 18-sep-2026 es **`Dark check`**, una sola copia con la colección Semantic fijada a `Dark`. La mitad clara se retiró porque la rejilla ya es la lectura en claro (ver § «Una rejilla y un control en oscuro»).
 
 **Consecuencias de formato, ya aplicadas**: el `Header` se ensancha al mayor de 640 px y el ancho de la sección más ancha de su página, para que el párrafo y el aviso tengan medida legible también en páginas estrechas (`Label` mide 312 px de sección y 640 de cabecera); el párrafo de descripción va siempre en `FILL`, nunca en ancho fijo; y cada página se reapila en vertical con 40 px entre bloques, agrupando en una misma fila los hermanos que comparten `y`.
 
@@ -2054,6 +2054,20 @@ Las 30 secciones pasan de **36.315 a 25.359 px**. Seis parejas de tema se apilar
 **Regla que deja esto**: al girar una pareja de tema, poner los dos ejes en `AUTO` antes de medir; y cuando un marco de validación se recorta, comprobar qué había debajo antes de darlo por bueno — dos de los tres defectos llevaban meses tapados por dos píxeles de recorte.
 
 **Lo que sigue sin copiarse de FlySplit** es lo de la sección anterior: las cabeceras de eje de la rejilla, porque los `vlabel/` ya llevan el eje dentro, y la tabla `props`, porque la `description` ya lo dice en prosa.
+
+## Una rejilla y un control en oscuro, no tres renders del mismo componente (18-sep-2026, noche)
+
+Con la spec ya al lado de la rejilla se vio lo que la disposición vieja escondía: cada sección enseñaba **el mismo componente tres veces** — la rejilla etiquetada, una copia clara y una oscura. La copia clara no añadía nada.
+
+**Medido antes de borrar.** En **16 de las 30** secciones la mitad clara no contenía ni un componente que la rejilla no tuviera. En las otras 14 lo «exclusivo» eran piezas anidadas —`icon/plus`, `icon/arrow-left`, el `Avatar` y el `Badge` de dentro de una tarjeta— que la rejilla también pinta, y solo `Sheet` y `Dialog` enseñaban una maqueta distinta, más pequeña, del mismo componente. De las 106 instancias de las mitades claras, **82 repetían algo de su rejilla**. En superficie: 2,78 M px² de lienzo dibujando dos veces lo mismo.
+
+**Lo que queda.** El marco pasa de `Light & Dark` con dos mitades a **`Dark check`**, una sola copia con `Semantic` fijada a `Dark`. La rejilla no se fija a nada: **el modo por defecto de la colección Semantic es `Light`**, así que para cualquiera que abra el archivo la rejilla ya es la lectura en claro, y el resto de la página —cabecera, callouts, `ext/`— también sigue el modo del archivo. Fijar la rejilla a `Light` habría sido lo único de la página que no acompaña al tema, y **fijar el `COMPONENT_SET` en sí es peor**: el modo explícito viaja con el componente y podría llegar a quien consuma la librería. La regla queda así: **todo sigue el modo del archivo menos el `Dark check`, que está clavado a propósito.**
+
+**El coste, si alguien cambia el archivo a oscuro**: la rejilla se va a oscuro y el `Dark check` también, y esa pantalla se queda sin referencia clara. Es el precio, y es asumible porque la página se lee en el modo por defecto.
+
+**Cifras.** Las 30 secciones pasan de 25.359 a **23.273 px**, y los anchos por página bajan solos porque la mitad clara era la que los empujaba: `03 · Navigation` de 1.504 a 1.436 y `04 · Overlays` de 1.648 a 1.644. Y **las seis parejas que se habían apilado en vertical dejan de necesitarlo**: sin mitad clara no hay nada que apilar, así que `Avatar Picker Dialog` baja de 1.440 a 708 px de validación y `Empty State` de 846 a 411. El acumulado desde el principio de la tarde: **36.315 → 23.273 px**, un 36 % menos.
+
+**Prosa actualizada en el archivo**, que no sigue a nadie (regla 8 de `figma-tokens.md`): las **seis descripciones de página**, que prometían «its header, its labelled grid and its Light & Dark check», ahora describen las dos columnas y dicen cuál sigue el modo y cuál está fijado; y en `Start here`, el párrafo de anatomía de las páginas de componente y la fila de la tabla de vocabulario. Barrido después: **cero menciones a «Light & Dark»** en las 29 páginas.
 
 ## Cómo mantener este documento
 
