@@ -2016,13 +2016,44 @@ Segunda cosa que FlySplit hace mejor y que aquí faltaba: allí la tarjeta `Spec
 
 **Resultado en la página de prueba**: Button 1.280 × 3.248 → 1.664 × 2.724, Back Link 704 × 821 → 1.664 × 473, Theme Toggle 782 × 736 → 1.664 × 448. La página va de 5.358 a 4.220 px con las tres secciones al mismo ancho. Extrapolado a las 30, las secciones bajarían de 36.315 a unos 22.000.
 
-**Bloques `ext/`, para las propiedades que a propósito no son eje.** FlySplit los usa mucho porque sus sets tienen muchas; aquí solo hay **siete propiedades no-variante** en toda la librería y cuatro son de texto (`Input.Placeholder`, `Textarea.Placeholder`, `Label.Text`, `Spinner.Label`), que no necesitan demostración. Las tres que sí: `Button.Icon Left/Right`, `Badge.Icon Left/Right` y `Avatar.Show Badge`. Se montó la primera, `ext/icon-slots/Button`: mismo bloque que los callouts (`color/bg/subtle` + `color/border/subtle` + `radius/surface`, título Geist Medium 11, cuerpo Regular 11, sin estilo de texto, como el resto del mobiliario), con padding 16 y cuatro instancias reales —sin icono, izquierda, derecha, las dos— y el motivo: como ejes, el set pasaría de 54 variantes a 216 por dos interruptores. Y dice que los dos huecos siguen dibujados con rectángulos, que es la decisión 3 del apéndice.
+**Bloques `ext/`, para las propiedades que a propósito no son eje.** FlySplit los usa mucho porque sus sets tienen muchas; aquí solo hay **siete propiedades no-variante** en toda la librería y cuatro son de texto (`Input.Placeholder`, `Textarea.Placeholder`, `Label.Text`, `Spinner.Label`), que no necesitan demostración. Las tres que sí: `Button.Icon Left/Right`, `Badge.Icon Left/Right` y `Avatar.Show Badge`. Se montó la primera, `ext/icon-slots/Button`: mismo bloque que los callouts (`color/bg/subtle` + `color/border/subtle` + `radius/surface`, título Geist Medium 11, cuerpo Regular 11, sin estilo de texto, como el resto del mobiliario), con padding 16 y cuatro instancias reales —sin icono, izquierda, derecha, las dos— y el motivo: como ejes, el set pasaría de 54 variantes a 216 por dos interruptores.
 
 **Dos cosas de FlySplit que se descartan aquí, y por qué.** (1) **Las cabeceras de eje de la rejilla** (`STATE` arriba, `VARIANT × SIZE` a la izquierda): FlySplit las necesita porque sus rótulos dicen `Primary`, `sm`, `Default` a secas; los de aquí son `vlabel/Type=Primary`, `Size=Sm`, `State=Default` y **ya llevan el eje dentro**, así que la cabecera sería repetirlo. (2) **La tabla `props` de su tarjeta Spec**: la misma información vive aquí en la `description` en prosa («Variants: Type (…), Size (…), State (…)»), y cambiar la forma no añade nada.
 
 **Un defecto preexistente que salió al recolocar**: en `Theme Toggle` el frame `row` medía 654 px y su segunda columna acababa en 659, así que «…switches to light» se cortaba cinco píxeles. Ensanchado a 683 y la sección de la rejilla a 747.
 
-**Lo que cambia de la convención de § «Figma — anatomía de una página de componente»**, si esto se extiende a las seis páginas: donde dice que el `Header` se ensancha al mayor de 640 y el ancho de la sección más ancha, pasará a ser una columna fija de 640 a la izquierda; y donde dice que la página se reapila en vertical con 40 px entre bloques, pasará a ser una columna derecha de 920 con esos 40 px entre rejilla, `ext/` y `Light & Dark`. **Pendiente de decidir**: aplicarlo a `02 · Forms`, `03 · Navigation`, `04 · Overlays`, `05 · Content` y `06 · Cards`, y montar los `ext/` de Badge y Avatar.
+**Lo que cambia de la convención de § «Figma — anatomía de una página de componente»**: donde dice que el `Header` se ensancha al mayor de 640 y el ancho de la sección más ancha, hay que leer **columna fija de 640 a la izquierda**; y donde dice que la página se reapila en vertical con 40 px entre bloques, hay que leer **columna derecha** con esos 40 px entre las rejillas, el `ext/` y `Light & Dark`. Los scripts que recolocaban una página en vertical tienen que colocar ahora dos columnas.
+
+## Las seis páginas de componente, con ancho por página (18-sep-2026, noche)
+
+Lo que la sección anterior probaba en `01 · Actions` se extendió a las seis, **con ancho por página en vez de global**: dentro de una página todas las secciones miden igual, y las páginas no tienen por qué medir igual entre sí. Versión con nombre previa: «Before the spec-beside-grid pass on the other five pages»; posterior: «Component pages: spec beside the grid, per-page width».
+
+**La regla de ancho, en tres pasos.** (1) El ancho lo fijan las **rejillas**, no la documentación: `gridMax` es la `SECTION` de rejilla más ancha de la página. (2) Una pareja `Light & Dark` que se pasara de ahí por más de 80 px se **apila en vertical** en vez de ensanchar la página entera: la tolerancia evita voltear por cuatro píxeles, que es lo que pasaba con `Notification Bell` (696 frente a 692) y `Date Picker Dialog` (904 frente a 900). (3) La columna derecha mide lo que pida el mayor de rejillas y parejas ya resueltas, y la sección es `32 + 640 + 40 + derecha + 32`. **El bloque `ext/` no vota**: es elástico y se redimensiona a la columna.
+
+| Página | Ancho | Secciones | Alto |
+|---|---|---|---|
+| 01 · Actions | 1.590 | 3 | 3.645 |
+| 02 · Forms | 1.428 | 10 | 6.225 |
+| 03 · Navigation | 1.504 | 3 | 2.719 |
+| 04 · Overlays | 1.648 | 5 | 5.592 |
+| 05 · Content | 1.648 | 5 | 3.334 |
+| 06 · Cards | 1.448 | 4 | 3.844 |
+
+Las 30 secciones pasan de **36.315 a 25.359 px**. Seis parejas de tema se apilaron: Button, Select, Avatar Picker Dialog, Empty State, Person Card y Upcoming Date Card.
+
+**Dos secciones tienen dos rejillas** —`Select` (Select Trigger + Select Item) y `Avatar Picker Dialog` (Avatar Swatch + el diálogo)—, así que la columna derecha admite N rejillas, no una. Buscar solo la primera `SECTION` hija dejó la segunda aparcada donde estaba y sobresaliendo de la sección; el script recorre ahora todas.
+
+**Los otros dos bloques `ext/`**: `ext/icon-slots/Badge` (6 variantes → 24 con los dos interruptores como ejes) y `ext/show-badge/Avatar` (3 → 6), este con las tres tallas con y sin insignia. Al montarlos se comprobó de dónde salen esos huecos y **el apunte de la sección anterior estaba mal**: los 108 `Icon Left`/`Icon Right` de Button y los 12 de Badge **son instancias de `icon/plus`**, no rectángulos. El pendiente de «308 rectángulos» que este documento arrastraba desde la pasada de portfolio ya no existe. La insignia del Avatar sí es un dibujo, un `ELLIPSE`, porque no lleva glifo.
+
+**Tres defectos preexistentes que salieron al recolocar, todos escondidos por un recorte.**
+
+1. **`Light & Dark` con altura fija.** Cinco marcos tenían `primaryAxisSizingMode = FIXED`, así que al girarlos a vertical no crecían y el tema oscuro quedaba fuera del marco. Puestos los dos ejes a `AUTO`. Dos estaban **ya recortados antes de tocar nada**: `Sidebar Link` (584 × 252 con 280 de contenido) y, tras el giro, `Avatar Picker Dialog` (708 con 1.440).
+2. **El cuarto enlace de `Sidebar Link` era invisible en claro.** Las dos instancias `Platform=Mobile · State=Active` de la validación estaban atadas a **`color/fill/brand-solid`** mientras el component set usa **`color/fill/brand-subtle`**: en claro el relleno salía `#0C2912` con el texto `color/text/brand`, también `#0C2912`, o sea **1:1**. Un override viejo que nadie vio porque la cuarta fila caía fuera del marco. Reatadas a `brand-subtle`: **13,20:1 en claro y 6,19:1 en oscuro**. El component set nunca estuvo mal; la foto de validación sí.
+3. **El `row` de `Theme Toggle`** medía 654 px con la segunda columna acabando en 659 (§ anterior).
+
+**Regla que deja esto**: al girar una pareja de tema, poner los dos ejes en `AUTO` antes de medir; y cuando un marco de validación se recorta, comprobar qué había debajo antes de darlo por bueno — dos de los tres defectos llevaban meses tapados por dos píxeles de recorte.
+
+**Lo que sigue sin copiarse de FlySplit** es lo de la sección anterior: las cabeceras de eje de la rejilla, porque los `vlabel/` ya llevan el eje dentro, y la tabla `props`, porque la `description` ya lo dice en prosa.
 
 ## Cómo mantener este documento
 
