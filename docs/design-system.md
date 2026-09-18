@@ -839,8 +839,8 @@ Los 59 semánticos de color siguen la fórmula `type-element-role-emphasis-state
 | `color/fill/component` | `--muted` | **Superficie interactiva neutra**: hover de Button outline y ghost, hover de Badge, link del sidebar, footer de Card, track del Slider |
 | `color/fill/component-focus` | `--accent` | **Solo el item de menú resaltado**: `focus:bg-accent` en `SelectItem` y la opción activa del combobox de intereses |
 | `color/fill/brand-solid` · `color/fill/brand-secondary-solid` | `--primary` · `--secondary` | Verde de CTA · terracota |
-| `color/fill/danger-solid` | `--destructive` | Rojo sólido |
-| `color/fill/danger-subtle` · `color/fill/danger-subtle-hover` | — | **El fondo real** del `Button` y el `Badge` destructive (`bg-destructive/10` → `/20` → `/30`). `danger-solid` no lo pinta nada en el producto |
+| `color/fill/destructive-solid` | `--destructive` | Rojo sólido |
+| `color/fill/destructive-subtle` · `color/fill/destructive-subtle-hover` | — | **El fondo real** del `Button` y el `Badge` destructive (`bg-destructive/10` → `/20` → `/30`). `destructive-solid` no lo pinta nada en el producto |
 | `color/fill/brand-subtle` · `color/fill/brand-solid-hover` · `color/fill/brand-secondary-solid-hover` | — | Capa de *emphasis* y *state* de marca (creada 25-ago-2026) |
 | `color/border/subtle` · `color/border/brand` · `color/border/brand-secondary` | — | Separador tenue (`border-border/40…/70`, 40 usos) y bordes de marca |
 | `color/bg/subtle` · `color/text/tertiary` · `color/icon/strong` | — | Roles del patrón canónico que faltaban. Sin uso en el producto todavía |
@@ -848,12 +848,12 @@ Los 59 semánticos de color siguen la fórmula `type-element-role-emphasis-state
 | `color/text/info` · `color/icon/info` | — | Informativo en la rampa **Bronze**: PickPal no tiene azul, y Bronze estaba sin asignar y es lo bastante neutra para no competir con la marca |
 | `color/text/warning` | `--warning` | **Único uso**: el contador de `NotificationBell` cuando un evento cae dentro de 7 días. `color/icon/warning` existe pero sin puente: el icono `Bell` hereda el color del texto |
 | `color/icon/category/3` | `--category-amber` | Glifo de las ~15 categorías de regalo ámbar de `giftImages.ts`, sobre `bg-chart-3/15`. **Decorativo, no un aviso**: comparte primitivos (`Amber/800`·`500`) con `color/text/warning` pero es otro rol. Se perdió al reducir `color/` a grupos de rol y **se recreó el 28-ago-2026**, recuperando el puente que `color/icon/warning` llevaba prestado |
-| `color/fill/success-subtle` · `color/fill/warning-subtle` · `color/fill/error` (+ su `-solid` cada uno) | — | **Fondos de estado**: par sutil + sólido. `error` (algo ha fallado) es un rol **distinto** de `danger` (acción destructiva) — ver más abajo |
+| `color/fill/success-subtle` · `color/fill/warning-subtle` · `color/fill/destructive-subtle` (+ su `-solid` cada uno) | — | **Fondos de estado**: par sutil + sólido. **No existe un rol `error` aparte**: el rojo es uno y se llama `destructive` desde el 18-sep-2026 — ver «`danger` pasa a `destructive`». El `error` que sigue vivo es el **estado** de un campo (`State=Error`), que no es un color |
 | `color/text` · `color/text/secondary` | `--foreground` · `--muted-foreground` | Texto principal · de apoyo |
 | `color/text/brand` · `color/text/brand-secondary` | `--brand` · `--brand-secondary` | El primer plano de las dos marcas: verde para links y texto de marca, terracota para etiquetas de marca favorita y `BrandStoreLink`. Cada una partida de su relleno (26 y 28-ago-2026) |
 | `color/text/on-*` | `--*-foreground` | El prefijo `on-` significa siempre «encima de esta superficie» |
 | `color/border` · `color/field/border` | `--border` · `--input` | Borde estándar decorativo · borde de control a ≥3:1 (campos, checkbox, outline, track del switch). `color/border/component` perdió el puente y los bindings el 28-ago-2026: candidato a retirarse |
-| `color/icon` · `/secondary` · `/danger` · `/brand` · `/on-brand` · `/on-brand-secondary` | — | Fill y stroke de icono. Nacieron el 23-ago-2026 copiando el mismo primitivo que su equivalente de `color/text/*` — no un alias al semántico de texto — porque los iconos ya llevaban 369 bindings a esos tokens y **`color/text/*` solo tiene scope `TEXT_FILL`**, invisible en el picker de Fill de un vector. Son los 6 roles que el uso real demostró necesarios, no los 7 que sugiere el documento (no hay uso de `success` en iconos propios) |
+| `color/icon` · `/secondary` · `/destructive` · `/brand` · `/on-brand` · `/on-brand-secondary` | — | Fill y stroke de icono. Nacieron el 23-ago-2026 copiando el mismo primitivo que su equivalente de `color/text/*` — no un alias al semántico de texto — porque los iconos ya llevaban 369 bindings a esos tokens y **`color/text/*` solo tiene scope `TEXT_FILL`**, invisible en el picker de Fill de un vector. Son los 6 roles que el uso real demostró necesarios, no los 7 que sugiere el documento (no hay uso de `success` en iconos propios) |
 
 #### El énfasis deja de ser implícito en los rellenos (15-sep-2026)
 
@@ -945,6 +945,8 @@ Coste: 82 bindings intactos, renombrado puro. La prosa repasada en el mismo pase
 **Lo que esto deja como regla**: cuando una descripción no cabe, lo que sobra casi nunca es la advertencia — es el porqué. El porqué va al `.md` y la descripción se queda con el qué y el aviso.
 
 #### `danger` y `error`: dos rojos con el mismo hex (25-ago-2026)
+
+> **Cerrado el 18-sep-2026, en contra de lo que dice esta sección.** Nada de lo que sigue llegó a existir en Figma: el rename a `color/border/error` se deshizo en algún momento después del 25-ago y nunca hubo una variable con `error` en el nombre. La distinción se abandona a propósito — **hay un solo rojo y se llama `destructive`**, como en el código. Se conserva el texto porque explica por qué se intentó y con qué datos, no porque describa el archivo. Ver «`danger` pasa a `destructive`».
 
 Nacen seis fondos de estado — `color/fill/success`, `fill/warning`, `fill/error` y su `-solid` cada uno — y `color/border/danger` pasa a llamarse **`color/border/error`**. Es el primer sitio donde el sistema distingue **`danger`** (acción destructiva, irreversible: borrar) de **`error`** (algo ha fallado o falta: validación, campo inválido).
 
@@ -1060,7 +1062,7 @@ Dos problemas de capa, no de valor. En claro, el **fondo de la página** haciend
 
 ### Los tres tokens que cerraban huecos de pareja
 
-`color/text/on-danger-solid` y `color/icon/on-danger-solid` completan el par de `color/fill/danger-solid`, que existía sin decir de qué color va lo que se pone encima. **Invierten entre modos**, al revés que `on-brand` y `on-brand-secondary`, porque el rojo también invierte: es oscuro en Light (`red/950`) y claro en Dark (`red/900`). Contraste 5,02:1 y 6,52:1, pasan AA. Son Figma-only, como el propio `danger-solid`: el producto pinta el tinte, no el sólido.
+`color/text/on-destructive-solid` y `color/icon/on-destructive-solid` completan el par de `color/fill/destructive-solid`, que existía sin decir de qué color va lo que se pone encima. **Invierten entre modos**, al revés que `on-brand` y `on-brand-secondary`, porque el rojo también invierte: es oscuro en Light (`red/950`) y claro en Dark (`red/900`). Contraste 5,02:1 y 6,52:1, pasan AA. Son Figma-only, como el propio `destructive-solid`: el producto pinta el tinte, no el sólido.
 
 `color/icon/tertiary` es la pareja de `color/text/tertiary`, y hereda su aviso de contraste.
 
@@ -2110,9 +2112,38 @@ Segunda pasada con la skill `nomenclatura-tokens`, esta vez sobre el archivo ent
 
 **La tabla de `Start here` además se reordenó.** Agrupa por propiedad, así que al dejar de ser `State`, las filas de Notification Popover y Date Picker se quedaban huérfanas en mitad del bloque de estados. Ahora la de Notification Popover va junto a la otra `Content` y `Year` detrás.
 
-**Lo que queda decidido y sin hacer: `danger` → `destructive`.** El archivo llama de tres maneras al mismo rol rojo —`danger` en las 9 variables, `Destructive` en el eje Type de Button, `Error` en cuatro estados de campo— y el código no usa `danger` **ni una vez**: `destructive` aparece 45 veces y la custom property es `--destructive`. Tres de las nueve variables ya lo declaran en su `codeSyntax`. `danger` no gana ni pierde por ser mejor palabra —no es ambigua ni codifica su valor—: pierde porque **la regla de desempate del archivo es que manda el código**, y porque el propio archivo ya dice `Destructive` en el eje de Button. `State=Error` se queda: es el nombre del estado, no el del color, y el código hace lo mismo (`aria-invalid` pintado con `--destructive`). Coste medido: 9 variables (0 bindings), 11 descripciones y ~20 nodos de texto. **Hacerlo antes de publicar en Community**, que es cuando renombrar deja de ser barato.
+**Lo que quedó decidido y sin hacer: `danger` → `destructive`** — ejecutado esa misma noche, ver «`danger` pasa a `destructive`». El archivo llamaba de tres maneras al mismo rol rojo —`danger` en las 9 variables, `Destructive` en el eje Type de Button, `Error` en cuatro estados de campo— y el código no usa `danger` **ni una vez**: `destructive` aparece 45 veces y la custom property es `--destructive`. Tres de las nueve variables ya lo declaran en su `codeSyntax`. `danger` no gana ni pierde por ser mejor palabra —no es ambigua ni codifica su valor—: pierde porque **la regla de desempate del archivo es que manda el código**, y porque el propio archivo ya dice `Destructive` en el eje de Button. `State=Error` se queda: es el nombre del estado, no el del color, y el código hace lo mismo (`aria-invalid` pintado con `--destructive`). Coste medido: 9 variables (0 bindings), 11 descripciones y ~20 nodos de texto. **Hacerlo antes de publicar en Community**, que es cuando renombrar deja de ser barato.
 
 **Un apunte que no es de nomenclatura**: `Button Type=Primary` diverge del código, que llama `default` a esa variante. Se mantiene `Primary` a propósito —`default` ya ocupa los ejes Size y State del mismo componente, y es término tóxico justo por eso—, pero falta anotarlo en la tabla de divergencias de [`docs/figma-tokens.md`](figma-tokens.md).
+
+---
+
+## `danger` pasa a `destructive` (18-sep-2026, noche)
+
+El hallazgo de severidad alta de la auditoría de nomenclatura, ejecutado. El archivo llamaba de **tres maneras** al mismo rol rojo: `danger` en las 9 variables, `Destructive` en el eje Type de Button y `Error` en cuatro estados de campo. El código no usa `danger` **ni una vez** — `destructive` aparece 45 veces y la custom property es `--destructive`—, y tres de las nueve variables ya lo declaraban en su `codeSyntax`.
+
+**`danger` no pierde por ser peor palabra.** No es ambigua, no codifica su valor y no está en la lista de términos tóxicos; por mayoría habría ganado ella, 9 contra 1. Pierde por dos razones que no son de gusto: la **regla de desempate del archivo es que manda el código**, y el archivo ya decía `Destructive` en el eje de Button, así que no se importa vocabulario de fuera — se elige entre dos palabras que ya convivían dentro.
+
+**`State=Error` se queda, y no es una excepción.** Es el nombre de un **estado** (el campo no valida), no el de un color. El código hace exactamente lo mismo: marca `aria-invalid` y lo pinta con `--destructive`. Un estado y un rol de color son slots distintos; que compartan el rojo no los hace sinónimos.
+
+**Los 9 renombrados**, todos alias puros, 0 bindings tocados:
+
+| Antes | Después |
+|---|---|
+| `color/fill/danger-solid` | `color/fill/destructive-solid` |
+| `color/fill/danger-subtle` · `-subtle-hover` | `color/fill/destructive-subtle` · `-subtle-hover` |
+| `color/text/danger` · `color/icon/danger` | `color/text/destructive` · `color/icon/destructive` |
+| `color/border/danger` | `color/border/destructive` |
+| `color/text/on-danger-solid` · `color/icon/on-danger-solid` | `color/text/on-destructive-solid` · `color/icon/on-destructive-solid` |
+| `color/field/border-danger` | `color/field/border-destructive` |
+
+**El barrido, que es donde está el trabajo.** 11 descripciones de variable, **23 nodos de texto** en cinco páginas (`01 · Colour`, `01 · Actions`, `02 · Forms`, `03 · Navigation`, `Design decisions`) y **20 nombres de capa** de los swatches de `01 · Colour`, que no salen en una búsqueda de texto y hay que buscar aparte — los 10 marcos `card/<token>` y los 10 TEXT cuyo nombre de capa espeja el token. Verificado después: cero apariciones de `danger` en las 29 páginas, en las descripciones de variables, estilos y componentes, y en los nombres de capa.
+
+**Una trampa de sustitución, para el registro.** `danger` aparecía también como **palabra inglesa corriente** en la descripción de `color/Red/950` («text, border and solid fill of danger»). Un `replace` global la habría convertido en «solid fill of destructive», que no es inglés. La regla que se usó fue sustituir solo cuando `danger` va pegada a `/` o a `-` —es decir, cuando forma parte de una ruta de token— y arreglar esa descripción a mano. **Al renombrar un token cuyo nombre es también una palabra del idioma, la sustitución tiene que anclarse al separador, no al término.**
+
+**El snapshot estaba dos pasadas atrasado.** `design/figma-tokens.snapshot.json` seguía en `capturedAt: 2026-09-15`, así que el `npm run token-map` que se corrió tras el lote barato **no probó nada**: leía nombres viejos y por eso no daba diferencias. Regenerado con las dos pasadas (12 entradas: las 3 de `sizing/` y estas 9). La puerta pasa: 71 espejados, 71 de acuerdo, 0 divergencias, 0 conflictos. **Recordatorio que deja: el snapshot es derivado pero no automático — si no se regenera, `token-map` da un verde falso.**
+
+**Lo que no se tocó, a propósito.** Las secciones fechadas de este documento conservan el nombre viejo: son un registro de lo que pasó cada día, no una descripción del archivo de hoy, y reescribirlas falsearía el log. Solo se actualizaron las que describen el **estado actual** (la tabla de «Cómo se nombran las variables», «Los tres tokens que cerraban huecos de pareja») y se marcó como cerrada la sección «`danger` y `error`: dos rojos con el mismo hex», que documentaba una distinción que nunca existió en Figma. Tampoco se tocó la transcripción literal de la guía canónica en [`docs/figma-tokens.md`](figma-tokens.md), que sigue diciendo `danger` porque es una cita; la divergencia se anotó en su tabla.
 
 ---
 
