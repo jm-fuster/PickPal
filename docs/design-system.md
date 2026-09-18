@@ -2006,6 +2006,24 @@ Se valoró copiar de FlySplit el emoji por página (📘 📱 🎨 🧩 ✏️) 
 
 **Un desajuste que se deja anotado, no corregido**: el cuerpo de la decisión 10 dice «There are fifteen» y nombra `category-amber`, pero hoy hay **catorce** `color/icon/*` y el token se llama `color/icon/category/3` desde el renombrado del eje `bg`/`fill`. Es prosa, y la prosa no sigue a nadie. Decidir si se recuenta o se reformula antes de publicar en Community.
 
+## La spec al lado de la rejilla, no encima: prueba en `01 · Actions` (18-sep-2026, noche)
+
+Segunda cosa que FlySplit hace mejor y que aquí faltaba: allí la tarjeta `Spec` de 380 px vive **a la izquierda** del component set (x 64 frente a x 508); aquí el `Header` con sus callouts se apilaba **encima** de la rejilla. Medido en las 30 secciones: `Select` tenía **722 px de documentación sobre 233 px de componente**, `Store Link Chip` 527 sobre 167, y las 30 sumaban **36.315 px**. Además el ancho era **dieciocho anchos distintos**, de 704 a 1.736, así que el borde derecho de cada página era un serrucho. Versión con nombre previa: «Before the spec-beside-grid pass on 01 Actions».
+
+**La retícula nueva**, probada de momento **solo en `01 · Actions`**: padding 32, columna de spec de **640** —el ancho que ya tenían 20 de los 30 `Header`, así que casi ninguno re-fluye—, hueco 40, columna derecha de **920**, y **sección fija a 1.664** (32 + 640 + 40 + 920 + 32). En la columna derecha van, en este orden, la `SECTION` de la rejilla, el bloque `ext/` si lo hay, y `Light & Dark`. La altura de la sección es `32 + max(header, columna derecha) + 32`.
+
+**Un hallazgo al medir: en seis secciones `Light & Dark` es más ancho que la rejilla** —Empty State 1.672, Button 1.216, Upcoming Date Card 1.080, Person Card 1.032, Avatar Picker 1.024, Select 1.008—, así que la pareja de temas, y no el component set, era la que fijaba el ancho de la sección. Esas seis pasan de `HORIZONTAL` a `VERTICAL`, claro arriba y oscuro debajo, y entran en los 920 sin recortar nada.
+
+**Resultado en la página de prueba**: Button 1.280 × 3.248 → 1.664 × 2.724, Back Link 704 × 821 → 1.664 × 473, Theme Toggle 782 × 736 → 1.664 × 448. La página va de 5.358 a 4.220 px con las tres secciones al mismo ancho. Extrapolado a las 30, las secciones bajarían de 36.315 a unos 22.000.
+
+**Bloques `ext/`, para las propiedades que a propósito no son eje.** FlySplit los usa mucho porque sus sets tienen muchas; aquí solo hay **siete propiedades no-variante** en toda la librería y cuatro son de texto (`Input.Placeholder`, `Textarea.Placeholder`, `Label.Text`, `Spinner.Label`), que no necesitan demostración. Las tres que sí: `Button.Icon Left/Right`, `Badge.Icon Left/Right` y `Avatar.Show Badge`. Se montó la primera, `ext/icon-slots/Button`: mismo bloque que los callouts (`color/bg/subtle` + `color/border/subtle` + `radius/surface`, título Geist Medium 11, cuerpo Regular 11, sin estilo de texto, como el resto del mobiliario), con padding 16 y cuatro instancias reales —sin icono, izquierda, derecha, las dos— y el motivo: como ejes, el set pasaría de 54 variantes a 216 por dos interruptores. Y dice que los dos huecos siguen dibujados con rectángulos, que es la decisión 3 del apéndice.
+
+**Dos cosas de FlySplit que se descartan aquí, y por qué.** (1) **Las cabeceras de eje de la rejilla** (`STATE` arriba, `VARIANT × SIZE` a la izquierda): FlySplit las necesita porque sus rótulos dicen `Primary`, `sm`, `Default` a secas; los de aquí son `vlabel/Type=Primary`, `Size=Sm`, `State=Default` y **ya llevan el eje dentro**, así que la cabecera sería repetirlo. (2) **La tabla `props` de su tarjeta Spec**: la misma información vive aquí en la `description` en prosa («Variants: Type (…), Size (…), State (…)»), y cambiar la forma no añade nada.
+
+**Un defecto preexistente que salió al recolocar**: en `Theme Toggle` el frame `row` medía 654 px y su segunda columna acababa en 659, así que «…switches to light» se cortaba cinco píxeles. Ensanchado a 683 y la sección de la rejilla a 747.
+
+**Lo que cambia de la convención de § «Figma — anatomía de una página de componente»**, si esto se extiende a las seis páginas: donde dice que el `Header` se ensancha al mayor de 640 y el ancho de la sección más ancha, pasará a ser una columna fija de 640 a la izquierda; y donde dice que la página se reapila en vertical con 40 px entre bloques, pasará a ser una columna derecha de 920 con esos 40 px entre rejilla, `ext/` y `Light & Dark`. **Pendiente de decidir**: aplicarlo a `02 · Forms`, `03 · Navigation`, `04 · Overlays`, `05 · Content` y `06 · Cards`, y montar los `ext/` de Badge y Avatar.
+
 ## Cómo mantener este documento
 
 - Cualquier cambio visual no obvio se anota aquí en el commit donde se introduce.
