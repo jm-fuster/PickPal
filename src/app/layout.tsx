@@ -15,6 +15,15 @@ const clerkLocalization = {
   signIn: {
     ...esES.signIn,
     start: { ...esES.signIn?.start, actionLink: "Regístrate" },
+    emailCode: { ...esES.signIn?.emailCode, title: "Revisa tu correo" },
+  },
+  signUp: {
+    ...esES.signUp,
+    emailCode: {
+      ...esES.signUp?.emailCode,
+      title: "Revisa tu correo",
+      formSubtitle: "Introduce el código que te hemos enviado",
+    },
   },
 };
 
