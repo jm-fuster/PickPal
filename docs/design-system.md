@@ -2043,6 +2043,8 @@ Lo que la sección anterior probaba en `01 · Actions` se extendió a las seis, 
 | 05 · Content | 1.648 | 5 | 3.334 |
 | 06 · Cards | 1.448 | 4 | 3.844 |
 
+> **Estas cifras están superadas.** La pasada de esa misma noche («Tres remates contra la convención del sector») recolocó las rejillas y movió tres de los seis anchos. Los buenos son los de su línea **Cifras** —1.491 · 1.428 · 1.436 · 1.612 · 1.648 · 1.448—, verificados contra el archivo el 18-sep-2026. La tabla se conserva porque explica **la regla** de los tres pasos, que sigue en pie; para un ancho concreto, mirar allí.
+
 Las 30 secciones pasan de **36.315 a 25.359 px**. Seis parejas de tema se apilaron: Button, Select, Avatar Picker Dialog, Empty State, Person Card y Upcoming Date Card.
 
 **Dos secciones tienen dos rejillas** —`Select` (Select Trigger + Select Item) y `Avatar Picker Dialog` (Avatar Swatch + el diálogo)—, así que la columna derecha admite N rejillas, no una. Buscar solo la primera `SECTION` hija dejó la segunda aparcada donde estaba y sobresaliendo de la sección; el script recorre ahora todas.
@@ -2160,6 +2162,24 @@ Lo que sí salió de comprobarlo: **su descripción contaba media historia.** De
 **3. Los cuatro valores obsoletos, corregidos.** La tabla de la sección «`danger` y `error`» citaba `Green/100` como #E8ECE8, `Green/800` #203322 (es `Green/900` #1E4024), `Green/850` —paso que no existe desde la migración a la escala 50–950, y que este mismo documento ya daba por muerto doscientas líneas más arriba— y `Green/400` como #89968B (es #8EAA91). Los cuatro venían de agosto. Reemplazada por los nombres y valores de hoy, medidos contra el archivo.
 
 **El patrón que dejan los tres.** Ninguno se resolvió mirando la lista de tokens: el primero se cayó al contar usos, el segundo al abrir `src/components/ui/`, el tercero al resolver los alias en Figma. **Un documento de sistema envejece por sus citas concretas —valores, pasos de rampa, nombres de eje—, no por su prosa**, y esas citas solo se pueden verificar contra la fuente, nunca contra el propio documento.
+
+---
+
+## El Notification Popover estaba cortado 8 px (18-sep-2026, noche)
+
+Salió al verificar por captura los renombrados de la auditoría: la variante `Content=List` aparecía con la última fila partida por la mitad. No era culpa del rename —geometría anterior—, y **no eran dos marcos sino tres**:
+
+| Marco | Alto | Contenido | |
+|---|---|---|---|
+| `COMPONENT_SET` Notification Popover | 222 | 230 (`Content=List`) | recortaba |
+| `FRAME` Composed (open) | 262 | 270 (trigger 32 + popover a y=40) | recortaba |
+| `FRAME` Dark check › Preview Dark › row | 262 | 270 | **el que faltaba en la nota** |
+
+Los tres con `clipsContent`. El tercero se encontró **buscando desbordes en toda la página**, no repasando la lista de la nota: cualquier marco que recorte y cuyo hijo más bajo pase de su alto. Esa barrida dejó además un falso positivo instructivo — `backdrop` de la hoja móvil recorta 160 px de un `Sheet` de 420, y eso **es deliberado**: es un viewport simulado. **Un recorte accidental son unos pocos píxeles; uno de 160 es encuadre.**
+
+**Por qué solo creció un contenedor.** Antes de tocar nada se siguió la cadena hacia arriba, que es donde esta página tenía el riesgo: la sección de rejilla `Notification Bell · labelled grid` sí sube de 732 a **740**, para conservar los 32 px de aire por los cuatro lados que fijó la pasada de las seis páginas. De ahí para arriba no se propaga: `Preview Dark` es auto-layout vertical de alto **fijo** con holgura de sobra, así que absorbe los 8 px sin crecer; `Dark check` hug a partir de él y se queda en 424; y la sección exterior `Notification Bell` mide lo que le pide el `Dark check`, no la rejilla, así que sigue en 1.260. **Ancho de página intacto en 1.436** y las cuatro secciones de `03 · Navigation` en su sitio —`Sheet` no se movió de y=2.251—, que era la condición que ponía la nota.
+
+Verificado después por captura: las dos variantes del set y la maqueta compuesta cierran su borde inferior y enseñan la tercera fila entera, y el `Dark check` igual.
 
 ---
 
