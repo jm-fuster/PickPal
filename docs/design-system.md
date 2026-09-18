@@ -1973,13 +1973,15 @@ Lo que la sección anterior dejó aplazado se hizo la misma tarde, junto con las
 
 **Cifras tras la tarde**: 29 páginas, 79 secciones (todas con `fills` → `color/bg`), 349 variables, 103 componentes con descripción y enlace, 30 marcos de producto, 4 flujos de prototipo.
 
-## La portada enseña una pantalla, no piezas (18-sep-2026, noche)
+## La portada enseña una pantalla, no piezas (18-sep-2026, noche; pantalla cambiada a Agenda la misma noche)
 
 El panel derecho de `Cover Art` mostraba el flujo en piezas (ficha de persona y dos tarjetas de idea) por duplicado, en claro y en oscuro. Ahora muestra **una sola pantalla real en claro: `Screen · Gift ideas · Desktop 1440`**, el momento del caso, con la ficha de Marta, el selector de ocasión y tipo de regalo y la primera fila de ideas. Se decidió así porque una pantalla dice de qué va el producto y las piezas no, y porque el oscuro no se pierde: el chip «Light + Dark» sigue en la portada y la tercera imagen del carrusel es la Agenda en oscuro. Versión previa con nombre: «Before the single-screen cover».
 
 **Cómo está montada.** Un frame `Screen panel · Gift ideas 1440` en el mismo sitio y con el mismo borde, radio 24 y sombras que el panel anterior (756 × 96, 1164 × 692), con `clipsContent`, y dentro un rectángulo de 1152 × 720 con la pantalla como **relleno de imagen** exportada desde el propio archivo (`exportAsync` JPG a 1,5x → `figma.createImage`, como las capturas de la 03), escala 0,8 respecto a los 1440 reales, centrada, recortada solo por abajo (28 px). Imagen y no instancia a propósito: pesa menos en render y una edición de la pantalla original no descuadra la miniatura de Community; el precio es que hay que reexportar si la pantalla cambia. Se probó antes una escala de 0,85 con el sidebar cortado por la izquierda y se descartó: cortaba palabras («ckPal», «es queridos») y parecía accidente. **Legibilidad en la tarjeta de Community** (unos 400 px de ancho): la portada baja a un 21 %, así que lo que se lee ahí son el logo, el nombre, los chips y las tres fotos de las ideas; el texto de las tarjetas se lee ya en la vista grande, que es donde toca.
 
 **Un chip desactualizado, corregido de paso**: la portada decía «374 variables» desde el 11-sep y el archivo tiene 349. El nodo pasa a `chip/349-variables`.
+**Corrección de la misma noche, a petición del usuario: la pantalla es la Agenda, y la portada recupera su margen derecho.** `Screen · Agenda · Desktop 1440` cuenta el flujo entero en un solo plano: la lista de fechas con el ser querido a la izquierda y el panel de ideas abierto a la derecha, que la pantalla de ideas sola no enseñaba. Y el panel anterior llegaba hasta el borde de la portada (x 1920) mientras todo lo demás respeta 96 px; ahora mide 1068 × 668 (756 → 1824, alineado con el final del texto del pie) y la pantalla entra entera a escala 0,742, sin recorte. El frame se llama `Screen panel · Agenda 1440` y el rectángulo con la imagen `Screen · Agenda · Desktop 1440 (image)`. El resto del párrafo anterior sigue valiendo: imagen exportada del archivo, no instancia, y reexportar si la pantalla cambia.
+
 ## Cómo mantener este documento
 
 - Cualquier cambio visual no obvio se anota aquí en el commit donde se introduce.
