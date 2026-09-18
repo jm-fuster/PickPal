@@ -33,7 +33,7 @@ import {
 } from "@/lib/stores";
 
 const EMAIL_LEAD_OPTIONS: { value: number; label: string }[] = [
-  { value: 0, label: "Día relevante" },
+  { value: 0, label: "El mismo día" },
   { value: 2, label: "2 días antes" },
   { value: 7, label: "7 días antes" },
   { value: 14, label: "2 semanas antes" },
@@ -352,7 +352,7 @@ export default function SettingsPage() {
         <div className="space-y-1">
           <Label className="text-destructive">Eliminar cuenta</Label>
           <p className="text-xs text-muted-foreground">
-            Borra tu cuenta y todos tus datos en PickPal — seres queridos,
+            Borra tu cuenta y todos tus datos en PickPal: seres queridos,
             eventos, historial de regalos y ajustes. Esta acción no se puede
             deshacer.
           </p>

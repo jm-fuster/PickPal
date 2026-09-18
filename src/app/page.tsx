@@ -21,18 +21,18 @@ const STEPS: {
   {
     number: 1,
     title: "Añade a tus seres queridos",
-    body: "Sus gustos, notas, tallas y sus eventos — cada ocasión con su presupuesto.",
+    body: "Sus gustos, notas, tallas y sus eventos, cada ocasión con su presupuesto.",
     illustration: <LovedOnesIllustration className="h-20 w-auto" />,
   },
   {
     number: 2,
     title: "Dile cuándo avisarte",
-    body: "Elige con cuántos días de antelación quieres saber que se acerca una fecha. Sin sorpresas.",
+    body: "Elige con cuántos días de antelación quieres el aviso.",
     illustration: <RemindersIllustration className="h-20 w-auto" />,
   },
   {
     number: 3,
-    title: "Genera ideas perfectas",
+    title: "Genera nueve ideas",
     body: "Un botón. Nueve sugerencias adaptadas a esa persona, a la ocasión y a tu presupuesto.",
     illustration: <GiftIdeasIllustration className="h-20 w-auto" />,
   },

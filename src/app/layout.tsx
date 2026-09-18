@@ -8,6 +8,16 @@ import { Toaster } from "@/components/ui/sonner";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
+// Clerk's esES speaks in "usted"; the rest of the product speaks in "tú".
+const clerkLocalization = {
+  ...esES,
+  formFieldInputPlaceholder__emailAddress: "Introduce tu correo electrónico",
+  signIn: {
+    ...esES.signIn,
+    start: { ...esES.signIn?.start, actionLink: "Regístrate" },
+  },
+};
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -40,7 +50,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider localization={esES}>
+    <ClerkProvider localization={clerkLocalization}>
       <html
         lang="es"
         suppressHydrationWarning

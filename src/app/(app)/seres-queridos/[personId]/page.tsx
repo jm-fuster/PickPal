@@ -289,7 +289,7 @@ function PersonDetailContent({
               Marcas favoritas
             </h2>
             <p className="text-xs text-muted-foreground">
-              Si tiene predilección por alguna marca, la IA la tendrá en cuenta y sus recomendaciones podrán enlazar a la tienda oficial de la marca.
+              Si siempre compra en alguna marca, la IA lo tendrá en cuenta y podrá enlazar a su tienda oficial.
             </p>
             {/* Favorite brands — autosave on each tag change */}
             <BrandTagInput
@@ -395,7 +395,7 @@ function PersonDetailContent({
             Datos prácticos
           </h2>
           <p className="text-xs text-muted-foreground">
-            Tallas y restricciones que ayudan a la IA a sugerir regalos que realmente se pueden usar.
+            Tallas y restricciones para que la IA no sugiera nada que no se pueda usar.
           </p>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">

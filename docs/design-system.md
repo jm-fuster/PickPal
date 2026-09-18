@@ -1800,6 +1800,10 @@ El producto va de relaciones, no de productividad. El copy debería sonar como u
 
 Persona gramatical: **tú** (singular, cercano). Nunca "nosotros" corporativo.
 
+El "tú" incluye las pantallas de Clerk: su localización `esES` habla de usted ("Ingrese su dirección", "Regístrese"), así que `src/app/layout.tsx` la extiende con las dos claves que se ven en el acceso. Si aparece otra cadena de usted en Clerk, se añade ahí, no se acepta.
+
+Tampoco adjetivos de folleto ni remates: la landing decía "Genera ideas perfectas" y "Sin sorpresas." en un producto que promete nueve ideas con razón y vende sorpresas; hoy dice "Genera nueve ideas" y termina donde termina el dato. Los dos guiones largos que había en el copy pasaron a coma y dos puntos (pasada de escritura natural, 18-sep-2026; el espejo en Figma, en Screens & prototype, cambió a la vez).
+
 ---
 
 ## Email transaccional

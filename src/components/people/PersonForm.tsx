@@ -577,8 +577,8 @@ export function PersonForm({
                 Datos prácticos
               </h2>
               <p className="text-xs text-muted-foreground">
-                Tallas y restricciones que ayudan a la IA a sugerir regalos que
-                realmente se pueden usar.
+                Tallas y restricciones para que la IA no sugiera nada que no se
+                pueda usar.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
