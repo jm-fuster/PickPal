@@ -81,6 +81,14 @@ La guía canónica de abajo describe un sistema de referencia con paletas Radix.
 | `emphasis` se omite cuando vale *default* — y la tabla 2.1 lo deja *default* en `color-bg-brand` (sólido) y *subtle* en `color-bg-success` (pálido) | Todo relleno con dos pesos lo escribe: `color/fill/brand-solid` · `brand-subtle`, `destructive-subtle` · `destructive-solid` | El hueco vacío significaba cosas opuestas según el rol, y el propio cuadro de la guía lo documenta. Solo se omite donde el rol tiene un único peso (`fill/component`, `fill/field-disabled`). Ver § «El énfasis deja de ser implícito en los rellenos». |
 | Rol `danger` (`color-bg-danger`, `color-text-danger`, `color-border-danger`, `color-icon-danger`) | `destructive` en los 9 tokens del rol rojo | El código no dice `danger` **ni una vez**: `destructive` aparece 45 veces y la custom property es `--destructive`. Manda el código (regla de desempate de arriba), y el archivo ya decía `Destructive` en el eje Type de Button. El **estado** de un campo sigue llamándose `Error`, que es otra cosa: el nombre del estado, no el del color. Ver § «`danger` pasa a `destructive`». |
 
+### El único sitio donde el archivo no sigue al código, a propósito
+
+La regla de desempate manda seguir al código, y la API de los componentes lo hace al pie de la letra. Comprobado el 18-sep-2026 contra `src/components/ui/`: los ejes `Size` de Button (`Sm · Default · Lg`) y Button Icon (`Icon · Icon-Sm`) espejan los valores de `buttonVariants`, y los de Switch, Avatar y Select Trigger coinciden **exactamente** con el `size` de su componente (`sm | default`, `default | sm | lg`, `sm | default`).
+
+**La única excepción es `Type=Primary`**, en Button y en Badge, que el código llama `variant: "default"` en los dos. Se mantiene `Primary` por una razón concreta: `Default` ya ocupa otros dos ejes del mismo componente —`Size=Default` y `State=Default`—, así que adoptarlo dejaría a Button con **tres ejes llamados igual** en el mismo panel de variantes. `default` es término tóxico justo por esto: significa a la vez «en reposo», «paso por omisión de una escala» y «variante base». `Primary` no es ambiguo y los dos componentes usan el mismo vocabulario.
+
+Al leer una instancia, `Type=Primary` es `variant="default"`. Es la única equivalencia que hay que traducir de memoria; cualquier otra diferencia entre un nombre de Figma y uno de código es un error, no una decisión.
+
 ---
 
 ## Guía canónica · las 4 capas

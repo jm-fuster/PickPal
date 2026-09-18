@@ -950,12 +950,14 @@ Coste: 82 bindings intactos, renombrado puro. La prosa repasada en el mismo pase
 
 Nacen seis fondos de estado — `color/fill/success`, `fill/warning`, `fill/error` y su `-solid` cada uno — y `color/border/danger` pasa a llamarse **`color/border/error`**. Es el primer sitio donde el sistema distingue **`danger`** (acción destructiva, irreversible: borrar) de **`error`** (algo ha fallado o falta: validación, campo inválido).
 
+**Tabla corregida el 18-sep-2026 contra el archivo real.** La original citaba `color/fill/error` y `fill/error-solid`, que nunca existieron, y **cuatro valores falsos**: `Green/100` como #E8ECE8, `Green/800` #203322 (es `Green/900`), `Green/850` (paso que no existe desde la migración a la escala 50–950, como ya dice «Cifras corregidas en este documento») y `Green/400` como #89968B. Nombres y valores de hoy:
+
 | Token | Light | Dark |
 |---|---|---|
-| `color/fill/success` | `Green/100` #E8ECE8 | `Green/800` #203322 |
-| `color/fill/success-solid` | `Green/850` #0C2912 | `Green/400` #89968B |
-| `color/fill/error` | `Red/200` #FFE8E3 | `red-alpha/20` |
-| `color/fill/error-solid` | `Red/950` #CC2823 | `Red/900` #FA6863 |
+| `color/fill/success-subtle` | `Green/100` #E5EEE6 | `Green/900` #1E4024 |
+| `color/fill/success-solid` | `Green/950` #0C2912 | `Green/400` #8EAA91 |
+| `color/fill/destructive-subtle` | `Red/200` #FFE8E3 | `Red/alpha-20` (#FA6863 al 20 %) |
+| `color/fill/destructive-solid` | `Red/950` #CC2823 | `Red/900` #FA6863 |
 | `color/fill/warning` | `Amber/200` #FDE2B8 | `Amber/950` #66341C |
 | `color/fill/warning-solid` | `Amber/800` #B45309 | `Amber/500` #F3AE51 |
 
@@ -2144,6 +2146,20 @@ El hallazgo de severidad alta de la auditoría de nomenclatura, ejecutado. El ar
 **El snapshot estaba dos pasadas atrasado.** `design/figma-tokens.snapshot.json` seguía en `capturedAt: 2026-09-15`, así que el `npm run token-map` que se corrió tras el lote barato **no probó nada**: leía nombres viejos y por eso no daba diferencias. Regenerado con las dos pasadas (12 entradas: las 3 de `sizing/` y estas 9). La puerta pasa: 71 espejados, 71 de acuerdo, 0 divergencias, 0 conflictos. **Recordatorio que deja: el snapshot es derivado pero no automático — si no se regenera, `token-map` da un verde falso.**
 
 **Lo que no se tocó, a propósito.** Las secciones fechadas de este documento conservan el nombre viejo: son un registro de lo que pasó cada día, no una descripción del archivo de hoy, y reescribirlas falsearía el log. Solo se actualizaron las que describen el **estado actual** (la tabla de «Cómo se nombran las variables», «Los tres tokens que cerraban huecos de pareja») y se marcó como cerrada la sección «`danger` y `error`: dos rojos con el mismo hex», que documentaba una distinción que nunca existió en Figma. Tampoco se tocó la transcripción literal de la guía canónica en [`docs/figma-tokens.md`](figma-tokens.md), que sigue diciendo `danger` porque es una cita; la divergencia se anotó en su tabla.
+
+---
+
+## Los tres flecos de la auditoría, y un hallazgo que se cae (18-sep-2026, noche)
+
+**1. `Eyebrow/Micro`: retirado por infundado.** La auditoría lo marcó como gramática mezclada —`Hero` y `Section` nombran un contexto, `Micro` un tamaño— y propuso `Eyebrow/Store`. **Comprobado, y la propuesta era peor que el problema.** El estilo tiene **104 usos en 10 páginas** y solo uno es una cadena de producto; atarlo a «Store» lo habría amarrado a una de sus 104 apariciones. Y el criterio tampoco se puede unificar por el otro lado: `Hero` y `Section` miden **los dos 12 px** y se distinguen por tracking (20 % y 18 %), así que una escala de tamaños no podría separarlos. Cada nombre es claro por separado, ninguno compite con otro por el mismo significado y el arreglo habría creado el dialecto de más. **Se queda como está.** Es la tercera propuesta propia que se cae al mirar el producto en esta auditoría.
+
+Lo que sí salió de comprobarlo: **su descripción contaba media historia.** Decía «Minimum label, the one of the store sections», que es cierto —el producto lo usa en `GiftRecommendationCard`, dos veces— pero deja fuera que este archivo lo reutiliza 103 veces como su rótulo pequeño de documentación. Reescrita con los dos usos.
+
+**2. `Type=Primary` queda registrado como la única divergencia con el código.** Anotado en [`docs/figma-tokens.md`](figma-tokens.md) § «El único sitio donde el archivo no sigue al código, a propósito». Button y Badge llaman `Primary` a lo que el código llama `variant: "default"`, y se mantiene porque `Default` ya ocupa `Size` y `State` en el mismo componente: adoptarlo dejaría tres ejes con el mismo nombre en un panel de variantes. **De paso se verificó el resto de la API**, que no se había comprobado entera: los ejes `Size` de Switch, Avatar y Select Trigger coinciden **exactamente** con el `size` de su componente en `src/components/ui/`. No hay más divergencias de nombre.
+
+**3. Los cuatro valores obsoletos, corregidos.** La tabla de la sección «`danger` y `error`» citaba `Green/100` como #E8ECE8, `Green/800` #203322 (es `Green/900` #1E4024), `Green/850` —paso que no existe desde la migración a la escala 50–950, y que este mismo documento ya daba por muerto doscientas líneas más arriba— y `Green/400` como #89968B (es #8EAA91). Los cuatro venían de agosto. Reemplazada por los nombres y valores de hoy, medidos contra el archivo.
+
+**El patrón que dejan los tres.** Ninguno se resolvió mirando la lista de tokens: el primero se cayó al contar usos, el segundo al abrir `src/components/ui/`, el tercero al resolver los alias en Figma. **Un documento de sistema envejece por sus citas concretas —valores, pasos de rampa, nombres de eje—, no por su prosa**, y esas citas solo se pueden verificar contra la fuente, nunca contra el propio documento.
 
 ---
 
