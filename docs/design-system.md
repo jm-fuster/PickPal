@@ -1873,6 +1873,8 @@ Cosas que se han probado o considerado y NO funcionan. Si vuelven a tentar, leer
 
 Lista de cosas que sé que faltan o que no han recibido pasada todavía. Se irán tachando o convirtiéndose en reglas a medida que se resuelvan.
 
+- [ ] **Una cita real de un tester en «04 · What the beta changed»**: la página cuenta la beta sin una sola frase literal de los diez, y el bloque de persona que la sustituye es lo más genérico del archivo. No queda rastro del feedback ni del botón «Cuéntame» en el repositorio; hay que recuperarla de las notas o llamadas de mayo de 2026. Si no aparece, la tarjeta de persona se queda como está. (Pasada de escritura natural, 18-sep-2026. Ese mismo día se decidió dejar «El regalo perfecto para quien más te importa.» en el hero: es promesa de marca en un titular, y el único «perfecto» que sobrevive en el producto.)
+
 - [x] ~~Hover de cards interactivas~~ → resuelto, ver Componentes · Cards.
 - [x] ~~Iconografía~~ → resuelto: lucide-react adoptado, ver Componentes · Iconografía.
 - [x] ~~Página `/people/[id]` (detalle)~~ → edición inline por secciones (header / intereses+notas / datos prácticos). Sin página `/people/[id]/edit` (redirige al perfil). Guard de cambios sin guardar con `beforeunload` + dialog. Ver "Edición inline (perfil de persona)".
