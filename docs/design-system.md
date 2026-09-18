@@ -1982,6 +1982,10 @@ El panel derecho de `Cover Art` mostraba el flujo en piezas (ficha de persona y 
 **Un chip desactualizado, corregido de paso**: la portada decía «374 variables» desde el 11-sep y el archivo tiene 349. El nodo pasa a `chip/349-variables`.
 **Corrección de la misma noche, a petición del usuario: la pantalla es la Agenda, y la portada recupera su margen derecho.** `Screen · Agenda · Desktop 1440` cuenta el flujo entero en un solo plano: la lista de fechas con el ser querido a la izquierda y el panel de ideas abierto a la derecha, que la pantalla de ideas sola no enseñaba. Y el panel anterior llegaba hasta el borde de la portada (x 1920) mientras todo lo demás respeta 96 px; ahora mide 1068 × 668 (756 → 1824, alineado con el final del texto del pie) y la pantalla entra entera a escala 0,742, sin recorte. El frame se llama `Screen panel · Agenda 1440` y el rectángulo con la imagen `Screen · Agenda · Desktop 1440 (image)`. El resto del párrafo anterior sigue valiendo: imagen exportada del archivo, no instancia, y reexportar si la pantalla cambia.
 
+## Los rótulos de bloque llevan un rombo; las páginas, no emoji (18-sep-2026, noche)
+
+Se valoró copiar de FlySplit el emoji por página (📘 📱 🎨 🧩 ✏️) y se descartó: allí cada bloque mezcla tipos de página y el emoji anticipa el contenido; aquí cada bloque es homogéneo y la numeración `01 ·` más el rótulo ya lo dicen. Además el emoji se pinta con la fuente del sistema de quien abre el archivo (tres dibujos distintos en Windows, Mac y web) y choca con el registro sobrio del archivo. Lo que sí se hizo, a petición del usuario, es marcar los **cuatro rótulos de bloque** con un carácter tipográfico que renderiza igual en todas partes: `◆ STORY` · `◆ FOUNDATIONS` · `◆ COMPONENTS` · `◆ APPENDIX`. Renombrar la página no toca ningún enlace: los del índice apuntan a ids. Si se añade un bloque, su rótulo lleva el rombo.
+
 ## Cómo mantener este documento
 
 - Cualquier cambio visual no obvio se anota aquí en el commit donde se introduce.
