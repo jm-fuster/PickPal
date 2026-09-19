@@ -337,7 +337,9 @@ El archivo se auditó con tres criterios del usuario —que no dependa del códi
 >
 > Documentation in English. The product is Spanish and its copy stays that way, as it ships.
 
-Carrusel, nueve imágenes en este orden: portada; Agenda de escritorio en claro; Agenda de escritorio en oscuro; 01 · Colour; 02 · Typography; 04 · Iconography; la página Button; los marcos móviles con la hoja de navegación; el prototipo. La miniatura sigue siendo la sección `Cover Art` (1920 × 1080), estática: una vista previa de prototipo como miniatura bloquea el carrusel.
+Carrusel, nueve imágenes en este orden: portada; Agenda de escritorio en claro; Agenda de escritorio en oscuro; 01 · Colour; 02 · Typography; 04 · Iconography; **la sección `Button` de `01 · Actions`** (`317:11667`, 1.491 × 2.640); los marcos móviles con la hoja de navegación; el prototipo. La miniatura sigue siendo la sección `Cover Art` (`33:849`, 1920 × 1080), estática: una vista previa de prototipo como miniatura bloquea el carrusel.
+
+**Corrección del 19-sep-2026, verificada contra el archivo.** El séptimo destino decía «la página Button», que no existe desde que los componentes se agruparon en seis páginas por familia: hoy es una `SECTION` dentro de `01 · Actions`. Y **los cuatro puntos de inicio del prototipo seguían en español** —«recorrido principal», «móvil · menú», con sus «· oscuro»— pese a que la pasada de portfolio dejó el archivo en inglés; el nombre del flujo lo ve el visitante en el selector de la vista de prototipo, así que pasan a `PickPal · Main flow`, `· Main flow · Dark`, `· Mobile menu` y `· Mobile menu · Dark`, con la misma convención `· Dark` que los marcos. Los cuatro siguen apuntando a su marco (Landing en claro y oscuro, Agenda móvil en claro y oscuro). Las secciones y las páginas sí estaban todas en inglés: el resto del archivo no tenía deuda de idioma.
 
 **Lo que sigue abierto.** Rellenar el formulario y exportar las nueve imágenes. Los otros cuatro puntos que esta pasada dejó a la vista se cerraron el 18-sep-2026; ver «Cuatro pendientes de Figma se cierran» más abajo.
 
