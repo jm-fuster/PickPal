@@ -1,6 +1,6 @@
 # Política de privacidad · PickPal
 
-**Esqueleto. No publicar tal cual.** Los marcadores `{{...}}` son huecos a rellenar antes de hacer la app pública. Las secciones marcadas con _Revisar_ requieren decisión consciente.
+**Esqueleto. No publicar tal cual.** Quedan **dos** huecos `{{...}}` —el nombre del titular y el email de contacto— más la fecha de «Última actualización» de arriba, que se pone al publicar. El NIF y la dirección postal se han retirado a propósito (ver §1). Las secciones marcadas con _Revisar_ requieren decisión consciente.
 
 Última actualización: `{{FECHA_PUBLICACION}}`
 
@@ -11,10 +11,10 @@
 ## 1. Responsable del tratamiento
 
 - **Titular:** `{{NOMBRE_O_RAZON_SOCIAL}}`
-- **NIF/CIF:** `{{NIF}}`
-- **Dirección:** `{{DIRECCION_POSTAL}}`
 - **Email de contacto:** `{{EMAIL_CONTACTO}}`
 - **Delegado de protección de datos (DPO):** _No aplica_ (no se cumplen los supuestos del art. 37 RGPD para PickPal mientras sea operación a pequeña escala).
+
+> **El NIF y la dirección postal no figuran a propósito.** El art. 13 del RGPD pide la identidad del responsable y unos datos de contacto, **no su número fiscal**. Quien exigía esos dos campos era el art. 10 de la LSSI, que hoy no aplica a PickPal; el razonamiento completo y el disparador que obliga a revisarlo están en [`legal.md`](legal.md) §1.
 
 ---
 

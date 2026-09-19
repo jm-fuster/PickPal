@@ -1,6 +1,6 @@
 # Aviso legal y términos · PickPal
 
-**Esqueleto. No publicar tal cual.** Los marcadores `{{...}}` son huecos a rellenar. Las secciones marcadas con _Revisar_ requieren decisión consciente antes de hacer pública la app.
+**Esqueleto. No publicar tal cual.** Quedan **dos** huecos `{{...}}` por rellenar —el nombre del titular y el email de contacto— más la fecha de «Última actualización» de arriba, que se pone el día que esto se publique. NIF, domicilio, datos registrales y ciudad de jurisdicción **se han retirado a propósito**: el porqué y el disparador que obliga a revisarlo están en §1. Las secciones marcadas con _Revisar_ siguen requiriendo decisión consciente.
 
 Última actualización: `{{FECHA_PUBLICACION}}`
 
@@ -8,15 +8,18 @@
 
 ---
 
-## 1. Información del titular (LSSI-CE art. 10)
+## 1. Información del titular
 
-Por exigencia de la Ley 34/2002 de Servicios de la Sociedad de la Información:
+Datos identificativos y canal de contacto del titular del servicio:
 
 - **Titular:** `{{NOMBRE_O_RAZON_SOCIAL}}`
-- **NIF/CIF:** `{{NIF}}`
-- **Domicilio:** `{{DIRECCION_POSTAL}}`
 - **Email de contacto:** `{{EMAIL_CONTACTO}}`
-- **Datos registrales:** _Si aplica_ (`{{REGISTRO_MERCANTIL}}`)
+
+> **Por qué no figuran NIF ni domicilio: es una decisión del 20-sep-2026, no un hueco olvidado.** El art. 10 obliga a publicarlos, pero solo a los «prestadores de servicios de la sociedad de la información», que el Anexo de la propia LSSI define como servicios prestados normalmente **a título oneroso** — incluidos los gratuitos para el usuario **cuando constituyen una actividad económica para el prestador**. PickPal hoy no lo es: no cobra, no tiene suscripción, no muestra publicidad y **sus enlaces a tiendas son búsquedas sin etiqueta de afiliado** (verificado en [`src/lib/stores.ts`](../src/lib/stores.ts) y sus tests). Siendo el titular una persona física, su NIF y su domicilio particular son datos personales sensibles, y no se publican sin que la norma lo exija.
+>
+> **Disparador que obliga a revisar esto:** el día que PickPal ingrese algo por cualquier vía — suscripción, publicidad, patrocinio o **una etiqueta de afiliado añadida a los enlaces de tienda**, que es la manera más fácil de entrar en el supuesto sin darse cuenta. Ese día vuelven a ser obligatorios el NIF, el domicilio y los datos registrales si hay sociedad. Para el domicilio, la salida habitual de una persona física es un apartado de correos o una dirección profesional, no la vivienda.
+>
+> El RGPD, que sí aplica de lleno, **no pide el NIF**: le bastan la identidad y un canal de contacto que funcione (art. 13).
 
 ---
 
@@ -113,7 +116,7 @@ Podemos actualizar estos términos para reflejar cambios en el servicio o en la 
 ## 12. Ley aplicable y jurisdicción
 
 - Legislación aplicable: **española y de la Unión Europea**.
-- Para resolver conflictos, las partes se someten a los **juzgados y tribunales de `{{CIUDAD}}`**, salvo en el caso de consumidores, que podrán acudir a los de su domicilio.
+- Para resolver conflictos serán competentes los **juzgados y tribunales que determine la ley**, y los consumidores podrán acudir en todo caso a los de su propio domicilio. _(No se designa una ciudad concreta: frente a un consumidor esa cláusula no sería oponible, y el titular no publica su domicilio — ver §1.)_
 
 ---
 
