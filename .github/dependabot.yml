@@ -14,6 +14,19 @@ updates:
     # Un solo PR agrupado para minor/patch evita el spam de un PR por paquete.
     # Los major van sueltos porque suelen traer breaking changes que revisar.
     groups:
+      # Excepción a lo anterior: vitest y @vitest/ui se fijan mutuamente la
+      # versión exacta en sus peer deps, así que por separado ninguno de los
+      # dos PRs resuelve y `npm ci` muere con ERESOLVE antes de correr nada.
+      # Van juntos y en todos los update-types, major incluido. El grupo va
+      # el primero porque Dependabot aplica el primero que encaja.
+      vitest:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
       minor-and-patch:
         update-types:
           - "minor"
