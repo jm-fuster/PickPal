@@ -1,6 +1,8 @@
 # Aviso legal y términos · PickPal
 
-**Esqueleto. No publicar tal cual.** Quedan **dos** huecos `{{...}}` por rellenar —el nombre del titular y el email de contacto— más la fecha de «Última actualización» de arriba, que se pone el día que esto se publique. NIF, domicilio, datos registrales y ciudad de jurisdicción **se han retirado a propósito**: el porqué y el disparador que obliga a revisarlo están en §1. Las secciones marcadas con _Revisar_ siguen requiriendo decisión consciente.
+**Casi listo, pero aún no publicable.** Titular y email de contacto ya están puestos. Queda un solo hueco, la fecha de «Última actualización» de arriba, que se pone el día que esto se publique. NIF, domicilio, datos registrales y ciudad de jurisdicción **se han retirado a propósito**: el porqué y el disparador que obliga a revisarlo están en §1. Las secciones marcadas con _Revisar_ siguen requiriendo decisión consciente.
+
+> **Bloqueo real antes de publicar (20-sep-2026):** `pickpal@jorgemolinafuster.com` **todavía no recibe correo** — el dominio no tiene registros MX. Es la vía por la que un tercero ejerce sus derechos RGPD, con un mes de plazo para responder, así que publicar estas páginas con una dirección que rebota sería peor que el texto de beta que hay ahora. Montar el reenvío (Cloudflare Email Routing, gratis, el dominio ya está en Cloudflare) y **comprobar que entrega** antes de sustituir el contacto en `/terminos` y `/privacidad`.
 
 Última actualización: `{{FECHA_PUBLICACION}}`
 
@@ -12,8 +14,8 @@
 
 Datos identificativos y canal de contacto del titular del servicio:
 
-- **Titular:** `{{NOMBRE_O_RAZON_SOCIAL}}`
-- **Email de contacto:** `{{EMAIL_CONTACTO}}`
+- **Titular:** Jorge Molina Fuster
+- **Email de contacto:** [pickpal@jorgemolinafuster.com](mailto:pickpal@jorgemolinafuster.com)
 
 > **Por qué no figuran NIF ni domicilio: es una decisión del 20-sep-2026, no un hueco olvidado.** El art. 10 obliga a publicarlos, pero solo a los «prestadores de servicios de la sociedad de la información», que el Anexo de la propia LSSI define como servicios prestados normalmente **a título oneroso** — incluidos los gratuitos para el usuario **cuando constituyen una actividad económica para el prestador**. PickPal hoy no lo es: no cobra, no tiene suscripción, no muestra publicidad y **sus enlaces a tiendas son búsquedas sin etiqueta de afiliado** (verificado en [`src/lib/stores.ts`](../src/lib/stores.ts) y sus tests). Siendo el titular una persona física, su NIF y su domicilio particular son datos personales sensibles, y no se publican sin que la norma lo exija.
 >
@@ -73,7 +75,7 @@ Las ideas de regalo se generan con un modelo de lenguaje (Google Gemini) a parti
 ## 7. Propiedad intelectual
 
 - El código de PickPal se distribuye bajo licencia MIT (ver [`LICENSE`](../LICENSE)).
-- La marca, el diseño y el contenido editorial son propiedad de `{{NOMBRE_O_RAZON_SOCIAL}}`.
+- La marca, el diseño y el contenido editorial son propiedad de **Jorge Molina Fuster**.
 - Los datos introducidos por el usuario son **del usuario**. PickPal los procesa en los términos descritos en la política de privacidad.
 
 ---
@@ -122,4 +124,4 @@ Podemos actualizar estos términos para reflejar cambios en el servicio o en la 
 
 ## 13. Contacto
 
-Cualquier consulta sobre estos términos: `{{EMAIL_CONTACTO}}`.
+Cualquier consulta sobre estos términos: [pickpal@jorgemolinafuster.com](mailto:pickpal@jorgemolinafuster.com).

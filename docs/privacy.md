@@ -1,6 +1,8 @@
 # Política de privacidad · PickPal
 
-**Esqueleto. No publicar tal cual.** Quedan **dos** huecos `{{...}}` —el nombre del titular y el email de contacto— más la fecha de «Última actualización» de arriba, que se pone al publicar. El NIF y la dirección postal se han retirado a propósito (ver §1). Las secciones marcadas con _Revisar_ requieren decisión consciente.
+**Casi listo, pero aún no publicable.** Titular y email de contacto ya están puestos. Queda la fecha de «Última actualización» de arriba, que se pone al publicar. El NIF y la dirección postal se han retirado a propósito (ver §1). Las secciones marcadas con _Revisar_ requieren decisión consciente.
+
+> **Bloqueo real antes de publicar (20-sep-2026):** `pickpal@jorgemolinafuster.com` aún no recibe correo (sin MX). Detalle en [`legal.md`](legal.md).
 
 Última actualización: `{{FECHA_PUBLICACION}}`
 
@@ -10,8 +12,8 @@
 
 ## 1. Responsable del tratamiento
 
-- **Titular:** `{{NOMBRE_O_RAZON_SOCIAL}}`
-- **Email de contacto:** `{{EMAIL_CONTACTO}}`
+- **Titular:** Jorge Molina Fuster
+- **Email de contacto:** [pickpal@jorgemolinafuster.com](mailto:pickpal@jorgemolinafuster.com)
 - **Delegado de protección de datos (DPO):** _No aplica_ (no se cumplen los supuestos del art. 37 RGPD para PickPal mientras sea operación a pequeña escala).
 
 > **El NIF y la dirección postal no figuran a propósito.** El art. 13 del RGPD pide la identidad del responsable y unos datos de contacto, **no su número fiscal**. Quien exigía esos dos campos era el art. 10 de la LSSI, que hoy no aplica a PickPal; el razonamiento completo y el disparador que obliga a revisarlo están en [`legal.md`](legal.md) §1.
@@ -158,7 +160,7 @@ PickPal permite al usuario guardar información sobre personas de su entorno que
 
 - El **usuario es el responsable** de los datos que introduce sobre terceros: debe asegurarse de tener una base legítima (relación personal cercana) y no introducir datos sensibles innecesarios.
 - **PickPal actúa como encargado** del tratamiento para esos datos.
-- Cualquier tercero puede solicitar el borrado o información sobre los datos que se guardan sobre él escribiendo a `{{EMAIL_CONTACTO}}`. Daremos curso a la petición localizando los registros que le mencionen y eliminándolos en un plazo máximo de 30 días.
+- Cualquier tercero puede solicitar el borrado o información sobre los datos que se guardan sobre él escribiendo a [pickpal@jorgemolinafuster.com](mailto:pickpal@jorgemolinafuster.com). Daremos curso a la petición localizando los registros que le mencionen y eliminándolos en un plazo máximo de 30 días.
 - **Datos sensibles** (salud, ideología, orientación sexual, etc., art. 9 RGPD): el usuario **no debe** introducirlos en notas. Si se detecta su uso sistemático, podemos suspender la cuenta.
 
 ---
@@ -177,7 +179,7 @@ Como interesado, tienes derecho a:
 Puedes ejercerlos:
 
 1. **Desde la app**: edición y borrado están disponibles en la propia interfaz.
-2. **Por email** a `{{EMAIL_CONTACTO}}`, indicando qué derecho quieres ejercer.
+2. **Por email** a [pickpal@jorgemolinafuster.com](mailto:pickpal@jorgemolinafuster.com), indicando qué derecho quieres ejercer.
 
 Si consideras que tus derechos no se han atendido correctamente, puedes presentar una reclamación ante la **Agencia Española de Protección de Datos** (https://www.aepd.es).
 
