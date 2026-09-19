@@ -41,3 +41,21 @@ updates:
         update-types: ["version-update:semver-major"]
     commit-message:
       prefix: "chore(deps)"
+
+  # Las actions del workflow también envejecen, y hasta hoy nadie las miraba:
+  # checkout y setup-node se quedaron en v4 hasta que GitHub deprecó su
+  # runtime de Node 20 por debajo. Con esto Dependabot las propone como
+  # cualquier otra dependencia, y el job `test` las estrena en el propio PR:
+  # si un bump rompe el workflow, el PR se cae antes de mergearse.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      actions:
+        update-types:
+          - "minor"
+          - "patch"
+    commit-message:
+      prefix: "ci(deps)"
