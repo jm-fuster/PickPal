@@ -36,7 +36,7 @@ Al registrarse y utilizar PickPal, el usuario acepta estos términos. Si no est�
 
 ## 4. Cuenta de usuario
 
-- Para usar PickPal hay que registrarse mediante `{{METODOS_LOGIN}}` _(p. ej. email + contraseña, Google)_.
+- Para usar PickPal hay que registrarse con **Google** o con **correo electrónico y contraseña**.
 - El usuario es responsable de mantener la confidencialidad de sus credenciales.
 - El usuario debe ser **mayor de 14 años**. Para menores de 14 se requiere consentimiento de sus tutores legales (RGPD art. 8 + LOPDGDD art. 7).
 
@@ -97,10 +97,10 @@ Estas limitaciones no afectan a derechos del consumidor que sean irrenunciables 
 
 ## 10. Baja del servicio
 
-El usuario puede dar de baja su cuenta en cualquier momento desde `{{RUTA_BORRADO_CUENTA}}` _(p. ej. `/settings`)_. Tras la baja:
+El usuario puede dar de baja su cuenta en cualquier momento desde **Ajustes** (`/settings`). Tras la baja:
 
-- Sus datos se eliminan en un plazo máximo de `{{DIAS_BORRADO}}` días.
-- Algunos datos pueden conservarse el tiempo necesario para cumplir obligaciones legales (logs de seguridad, registros contables si aplica).
+- **El borrado es inmediato y transaccional**: al confirmar, se purgan las nueve tablas de la base de datos y a continuación se elimina la cuenta en el proveedor de identidad. No hay periodo de gracia ni papelera.
+- Las copias de seguridad de los proveedores de infraestructura se reciclan según sus propios plazos, y pueden conservarse los datos estrictamente necesarios para cumplir obligaciones legales (por ejemplo, logs de seguridad).
 
 ---
 
