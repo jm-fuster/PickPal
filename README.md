@@ -75,4 +75,4 @@ Issues y PRs bienvenidos. Antes de abrir un PR grande, mejor abre una issue para
 
 ## Licencia
 
-[MIT](LICENSE) © Jorge Fuster
+[MIT](LICENSE) © Jorge Molina Fuster
