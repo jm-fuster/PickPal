@@ -10,14 +10,6 @@ Preguntas abiertas del proyecto, y el registro de las que se cerraron.
 
 ## Abiertas
 
-- [ ] **La ventana de la campana no se puede cambiar desde la app.**
-  `notifyDaysBefore` existe en `userSettings`, el servidor acepta de 1 a 365 y el
-  default es 30, pero **ninguna pantalla lo expone**: `/settings` no tiene ese
-  control. O se añade, o se quita el campo y se fija en 30. Lo que no conviene es
-  dejar un ajuste que solo se puede tocar por API.
-  (Distinto de la antelación del **email**, que sí es configurable: 0, 2, 7 y 14
-  días, y se pueden marcar varios.)
-
 - [ ] **Compartir personas entre usuarios.**
   Ej.: la ficha de los padres, compartida entre hermanos. Cada persona pertenece
   hoy a un único usuario (`clerkUserId` en `people`), y todo el modelo de permisos
@@ -43,6 +35,16 @@ Preguntas abiertas del proyecto, y el registro de las que se cerraron.
 ---
 
 ## Resueltas
+
+- [x] **La ventana de la campana ya se puede cambiar.** `notifyDaysBefore` llevaba
+  desde el principio en `userSettings`, validado de 1 a 365 en el servidor, y
+  hasta el 20-sep-2026 **ninguna pantalla lo exponía**: solo se podía tocar por
+  API. Se resolvió exponiéndolo, no quitándolo: el backend estaba entero y
+  borrar el campo habría pedido una migración de schema para eliminar una
+  capacidad que funcionaba. `/settings` ofrece cinco presets (7, 15, 30, 60 y 90
+  días) en lugar de un campo numérico libre, así que no hay estado inválido
+  posible aunque el servidor acepte todo el rango. (Distinto de la antelación del
+  **email**, que es un selector múltiple de 0, 2, 7 y 14 días.)
 
 - [x] **¿Se guardan las recomendaciones o se regeneran cada vez?** Se guardan. La
   tabla `recommendations` las cachea por `(usuario, persona, ocasión, tipo de

@@ -32,6 +32,17 @@ import {
   type StoreId,
 } from "@/lib/stores";
 
+// Ventana de la campana. El servidor acepta de 1 a 365 (convex/settings.ts),
+// pero un campo numérico libre para esto es más cuerda de la que nadie
+// necesita: cinco presets cubren el uso real y no hay estado inválido posible.
+const NOTIFY_WINDOW_OPTIONS: { value: number; label: string }[] = [
+  { value: 7, label: "7 días" },
+  { value: 15, label: "15 días" },
+  { value: 30, label: "30 días" },
+  { value: 60, label: "60 días" },
+  { value: 90, label: "90 días" },
+];
+
 const EMAIL_LEAD_OPTIONS: { value: number; label: string }[] = [
   { value: 0, label: "El mismo día" },
   { value: 2, label: "2 días antes" },
@@ -48,6 +59,7 @@ export default function SettingsPage() {
   const setMine = useMutation(api.settings.setMine);
   const { resolvedTheme, setTheme } = useTheme();
 
+  const [notifyDays, setNotifyDays] = useState(30);
   const [emailEnabled, setEmailEnabled] = useState(false);
   const [emailDays, setEmailDays] = useState<number[]>([]);
   const [favoriteStores, setFavoriteStores] = useState<StoreId[]>([]);
@@ -79,6 +91,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (settings && !initializedRef.current) {
+      setNotifyDays(settings.notifyDaysBefore);
       setEmailEnabled(settings.emailNotificationsEnabled);
       // Defensive: el backend puede devolver número (legacy) o array (nuevo)
       // mientras se propagan los despliegues. Normalizamos siempre a array.
@@ -109,6 +122,12 @@ export default function SettingsPage() {
       revert();
       toast.error(userErrorMessage(err, "No se pudo guardar"));
     }
+  };
+
+  const handleNotifyWindow = (value: number) => {
+    const previous = notifyDays;
+    setNotifyDays(value);
+    save({ notifyDaysBefore: value }, () => setNotifyDays(previous));
   };
 
   const handleEmailToggle = (checked: boolean) => {
@@ -212,6 +231,42 @@ export default function SettingsPage() {
             />
             <Moon className="size-4 text-muted-foreground" aria-hidden />
           </div>
+        </div>
+      </section>
+
+      <section className="space-y-3 rounded-xl border p-5">
+        <div className="space-y-1">
+          <Label id="notify-window-label">Qué te enseña la campana</Label>
+          <p className="text-xs text-muted-foreground">
+            Cuánto tiempo hacia delante mira el aviso de la cabecera. No afecta a
+            la agenda, que siempre muestra los próximos cuatro meses.
+          </p>
+        </div>
+        <div
+          role="radiogroup"
+          aria-labelledby="notify-window-label"
+          className="flex flex-wrap gap-2"
+        >
+          {NOTIFY_WINDOW_OPTIONS.map((opt) => {
+            const checked = notifyDays === opt.value;
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                role="radio"
+                aria-checked={checked}
+                onClick={() => handleNotifyWindow(opt.value)}
+                className={[
+                  "rounded-lg border px-3 py-2 text-sm font-medium transition-colors",
+                  checked
+                    ? "border-border bg-muted text-foreground"
+                    : "border-border/50 text-muted-foreground hover:border-border hover:bg-muted/40 hover:text-foreground",
+                ].join(" ")}
+              >
+                {opt.label}
+              </button>
+            );
+          })}
         </div>
       </section>
 
