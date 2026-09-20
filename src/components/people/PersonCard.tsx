@@ -15,16 +15,27 @@ const initials = (name: string) =>
     .map((p) => p[0]?.toUpperCase() ?? "")
     .join("");
 
-export function PersonCard({ person }: { person: Doc<"people"> }) {
+export function PersonCard({
+  person,
+  currentUserId,
+}: {
+  person: Doc<"people">;
+  // Cuando no coincide con clerkUserId, la ficha te la ha compartido otra
+  // persona (convex/personShares.ts) — se marca para que no parezca tuya.
+  currentUserId?: string | null;
+}) {
+  const isShared = currentUserId != null && person.clerkUserId !== currentUserId;
   return (
     <Link href={`/seres-queridos/${person._id}`} className="block h-full">
       <Card className="relative h-full border-border/60 transition-all hover:bg-muted/40 hover:shadow-md hover:-translate-y-0.5">
-        <Badge
-          variant="secondary"
-          className="absolute top-3 right-3 text-xs z-10"
-        >
-          {relationshipLabel(person.relationship)}
-        </Badge>
+        <div className="absolute top-3 right-3 z-10 flex flex-wrap justify-end gap-1">
+          {isShared && (
+            <Badge variant="outline" className="text-xs">Compartida</Badge>
+          )}
+          <Badge variant="secondary" className="text-xs">
+            {relationshipLabel(person.relationship)}
+          </Badge>
+        </div>
 
         <CardContent className="flex flex-col items-center gap-3 p-5 pt-10">
           <Avatar className="size-16">

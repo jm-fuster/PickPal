@@ -21,7 +21,7 @@ import { RELATIONSHIPS } from "@/lib/schemas";
 const ALL_VALUE = "all";
 
 export default function PeoplePage() {
-  const { isLoaded, isSignedIn } = useAuth();
+  const { isLoaded, isSignedIn, userId } = useAuth();
   const people = useQuery(
     api.people.getAll,
     isLoaded && isSignedIn ? {} : "skip",
@@ -105,7 +105,7 @@ export default function PeoplePage() {
           {filteredPeople && filteredPeople.length > 0 ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
               {filteredPeople.map((p) => (
-                <PersonCard key={p._id} person={p} />
+                <PersonCard key={p._id} person={p} currentUserId={userId} />
               ))}
             </div>
           ) : (

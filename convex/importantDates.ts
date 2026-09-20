@@ -4,6 +4,7 @@ import { requireUser } from "./auth";
 import { validateDateInput } from "./validators";
 import { checkAndIncrement } from "./rateLimit";
 import { Doc, Id } from "./_generated/dataModel";
+import { assertPersonAccess, personHasAccess } from "./personShares";
 
 const CREATE_DATE_DAILY_LIMIT = 100;
 
@@ -21,18 +22,6 @@ function assertValidDate(month: number, day: number, year?: number) {
   if (day > daysInMonth) {
     throw new ConvexError("Día inválido para ese mes.");
   }
-}
-
-async function assertOwnsPerson(
-  ctx: { db: { get: (id: Id<"people">) => Promise<Doc<"people"> | null> } },
-  personId: Id<"people">,
-  clerkUserId: string,
-): Promise<Doc<"people">> {
-  const person = await ctx.db.get(personId);
-  if (!person || person.clerkUserId !== clerkUserId) {
-    throw new ConvexError("Persona no encontrada.");
-  }
-  return person;
 }
 
 // Comparación tolerante a mayúsculas/espacios para la unicidad de etiquetas.
@@ -112,7 +101,7 @@ export const getByPerson = query({
   handler: async (ctx, { personId }) => {
     const clerkUserId = await requireUser(ctx);
     const person = await ctx.db.get(personId);
-    if (!person || person.clerkUserId !== clerkUserId) return [];
+    if (!(await personHasAccess(ctx, person, clerkUserId))) return [];
     return await ctx.db
       .query("importantDates")
       .withIndex("by_person", (q) => q.eq("personId", personId))
@@ -124,10 +113,20 @@ export const getUpcoming = query({
   args: {},
   handler: async (ctx) => {
     const clerkUserId = await requireUser(ctx);
-    const people = await ctx.db
+    const owned = await ctx.db
       .query("people")
       .withIndex("by_user", (q) => q.eq("clerkUserId", clerkUserId))
       .collect();
+    // + las personas que te han compartido: sus eventos también entran en tu
+    // agenda, igual que en people.getAll.
+    const shares = await ctx.db
+      .query("personShares")
+      .withIndex("by_user", (q) => q.eq("clerkUserId", clerkUserId))
+      .collect();
+    const shared = (
+      await Promise.all(shares.map((s) => ctx.db.get(s.personId)))
+    ).filter((p): p is Doc<"people"> => p !== null);
+    const people = [...owned, ...shared];
 
     const result: Array<{
       date: Doc<"importantDates">;
@@ -170,7 +169,7 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     const clerkUserId = await requireUser(ctx);
-    await assertOwnsPerson(ctx, args.personId, clerkUserId);
+    await assertPersonAccess(ctx, args.personId, clerkUserId);
     assertValidDate(args.month, args.day, args.year);
     validateDateInput({ label: args.label, year: args.year, recurring: args.recurring, budgetMin: args.budgetMin, budgetMax: args.budgetMax });
     await assertLabelUnique(ctx, args.personId, args.label, null);
@@ -199,7 +198,7 @@ export const update = mutation({
     const clerkUserId = await requireUser(ctx);
     const existing = await ctx.db.get(id);
     if (!existing) throw new ConvexError("Fecha no encontrada.");
-    await assertOwnsPerson(ctx, existing.personId, clerkUserId);
+    await assertPersonAccess(ctx, existing.personId, clerkUserId);
     if (
       patch.month !== undefined ||
       patch.day !== undefined ||
@@ -246,7 +245,7 @@ export const getByPersonAndLabel = query({
   args: { personId: v.id("people"), label: v.string() },
   handler: async (ctx, { personId, label }) => {
     const clerkUserId = await requireUser(ctx);
-    await assertOwnsPerson(ctx, personId, clerkUserId);
+    await assertPersonAccess(ctx, personId, clerkUserId);
     const dates = await ctx.db
       .query("importantDates")
       .withIndex("by_person", (q) => q.eq("personId", personId))
@@ -261,7 +260,7 @@ export const remove = mutation({
     const clerkUserId = await requireUser(ctx);
     const existing = await ctx.db.get(id);
     if (!existing) throw new ConvexError("Fecha no encontrada.");
-    await assertOwnsPerson(ctx, existing.personId, clerkUserId);
+    await assertPersonAccess(ctx, existing.personId, clerkUserId);
     await ctx.db.delete(id);
   },
 });

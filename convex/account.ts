@@ -1,6 +1,7 @@
 import { mutation } from "./_generated/server";
 import { requireUser } from "./auth";
 import { deletePersonCascade } from "./people";
+import { deleteSharesForUser, transferToOldestInviteeOrNull } from "./personShares";
 
 /**
  * Borra todos los datos del usuario autenticado en Convex.
@@ -10,10 +11,19 @@ import { deletePersonCascade } from "./people";
  * obtiene el `clerkUserId` del JWT — nunca se acepta como argumento.
  *
  * Tablas que limpia:
- * - `people` y, en cascada (vía `deletePersonCascade`), sus `importantDates`,
- *   `giftHistory`, `recommendations` y `savedIdeas`.
- * - `savedIdeas` huérfanas (de personas borradas antes de que la cascada
- *   las cubriera), vía índice `by_user`.
+ * - `people` que posees: si nadie más tiene acceso, en cascada (vía
+ *   `deletePersonCascade`) con sus `importantDates`, `giftHistory`,
+ *   `recommendations`, `savedIdeas` y `personShares`. Si la habías
+ *   compartido, la propiedad pasa al invitado más antiguo en lugar de
+ *   borrarla — ver la nota más abajo.
+ * - `personShares` donde eres tú el invitado (fichas de otros que te habían
+ *   compartido): te desliga de todas, igual que `personShares.leave` pero en
+ *   bloque.
+ * - `savedIdeas` que autoraste y cuya persona ya no existe (de antes de que
+ *   la cascada las cubriera), vía índice `by_user`. Ojo: "autoraste" no es
+ *   "eras dueño" — si la persona sigue existiendo (p. ej. se transfirió más
+ *   arriba, o es una ficha ajena que te compartieron), esas filas se quedan:
+ *   son parte del historial conjunto, no solo tuyas.
  * - `userSettings`, `emailNotifications`, `recommendationUsage`, `rateLimitBuckets`.
  *
  * No expone `clerkUserId` como argumento ni acepta un `userId` distinto al
@@ -30,14 +40,30 @@ export const deleteMyAccount = mutation({
       .collect();
 
     for (const person of people) {
-      await deletePersonCascade(ctx, person._id);
+      // Decisión 6 de docs/dudas.md: bloquear el borrado no es opción (irse
+      // es un derecho RGPD) y borrar en cascada castigaría a un invitado por
+      // una decisión que no tomó. Si hay alguien invitado, la ficha pasa a
+      // ser suya; si no hay nadie, se borra como antes.
+      const heir = await transferToOldestInviteeOrNull(ctx, person);
+      if (!heir) {
+        await deletePersonCascade(ctx, person._id);
+      }
     }
 
-    const orphanSaved = await ctx.db
+    // Fichas ajenas que te habían compartido: te desligas de todas.
+    await deleteSharesForUser(ctx, clerkUserId);
+
+    // Huérfana de verdad = su persona ya no existe. No basta con "no soy su
+    // dueño ahora": una transferida sigue viva, y una idea que guardaste en
+    // una ficha ajena que te compartieron no es "tuya para borrar" al cerrar
+    // tu cuenta — sigue siendo del historial conjunto de esa ficha.
+    const authoredSaved = await ctx.db
       .query("savedIdeas")
       .withIndex("by_user", (q) => q.eq("clerkUserId", clerkUserId))
       .collect();
-    for (const s of orphanSaved) await ctx.db.delete(s._id);
+    for (const s of authoredSaved) {
+      if (!(await ctx.db.get(s.personId))) await ctx.db.delete(s._id);
+    }
 
     const settings = await ctx.db
       .query("userSettings")

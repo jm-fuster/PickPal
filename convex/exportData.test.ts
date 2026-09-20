@@ -79,6 +79,27 @@ describe("qué sale en la exportación", () => {
     expect(marta.ideasGuardadas).toHaveLength(1);
   });
 
+  test("con quién compartes, y quién te comparte a ti", async () => {
+    const t = convexTest(schema, modules);
+    const personId = await sembrar(t, ALICE, "Marta");
+    await t.withIdentity(ALICE).mutation(api.personShares.invite, {
+      personId,
+      clerkUserId: BOB.subject,
+    });
+
+    const deAlice = await t.withIdentity(ALICE).query(api.exportData.mine, {});
+    expect(deAlice.seresQueridos[0].compartidoCon).toMatchObject([
+      { clerkUserId: BOB.subject },
+    ]);
+    expect(deAlice.fichasQueTeComparten).toEqual([]);
+
+    const deBob = await t.withIdentity(BOB).query(api.exportData.mine, {});
+    // Bob no es dueño: no sale en su `seresQueridos`, solo en el resumen —
+    // sin volcar la ficha completa de Alice.
+    expect(deBob.seresQueridos).toEqual([]);
+    expect(deBob.fichasQueTeComparten).toMatchObject([{ nombre: "Marta" }]);
+  });
+
   test("los ajustes, con el valor guardado y no el default", async () => {
     const t = convexTest(schema, modules);
     await sembrar(t, ALICE, "Marta");
@@ -146,6 +167,11 @@ describe("no desincronizarse del borrado", () => {
     const cascada = fs.readFileSync("convex/people.ts", "utf8");
     const bloqueCascada = cascada.slice(cascada.indexOf("deletePersonCascade"));
     for (const t of tablas(bloqueCascada)) borrado.add(t);
+    // Y otra parte en personShares.ts (transferencia de propiedad al borrar
+    // la cuenta del creador, y desligarse en bloque de fichas ajenas).
+    for (const t of tablas(fs.readFileSync("convex/personShares.ts", "utf8"))) {
+      borrado.add(t);
+    }
 
     const exportadas = tablas(fs.readFileSync("convex/exportData.ts", "utf8"));
 

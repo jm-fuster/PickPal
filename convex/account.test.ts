@@ -134,4 +134,71 @@ describe("borrar la cuenta", () => {
     );
     expect((await contar(t)).people).toBe(1);
   });
+
+  test("si la ficha está compartida, la propiedad pasa al invitado más antiguo en vez de borrarla", async () => {
+    // Decisión 6 de docs/dudas.md: bloquear el borrado no es opción (irse es
+    // un derecho RGPD) y borrar en cascada castigaría a Bob por una decisión
+    // de Alice. La ficha, sus fechas, historial e ideas sobreviven intactos.
+    const t = convexTest(schema, modules);
+    const personId = await sembrar(t, ALICE);
+    await t.withIdentity(ALICE).mutation(api.personShares.invite, {
+      personId,
+      clerkUserId: BOB.subject,
+    });
+
+    await t.withIdentity(ALICE).mutation(api.account.deleteMyAccount, {});
+
+    const traspasada = await t.withIdentity(BOB).query(api.people.getById, { id: personId });
+    expect(traspasada?.clerkUserId).toBe(BOB.subject);
+    expect(traspasada?.name).toBe("Marta");
+    expect(await t.withIdentity(BOB).query(api.importantDates.getByPerson, { personId })).toHaveLength(1);
+    expect(await t.withIdentity(BOB).query(api.savedIdeas.getByPerson, { personId })).toHaveLength(1);
+    expect(await t.withIdentity(BOB).query(api.giftHistory.getByPerson, { personId })).toHaveLength(1);
+
+    // Alice ya no tiene ningún dato: ni la persona (ahora es de Bob) ni sus
+    // propios ajustes.
+    const deAlice = await t.run(async (ctx) =>
+      ctx.db
+        .query("userSettings")
+        .withIndex("by_user", (q) => q.eq("clerkUserId", ALICE.subject))
+        .collect(),
+    );
+    expect(deAlice).toHaveLength(0);
+  });
+
+  test("sin invitados, la ficha se borra como siempre al cerrar la cuenta", async () => {
+    const t = convexTest(schema, modules);
+    const personId = await sembrar(t, ALICE);
+
+    await t.withIdentity(ALICE).mutation(api.account.deleteMyAccount, {});
+
+    expect(await t.withIdentity(BOB).query(api.people.getById, { id: personId })).toBeNull();
+    expect((await contar(t)).people).toBe(0);
+  });
+
+  test("al borrar tu cuenta, dejas de ver lo que otros te habían compartido", async () => {
+    const t = convexTest(schema, modules);
+    const personId = await t.withIdentity(ALICE).mutation(api.people.create, {
+      name: "Marta",
+      relationship: "family",
+      interests: ["cerámica"],
+    });
+    await t.withIdentity(ALICE).mutation(api.personShares.invite, {
+      personId,
+      clerkUserId: BOB.subject,
+    });
+
+    await t.withIdentity(BOB).mutation(api.account.deleteMyAccount, {});
+
+    // La ficha de Alice sigue intacta; Bob, si volviera a existir, ya no
+    // tendría acceso (su fila de invitado se ha borrado).
+    expect(await t.withIdentity(ALICE).query(api.people.getById, { id: personId })).not.toBeNull();
+    const comparticiones = await t.run(async (ctx) =>
+      ctx.db
+        .query("personShares")
+        .withIndex("by_person", (q) => q.eq("personId", personId))
+        .collect(),
+    );
+    expect(comparticiones).toHaveLength(0);
+  });
 });

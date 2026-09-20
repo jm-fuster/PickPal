@@ -163,6 +163,8 @@ export default defineSchema({
     .index("by_user", ["clerkUserId"]),
 
   giftHistory: defineTable({
+    // Quién lo registró, no necesariamente quién es dueño de la persona:
+    // compartir una ficha permite que cualquiera con acceso añada entradas.
     clerkUserId: v.string(),
     personId: v.id("people"),
     giftName: v.string(),
@@ -175,4 +177,18 @@ export default defineSchema({
     ),
     notes: v.optional(v.string()),
   }).index("by_person", ["personId"]),
+
+  // Tabla de enlace que convierte la propiedad de `people` en muchos-a-muchos.
+  // El dueño sigue siendo `people.clerkUserId`; esta tabla solo guarda a quién
+  // más se le ha dado acceso. `role` es literal por ahora (un único nivel de
+  // permiso: acceso completo salvo borrar la ficha para todos), pero queda
+  // como columna propia por si algún día hace falta diferenciar niveles.
+  personShares: defineTable({
+    personId: v.id("people"),
+    clerkUserId: v.string(),
+    role: v.literal("invitee"),
+  })
+    .index("by_person", ["personId"])
+    .index("by_person_and_user", ["personId", "clerkUserId"])
+    .index("by_user", ["clerkUserId"]),
 });

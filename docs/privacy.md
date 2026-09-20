@@ -56,6 +56,33 @@ El usuario introduce información sobre personas de su entorno (amigos, familia,
 - **No usamos cookies analíticas, publicitarias ni de terceros.** La analítica de uso se hace con **Vercel Web Analytics**, que es *cookieless* (no almacena ni accede a información en el dispositivo, recoge métricas agregadas), por lo que no requiere banner de consentimiento bajo LSSI art. 22.2.
 - Si en el futuro se añade analítica basada en cookies (Plausible con cookies, GA, etc.) o publicidad, habrá que añadir banner de consentimiento y actualizar este documento.
 
+### 2.5 Compartir fichas entre usuarios de PickPal
+
+Desde el 20-sep-2026, un usuario puede compartir la ficha de un ser querido
+con **otro usuario de PickPal** (`convex/personShares.ts`). Es un flujo
+distinto del de la sección 7: allí el tercero no usa PickPal; aquí quien
+recibe el acceso es una cuenta autenticada que va a ver y editar datos dentro
+de la propia app, no un tercero pasivo.
+
+- **Qué se comparte:** la ficha entera —incluidas las alergias/restricciones,
+  dato de salud (art. 9 RGPD)— más su historial de regalos e ideas guardadas
+  (con autoría de quien añadió cada entrada). **No** se comparten las tandas
+  de recomendaciones generadas por la IA: cada usuario genera y ve las suyas,
+  vía el índice `by_user_person_occasion_type` de `recommendations`.
+- **Disclosure antes de compartir:** la pantalla de invitar enumera qué se va
+  a compartir, con mención explícita a las alergias, antes de confirmar — no
+  basta con que esté en esta página (ver `AiNotesNotice` para el mismo
+  principio aplicado a las notas).
+- **Quién puede qué:** solo quien creó la ficha puede compartirla o borrarla
+  para todos. Quien recibe el acceso puede desligarse cuando quiera
+  (`personShares.leave`) sin que la ficha desaparezca para el resto.
+- **Al cerrar la cuenta de quien creó la ficha:** no se borra si tiene
+  invitados — la propiedad pasa al invitado más antiguo (`personShares.
+  transferToOldestInviteeOrNull`), para no borrarle sus datos por una
+  decisión que no tomó él. Ver §6.
+- **Base legal:** ejecución de contrato — es una funcionalidad que el usuario
+  activa explícitamente, no un tratamiento por defecto.
+
 ---
 
 ## 3. Finalidades y bases legales
@@ -66,6 +93,7 @@ El usuario introduce información sobre personas de su entorno (amigos, familia,
 | Almacenar la libreta personal del usuario | Datos sobre terceros, fechas | Ejecución de contrato (b) + interés legítimo del usuario (f) |
 | Generar recomendaciones de regalo con IA | Datos de la persona seleccionada | Ejecución de contrato (b) |
 | Enviar avisos de fechas próximas | Email + fechas + nombre del ser querido | Consentimiento (a) — opt-in explícito: el toggle nace **apagado** (`DEFAULT_EMAIL_NOTIFICATIONS_ENABLED = false`) y solo se activa desde `/settings`. Ver [`email-notifications.md`](email-notifications.md) · "Por qué el toggle nace apagado". |
+| Compartir la ficha de un ser querido con otro usuario | Ficha completa (incl. alergias), historial e ideas guardadas | Ejecución de contrato (b) — el usuario activa la función explícitamente, con disclosure previa (ver §2.5) |
 | Prevenir abuso (rate limit, logs) | Identificador de usuario, contadores | Interés legítimo (f) |
 
 ---
@@ -146,7 +174,7 @@ La mayoría de los proveedores anteriores tratan datos en EE. UU. (DiceBear oper
 
 | Dato | Plazo |
 |---|---|
-| Cuenta de usuario y datos asociados | Mientras la cuenta esté activa. Al eliminar la cuenta, el purgado es **inmediato y transaccional** (`api.account.deleteMyAccount` borra las 9 tablas y después se borra el usuario en Clerk) — no hay periodo de gracia ni papelera. Las copias de seguridad de los proveedores se reciclan según sus propios plazos. |
+| Cuenta de usuario y datos asociados | Mientras la cuenta esté activa. Al eliminar la cuenta, el purgado es **inmediato y transaccional** (`api.account.deleteMyAccount` recorre las 10 tablas del esquema y después se borra el usuario en Clerk) — no hay periodo de gracia ni papelera. **Excepción:** una ficha que hubieras compartido con otro usuario no se borra si tiene invitados — la propiedad pasa al más antiguo, ver §2.5. Las copias de seguridad de los proveedores se reciclan según sus propios plazos. |
 | Logs de seguridad (errores, rate limit) | Los contadores de rate limit viven en `rateLimitBuckets` / `recommendationUsage` con clave por día UTC y se borran con la cuenta. Los logs de ejecución los retiene el proveedor (Convex / Vercel) según su plan. |
 | Datos enviados a Gemini | No conservados por nosotros tras la respuesta. En la capa gratuita, Google puede usarlos para mejorar sus productos (ver §4.1); política de retención de Google aplicable. |
 
@@ -178,7 +206,7 @@ Como interesado, tienes derecho a:
 
 Puedes ejercerlos:
 
-1. **Desde la app**: edición, borrado y **portabilidad** están disponibles en la propia interfaz. Ajustes → «Descargar mis datos» devuelve un JSON con las nueve tablas que guardan algo del usuario — el mismo recorrido que hace el borrado de cuenta, para que no puedan desincronizarse (`convex/exportData.ts`, con un test que lo comprueba).
+1. **Desde la app**: edición, borrado y **portabilidad** están disponibles en la propia interfaz. Ajustes → «Descargar mis datos» devuelve un JSON con las diez tablas que guardan algo del usuario, incluida `personShares` (con quién compartes y quién te comparte a ti) — el mismo recorrido que hace el borrado de cuenta, para que no puedan desincronizarse (`convex/exportData.ts`, con un test que lo comprueba).
 2. **Por email** a [pickpal@jorgemolinafuster.com](mailto:pickpal@jorgemolinafuster.com), indicando qué derecho quieres ejercer.
 
 Si consideras que tus derechos no se han atendido correctamente, puedes presentar una reclamación ante la **Agencia Española de Protección de Datos** (https://www.aepd.es).

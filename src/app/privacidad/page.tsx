@@ -137,6 +137,36 @@ export default function PrivacyPage() {
         </section>
 
         <section className="space-y-3">
+          <h2 className="text-xl font-medium">
+            Compartir con otra persona usuaria de PickPal
+          </h2>
+          <p className="text-sm text-foreground">
+            Puedes compartir la ficha de un ser querido con otra persona que
+            tenga cuenta en PickPal — por ejemplo, un hermano con el que
+            coordinas los regalos de vuestros padres. Antes de compartir, la
+            propia pantalla te dice qué va a poder ver: la ficha entera,
+            incluidas las <strong>alergias o restricciones</strong>, que
+            pueden ser un dato de salud.
+          </p>
+          <p className="text-sm text-foreground">
+            Quien recibe el acceso ve y edita la ficha igual que tú: intereses,
+            marcas favoritas, notas, tallas, alergias, fechas, historial de
+            regalos e ideas guardadas — estas dos últimas quedan con la
+            autoría de quien las añadió. Las tandas de ideas que genera la IA
+            <strong> no</strong> se comparten: cada persona genera y ve las
+            suyas.
+          </p>
+          <p className="text-sm text-foreground">
+            Solo quien creó la ficha puede compartirla o borrarla para todos.
+            Quien la recibe compartida puede dejar de verla cuando quiera, sin
+            que desaparezca para el resto. Si quien la creó cierra su cuenta,
+            la ficha no se borra: pasa a ser de la persona invitada más
+            antigua, para no borrarle sus datos por una decisión que no tomó
+            ella.
+          </p>
+        </section>
+
+        <section className="space-y-3">
           <h2 className="text-xl font-medium">Cookies</h2>
           <p className="text-sm text-foreground">
             Solo usamos cookies técnicas necesarias para mantener tu sesión
@@ -155,6 +185,12 @@ export default function PrivacyPage() {
             proveedores pueden tardar algo más en reciclarse. Lo que ya se envió
             a Google o a Resend para generar una idea o un correo se rige por
             sus propias políticas de conservación.
+          </p>
+          <p className="text-sm text-foreground">
+            Excepción: si habías compartido una ficha con otra persona
+            usuaria, esa ficha no se borra al cerrar tu cuenta — pasa a ser de
+            esa persona, para no borrarle sus propios datos por una decisión
+            que no tomó ella.
           </p>
         </section>
 

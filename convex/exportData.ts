@@ -47,7 +47,7 @@ export const mine = query({
 
     const seresQueridos = [];
     for (const person of people) {
-      const [fechas, historial, ideasGuardadas, ideasGeneradas] = await Promise.all([
+      const [fechas, historial, ideasGuardadas, ideasGeneradas, compartidoCon] = await Promise.all([
         ctx.db
           .query("importantDates")
           .withIndex("by_person", (q) => q.eq("personId", person._id))
@@ -64,6 +64,13 @@ export const mine = query({
           .query("recommendations")
           .withIndex("by_person", (q) => q.eq("personId", person._id))
           .collect(),
+        // Con quién compartes esta ficha (convex/personShares.ts). Se lista
+        // aquí en vez de con `limpiar`: para esta tabla el propio
+        // `clerkUserId` de cada fila ES el dato — a quién se le dio acceso.
+        ctx.db
+          .query("personShares")
+          .withIndex("by_person", (q) => q.eq("personId", person._id))
+          .collect(),
       ]);
 
       seresQueridos.push({
@@ -72,18 +79,41 @@ export const mine = query({
         historialDeRegalos: historial.map(limpiar),
         ideasGuardadas: ideasGuardadas.map(limpiar),
         ideasGeneradasPorLaIA: ideasGeneradas.map(limpiar),
+        compartidoCon: compartidoCon.map((s) => ({
+          clerkUserId: s.clerkUserId,
+          desde: s._creationTime,
+        })),
       });
     }
 
-    // Ideas de personas ya borradas: el borrado en cascada las recoge por este
-    // mismo índice, así que la exportación también.
-    const idsDePersonas = new Set(people.map((p) => p._id));
-    const huerfanas = (
-      await ctx.db
-        .query("savedIdeas")
-        .withIndex("by_user", (q) => q.eq("clerkUserId", clerkUserId))
-        .collect()
-    ).filter((s) => !idsDePersonas.has(s.personId));
+    // Fichas que OTROS han compartido contigo: no son tuyas (no se exporta su
+    // ficha completa), pero que tengas acceso a ellas sí es un dato tuyo.
+    const misAccesosCompartidos = await ctx.db
+      .query("personShares")
+      .withIndex("by_user", (q) => q.eq("clerkUserId", clerkUserId))
+      .collect();
+    const fichasQueTeComparten = await Promise.all(
+      misAccesosCompartidos.map(async (s) => {
+        const persona = await ctx.db.get(s.personId);
+        return { nombre: persona?.name ?? null, desde: s._creationTime };
+      }),
+    );
+
+    // Ideas de personas YA BORRADAS: el borrado en cascada las recoge por este
+    // mismo índice, así que la exportación también. Huérfana de verdad = su
+    // persona ya no existe — no basta con "no la tengo en `seresQueridos`",
+    // porque desde que existe compartir eso también pasa con una idea que
+    // guardaste en una ficha ajena que te compartieron (sigue viva, solo que
+    // no es tuya). Esas no se listan aquí ni en `seresQueridos`: el resumen
+    // de esas fichas está en `fichasQueTeComparten`.
+    const autoradas = await ctx.db
+      .query("savedIdeas")
+      .withIndex("by_user", (q) => q.eq("clerkUserId", clerkUserId))
+      .collect();
+    const huerfanas = [];
+    for (const s of autoradas) {
+      if (!(await ctx.db.get(s.personId))) huerfanas.push(s);
+    }
 
     const [ajustes, avisos, cuotaIA, cubosDeLimite] = await Promise.all([
       ctx.db
@@ -111,7 +141,10 @@ export const mine = query({
         "Copia de todos tus datos en PickPal. Los datos de tu cuenta " +
         "(nombre, email, contraseña) los gestiona Clerk y puedes pedirlos allí; " +
         "aquí va lo que guarda PickPal. Las fechas están en milisegundos desde " +
-        "1970 y los presupuestos en céntimos.",
+        "1970 y los presupuestos en céntimos. Cada ser querido lleva un " +
+        "\"compartidoCon\" con quién más tiene acceso a su ficha; " +
+        "\"fichasQueTeComparten\" son las de otros a las que tú tienes acceso " +
+        "(no se incluye su contenido completo, solo que las ves).",
       usuario: {
         // El identificador con el que se guarda todo lo de abajo.
         clerkUserId,
@@ -119,6 +152,7 @@ export const mine = query({
       },
       ajustes: ajustes.map(limpiar),
       seresQueridos,
+      fichasQueTeComparten,
       ideasGuardadasDePersonasYaBorradas: huerfanas.map(limpiar),
       avisosPorEmailEnviados: avisos.map(limpiar),
       // Contadores antiabuso. Se reinician cada día y no describen a nadie,

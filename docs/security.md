@@ -39,11 +39,27 @@ Si una función necesita ser invocada solo internamente, márcala como `internal
 
 ### 2. Toda operación sobre un recurso verifica ownership
 
-Patrón actual:
-- Para `people`: comparar `existing.clerkUserId === clerkUserId` tras `ctx.db.get(id)`.
-- Para `importantDates` (recurso anidado): usar `assertOwnsPerson(ctx, personId, clerkUserId)`.
+Patrón actual (desde que `people` puede compartirse, 20-sep-2026): usar
+`assertPersonAccess(ctx, personId, clerkUserId)` o su variante sin throw,
+`personHasAccess(ctx, person, clerkUserId)` — ambas en
+[`convex/personShares.ts`](../convex/personShares.ts). Aceptan **dueño**
+(`people.clerkUserId`) **o invitado** (fila en la tabla de enlace
+`personShares`). Es el reemplazo directo del viejo
+`existing.clerkUserId === clerkUserId`: los 15 call sites que hacían esa
+comparación a mano (`giftHistory.ts`, `people.ts`, `recommendations.ts`,
+`savedIdeas.ts`, `importantDates.ts`) pasan ahora por aquí. Para un recurso
+anidado bajo `giftHistory`/`savedIdeas` (no bajo `people` directamente), el
+acceso se resuelve vía `entry.personId`, no comparando el `clerkUserId` de la
+propia fila — esas filas guardan **autoría** (quién la creó), no propiedad.
 
-Si añades una tabla nueva con dueño, replica el patrón. Si no es posible identificar el dueño, **no se puede exponer la operación**.
+**Excepción deliberada:** borrar una persona entera (`people.remove`) e
+invitar a alguien más (`personShares.invite`) siguen siendo **solo del
+dueño** — usan `assertIsOwner`, que sí es la comparación estricta de toda la
+vida. Compartir amplía casi todos los permisos, pero no estos dos: ver
+`docs/dudas.md` → "Compartir personas entre usuarios", decisión 1.
+
+Si añades una tabla nueva con dueño, replica el patrón que corresponda. Si no
+es posible identificar el dueño, **no se puede exponer la operación**.
 
 ### 3. Validar tamaños y rangos en el servidor
 
@@ -83,7 +99,7 @@ Aplícalo a cualquier mutation que:
 - Llame a APIs externas de pago (cuota).
 - Envíe notificaciones / emails.
 
-Buckets actuales: `create_person` (50/día), `create_date` (100/día), `save_idea` (50/día), `recommendationUsage` (10/día, tabla aparte por motivos históricos).
+Buckets actuales: `create_person` (50/día), `create_date` (100/día), `save_idea` (50/día), `invite_person` (20/día — compartir una ficha, ver §9), `recommendationUsage` (10/día, tabla aparte por motivos históricos).
 
 **Cuota de recomendaciones = reserva atómica.** `api.recommendationUsage.reserve` (mutation) incrementa el contador **antes** de llamar a Gemini y lanza `ConvexError` si está agotado; al ser una transacción Convex, dos peticiones concurrentes en el límite no pueden superar las 10/día. Si la generación falla (saturación, timeout o validación del schema de Gemini), la API route llama a `refund` para devolver la unidad: como el `return` de éxito va tras el `upsert`, llegar al `catch` garantiza que no se persistió ninguna idea, así que un fallo de formato del proveedor no cuesta una generación. `refund` recibe el `day` UTC que devolvió `reserve` para devolver la unidad al bucket correcto aunque el fallo cruce la medianoche UTC. No existe un `consume` posterior al guardado: el patrón check-luego-consume tenía una carrera de coste y un caso "ideas guardadas pero el usuario ve error".
 
@@ -151,11 +167,13 @@ Flujo:
 3. Solo si el purge en Convex sale bien, se llama `clerkClient().users.deleteUser(userId)`.
 4. UI hace `signOut` y redirige a `/`.
 
-**Cascada de borrado de persona:** el helper `deletePersonCascade(ctx, personId)` ([`convex/people.ts`](../convex/people.ts)) borra `importantDates`, `giftHistory`, `recommendations` y `savedIdeas` de una persona y después la persona. Es el **único** camino válido para borrar una persona: lo usan `people.remove` y `account.deleteMyAccount`. Si añades una tabla anidada bajo `people`, añádela al helper (no a los call sites).
+**Cascada de borrado de persona:** el helper `deletePersonCascade(ctx, personId)` ([`convex/people.ts`](../convex/people.ts)) borra `importantDates`, `giftHistory`, `recommendations`, `savedIdeas` y `personShares` de una persona y después la persona. Es el **único** camino válido para borrar una persona: lo usan `people.remove` y `account.deleteMyAccount` (cuando la persona no tiene invitados — ver §9). Si añades una tabla anidada bajo `people`, añádela al helper (no a los call sites).
 
 **Reglas al añadir tablas nuevas:** si guardas datos vinculados a un usuario, añade su limpieza a `deleteMyAccount`. La regla aplica también si la tabla no tiene un campo `clerkUserId` directo: el borrado debe alcanzarla por relación (ej. `importantDates` se borra siguiendo `people` → `by_person`). Si una tabla nueva no se puede asociar a un usuario, no se puede exponer.
 
 El `clerkUserId` siempre se lee de la sesión vía `requireUser` — la mutation no acepta argumentos. No existe forma de que un usuario borre los datos de otro.
+
+**Excepción desde que existe compartir (§9):** `deleteMyAccount` ya no borra incondicionalmente cada `people` del usuario. Si la persona tiene invitados, la propiedad se transfiere al más antiguo (`personShares.transferToOldestInviteeOrNull`) en lugar de borrarla — bloquear el borrado violaría el derecho RGPD a irse, y cascada la castigaría a un tercero por una decisión ajena. Solo se cascada-borra si no queda nadie más con acceso. Además, `deleteMyAccount` llama a `personShares.deleteSharesForUser` para desligar al usuario de toda ficha ajena que le hubieran compartido — la versión en bloque de `personShares.leave`.
 
 ### 8. Variables de entorno
 
@@ -166,6 +184,30 @@ El `clerkUserId` siempre se lee de la sesión vía `requireUser` — la mutation
 - `BRANDFETCH_CLIENT_ID` (tienda oficial de marca en `/api/recommendations`) es **opcional**, mismo modelo que Pexels: sin él la card cae al botón de búsqueda de marca en Google. Server-only, en el entorno de **Next** (lo consume la API route, no Convex). La respuesta de Brandfetch es input no confiable: el `domain` se valida como hostname y el `logoUrl` por prefijo del CDN (`https://cdn.brandfetch.io/`) en `convex/validators.ts` antes de persistir — mismo patrón de allowlist que Pexels/DiceBear. `cdn.brandfetch.io` está en el `img-src` de la CSP: los logos se cargan por hotlink desde el navegador, así que sin esa entrada se romperían al pasar la CSP a enforcing (faltaba, corregido). **Sin caché propia**: la resolución se hace en la tanda de generación y el volumen queda acotado por la cuota de 10 generaciones/día × las pocas marcas que matchea una tanda (muy por debajo del free tier de Brandfetch). Si el volumen creciera, una tabla de caché global —metadato público de marca, no dato de usuario; por eso no entraría en `deleteMyAccount`— sería el siguiente paso.
 - **Sonda de tienda (Shopify)**: tras resolver el dominio, la route hace un `GET https://{dominio}/products.json` (best-effort, timeout 2.5s, `redirect: "manual"`) para decidir si enlazar a la búsqueda interna `/search?q=` o a la home. Es una petición saliente a un dominio derivado de datos externos (SSRF-adjacent), pero de bajo riesgo: el dominio procede de la base de marcas de Brandfetch (no de input libre del usuario, que solo escribe el *nombre*), está validado como hostname público (la regex de `normalizeBrandDomain` rechaza IPs y `localhost`), solo se hace `GET` a esa ruta fija, y la respuesta no se refleja al cliente — solo decide un booleano. Si en el futuro el dominio pudiera venir de input libre, revisar (allowlist de TLDs / bloqueo de rangos privados).
 - Nuevo secret → añádelo a `.env.example` como placeholder vacío y documenta dónde se obtiene.
+
+### 9. Compartir personas entre usuarios
+
+`convex/personShares.ts` guarda quién más tiene acceso a una `people` — el
+dueño sigue siendo `people.clerkUserId`; esta tabla solo añade invitados.
+Índices: `by_person` (listar/borrar en cascada), `by_person_and_user`
+(comprobar acceso de uno concreto) y `by_user` (fichas que te han
+compartido, usado por `people.getAll` e `importantDates.getUpcoming`).
+
+- **Resolución de email → `clerkUserId` fuera de Convex.** Convex no tiene
+  acceso al backend de Clerk, así que `personShares.invite` recibe ya un
+  `clerkUserId`, resuelto en
+  [`src/app/api/people/[personId]/share/route.ts`](../src/app/api/people/[personId]/share/route.ts)
+  con `clerkClient().users.getUserList({ emailAddress: [...] })`. La mutation
+  vuelve a comprobar que quien llama es el dueño — la ruta es una comodidad
+  de resolución, no la frontera de autorización real.
+- **Invitar es solo del dueño**, con `assertIsOwner` (no reparte la
+  capacidad de compartir), rate-limited (`invite_person`, 20/día) y con un
+  tope de 20 invitados por ficha — evita que una cuenta comprometida reparta
+  acceso sin límite ni infle la ficha de gente.
+- **Desligarse (`personShares.leave`) es de cualquier invitado sobre su
+  propia fila.** No hay forma de que el dueño expulse a un invitado sin que
+  el invitado se vaya solo — ver "Lo que NO está implementado todavía".
+- **Ownership check ampliado, no nuevo:** ver §2 (`assertPersonAccess`).
 
 ---
 
@@ -216,6 +258,9 @@ Decisiones explícitas de "ahora no":
 - **Rate limit por IP**: solo hay rate limit por usuario autenticado. Suficiente mientras no haya endpoints anónimos.
 - **Webhooks**: no existen. Cuando se añadan (Clerk, Stripe, etc.), **siempre verificar firma con el secret del proveedor antes de procesar**.
 - **Auditoría de acceso**: no se loguea quién leyó qué. Aceptable para una app personal; revisar si pasa a multi-tenant.
+- **El dueño no puede revocar a un invitado.** Solo existe `personShares.leave` (el invitado se va solo). Añadir un `personShares.revoke` (dueño quita a un invitado concreto) es sencillo con la tabla actual, pero no lo pedía el encargo y no hay un caso de uso claro que lo motive todavía — revisar si aparece.
+- **Compartir concede acceso al momento, sin que el invitado acepte.** `personShares.invite` resuelve el email y da acceso en la misma llamada; no hay un estado "pendiente" ni una notificación al invitado de que ahora tiene acceso a una ficha con datos de salud. Aceptable para el caso de uso (hermanos que ya han hablado de compartir antes de escribir el email), pero si se abre a compartir con desconocidos, esto necesita revisarse.
+- **El email tiene que coincidir con una cuenta existente.** No hay invitación por email a alguien sin cuenta todavía (sin flujo de "cuando se registre, dale acceso"). Quien invita ve "No hay ninguna cuenta de PickPal con ese email" y tiene que pedirle a esa persona que se registre primero.
 
 ---
 

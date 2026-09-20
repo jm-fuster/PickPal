@@ -5,6 +5,7 @@ import {
   validateRecommendationIdeas,
   validateRecommendationKey,
 } from "./validators";
+import { assertPersonAccess, personHasAccess } from "./personShares";
 
 const ideaValidator = v.object({
   title: v.string(),
@@ -46,8 +47,11 @@ export const getByPersonOccasion = query({
   handler: async (ctx, { personId, occasionLabel, giftType }) => {
     const clerkUserId = await requireUser(ctx);
 
+    // Acceso a la persona (dueño o invitado), no ownership de la propia
+    // recomendación: las tandas siguen sin compartirse (decisión 7), lo que
+    // las mantiene privadas es que la clave incluye `clerkUserId`.
     const person = await ctx.db.get(personId);
-    if (!person || person.clerkUserId !== clerkUserId) return null;
+    if (!(await personHasAccess(ctx, person, clerkUserId))) return null;
 
     return ctx.db
       .query("recommendations")
@@ -72,8 +76,7 @@ export const removeIdea = mutation({
   },
   handler: async (ctx, { personId, occasionLabel, giftType, ideaTitle, ideaCategories }) => {
     const clerkUserId = await requireUser(ctx);
-    const person = await ctx.db.get(personId);
-    if (!person || person.clerkUserId !== clerkUserId) throw new ConvexError("No autorizado");
+    await assertPersonAccess(ctx, personId, clerkUserId, "No autorizado");
     // Caps espejo de los tamaños que genera la app; sin ellos un cliente
     // directo puede inflar el documento con strings arbitrarios.
     if (
@@ -125,10 +128,7 @@ export const upsert = mutation({
     validateRecommendationKey(occasionLabel, giftType);
     validateRecommendationIdeas(ideas);
 
-    const person = await ctx.db.get(personId);
-    if (!person || person.clerkUserId !== clerkUserId) {
-      throw new ConvexError("Persona no encontrada.");
-    }
+    await assertPersonAccess(ctx, personId, clerkUserId);
 
     const existing = await ctx.db
       .query("recommendations")

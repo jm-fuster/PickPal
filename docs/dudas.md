@@ -10,70 +10,7 @@ Preguntas abiertas del proyecto, y el registro de las que se cerraron.
 
 ## Abiertas
 
-- [ ] **Compartir personas entre usuarios.** — *diseño cerrado el 20-sep-2026;
-  lo que queda es construirlo, no decidirlo.*
-
-  El caso: tres hermanos comparten la ficha de sus padres. Hoy cada uno la crea
-  por su cuenta y lleva su propio historial, sin saber qué regalaron los otros.
-  Lo mismo para una pareja con los amigos comunes.
-
-  **Lo que de verdad lo justifica** no es ahorrarse teclear la ficha dos veces:
-  es que el historial alimenta la generación. Compartirlo hace que la IA deje de
-  proponer la misma taza que ya regaló tu hermana. Sin eso, compartir es poco más
-  que una comodidad.
-
-  **Decidido (Jorge, 20-sep-2026):**
-
-  1. **Borra solo quien la creó.** El invitado puede desligarse para dejar de
-     verla, pero no borrarla para todos.
-  2. **Las notas se ven.** Es la información que hace útil colaborar, y ocultarlas
-     dejaría la ficha compartida a medias.
-  3. **Historial conjunto, con autoría**: cada regalo queda asociado a quien lo
-     hizo. Barato: `giftHistory` ya lleva `clerkUserId`; hoy significa «el dueño»
-     y pasaría a significar «quién lo registró».
-  4. **La cuota es de quien genera.** Ya funciona así: `recommendationUsage` está
-     indexada por `clerkUserId`. Cero trabajo.
-  5. **`/privacidad` hay que actualizarla.**
-
-  **Decidido también, tras revisar los huecos que dejaban las cinco primeras:**
-
-  6. **Si el creador borra su cuenta, la propiedad se transfiere** al invitado más
-     antiguo. Bloquear el borrado no es opción —irse es un derecho RGPD, no un
-     permiso— y borrar en cascada castigaría a un tercero por una decisión que no
-     tomó. Toca `account.deleteMyAccount`, que hoy arrastra las personas del
-     usuario sin mirar si están compartidas.
-  7. **Las tandas generadas NO se comparten.** Cada usuario genera las suyas. La
-     razón no es el coste —10 al día es holgado— sino que una tanda es material de
-     trabajo: depende del tipo de regalo que elijas y de lo que hayas descartado
-     antes, que son decisiones tuyas. Lo que se comparte es el resultado curado,
-     no el borrador. Además es lo que ya hace el índice
-     `by_user_person_occasion_type`, así que cuesta cero.
-  8. **El aviso de las notas cambia en el mismo commit que la compartición**, no
-     después. Hoy `AiNotesNotice` dice «no escribas nada que no quieras compartir
-     con ella» refiriéndose a la IA, y eso fija la expectativa de quien escribe.
-     Cambiar quién lo lee sin cambiar el aviso sería una traición a esa promesa.
-  9. **El invitado ve la ficha entera**, y se le dice al invitar. Una alergia
-     oculta es exactamente lo que provoca el regalo equivocado, que es el problema
-     que resuelve la app. Pero son datos de salud (art. 9 RGPD), así que la
-     pantalla de invitar tiene que decir qué se está compartiendo **antes** de
-     compartirlo, no enterrarlo en `/privacidad`.
-
-  10. **Las ideas guardadas SÍ se comparten**, con autoría como el historial. Es
-     la pieza que hace que compartir valga la pena: ver que tu hermana ya tiene
-     apalabrado el rodillo de cerámica **antes** de comprarlo tú. Sin esto la
-     coordinación llega a toro pasado, cuando el regalo ya está hecho, que es
-     tarde justo para lo que justificaba la función. Contrapartida aceptada: entre
-     quienes comparten la ficha se acaba la sorpresa. `savedIdeas` ya tiene los
-     dos índices necesarios (`by_person` y `by_user`).
-
-  **Coste técnico.** Todo el modelo de permisos cuelga de una columna:
-  `clerkUserId` en `people`. Hay **15 comprobaciones de propiedad**, todas con la forma
-  «¿esta fila es tuya? si no, no existe», repartidas por cinco archivos:
-  `giftHistory.ts` (4), `people.ts` (3), `recommendations.ts` (3),
-  `savedIdeas.ts` (3) e `importantDates.ts` (2). Compartir convierte esa relación en muchos-a-muchos: hace falta una
-  tabla de enlace `(personId, clerkUserId, rol)` y reescribir las quince para que
-  consulten propiedad **o** invitación. La parte buena es que esas quince están
-  cubiertas por `convex/auth.test.ts`, así que el cambio no sería a ciegas.
+_Ninguna ahora mismo._
 
 ---
 
@@ -90,13 +27,78 @@ Preguntas abiertas del proyecto, y el registro de las que se cerraron.
 
 ## Resueltas
 
+- [x] **Compartir personas entre usuarios.** Construido el 20-sep-2026 sobre
+  las diez decisiones ya cerradas (ver `docs/encargo-compartir.md`, que era el
+  encargo autosuficiente). Lo que se construyó de verdad:
+
+  - Tabla de enlace `personShares(personId, clerkUserId, role)`
+    ([`convex/personShares.ts`](../convex/personShares.ts)), con índices
+    `by_person`, `by_person_and_user` y `by_user`. `role` es literal
+    (`"invitee"`) por ahora — un único nivel de permiso — pero queda como
+    columna propia por si algún día hace falta diferenciarlos.
+  - Las 15 comprobaciones de propiedad (`x.clerkUserId !== clerkUserId`) se
+    reescribieron para aceptar dueño **o** invitado, vía
+    `assertPersonAccess`/`personHasAccess`. Dos quedaron deliberadamente sin
+    ampliar: `people.remove` (borrar para todos) y `personShares.invite`
+    (repartir la capacidad de compartir) — decisión 1: eso sigue siendo solo
+    de quien creó la ficha.
+  - `people.getAll` e `importantDates.getUpcoming` se ampliaron para incluir
+    las fichas que otros han compartido contigo. No estaba en la lista
+    original de "15 comprobaciones", pero sin esto un invitado no tenía forma
+    de encontrar la ficha ni de ver sus fechas en la agenda salvo que le
+    pasaran el id a mano — necesario para que el caso de uso (tres hermanos)
+    funcione de verdad.
+  - `account.deleteMyAccount` transfiere la propiedad al invitado más antiguo
+    en vez de cascada-borrar cuando la persona tiene invitados (decisión 6), y
+    desliga en bloque al usuario de toda ficha ajena que le hubieran
+    compartido.
+  - `AiNotesNotice` avisa de que, si se comparte la ficha, las notas también
+    las ve quien tenga acceso (decisión 8).
+  - Pantalla de compartir (`ShareDialog`, en la ficha de la persona) que
+    enumera qué se comparte —con mención explícita a alergias, dato de salud—
+    **antes** del formulario de invitar (decisión 9), y permite desligarse.
+  - `/privacidad` y `docs/privacy.md` actualizados en el mismo cambio.
+  - Tests nuevos en `convex/sharing.test.ts` y `convex/account.test.ts`: un
+    invitado ve la ficha y la edita, un tercero no; el invitado no puede
+    borrarla; desligarse funciona; la propiedad se transfiere al cerrar la
+    cuenta del creador (con y sin invitados); las tandas generadas siguen
+    siendo privadas; el historial y las ideas guardadas se comparten con
+    autoría.
+
+  **Decisiones de implementación que el encargo no fijaba**, para que quien
+  siga no las rediscuta a ciegas:
+
+  - **Invitar es por email, resuelto contra Clerk**, no por link de invitación
+    ni por buscador de usuarios. `src/app/api/people/[personId]/share/route.ts`
+    resuelve el email a un `clerkUserId` con `clerkClient().users.getUserList`
+    y entonces llama a la mutation — Convex no tiene acceso al backend de
+    Clerk. Si el email no corresponde a una cuenta de PickPal, se pide que esa
+    persona se registre primero: no hay invitación "en frío" a alguien sin
+    cuenta.
+  - **El acceso se concede al instante**, sin paso de aceptación por parte del
+    invitado. Aceptable para el caso de uso (ya has hablado con tu hermana
+    antes de escribir su email); si se abriera a compartir con desconocidos,
+    revisar.
+  - **El dueño no puede revocar a un invitado**, solo el invitado puede
+    desligarse. Añadir un `personShares.revoke` es barato con la tabla actual,
+    pero no lo pedía el encargo y no había caso de uso claro que lo motivara.
+  - **Tope de 20 invitados por ficha** y rate limit `invite_person` (20/día)
+    — ninguno de los dos estaba en el encargo; se añadieron siguiendo el
+    patrón ya establecido en `docs/security.md` §4 para cualquier mutation que
+    crea filas.
+  - **Editar la ficha compartida (nombre, notas, tallas…) es de cualquiera con
+    acceso, no solo del dueño** — igual que el historial y las ideas
+    guardadas: es lo que hace útil mantener una sola ficha entre varios en vez
+    de que cada uno lleve la suya.
+
 - [x] **Exportación de datos.** Hecha el 20-sep-2026. Era una obligación legal
   (RGPD art. 20) que `/privacidad` cumplía prometiendo enviarla a mano, con un
   mes de plazo y todo el trabajo recayendo en una persona. Ahora Ajustes →
   «Descargar mis datos» da un JSON al momento. `convex/exportData.ts` recorre
-  las mismas nueve tablas que `account.deleteMyAccount`, con los datos anidados
-  bajo cada ser querido, y un test compara los dos recorridos: añadir una tabla
-  al borrado sin añadirla a la exportación hace fallar la suite.
+  las mismas tablas que `account.deleteMyAccount` (diez desde que existe
+  `personShares`), con los datos anidados bajo cada ser querido, y un test
+  compara los dos recorridos: añadir una tabla al borrado sin añadirla a la
+  exportación hace fallar la suite.
 
 - [x] **La ventana de la campana ya se puede cambiar.** `notifyDaysBefore` llevaba
   desde el principio en `userSettings`, validado de 1 a 365 en el servidor, y

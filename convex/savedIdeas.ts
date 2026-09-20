@@ -3,13 +3,16 @@ import { v, ConvexError } from "convex/values";
 import { requireUser } from "./auth";
 import { checkAndIncrement } from "./rateLimit";
 import { validateSavedIdeaInput } from "./validators";
+import { assertPersonAccess, personHasAccess } from "./personShares";
 
 export const getByPerson = query({
   args: { personId: v.id("people") },
   handler: async (ctx, { personId }) => {
     const clerkUserId = await requireUser(ctx);
+    // Las ideas guardadas SÍ se comparten, con autoría (decisión 10): no se
+    // filtran por quién las guardó.
     const person = await ctx.db.get(personId);
-    if (!person || person.clerkUserId !== clerkUserId) return [];
+    if (!(await personHasAccess(ctx, person, clerkUserId))) return [];
     return ctx.db
       .query("savedIdeas")
       .withIndex("by_person", (q) => q.eq("personId", personId))
@@ -62,10 +65,7 @@ export const save = mutation({
   },
   handler: async (ctx, args) => {
     const clerkUserId = await requireUser(ctx);
-    const person = await ctx.db.get(args.personId);
-    if (!person || person.clerkUserId !== clerkUserId) {
-      throw new ConvexError("No autorizado");
-    }
+    await assertPersonAccess(ctx, args.personId, clerkUserId, "No autorizado");
     validateSavedIdeaInput(args);
     // Dedupe server-side: guardar dos veces la misma idea para la misma
     // ocasión (doble clic, doble pestaña) no crea una segunda fila ni
@@ -88,9 +88,10 @@ export const remove = mutation({
   handler: async (ctx, { id }) => {
     const clerkUserId = await requireUser(ctx);
     const entry = await ctx.db.get(id);
-    if (!entry || entry.clerkUserId !== clerkUserId) {
-      throw new ConvexError("No autorizado");
-    }
+    if (!entry) throw new ConvexError("No autorizado");
+    // Igual que el historial: quitar una idea guardada es de quien tiene
+    // acceso a la ficha, no solo de quien la guardó.
+    await assertPersonAccess(ctx, entry.personId, clerkUserId, "No autorizado");
     await ctx.db.delete(id);
   },
 });

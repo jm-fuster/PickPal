@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { use, useRef, useState } from "react";
 import {
-  CalendarDays, CalendarX2, Camera, Check, ExternalLink, Gift, NotebookPen, PencilLine, Repeat2, Ruler, Star, Tags, Trash2, ThumbsUp, X,
+  CalendarDays, CalendarX2, Camera, Check, ExternalLink, Gift, NotebookPen, PencilLine, Repeat2, Ruler, Star, Tags, Trash2, ThumbsUp, Users, X,
 } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
@@ -39,6 +39,7 @@ import { AvatarPickerDialog } from "@/components/people/AvatarPickerDialog";
 import { InterestTagInput } from "@/components/people/InterestTagInput";
 import { BrandTagInput } from "@/components/people/BrandTagInput";
 import { AiNotesNotice } from "@/components/people/AiNotesNotice";
+import { ShareDialog } from "@/components/people/ShareDialog";
 import { RELATIONSHIPS, REACTIONS } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import { ALL_STORES, generateStoreSearchUrl, pickEffectiveStores, sanitizeFavoriteStores, STORE_ICONS, STORE_LABELS, type StoreId } from "@/lib/stores";
@@ -66,12 +67,14 @@ function PersonDetailContent({
   giftHistory,
   savedIdeas,
   favoriteStores,
+  isOwner,
 }: {
   person: Person;
   dates: Dates;
   giftHistory: GiftHistory;
   savedIdeas: SavedIdeas;
   favoriteStores: StoreId[];
+  isOwner: boolean;
 }) {
   const id = person._id as Id<"people">;
   const router = useRouter();
@@ -237,15 +240,29 @@ function PersonDetailContent({
             <Gift className="size-4" aria-hidden />
             Ideas de regalo
           </Link>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setConfirmDeleteOpen(true)}
-            aria-label={`Eliminar a ${person.name}`}
-            className="text-destructive hover:text-destructive"
-          >
-            <Trash2 className="size-4" aria-hidden />
-          </Button>
+          <ShareDialog
+            personId={id}
+            personName={person.name}
+            isOwner={isOwner}
+            trigger={
+              <Button variant="outline" size="icon" aria-label={`Compartir la ficha de ${person.name}`}>
+                <Users className="size-4" aria-hidden />
+              </Button>
+            }
+          />
+          {/* Borrar la ficha para todos es solo de quien la creó (decisión 1
+              de docs/dudas.md); un invitado se desliga desde "Compartir". */}
+          {isOwner && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setConfirmDeleteOpen(true)}
+              aria-label={`Eliminar a ${person.name}`}
+              className="text-destructive hover:text-destructive"
+            >
+              <Trash2 className="size-4" aria-hidden />
+            </Button>
+          )}
         </div>
       </header>
 
@@ -732,7 +749,7 @@ export default function PersonDetailPage({
 }) {
   const { personId } = use(params);
   const id = personId as Id<"people">;
-  const { isLoaded, isSignedIn } = useAuth();
+  const { isLoaded, isSignedIn, userId } = useAuth();
   const ready = isLoaded && isSignedIn;
 
   const person = useQuery(api.people.getById, ready ? { id } : "skip");
@@ -762,5 +779,15 @@ export default function PersonDetailPage({
   // key fuerza el remount al navegar entre fichas (back/forward): el estado
   // local se siembra desde props una sola vez y, sin remount, la ficha B
   // mostraría datos de A y un blur de autosave los escribiría en B.
-  return <PersonDetailContent key={person._id} person={person} dates={dates} giftHistory={giftHistory} savedIdeas={savedIdeas} favoriteStores={favoriteStores} />;
+  return (
+    <PersonDetailContent
+      key={person._id}
+      person={person}
+      dates={dates}
+      giftHistory={giftHistory}
+      savedIdeas={savedIdeas}
+      favoriteStores={favoriteStores}
+      isOwner={person.clerkUserId === userId}
+    />
+  );
 }

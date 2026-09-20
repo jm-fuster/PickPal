@@ -1,17 +1,24 @@
-import { v, ConvexError } from "convex/values";
+import { v } from "convex/values";
 import { mutation, query, MutationCtx } from "./_generated/server";
 import { Id } from "./_generated/dataModel";
 import { requireUser } from "./auth";
 import { validatePersonInput } from "./validators";
 import { checkAndIncrement } from "./rateLimit";
+import {
+  assertIsOwner,
+  assertPersonAccess,
+  deleteSharesForPerson,
+  personHasAccess,
+} from "./personShares";
 
 const CREATE_PERSON_DAILY_LIMIT = 50;
 
 /**
  * Borra todos los recursos anidados de una persona (fechas, historial,
- * recomendaciones e ideas guardadas) y después la propia persona.
- * Compartido entre `people.remove` y `account.deleteMyAccount` para que
- * ningún camino de borrado deje filas huérfanas.
+ * recomendaciones, ideas guardadas y a quién se le había compartido) y
+ * después la propia persona. Compartido entre `people.remove` y
+ * `account.deleteMyAccount` para que ningún camino de borrado deje filas
+ * huérfanas.
  */
 export async function deletePersonCascade(
   ctx: MutationCtx,
@@ -41,6 +48,8 @@ export async function deletePersonCascade(
     .collect();
   for (const s of saved) await ctx.db.delete(s._id);
 
+  await deleteSharesForPerson(ctx, personId);
+
   await ctx.db.delete(personId);
 }
 
@@ -48,10 +57,22 @@ export const getAll = query({
   args: {},
   handler: async (ctx) => {
     const clerkUserId = await requireUser(ctx);
-    return await ctx.db
+    const owned = await ctx.db
       .query("people")
       .withIndex("by_user", (q) => q.eq("clerkUserId", clerkUserId))
       .collect();
+
+    // + las que otros han compartido contigo: sin esto, un invitado no tiene
+    // forma de encontrar la ficha salvo que le pasen el id a mano.
+    const shares = await ctx.db
+      .query("personShares")
+      .withIndex("by_user", (q) => q.eq("clerkUserId", clerkUserId))
+      .collect();
+    const shared = (
+      await Promise.all(shares.map((s) => ctx.db.get(s.personId)))
+    ).filter((p): p is NonNullable<typeof p> => p !== null);
+
+    return [...owned, ...shared];
   },
 });
 
@@ -60,7 +81,7 @@ export const getById = query({
   handler: async (ctx, { id }) => {
     const clerkUserId = await requireUser(ctx);
     const person = await ctx.db.get(id);
-    if (!person || person.clerkUserId !== clerkUserId) {
+    if (!(await personHasAccess(ctx, person, clerkUserId))) {
       return null;
     }
     return person;
@@ -109,10 +130,10 @@ export const update = mutation({
   },
   handler: async (ctx, { id, ...patch }) => {
     const clerkUserId = await requireUser(ctx);
-    const existing = await ctx.db.get(id);
-    if (!existing || existing.clerkUserId !== clerkUserId) {
-      throw new ConvexError("Persona no encontrada.");
-    }
+    // Editar la ficha es de todos con acceso, no solo de quien la creó: es
+    // precisamente lo que hace útil compartirla (tres hermanos mantienen una
+    // sola ficha de sus padres).
+    const existing = await assertPersonAccess(ctx, id, clerkUserId);
     const merged = { ...existing, ...patch };
     validatePersonInput({
       name: merged.name,
@@ -134,10 +155,10 @@ export const remove = mutation({
   args: { id: v.id("people") },
   handler: async (ctx, { id }) => {
     const clerkUserId = await requireUser(ctx);
-    const existing = await ctx.db.get(id);
-    if (!existing || existing.clerkUserId !== clerkUserId) {
-      throw new ConvexError("Persona no encontrada.");
-    }
+    // Deliberadamente NO usa assertPersonAccess: borrar la ficha para todos
+    // sigue siendo solo de quien la creó (decisión 1 de docs/dudas.md). Un
+    // invitado que quiera dejar de verla usa `personShares.leave`.
+    assertIsOwner(await ctx.db.get(id), clerkUserId);
     await deletePersonCascade(ctx, id);
   },
 });

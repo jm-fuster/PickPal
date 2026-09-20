@@ -1,6 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
 import { requireUser } from "./auth";
+import { assertPersonAccess, personHasAccess } from "./personShares";
 
 const MAX_GIFT_NAME = 120;
 const MAX_OCCASION = 40;
@@ -14,8 +15,10 @@ export const getByPerson = query({
   handler: async (ctx, { personId }) => {
     const clerkUserId = await requireUser(ctx);
 
+    // El historial se ve entero entre quienes comparten la ficha, con
+    // autoría (decisión 3 de docs/dudas.md): no se filtra por autor.
     const person = await ctx.db.get(personId);
-    if (!person || person.clerkUserId !== clerkUserId) return [];
+    if (!(await personHasAccess(ctx, person, clerkUserId))) return [];
 
     return ctx.db
       .query("giftHistory")
@@ -37,10 +40,9 @@ export const create = mutation({
   handler: async (ctx, args) => {
     const clerkUserId = await requireUser(ctx);
 
-    const person = await ctx.db.get(args.personId);
-    if (!person || person.clerkUserId !== clerkUserId) {
-      throw new ConvexError("Persona no encontrada.");
-    }
+    // Cualquiera con acceso a la ficha registra regalos, no solo el dueño;
+    // la fila queda con su clerkUserId como autoría.
+    await assertPersonAccess(ctx, args.personId, clerkUserId);
 
     const name = args.giftName.trim();
     if (name.length === 0) throw new ConvexError("El nombre del regalo es obligatorio.");
@@ -86,9 +88,11 @@ export const update = mutation({
   handler: async (ctx, { id, ...fields }) => {
     const clerkUserId = await requireUser(ctx);
     const entry = await ctx.db.get(id);
-    if (!entry || entry.clerkUserId !== clerkUserId) {
-      throw new ConvexError("Entrada no encontrada.");
-    }
+    if (!entry) throw new ConvexError("Entrada no encontrada.");
+    // Editar/borrar una entrada es de quien tiene acceso a la ficha, no solo
+    // de quien la registró: es un historial conjunto, no una lista de tareas
+    // personales.
+    await assertPersonAccess(ctx, entry.personId, clerkUserId, "Entrada no encontrada.");
 
     const name = fields.giftName.trim();
     if (name.length === 0) throw new ConvexError("El nombre del regalo es obligatorio.");
@@ -116,9 +120,8 @@ export const remove = mutation({
   handler: async (ctx, { id }) => {
     const clerkUserId = await requireUser(ctx);
     const entry = await ctx.db.get(id);
-    if (!entry || entry.clerkUserId !== clerkUserId) {
-      throw new ConvexError("Entrada no encontrada.");
-    }
+    if (!entry) throw new ConvexError("Entrada no encontrada.");
+    await assertPersonAccess(ctx, entry.personId, clerkUserId, "Entrada no encontrada.");
     await ctx.db.delete(id);
   },
 });
