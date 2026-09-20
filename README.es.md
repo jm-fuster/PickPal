@@ -72,13 +72,18 @@ poner. Ese historial vuelve a entrar en la siguiente generación.
 
 **Ideas con el modelo atado corto.** Eliges la ocasión, eliges uno de los cuatro tipos de
 regalo (*Producto físico*, *Experiencia*, *Tiempo juntos*, *Sorpréndeme*) y pulsas
-**Generar 9 ideas**. La petición le pide nueve a Gemini 2.5 Flash y acepta entre seis y
+**Generar 9 ideas**. La petición le pide nueve a Gemini 3.5 Flash y acepta entre seis y
 nueve (`z.array(...).min(6).max(9)`, `src/lib/gifts.ts:122`); después descarta los títulos
 repetidos. Cada idea se guarda con un pulgar arriba o se descarta con uno abajo, y al
 descartar hay deshacer: cuando se confirma, se apuntan las categorías de esa idea para que
 la siguiente tanda se aleje de ellas. Una idea guardada pasa al historial con **Lo regalé**.
 Las tandas se cachean por usuario, persona, ocasión y tipo de regalo, así que volver a
 abrir una que ya generaste no cuesta cuota.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/gifts-dark.png">
+  <img src="docs/screenshots/gifts-light.png" alt="Nueve ideas generadas en tarjetas, cada una con foto, categorías, un rango de precio dentro del presupuesto y enlaces a las tiendas elegidas" width="900">
+</picture>
 
 **Enlaces a tiendas.** Las ideas de producto físico buscan en las tiendas que hayas
 elegido en ajustes, acotadas a las que el modelo sugirió para esa idea y con vuelta a
@@ -114,7 +119,7 @@ POST /api/recommendations
  │
  ├─ reservar cuota ─┐ ────── atómico, y antes de llamar al modelo
  │                  │
- ├─ generateObject ─┤ ────── gemini-2.5-flash, salida tipada con Zod, maxRetries: 2
+ ├─ generateObject ─┤ ────── gemini-3.5-flash, salida tipada con Zod, maxRetries: 2
  ├─ quitar repes ───┤
  ├─ enriquecer ─────┤ ────── foto de Pexels (4 s) · tienda vía Brandfetch (4 s / 2,5 s)
  │  (best effort)   │        las dos opcionales, las dos pueden fallar en silencio
@@ -186,7 +191,7 @@ aviso.
 
 Next.js 16 (App Router) · React 19 · TypeScript 6 · Tailwind CSS 4 ·
 [Convex](https://convex.dev) 1.46 · [Clerk](https://clerk.com) 7 ·
-[AI SDK](https://sdk.vercel.ai) 7 con Google Gemini 2.5 Flash · Zod 4 · react-hook-form ·
+[AI SDK](https://sdk.vercel.ai) 7 con Google Gemini 3.5 Flash · Zod 4 · react-hook-form ·
 primitivas de [Base UI](https://base-ui.com) siguiendo las convenciones de shadcn ·
 next-themes · Resend · Vitest.
 

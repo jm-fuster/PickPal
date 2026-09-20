@@ -70,8 +70,19 @@ const generatedIdeaSchema = baseRecommendationSchema.extend({
 
 // Para tipos sin tiendas (experiencia, tiempo-juntos): campo ausente del schema
 // para evitar que Gemini falle al intentar omitir un campo enum opcional.
+//
+// Sin `.min()`/`.max()` a propósito: Gemini 3 rechaza con 400 INVALID_ARGUMENT
+// cualquier array de enum que lleve minItems/maxItems. Ni el enum ni los límites
+// molestan por separado — `category` es un array de string con min/max y pasa,
+// y un enum suelto también — - es la combinación. Comprobado por bisección
+// contra gemini-3.8-flash el 20-sep-2026 al migrar desde 2.5.
+// El tope real no se pierde: `validateRecommendationIdeas` en
+// convex/validators.ts corta en MAX_SUGGESTED_STORES y valida cada id contra la
+// allowlist antes de persistir, y `sanitizeFavoriteStores` descarta los
+// desconocidos. Este schema es una pista para el modelo; el límite lo impone el
+// servidor.
 const recommendationWithStoresSchema = generatedIdeaSchema.extend({
-  suggestedStores: z.array(z.enum(STORE_IDS)).min(1).max(STORE_IDS.length).optional(),
+  suggestedStores: z.array(z.enum(STORE_IDS)).optional(),
 });
 
 // Foto de stock (Pexels) adjuntada server-side tras la generación. Opcional

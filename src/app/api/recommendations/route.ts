@@ -482,12 +482,27 @@ export async function POST(req: NextRequest) {
 
   try {
     const { object } = await generateObject({
-      model: google("gemini-2.5-flash"),
+      // Migrado desde gemini-2.5-flash el 20-sep-2026: Google lo retiró para
+      // claves nuevas y devolvía 404 "no longer available to new users".
+      // La elección entre sustitutos se hizo midiendo, no leyendo la tabla de
+      // modelos: 3 intentos con este mismo schema contra cada candidato.
+      //   3.8-flash          0/3, saturado
+      //   3.7-flash          1/3, saturado
+      //   3.5-flash          3/3, ~20 s   <- este
+      //   flash-latest       cuota agotada (alias flotante, además:
+      //                      un cambio de modelo por debajo puede romper el
+      //                      structured output sin avisar; no usar)
+      // En free tier la disponibilidad fluctúa por horas: 3.8 iba fino veinte
+      // minutos antes de la medición. Si vuelve a haber 503 sostenidos, medir
+      // otra vez antes de cambiar. Se prefiere el lento que responde al rápido
+      // que devuelve 503 a mitad de una generación que ya reservó cuota.
+      model: google("gemini-3.5-flash"),
       schema: noStores ? giftRecommendationsSchemaNoStores : giftRecommendationsSchema,
       prompt,
-      // Thinking dinámico (default de Gemini 2.5): desactivarlo con
-      // `thinkingBudget: 0` degradaba la fiabilidad del structured output
-      // (9 objetos con enums/arrays) y provocaba "response did not match schema".
+      // Razonamiento dinámico: se deja en el default del modelo. Con 2.5,
+      // desactivarlo con `thinkingBudget: 0` degradaba la fiabilidad del
+      // structured output (9 objetos con enums/arrays) y provocaba "response did
+      // not match schema"; no hay motivo para tocarlo ahora.
       // `maxRetries: 2` da margen ante una tanda que no valide. El coste extra de
       // tokens es asumible en free tier con el tope de 10 generaciones/día.
       maxRetries: 2,

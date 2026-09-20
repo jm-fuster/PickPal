@@ -19,6 +19,11 @@ const eslintConfig = defineConfig([
     // son del proyecto y dejaba `npm run lint` inservible.
     ".claude/**",
     ".agents/**",
+    // Perfil de Chrome que deja `scripts/screenshots.mjs --auth` para no tener
+    // que volver a iniciar sesión. Son ~210 MB con las extensiones del
+    // navegador dentro, y ESLint las barría igual: 80 errores y 3.278 avisos
+    // de código que no es nuestro. Mismo caso que los worktrees de arriba.
+    "docs/screenshots/.profile/**",
   ]),
 ]);
 

@@ -77,13 +77,18 @@ received, and any notes — and that history is fed back into the next generatio
 
 **Gift ideas on a short leash.** Pick the occasion, pick one of four kinds of gift
 (*Producto físico*, *Experiencia*, *Tiempo juntos*, *Sorpréndeme*), and press
-**Generar 9 ideas**. The request asks Gemini 2.5 Flash for nine and accepts
+**Generar 9 ideas**. The request asks Gemini 3.5 Flash for nine and accepts
 between six and nine (`z.array(...).min(6).max(9)`, `src/lib/gifts.ts:122`), then
 drops duplicate titles. Save an idea with a thumbs-up, or discard it with a
 thumbs-down — discarding offers an Undo, and once it sticks, that idea's
 categories are recorded so the next batch steers away from them. A saved idea
 becomes gift history through **Lo regalé**. Batches are cached per user, person,
 occasion and gift type, so reopening a set you already generated costs no quota.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/gifts-dark.png">
+  <img src="docs/screenshots/gifts-light.png" alt="Nine generated gift ideas as cards, each with a photo, categories, a price range inside the budget and links to the chosen stores" width="900">
+</picture>
 
 **Store links.** A physical-product idea deep-links into whichever of eleven
 retailers you picked in settings — narrowed to the ones the model suggested for
@@ -118,7 +123,7 @@ POST /api/recommendations
  │
  ├─ reserve quota ──┐ ────── atomic, and before the model is called
  │                  │
- ├─ generateObject ─┤ ────── gemini-2.5-flash, Zod-typed output, maxRetries: 2
+ ├─ generateObject ─┤ ────── gemini-3.5-flash, Zod-typed output, maxRetries: 2
  ├─ dedupe titles ──┤
  ├─ enrich ─────────┤ ────── Pexels photo (4 s) · Brandfetch store (4 s / 2.5 s)
  │  (best effort)   │        both optional, both allowed to fail quietly
@@ -191,7 +196,7 @@ cannot send the same reminder twice.
 
 Next.js 16 (App Router) · React 19 · TypeScript 6 · Tailwind CSS 4 ·
 [Convex](https://convex.dev) 1.46 · [Clerk](https://clerk.com) 7 ·
-[AI SDK](https://sdk.vercel.ai) 7 with Google Gemini 2.5 Flash · Zod 4 ·
+[AI SDK](https://sdk.vercel.ai) 7 with Google Gemini 3.5 Flash · Zod 4 ·
 react-hook-form · [Base UI](https://base-ui.com) primitives following shadcn
 conventions · next-themes · Resend · Vitest.
 

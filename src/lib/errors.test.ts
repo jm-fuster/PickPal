@@ -108,7 +108,7 @@ describe("classifyProviderError", () => {
     const leaky = {
       statusCode: 429,
       responseBody: quotaBody("GenerateRequestsPerDayPerProjectPerModel"),
-      url: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash",
+      url: "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash",
     };
     const { error } = classifyProviderError(leaky);
     expect(error).not.toContain("googleapis");
