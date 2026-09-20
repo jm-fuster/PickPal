@@ -67,9 +67,10 @@ Preguntas abiertas del proyecto, y el registro de las que se cerraron.
      dos índices necesarios (`by_person` y `by_user`).
 
   **Coste técnico.** Todo el modelo de permisos cuelga de una columna:
-  `clerkUserId` en `people`. Hay **15 comprobaciones de propiedad** repartidas por
-  nueve archivos de `convex/`, todas con la forma «¿esta fila es tuya? si no, no
-  existe». Compartir convierte esa relación en muchos-a-muchos: hace falta una
+  `clerkUserId` en `people`. Hay **15 comprobaciones de propiedad**, todas con la forma
+  «¿esta fila es tuya? si no, no existe», repartidas por cinco archivos:
+  `giftHistory.ts` (4), `people.ts` (3), `recommendations.ts` (3),
+  `savedIdeas.ts` (3) e `importantDates.ts` (2). Compartir convierte esa relación en muchos-a-muchos: hace falta una
   tabla de enlace `(personId, clerkUserId, rol)` y reescribir las quince para que
   consulten propiedad **o** invitación. La parte buena es que esas quince están
   cubiertas por `convex/auth.test.ts`, así que el cambio no sería a ciegas.
