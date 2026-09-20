@@ -133,20 +133,15 @@ export const update = mutation({
     // Editar la ficha es de todos con acceso, no solo de quien la creó: es
     // precisamente lo que hace útil compartirla (tres hermanos mantienen una
     // sola ficha de sus padres).
-    const existing = await assertPersonAccess(ctx, id, clerkUserId);
-    const merged = { ...existing, ...patch };
-    validatePersonInput({
-      name: merged.name,
-      relationship: merged.relationship,
-      interests: merged.interests,
-      favoriteBrands: merged.favoriteBrands,
-      notes: merged.notes,
-      shoeSize: merged.shoeSize,
-      clothingSize: merged.clothingSize,
-      allergies: merged.allergies,
-      dislikes: merged.dislikes,
-      avatarUrl: merged.avatarUrl,
-    });
+    await assertPersonAccess(ctx, id, clerkUserId);
+    // Solo el parche, no el documento fusionado. Las comprobaciones de
+    // `validatePersonInput` son campo a campo e independientes entre sí, así
+    // que revalidar lo ya guardado no protege de nada: lo único que consigue
+    // es que una regla nueva y más estricta convierta una ficha antigua en
+    // ineditable, aunque la edición no toque ese campo (pasó a punto de
+    // ocurrir con `AVATAR_FORBIDDEN`). Si alguna vez una regla necesita mirar
+    // dos campos a la vez, esa sí tendrá que leer `existing`.
+    validatePersonInput(patch);
     await ctx.db.patch(id, patch);
   },
 });

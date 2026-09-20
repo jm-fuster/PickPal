@@ -236,3 +236,45 @@ describe("dominio de marca: sufijos internos", () => {
     await expect(conDominio(t2, "db.lan")).rejects.toThrow();
   });
 });
+
+describe("update valida el parche, no lo ya guardado", () => {
+  // El avatar legacy se armaba con `?seed=${encodeURIComponent(nombre)}`, y
+  // `encodeURIComponent` no escapa el apóstrofo. Una ficha así es anterior a
+  // `AVATAR_FORBIDDEN` y no se puede crear por la API, de ahí el insert
+  // directo. Lo que se fija aquí es que siga siendo editable.
+  const LEGACY =
+    "https://api.dicebear.com/9.x/dylan/svg?seed=O'Brien";
+
+  const conAvatarLegacy = async (t: ReturnType<typeof convexTest>) =>
+    await t.run(async (ctx) =>
+      ctx.db.insert("people", {
+        clerkUserId: ALICE.subject,
+        name: "Marta",
+        relationship: "family",
+        interests: [],
+        avatarUrl: LEGACY,
+      }),
+    );
+
+  test("una ficha con avatar antiguo se sigue pudiendo editar", async () => {
+    const t = convexTest(schema, modules);
+    const personId = await conAvatarLegacy(t);
+    await expect(
+      t.withIdentity(ALICE).mutation(api.people.update, {
+        id: personId,
+        notes: "Le gusta el té",
+      }),
+    ).resolves.toBeNull();
+  });
+
+  test("pero volver a enviar esa URL a mano se rechaza", async () => {
+    const t = convexTest(schema, modules);
+    const personId = await conAvatarLegacy(t);
+    await expect(
+      t.withIdentity(ALICE).mutation(api.people.update, {
+        id: personId,
+        avatarUrl: LEGACY,
+      }),
+    ).rejects.toThrow();
+  });
+});

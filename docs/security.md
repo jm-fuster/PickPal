@@ -69,6 +69,8 @@ Los validators viven en [`convex/validators.ts`](../convex/validators.ts) y espe
 2. Replica el límite en `validators.ts`.
 3. Llama al validator desde `create` y `update`.
 
+En `update`, **valida el parche, no el documento fusionado**. Las comprobaciones son campo a campo e independientes, así que revalidar lo ya guardado no protege de nada y sí tiene un coste: una regla nueva más estricta deja ineditables las fichas antiguas que no la cumplen, aunque la edición ni toque ese campo. Estuvo a punto de pasar al añadir `AVATAR_FORBIDDEN` (ver §8). Si algún día una regla necesita mirar dos campos a la vez, esa sí tendrá que leer el documento guardado — y entonces conviene pensar qué pasa con las filas anteriores.
+
 Por qué importa: sin esto un usuario autenticado puede insertar `notes` de 100 MB, presupuestos negativos, o 10.000 intereses. Aparte de coste de almacenamiento, los campos de texto se concatenan al prompt de Gemini → amplifica prompt injection.
 
 **Validators actuales:**

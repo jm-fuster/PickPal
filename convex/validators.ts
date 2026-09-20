@@ -24,10 +24,15 @@ const DICEBEAR_PREFIX = "https://api.dicebear.com/";
 // en convex/emails.ts). Allí `escapeHtml` no basta: convierte `'` en `&#39;`
 // y el parser HTML del cliente de correo lo decodifica de vuelta ANTES de que
 // el CSS se interprete, así que la comilla reaparece y cierra el `url()`.
-// Estos caracteres no aparecen en ninguna URL que genere
-// `AvatarPicker.buildUrl` —ni en las antiguas, cuya semilla iba con
-// `encodeURIComponent`—, así que rechazarlos no invalida ningún avatar ya
-// guardado. Defensa en profundidad: `emails.ts` además percent-encodea.
+// El picker actual no puede generar ninguno: la URL se arma con hexadecimales
+// e ids de un catálogo cerrado. El antiguo sí podía —era
+// `?seed=${encodeURIComponent(nombre)}`, y `encodeURIComponent` deja pasar
+// `'`, `(`, `)`, `!` y `*`—, así que un ser querido llamado «O'Brien» o
+// «Ana (mamá)» habría guardado una URL que esta regla rechaza. Comprobado el
+// 20-sep-2026 contra producción: ninguna de las 25 fichas. Y aunque apareciera
+// una, `people.update` valida solo el parche, no el documento fusionado, así
+// que un avatar guardado antes no bloquea las ediciones de esa ficha.
+// Defensa en profundidad: `emails.ts` además percent-encodea.
 const AVATAR_FORBIDDEN = /['"()<>;\\`\s]|[\u0000-\u001f]/;
 
 // Recomendaciones IA. Espejados de giftRecommendationSchema en src/lib/gifts.ts.
