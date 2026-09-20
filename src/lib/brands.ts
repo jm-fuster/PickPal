@@ -62,6 +62,33 @@ export function generateBrandSearchUrl(query: string, brand: string): string {
 }
 
 /**
+ * TLDs reservados o de uso interno (RFC 2606, RFC 6761, RFC 6762, RFC 8375).
+ * La regex de `normalizeBrandDomain` ya descarta IPs y `localhost` —ninguno
+ * termina en un sufijo alfabético—, pero `algo.internal`, `algo.local` o
+ * `algo.lan` sí la pasan, y el servidor los llegaría a resolver: tras aceptar
+ * el dominio, `/api/recommendations` hace un `GET https://{dominio}/products.json`
+ * para detectar si la tienda admite búsqueda interna. El dominio viene de
+ * Brandfetch, no del usuario, así que el riesgo es bajo; esto cierra el hueco
+ * igualmente, que es más barato que razonar cada vez sobre la red del runtime.
+ * Espejado en `BRAND_RESERVED_TLDS` de `convex/validators.ts`.
+ */
+const RESERVED_TLDS = new Set([
+  "local",
+  "localhost",
+  "internal",
+  "intranet",
+  "private",
+  "corp",
+  "home",
+  "lan",
+  "alt",
+  "onion",
+  "test",
+  "example",
+  "invalid",
+]);
+
+/**
  * Normaliza el dominio que devuelve Brandfetch a un hostname limpio
  * ("https://www.brandymelville.com/shop" → "brandymelville.com"). Devuelve
  * null si no parece un dominio válido — la marca cae entonces al botón de
@@ -77,6 +104,7 @@ export function normalizeBrandDomain(raw: string): string | null {
     .replace(/^www\./, "");
   if (d.length === 0 || d.length > 253) return null;
   if (!/^[a-z0-9.-]+\.[a-z]{2,}$/.test(d)) return null;
+  if (RESERVED_TLDS.has(d.slice(d.lastIndexOf(".") + 1))) return null;
   return d;
 }
 

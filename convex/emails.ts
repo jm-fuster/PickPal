@@ -18,12 +18,31 @@ function escapeHtml(s: string): string {
     .replace(/'/g, "&#39;");
 }
 
+/**
+ * Codifica una URL para incrustarla en `url('…')` dentro de un atributo
+ * `style`. `escapeHtml` NO sirve para este contexto: convierte `'` en `&#39;`,
+ * y el parser HTML del cliente de correo lo decodifica de vuelta a `'` ANTES
+ * de que el CSS se interprete, así que la comilla reaparece, cierra el `url()`
+ * y lo que venga detrás se lee como más declaraciones CSS. El percent-encoding
+ * sí sobrevive al viaje: es válido dentro de una URL e inerte en CSS.
+ *
+ * `convex/validators.ts` ya rechaza estos caracteres en `avatarUrl` al
+ * guardarlo; esto es la segunda capa, y la que protege a los documentos que se
+ * guardaron antes de que existiera la primera.
+ */
+export function encodeCssUrl(url: string): string {
+  return url.replace(
+    /['"()\\\s]/g,
+    (c) => `%${c.charCodeAt(0).toString(16).padStart(2, "0").toUpperCase()}`,
+  );
+}
+
 function avatarHtml(name: string, avatarUrl?: string): string {
   if (avatarUrl) {
     // Use background-image instead of <img> so Gmail dark mode doesn't apply image filters
     return `<div role="img" aria-label="${escapeHtml(name)}"
       style="width:44px;height:44px;border-radius:50%;overflow:hidden;
-      background-image:url('${escapeHtml(avatarUrl)}');background-size:cover;
+      background-image:url('${escapeHtml(encodeCssUrl(avatarUrl))}');background-size:cover;
       background-position:center;border:2px solid #3D5040;box-sizing:border-box;
       display:block;"></div>`;
   }
