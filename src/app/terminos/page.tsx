@@ -25,9 +25,9 @@ export default function TermsPage() {
         <div className="space-y-3">
           <h1 className="text-4xl font-medium">Términos y condiciones de uso</h1>
           <p className="text-sm text-foreground">
-            PickPal está en beta privada. Estas condiciones explican en
-            lenguaje llano qué es el servicio, qué se espera de ti al usarlo y
-            de qué nos hacemos —y no— responsables.
+            Estas condiciones explican en lenguaje llano qué es el servicio,
+            qué se espera de ti al usarlo y de qué nos hacemos —y no—
+            responsables.
           </p>
         </div>
 
@@ -174,9 +174,9 @@ export default function TermsPage() {
           <h2 className="text-xl font-medium">Disponibilidad del servicio</h2>
           <p className="text-sm text-foreground">
             PickPal se ofrece &laquo;tal cual&raquo; y &laquo;según
-            disponibilidad&raquo;. Al estar en beta, podemos modificar,
-            suspender o discontinuar funcionalidades, y no garantizamos una
-            disponibilidad ininterrumpida.
+            disponibilidad&raquo;. Es un proyecto personal y gratuito: podemos
+            modificar, suspender o discontinuar funcionalidades, y no
+            garantizamos una disponibilidad ininterrumpida.
           </p>
         </section>
 
@@ -229,13 +229,19 @@ export default function TermsPage() {
         <section className="space-y-3">
           <h2 className="text-xl font-medium">Contacto</h2>
           <p className="text-sm text-foreground">
-            Para cualquier duda sobre estos términos, escribe a la persona que
-            te invitó a la beta.
+            Para cualquier duda sobre estos términos, escribe a{" "}
+            <a
+              className="underline underline-offset-4"
+              href="mailto:pickpal@jorgemolinafuster.com"
+            >
+              pickpal@jorgemolinafuster.com
+            </a>
+            .
           </p>
         </section>
 
         <p className="text-xs text-muted-foreground">
-          Última actualización: 29 de julio de 2026.
+          Última actualización: 20 de septiembre de 2026.
         </p>
       </main>
 

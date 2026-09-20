@@ -25,8 +25,8 @@ export default function PrivacyPage() {
         <div className="space-y-3">
           <h1 className="text-4xl font-medium">Privacidad</h1>
           <p className="text-sm text-foreground">
-            PickPal está en beta privada. Esta página describe en lenguaje
-            llano qué datos guardamos, dónde van y qué puedes hacer con ellos.
+            Esta página describe en lenguaje llano qué datos guardamos, dónde
+            van y qué puedes hacer con ellos.
           </p>
         </div>
 
@@ -182,9 +182,9 @@ export default function PrivacyPage() {
               permanente todos tus datos en PickPal y cierra tu cuenta.
             </li>
             <li>
-              <span className="text-foreground">Exportación:</span> en beta no
-              está automatizada. Si la necesitas, escríbenos al contacto de
-              abajo.
+              <span className="text-foreground">Exportación:</span> todavía no
+              está automatizada. Escríbenos al contacto de abajo y te enviamos
+              una copia de tus datos.
             </li>
             <li>
               <span className="text-foreground">
@@ -211,13 +211,20 @@ export default function PrivacyPage() {
         <section className="space-y-3">
           <h2 className="text-xl font-medium">Contacto</h2>
           <p className="text-sm text-foreground">
-            Para cualquier duda sobre tus datos, escribe a la persona que te
-            invitó a la beta.
+            Para cualquier duda sobre tus datos, o para ejercer cualquiera de
+            los derechos de arriba, escribe a{" "}
+            <a
+              className="underline underline-offset-4"
+              href="mailto:pickpal@jorgemolinafuster.com"
+            >
+              pickpal@jorgemolinafuster.com
+            </a>
+            . Respondemos en un plazo máximo de un mes.
           </p>
         </section>
 
         <p className="text-xs text-muted-foreground">
-          Última actualización: 29 de julio de 2026.
+          Última actualización: 20 de septiembre de 2026.
         </p>
       </main>
 

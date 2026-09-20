@@ -1,10 +1,10 @@
 # Política de privacidad · PickPal
 
-**Casi listo, pero aún no publicable.** Titular y email de contacto ya están puestos. Queda la fecha de «Última actualización» de arriba, que se pone al publicar. El NIF y la dirección postal se han retirado a propósito (ver §1). Las secciones marcadas con _Revisar_ requieren decisión consciente.
+**Publicado el 20-sep-2026.** El contenido vivo es [`/privacidad`](../src/app/privacidad/page.tsx); este documento es la versión larga de trabajo y tiene que moverse con ella. El NIF y la dirección postal se han retirado a propósito (ver §1). Las secciones marcadas con _Revisar_ requieren decisión consciente.
 
-> **Bloqueo real antes de publicar (20-sep-2026):** `pickpal@jorgemolinafuster.com` aún no recibe correo (sin MX). Detalle en [`legal.md`](legal.md).
+> **Bloqueo resuelto (20-sep-2026):** `pickpal@jorgemolinafuster.com` ya entrega, vía Cloudflare Email Routing sobre el apex `jorgemolinafuster.com` (3 MX de Cloudflare + `v=spf1 include:_spf.mx.cloudflare.net ~all`, reenvío a buzón personal). Comprobado con un envío real desde fuera del dominio. El subdominio `pickpal.jorgemolinafuster.com` sigue siendo un CNAME a Vercel y **no puede** recibir correo; no intentes ponerle MX.
 
-Última actualización: `{{FECHA_PUBLICACION}}`
+Última actualización: `20 de septiembre de 2026`
 
 > Cuando se publique la app, este contenido debe servirse en `/privacy` (p. ej. `src/app/(legal)/privacy/page.tsx`) y enlazarse desde el footer y desde la pantalla de registro.
 

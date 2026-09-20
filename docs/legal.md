@@ -1,10 +1,10 @@
 # Aviso legal y términos · PickPal
 
-**Casi listo, pero aún no publicable.** Titular y email de contacto ya están puestos. Queda un solo hueco, la fecha de «Última actualización» de arriba, que se pone el día que esto se publique. NIF, domicilio, datos registrales y ciudad de jurisdicción **se han retirado a propósito**: el porqué y el disparador que obliga a revisarlo están en §1. Las secciones marcadas con _Revisar_ siguen requiriendo decisión consciente.
+**Publicado el 20-sep-2026.** El contenido vivo es [`/terminos`](../src/app/terminos/page.tsx); este documento es la versión larga de trabajo y tiene que moverse con ella. NIF, domicilio, datos registrales y ciudad de jurisdicción **se han retirado a propósito**: el porqué y el disparador que obliga a revisarlo están en §1. Las secciones marcadas con _Revisar_ siguen requiriendo decisión consciente.
 
-> **Bloqueo real antes de publicar (20-sep-2026):** `pickpal@jorgemolinafuster.com` **todavía no recibe correo** — el dominio no tiene registros MX. Es la vía por la que un tercero ejerce sus derechos RGPD, con un mes de plazo para responder, así que publicar estas páginas con una dirección que rebota sería peor que el texto de beta que hay ahora. Montar el reenvío (Cloudflare Email Routing, gratis, el dominio ya está en Cloudflare) y **comprobar que entrega** antes de sustituir el contacto en `/terminos` y `/privacidad`.
+> **Bloqueo resuelto (20-sep-2026):** `pickpal@jorgemolinafuster.com` ya entrega. Cloudflare Email Routing sobre el apex `jorgemolinafuster.com`: los 3 MX de Cloudflare más un único `v=spf1 include:_spf.mx.cloudflare.net ~all` —hubo que borrar el `v=spf1 -all` anterior, porque dos registros SPF son un permerror— y una regla que reenvía a un buzón personal verificado. Comprobado con un envío real desde fuera del dominio antes de tocar estas páginas.
 
-Última actualización: `{{FECHA_PUBLICACION}}`
+Última actualización: `20 de septiembre de 2026`
 
 > Cuando se publique la app, este contenido debe servirse en `/legal` (o separado en `/aviso-legal` y `/terminos`) y enlazarse desde el footer.
 
