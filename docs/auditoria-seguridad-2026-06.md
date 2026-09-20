@@ -1,4 +1,18 @@
-# TODO — Auditoría de seguridad y QA (2026-06-11)
+# Auditoría de seguridad y QA — junio de 2026
+
+> **Cerrada, salvo un punto.** Documento histórico: se ejecutó entre el 11 y el
+> 12 de junio de 2026 y sus hallazgos viven hoy en [`security.md`](security.md).
+> Se conserva por el razonamiento, no como lista de tareas viva.
+>
+> Queda **un** punto sin marcar, el smoke test manual de extremo a extremo
+> (última sección). Su nota decía que no era automatizable «sin una cuenta de
+> prueba»; desde el 20-sep-2026 esa cuenta existe en el deployment de desarrollo,
+> con personas inventadas, así que el impedimento ya no aplica. Ojo: el guion
+> termina borrando la cuenta, y con ella los datos que usan las capturas del
+> README.
+>
+> Estaba en la raíz del repositorio hasta el 20-sep-2026, donde un visitante lo
+> confundía con trabajo pendiente del proyecto.
 
 > **Para el agente ejecutor:** este documento es autocontenido; no necesitas la conversación
 > que lo originó. Ejecuta las tareas **en orden de fase** (F0 → F4). Cada tarea indica
@@ -240,4 +254,4 @@ Consultar `docs/design-system.md` antes y actualizarlo si procede.
 - [x] `npm run build` (Next) sin errores ni warnings nuevos.
 - [ ] Smoke manual: crear persona con datos prácticos → generar ideas → guardar/descartar → borrar persona → borrar cuenta. Verificar en el dashboard de Convex que no quedan filas del usuario. *(Pendiente de hacer a mano: requiere sesión Clerk real y borra la cuenta — no automatizable sin una cuenta de prueba. Verificado en local: cabeceras T9 presentes, `Sec-Fetch-Site: cross-site` → 403.)*
 - [x] `docs/security.md` refleja: patrón ConvexError, reserva atómica de cuota, Sec-Fetch-Site, CSP report-only.
-- [x] Push a `main` (https://github.com/JMFusterr/PickPal.git).
+- [x] Push a `main` (https://github.com/jm-fuster/PickPal.git).

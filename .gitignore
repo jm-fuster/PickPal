@@ -41,6 +41,12 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Skills de agentes vendidas por `npx convex ai-files install`: .claude/ y
+# .agents/ son copias byte a byte del mismo boilerplate y se regeneran con ese
+# comando. Estaban trackeadas (60 archivos) pese a que .claude/ ya figuraba
+# aqui abajo, asi que el ignore mentia.
+.agents/
+
 # clerk configuration (can include secrets)
 /.clerk/
 .claude/
