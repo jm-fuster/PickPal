@@ -19,6 +19,16 @@ const MAX_SIZE = 20;
 const MAX_QUIRK = 200;
 const MAX_AVATAR_URL = 512;
 const DICEBEAR_PREFIX = "https://api.dicebear.com/";
+// El prefijo acota el origen, pero no el resto de la URL, y `avatarUrl` se
+// vuelve a pintar dentro de `url('…')` en el correo de avisos (`avatarHtml`
+// en convex/emails.ts). Allí `escapeHtml` no basta: convierte `'` en `&#39;`
+// y el parser HTML del cliente de correo lo decodifica de vuelta ANTES de que
+// el CSS se interprete, así que la comilla reaparece y cierra el `url()`.
+// Estos caracteres no aparecen en ninguna URL que genere
+// `AvatarPicker.buildUrl` —ni en las antiguas, cuya semilla iba con
+// `encodeURIComponent`—, así que rechazarlos no invalida ningún avatar ya
+// guardado. Defensa en profundidad: `emails.ts` además percent-encodea.
+const AVATAR_FORBIDDEN = /['"()<>;\\`\s]|[\u0000-\u001f]/;
 
 // Recomendaciones IA. Espejados de giftRecommendationSchema en src/lib/gifts.ts.
 const MAX_IDEA_TITLE = 80;
@@ -62,6 +72,24 @@ const MAX_PHOTOGRAPHER = 120;
 const BRANDFETCH_LOGO_PREFIX = "https://cdn.brandfetch.io/";
 const MAX_DOMAIN = 253;
 const BRAND_DOMAIN_RE = /^[a-z0-9.-]+\.[a-z]{2,}$/i;
+// Espejo de `RESERVED_TLDS` en src/lib/brands.ts — si cambia allí, cambiar
+// aquí. La regex de arriba descarta IPs y `localhost`, pero no los sufijos
+// internos (`.internal`, `.local`, `.lan`), que sí llegarían a resolverse.
+const BRAND_RESERVED_TLDS = new Set([
+  "local",
+  "localhost",
+  "internal",
+  "intranet",
+  "private",
+  "corp",
+  "home",
+  "lan",
+  "alt",
+  "onion",
+  "test",
+  "example",
+  "invalid",
+]);
 
 type MatchedBrandStore = {
   brand: string;
@@ -83,7 +111,12 @@ function validateMatchedBrandStores(
     if (store.brand.trim().length === 0 || store.brand.length > MAX_BRAND) {
       throw new ConvexError("Marca de tienda inválida.");
     }
-    if (store.domain.length > MAX_DOMAIN || !BRAND_DOMAIN_RE.test(store.domain)) {
+    const domain = store.domain.toLowerCase();
+    if (
+      domain.length > MAX_DOMAIN ||
+      !BRAND_DOMAIN_RE.test(domain) ||
+      BRAND_RESERVED_TLDS.has(domain.slice(domain.lastIndexOf(".") + 1))
+    ) {
       throw new ConvexError("Dominio de marca inválido.");
     }
     if (
@@ -258,7 +291,8 @@ export function validatePersonInput(input: {
   if (input.avatarUrl !== undefined) {
     if (
       input.avatarUrl.length > MAX_AVATAR_URL ||
-      !input.avatarUrl.startsWith(DICEBEAR_PREFIX)
+      !input.avatarUrl.startsWith(DICEBEAR_PREFIX) ||
+      AVATAR_FORBIDDEN.test(input.avatarUrl)
     ) {
       throw new ConvexError("URL de avatar inválida.");
     }

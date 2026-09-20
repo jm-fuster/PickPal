@@ -164,3 +164,75 @@ describe("propiedad", () => {
     await expect(upsert(bob, personId, [idea()])).rejects.toThrow();
   });
 });
+
+describe("avatarUrl: el prefijo no acota el resto de la URL", () => {
+  const conAvatar = (t: ReturnType<typeof convexTest>, avatarUrl: string) =>
+    t.withIdentity(ALICE).mutation(api.people.create, {
+      name: "Marta",
+      relationship: "family",
+      interests: [],
+      avatarUrl,
+    });
+
+  test("la URL que genera el picker entra", async () => {
+    const t = convexTest(schema, modules);
+    await expect(
+      conAvatar(
+        t,
+        "https://api.dicebear.com/9.x/dylan/svg?seed=pickpal&skinColor[]=ffcd94" +
+          "&hair[]=plain&hairColor[]=0e0e0e&mood[]=happy&backgroundColor[]=4dabf7" +
+          "&facialHairProbability=0",
+      ),
+    ).resolves.toBeDefined();
+  });
+
+  test("las URLs antiguas, con la semilla percent-encodeada, siguen entrando", async () => {
+    const t = convexTest(schema, modules);
+    await expect(
+      conAvatar(t, "https://api.dicebear.com/9.x/dylan/svg?seed=Marta%20I%C3%B1igo"),
+    ).resolves.toBeDefined();
+  });
+
+  test("una comilla se rechaza: rompería el url('…') del correo de avisos", async () => {
+    const t = convexTest(schema, modules);
+    await expect(
+      conAvatar(
+        t,
+        "https://api.dicebear.com/9.x/dylan/svg?seed=x')}/**/;background-image:url('https://atacante.example/p.png",
+      ),
+    ).rejects.toThrow();
+  });
+
+  test("otro origen se sigue rechazando", async () => {
+    const t = convexTest(schema, modules);
+    await expect(
+      conAvatar(t, "https://atacante.example/9.x/dylan/svg?seed=x"),
+    ).rejects.toThrow();
+  });
+});
+
+describe("dominio de marca: sufijos internos", () => {
+  const conDominio = (t: ReturnType<typeof convexTest>, domain: string) =>
+    conPersona(t).then(({ alice, personId }) =>
+      upsert(alice, personId, [
+        idea({ matchedBrandStores: [{ brand: "Nike", domain }] }),
+      ]),
+    );
+
+  test("un dominio público entra", async () => {
+    const t = convexTest(schema, modules);
+    await expect(conDominio(t, "nike.com")).resolves.toBeNull();
+  });
+
+  test("un sufijo interno se rechaza", async () => {
+    const t = convexTest(schema, modules);
+    await expect(conDominio(t, "metadata.google.internal")).rejects.toThrow();
+  });
+
+  test(".local y .lan también", async () => {
+    const t = convexTest(schema, modules);
+    await expect(conDominio(t, "impresora.local")).rejects.toThrow();
+    const t2 = convexTest(schema, modules);
+    await expect(conDominio(t2, "db.lan")).rejects.toThrow();
+  });
+});

@@ -22,9 +22,25 @@ const todayUTC = (): string => {
  * `CONVEX_SERVER_SECRET` debe ser idéntico en el entorno de Convex y en el de
  * Next. Fail-closed: si no está configurado, se rechaza.
  */
+/**
+ * Comparación en tiempo constante. `===` sobre strings corta en el primer byte
+ * que difiere, así que el tiempo de respuesta filtra cuántos caracteres del
+ * secreto se han acertado. Sobre la red el ruido tapa casi siempre esa señal,
+ * pero el coste de no depender de ello es este bucle. La longitud sí se
+ * compara de golpe: no es lo que hay que proteger.
+ */
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) {
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return diff === 0;
+}
+
 function assertServerCaller(secret: string) {
   const expected = process.env.CONVEX_SERVER_SECRET;
-  if (!expected || secret !== expected) {
+  if (!expected || !timingSafeEqual(secret, expected)) {
     throw new ConvexError("No autorizado.");
   }
 }

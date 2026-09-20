@@ -103,6 +103,22 @@ describe("normalizeBrandDomain", () => {
     expect(normalizeBrandDomain("")).toBeNull();
     expect(normalizeBrandDomain("localhost")).toBeNull();
   });
+
+  // La regex descarta IPs y `localhost` porque no acaban en sufijo alfabético.
+  // Los sufijos internos sí lo son, y el servidor llega a pedirles
+  // `/products.json` para detectar si la tienda admite búsqueda.
+  it("devuelve null para sufijos reservados o de red interna", () => {
+    expect(normalizeBrandDomain("metadata.google.internal")).toBeNull();
+    expect(normalizeBrandDomain("impresora.local")).toBeNull();
+    expect(normalizeBrandDomain("db.lan")).toBeNull();
+    expect(normalizeBrandDomain("algo.corp")).toBeNull();
+    expect(normalizeBrandDomain("http://vault.internal/ui")).toBeNull();
+  });
+
+  it("no confunde un dominio público que contenga esas palabras", () => {
+    expect(normalizeBrandDomain("internal-tools.com")).toBe("internal-tools.com");
+    expect(normalizeBrandDomain("local.nike.com")).toBe("local.nike.com");
+  });
 });
 
 describe("generateBrandStoreUrl", () => {
