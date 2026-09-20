@@ -1,43 +1,96 @@
 # Dudas y decisiones pendientes
 
-Lista de preguntas abiertas que hay que resolver antes o durante el desarrollo.
+Preguntas abiertas del proyecto, y el registro de las que se cerraron.
+
+> Repasado contra el código el 20-sep-2026. Cinco de las siete que figuraban como
+> abiertas ya las había respondido la implementación — entre ellas «cero tests»,
+> cuando hay 134 — y se han movido abajo con lo que se hizo de verdad.
 
 ---
 
-## Producto
+## Abiertas
 
-- [ ] **¿El usuario puede configurar cuántos días antes quiere recibir aviso?**
-  Actualmente el plan contempla un campo `notifyDaysBefore` en settings. ¿Es por usuario global o por persona o por fecha? La tabla `userSettings` ya existe en Convex; falta UI en `/settings` para editarlo.
+- [ ] **La ventana de la campana no se puede cambiar desde la app.**
+  `notifyDaysBefore` existe en `userSettings`, el servidor acepta de 1 a 365 y el
+  default es 30, pero **ninguna pantalla lo expone**: `/settings` no tiene ese
+  control. O se añade, o se quita el campo y se fija en 30. Lo que no conviene es
+  dejar un ajuste que solo se puede tocar por API.
+  (Distinto de la antelación del **email**, que sí es configurable: 0, 2, 7 y 14
+  días, y se pueden marcar varios.)
 
-- [ ] **¿Se guardan las recomendaciones generadas o se regeneran cada vez?**
-  Ahora mismo se generan en cada visita a `/gifts`. Con el rate limit de 10/día/usuario el riesgo es bajo, pero guardarlas en Convex permitiría volver a verlas sin gastar cuota.
+- [ ] **Compartir personas entre usuarios.**
+  Ej.: la ficha de los padres, compartida entre hermanos. Cada persona pertenece
+  hoy a un único usuario (`clerkUserId` en `people`), y todo el modelo de permisos
+  cuelga de esa columna. Abrirlo obliga a repensar la comprobación de propiedad
+  que hoy hace cada función de Convex, así que no es un cambio pequeño.
 
-- [ ] **¿Notificaciones por email/push además del badge en la app?**
-  Clerk soporta envío de emails. ¿Se quiere enviar un recordatorio por email X días antes?
+- [ ] **Los tests no cubren `convex/`.**
+  Los 134 tests viven en `src/lib/` y cubren utilidades y esquemas Zod. Las
+  mutations —que son donde están la validación server-side, la comprobación de
+  propiedad y la reserva de cuota— no tienen tests: `convex-test` no está
+  instalado. Es la laguna más grande de la suite.
 
-- [ ] **¿Presupuesto por persona o por fecha/ocasión?**
-  Actualmente el presupuesto es por persona. Para un cumpleaños puedes gastar más que para un aniversario cualquiera.
-
-- [ ] **¿Múltiples usuarios pueden compartir perfiles?** (ej: perfil de los padres compartido con hermanos)
-  No está contemplado en el diseño actual — cada persona pertenece a un único usuario.
+- [ ] **Exportación de datos.**
+  `/privacidad` promete enviarla a mano si alguien la pide, porque no existe en el
+  código. Cumple, pero es una obligación manual con un mes de plazo. Automatizarla
+  quitaría ese riesgo.
 
 ---
 
-## Técnicas
+## Decididas, no pendientes
 
-- [ ] **¿Internacionalización (i18n)?**
-  La app está pensada para España (amazon.es, euros). ¿Se quiere soportar otros idiomas o mercados desde el inicio?
-
-- [ ] **¿Testing automatizado?**
-  Cero tests de momento. Vitest para utilidades y esquemas Zod, `convex-test` para mutaciones críticas — buen siguiente paso.
+- **Internacionalización: no, por ahora.** La app es solo en español, sin capa de
+  i18n, y está pensada para España (euros, tiendas españolas, prompts en
+  español). No es un descuido: añadir i18n obligaría a traducir también los
+  prompts y el catálogo de intereses, y a decidir mercado por mercado qué tiendas
+  tienen sentido. Si algún día se abre, el sitio por donde empezar es
+  `src/lib/stores.ts` y `src/lib/interests.ts`.
 
 ---
 
 ## Resueltas
 
-- [x] **Nombre de la app:** PickPal. Repo: `JMFusterr/PickPal`. Proyectos en Clerk y Convex también `pickpal`. _Renombrado desde "Giftly" el 2026-05-04 por colisión con apps existentes._
-- [x] **Modo oscuro.** Implementado con `next-themes` + shadcn/ui (`ThemeProvider`, `ThemeToggle`).
-- [x] **Landing page pública.** Explica el producto con tres tarjetas de features y CTA dual (registro / login).
-- [x] **Rate limiting en `/api/recommendations`.** 10 generaciones por usuario y día (UTC), tabla `recommendationUsage` en Convex.
-- [x] **Manejo del 29 de febrero.** En años no bisiestos cae al 28 de febrero (fix en `src/lib/dates.ts`).
-- [x] **Hosting / despliegue.** Vercel auto-deploy desde `main` + Convex dev. Dominio: `pickpal.jorgemolinafuster.com` (subdominio propio; también es el dominio de envío verificado en Resend). Alias previos: `pickpal-app.vercel.app`, `giftly-blond.vercel.app`. `pickpal.vercel.app` estaba ocupado por otro proyecto Vercel ajeno.
+- [x] **¿Se guardan las recomendaciones o se regeneran cada vez?** Se guardan. La
+  tabla `recommendations` las cachea por `(usuario, persona, ocasión, tipo de
+  regalo)` — índice `by_user_person_occasion_type` —, así que volver a abrir una
+  tanda ya generada no gasta cuota. Regenerar es una acción explícita, y la propia
+  UI avisa de que consume cuota.
+
+- [x] **¿Avisos por email además del badge?** Sí, implementados y **apagados de
+  fábrica**, porque la base legal declarada es el consentimiento. Cron diario a
+  las 08:00 UTC, envío por la API REST de Resend, un único correo agrupado por
+  usuario y deduplicación por `(fecha, año, antelación)`. Detalle en
+  [`email-notifications.md`](email-notifications.md).
+
+- [x] **¿Presupuesto por persona o por fecha?** Por fecha. `budgetMin` y
+  `budgetMax` viven en `importantDates`, no en `people`, que es lo que permite
+  gastar distinto en un cumpleaños que en un detalle de Navidad. Se guarda en
+  céntimos.
+
+- [x] **¿Testing automatizado?** Sí: 134 tests con Vitest en 8 archivos. CI los
+  corre en cada push y PR junto a dos typechecks (`tsc --noEmit` y el de
+  `convex/tsconfig.json`, que tiene el suyo). Queda pendiente cubrir `convex/`,
+  arriba.
+
+- [x] **Nombre de la app:** PickPal. Repo: `jm-fuster/PickPal`. Proyectos en Clerk
+  y Convex también `pickpal`. _Renombrado desde «Giftly» el 2026-05-04 por
+  colisión con apps existentes._
+
+- [x] **Modo oscuro.** `next-themes` con estrategia de clase, claro por defecto.
+
+- [x] **Landing page pública.** Tres pasos numerados y CTA dual (registro /
+  login). Si ya tienes sesión, redirige a `/agenda`.
+
+- [x] **Rate limiting en `/api/recommendations`.** 10 generaciones por usuario y
+  día UTC en `recommendationUsage`, con reserva atómica antes de llamar al modelo
+  y devolución si algo falla. Hay además tres cubos genéricos en
+  `rateLimitBuckets`: 50 personas, 100 fechas y 50 ideas guardadas al día.
+
+- [x] **Manejo del 29 de febrero.** En años no bisiestos cae al 28 (`src/lib/dates.ts`).
+
+- [x] **Hosting / despliegue.** Vercel con auto-deploy desde `main`, más Convex.
+  Dominio `pickpal.jorgemolinafuster.com`, que es también el dominio de envío
+  verificado en Resend. Alias previos: `pickpal-app.vercel.app`,
+  `giftly-blond.vercel.app`. El correo **entrante** va por otro lado: Cloudflare
+  Email Routing sobre el apex `jorgemolinafuster.com`, porque el subdominio es un
+  CNAME a Vercel y un CNAME excluye los MX.
