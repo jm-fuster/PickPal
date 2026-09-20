@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useAuth, useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import { useMutation, useQuery } from "convex/react";
+import { useConvex, useMutation, useQuery } from "convex/react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
-import { ArrowUpRight, Check, Moon, Sun } from "lucide-react";
+import { ArrowUpRight, Check, Download, Moon, Sun } from "lucide-react";
 import { toast } from "sonner";
 import { userErrorMessage } from "@/lib/errors";
 import { api } from "../../../../convex/_generated/api";
@@ -57,6 +57,7 @@ export default function SettingsPage() {
   const ready = isLoaded && isSignedIn;
   const settings = useQuery(api.settings.getMine, ready ? {} : "skip");
   const setMine = useMutation(api.settings.setMine);
+  const convex = useConvex();
   const { resolvedTheme, setTheme } = useTheme();
 
   const [notifyDays, setNotifyDays] = useState(30);
@@ -67,6 +68,7 @@ export default function SettingsPage() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [deleting, setDeleting] = useState(false);
+  const [exporting, setExporting] = useState(false);
   // Tras la primera carga, ignoramos cambios externos en `settings` para no
   // pisar actualizaciones optimistas que aún están viajando al servidor.
   const initializedRef = useRef(false);
@@ -121,6 +123,34 @@ export default function SettingsPage() {
     } catch (err) {
       revert();
       toast.error(userErrorMessage(err, "No se pudo guardar"));
+    }
+  };
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const datos = await convex.query(api.exportData.mine, {});
+      // La marca de tiempo se pone aquí y no en el servidor: una query de
+      // Convex debe ser determinista, y el reloj del usuario es el que importa
+      // para nombrar el archivo.
+      const ahora = new Date();
+      const contenido = JSON.stringify(
+        { exportadoEl: ahora.toISOString(), ...datos },
+        null,
+        2,
+      );
+      const url = URL.createObjectURL(
+        new Blob([contenido], { type: "application/json" }),
+      );
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `pickpal-${ahora.toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      toast.error(userErrorMessage(err, "No se pudo preparar la descarga"));
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -401,6 +431,22 @@ export default function SettingsPage() {
             <ArrowUpRight className="size-4" aria-hidden />
           </Link>
         </div>
+      </section>
+
+      <section className="space-y-3 rounded-xl border p-5">
+        <div className="space-y-1">
+          <Label>Descargar mis datos</Label>
+          <p className="text-xs text-muted-foreground">
+            Un archivo JSON con todo lo que PickPal guarda de ti: tus seres
+            queridos con sus fechas, notas e historial, tus ideas guardadas y
+            tus ajustes. Los datos de acceso (nombre, correo, contraseña) los
+            gestiona Clerk y se piden allí.
+          </p>
+        </div>
+        <Button variant="outline" onClick={handleExport} disabled={exporting}>
+          <Download className="size-4" aria-hidden />
+          {exporting ? "Preparando…" : "Descargar JSON"}
+        </Button>
       </section>
 
       <section className="space-y-3 rounded-xl border border-destructive/30 p-5">

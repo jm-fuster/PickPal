@@ -182,9 +182,12 @@ export default function PrivacyPage() {
               permanente todos tus datos en PickPal y cierra tu cuenta.
             </li>
             <li>
-              <span className="text-foreground">Exportación:</span> todavía no
-              está automatizada. Escríbenos al contacto de abajo y te enviamos
-              una copia de tus datos.
+              <span className="text-foreground">Exportación:</span> en{" "}
+              <Link className="underline underline-offset-4" href="/settings">
+                Ajustes
+              </Link>{" "}
+              tienes &laquo;Descargar mis datos&raquo;, que te da un archivo JSON
+              con todo lo que guardamos de ti.
             </li>
             <li>
               <span className="text-foreground">

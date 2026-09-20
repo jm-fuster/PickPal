@@ -178,7 +178,7 @@ Como interesado, tienes derecho a:
 
 Puedes ejercerlos:
 
-1. **Desde la app**: edición y borrado están disponibles en la propia interfaz.
+1. **Desde la app**: edición, borrado y **portabilidad** están disponibles en la propia interfaz. Ajustes → «Descargar mis datos» devuelve un JSON con las nueve tablas que guardan algo del usuario — el mismo recorrido que hace el borrado de cuenta, para que no puedan desincronizarse (`convex/exportData.ts`, con un test que lo comprueba).
 2. **Por email** a [pickpal@jorgemolinafuster.com](mailto:pickpal@jorgemolinafuster.com), indicando qué derecho quieres ejercer.
 
 Si consideras que tus derechos no se han atendido correctamente, puedes presentar una reclamación ante la **Agencia Española de Protección de Datos** (https://www.aepd.es).

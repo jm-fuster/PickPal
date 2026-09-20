@@ -16,11 +16,6 @@ Preguntas abiertas del proyecto, y el registro de las que se cerraron.
   cuelga de esa columna. Abrirlo obliga a repensar la comprobación de propiedad
   que hoy hace cada función de Convex, así que no es un cambio pequeño.
 
-- [ ] **Exportación de datos.**
-  `/privacidad` promete enviarla a mano si alguien la pide, porque no existe en el
-  código. Cumple, pero es una obligación manual con un mes de plazo. Automatizarla
-  quitaría ese riesgo.
-
 ---
 
 ## Decididas, no pendientes
@@ -35,6 +30,14 @@ Preguntas abiertas del proyecto, y el registro de las que se cerraron.
 ---
 
 ## Resueltas
+
+- [x] **Exportación de datos.** Hecha el 20-sep-2026. Era una obligación legal
+  (RGPD art. 20) que `/privacidad` cumplía prometiendo enviarla a mano, con un
+  mes de plazo y todo el trabajo recayendo en una persona. Ahora Ajustes →
+  «Descargar mis datos» da un JSON al momento. `convex/exportData.ts` recorre
+  las mismas nueve tablas que `account.deleteMyAccount`, con los datos anidados
+  bajo cada ser querido, y un test compara los dos recorridos: añadir una tabla
+  al borrado sin añadirla a la exportación hace fallar la suite.
 
 - [x] **La ventana de la campana ya se puede cambiar.** `notifyDaysBefore` llevaba
   desde el principio en `userSettings`, validado de 1 a 365 en el servidor, y
