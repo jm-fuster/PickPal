@@ -1,0 +1,69 @@
+name: Informe de fallo
+description: Algo no funciona como debería
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gracias por tomarte la molestia. Si lo que has encontrado es un problema
+        de **seguridad**, no lo cuentes aquí: sigue la
+        [política de seguridad](https://github.com/jm-fuster/PickPal/blob/main/SECURITY.md).
+
+  - type: textarea
+    id: que-pasa
+    attributes:
+      label: Qué pasa
+      description: Qué esperabas que ocurriera y qué ocurrió en su lugar.
+      placeholder: Al guardar una fecha con año, la tarjeta sigue mostrando el año anterior.
+    validations:
+      required: true
+
+  - type: textarea
+    id: pasos
+    attributes:
+      label: Pasos para reproducirlo
+      description: Cuanto más concretos, antes se arregla.
+      placeholder: |
+        1. Entrar en una ficha de persona
+        2. Añadir un evento con fecha 3 de marzo y año 2027
+        3. Volver a la agenda
+    validations:
+      required: true
+
+  - type: dropdown
+    id: donde
+    attributes:
+      label: Dónde
+      options:
+        - En local, con mi propio despliegue
+        - En pickpal.jorgemolinafuster.com
+    validations:
+      required: true
+
+  - type: input
+    id: entorno
+    attributes:
+      label: Navegador y sistema
+      placeholder: Chrome 141 en Windows 11 / Safari en iOS 26
+    validations:
+      required: true
+
+  - type: textarea
+    id: consola
+    attributes:
+      label: Errores de consola o de red
+      description: >
+        Si la pantalla se queda en blanco o una acción no responde, lo que salga en
+        la consola del navegador suele ser la pista decisiva. Se formatea solo, no
+        hacen falta comillas.
+      render: text
+
+  - type: checkboxes
+    id: ia
+    attributes:
+      label: ¿Tiene que ver con la generación de ideas?
+      options:
+        - label: >
+            Sí, y he comprobado que no es el límite de 10 generaciones al día ni un
+            503 del proveedor, que la app muestra con su propio mensaje.
+          required: false

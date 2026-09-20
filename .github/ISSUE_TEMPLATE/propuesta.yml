@@ -1,0 +1,56 @@
+name: Propuesta
+description: Una idea, una mejora o un cambio de comportamiento
+labels: ["propuesta"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Antes de escribir, un vistazo rápido a
+        [`docs/dudas.md`](https://github.com/jm-fuster/PickPal/blob/main/docs/dudas.md):
+        ahí están las preguntas que siguen abiertas y también las que ya se
+        decidieron a conciencia, con su porqué. Puede que la tuya esté contestada.
+
+  - type: textarea
+    id: problema
+    attributes:
+      label: Qué problema resuelve
+      description: >
+        Empieza por el problema, no por la solución. Qué te pasa a ti usando la app
+        que ahora mismo no está bien resuelto.
+      placeholder: >
+        Tengo veinte personas y en la agenda no distingo de un vistazo las que ya
+        tienen un regalo decidido de las que no.
+    validations:
+      required: true
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: Qué propones
+      description: Si tienes una idea concreta de cómo resolverlo, cuéntala aquí.
+
+  - type: dropdown
+    id: tamano
+    attributes:
+      label: Tamaño aproximado
+      description: >
+        Una estimación tuya, sin compromiso. Sirve para saber si conviene hablarlo
+        antes de que nadie escriba código.
+      options:
+        - Un detalle (un texto, un estado vacío, un atajo)
+        - Una mejora acotada a una pantalla
+        - Una funcionalidad nueva
+        - No lo sé
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: contexto
+    attributes:
+      label: Antes de enviar
+      options:
+        - label: >
+            Entiendo que PickPal es un proyecto personal en español, pensado para
+            España, y que una propuesta puede rechazarse simplemente porque no
+            encaja con hacia dónde va.
+          required: true

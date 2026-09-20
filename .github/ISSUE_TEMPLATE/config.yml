@@ -1,0 +1,17 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Vulnerabilidad de seguridad
+    url: https://github.com/jm-fuster/PickPal/security/advisories/new
+    about: >
+      No abras una issue pública. Repórtala en privado por aquí, o al correo de
+      contacto que figura en SECURITY.md.
+  - name: Datos personales y privacidad
+    url: https://pickpal.jorgemolinafuster.com/privacidad
+    about: >
+      Para ejercer tus derechos sobre datos tuyos, o de alguien a quien otra
+      persona haya añadido a su lista, escribe a la dirección de esa página.
+  - name: Cómo contribuir
+    url: https://github.com/jm-fuster/PickPal/blob/main/CONTRIBUTING.md
+    about: >
+      Montar el proyecto en local, qué comprueba CI y qué leer antes de tocar
+      seguridad, tokens o el sistema de diseño.
