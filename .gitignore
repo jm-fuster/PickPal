@@ -49,3 +49,4 @@ next-env.d.ts
 *_prod.txt
 *-prod-backup*.zip
 *.backup.zip
+docs/screenshots/.profile/
