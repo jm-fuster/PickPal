@@ -44,12 +44,35 @@ const fraunces = Fraunces({
   display: "swap",
 });
 
+const SITE_URL = "https://pickpal.jorgemolinafuster.com";
+const DESCRIPTION =
+  "Recuerda fechas importantes y recibe ideas de regalo personalizadas con IA.";
+
 export const metadata: Metadata = {
+  // Sin metadataBase, Next resuelve la URL de opengraph-image.png contra
+  // localhost en desarrollo y contra VERCEL_URL en producción — que es el alias
+  // del despliegue, no el dominio. El resultado es una previsualización rota al
+  // compartir el enlace.
+  metadataBase: new URL(SITE_URL),
   title: "PickPal",
-  description:
-    "Recuerda fechas importantes y recibe ideas de regalo personalizadas con IA.",
+  description: DESCRIPTION,
   icons: {
     apple: "/apple-touch-icon.png",
+  },
+  openGraph: {
+    title: "PickPal",
+    description: DESCRIPTION,
+    url: SITE_URL,
+    siteName: "PickPal",
+    locale: "es_ES",
+    type: "website",
+    // La imagen la aporta src/app/opengraph-image.png por convención de
+    // fichero, con su texto alternativo en el .alt.txt de al lado.
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "PickPal",
+    description: DESCRIPTION,
   },
 };
 
