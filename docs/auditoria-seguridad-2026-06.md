@@ -35,7 +35,7 @@
 
 ### - [x] T1. Cascade de `savedIdeas` al borrar persona + purga de huérfanos al borrar cuenta
 
-**Hallazgo (MEDIO, confirmado 9/10):** `people.remove` ([convex/people.ts](convex/people.ts) ~línea 100) cascada `importantDates`, `giftHistory` y `recommendations` pero **no `savedIdeas`**. `account.deleteMyAccount` ([convex/account.ts](convex/account.ts) ~línea 47) purga `savedIdeas` solo iterando las `people` vivas, y `savedIdeas` solo tiene índice `by_person`. Las ideas guardadas de una persona borrada quedan huérfanas para siempre, incluso tras borrar la cuenta — contradice `docs/security.md` §7 y la promesa de `src/app/privacidad/page.tsx` ("borra de forma permanente todos tus datos").
+**Hallazgo (MEDIO, confirmado 9/10):** `people.remove` ([convex/people.ts](../convex/people.ts) ~línea 100) cascada `importantDates`, `giftHistory` y `recommendations` pero **no `savedIdeas`**. `account.deleteMyAccount` ([convex/account.ts](../convex/account.ts) ~línea 47) purga `savedIdeas` solo iterando las `people` vivas, y `savedIdeas` solo tiene índice `by_person`. Las ideas guardadas de una persona borrada quedan huérfanas para siempre, incluso tras borrar la cuenta — contradice `docs/security.md` §7 y la promesa de `src/app/privacidad/page.tsx` ("borra de forma permanente todos tus datos").
 
 **Cambios:**
 

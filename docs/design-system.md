@@ -1259,7 +1259,7 @@ Visible a partir de `lg` (1024px). Implementado en `src/app/(app)/layout.tsx`.
 - Botón con icono `Bell`. Muestra un badge numérico con las fechas próximas dentro de la ventana `notifyDaysBefore` (de `userSettings`).
 - Al pulsar abre un **popover** (base-ui) con la lista de fechas próximas, ordenadas por días restantes (ascendente).
 - Cada fila muestra: nombre de la persona, etiqueta del evento, y un contador coloreado — rojo si es hoy, ámbar si queda ≤ 7 días, gris el resto. Muestra "Hoy" / "Mañana" en vez de "0d" / "1d".
-- Cada fila enlaza a `/people/[id]/gifts` (generación de ideas) para pasar a la acción directamente.
+- Cada fila enlaza a `/seres-queridos/[personId]/gifts` (generación de ideas) para pasar a la acción directamente.
 - Estado vacío con icono `Gift` cuando no hay nada en la ventana.
 - `SafeNotificationBell` envuelve el componente en un `ErrorBoundary` para que un fallo no rompa el layout.
 
@@ -1267,8 +1267,8 @@ Visible a partir de `lg` (1024px). Implementado en `src/app/(app)/layout.tsx`.
 
 | Etiqueta | Ruta | Icono |
 |---|---|---|
-| Agenda | `/dashboard` | `CalendarDays` |
-| Seres queridos | `/people` | `Users` |
+| Agenda | `/agenda` | `CalendarDays` |
+| Seres queridos | `/seres-queridos` | `Users` |
 | Ajustes | `/settings` | `Settings` |
 
 - "Agenda" en vez de "Inicio" porque la sección muestra fechas próximas, no un dashboard genérico.
@@ -1380,21 +1380,21 @@ Ilustraciones planas en el mismo lenguaje que el logo-mark: figuras geométricas
 
 Padding de página responsive en todos los `<main>`: `p-4 sm:p-6 lg:p-8`. No usar `p-8` fijo.
 
-**Dashboard** (`/dashboard`): layout master-detail diferente según dispositivo.
+**Agenda** (`/agenda`): layout master-detail diferente según dispositivo.
 
-- **Móvil (< lg)**: columna única. El botón "Ideas de regalo" de cada `UpcomingDateCard` es un `<Link>` que navega a `/seres-queridos/[id]/gifts?occasion=...`.
+- **Móvil (< lg)**: columna única. El botón "Ideas de regalo" de cada `UpcomingDateCard` es un `<Link>` que navega a `/seres-queridos/[personId]/gifts?occasion=...`.
 - **Desktop (≥ lg)**: CSS Grid de dos columnas fijas: `lg:grid-cols-[480px_1fr]`. La columna izquierda (480 px) lista los eventos; la derecha (flexible) muestra el `GiftsPanel` embebido al pulsar "Ideas de regalo". El botón "Ideas de regalo" en desktop es un `<button>` con `onClick` que actualiza el estado local `selected`; el `<Link>` tiene clase `lg:hidden` para que solo sea visible en móvil. El `<button>` nativo necesita `hover:bg-primary/80` explícito porque `buttonVariants` default usa el selector `[a]:hover` que solo aplica a `<a>`.
 - **Por qué grid fijo (no flex)**: con `flex-1` en la columna de eventos, su ancho cambia al aparecer el panel, deformando las cards. Con `grid-cols-[480px_1fr]` la columna izquierda siempre mide exactamente 480 px, independientemente de si el panel está abierto o no. El padding `lg:px-1 lg:pb-1` del contenedor de la lista también se aplica siempre (no condicionalmente) para que el ancho disponible de las cards no varíe nunca.
 - **Botón dual en `UpcomingDateCard`**: siempre usar `cn(buttonVariants({ size: "sm" }), "lg:hidden")` — nunca pasar clases de display dentro del `className` de `buttonVariants`. `buttonVariants` incluye `inline-flex` en su base; si se pasa `hidden` dentro del objeto `className`, `tailwind-merge` no lo procesa y `inline-flex` prevalece, mostrando ambos botones a la vez en móvil.
 - **Scroll de eventos vs. panel fijo**: la lista de eventos fluye con el scroll general de la página (sin scroll propio). La card de regalos usa `position: fixed` con coordenadas exactas derivadas del layout: `top-8 bottom-8 right-8 left-[48.5rem]`. El `left` se calcula como sidebar (`w-60` = 15rem) + padding izquierdo del main (`p-8` = 2rem) + columna de eventos (480px = 30rem) + gap (`gap-6` = 1.5rem) = 48.5rem. Si cambia el ancho del sidebar o el padding del main, hay que actualizar este valor. El panel está fuera del flujo del documento (`fixed`), por lo que la lista de eventos no necesita un placeholder en el grid — se usa `lg:max-w-[480px]` directamente. El panel y la lista de eventos son dos elementos hermanos dentro de un Fragment (`<>`).
 
-**Detalle de persona** (`/people/[id]`): `max-w-6xl w-full`. Suficiente para no desbordar en monitores muy anchos, pero sin el desperdicio de `max-w-4xl`.
+**Detalle de persona** (`/seres-queridos/[personId]`): `max-w-6xl w-full`. Suficiente para no desbordar en monitores muy anchos, pero sin el desperdicio de `max-w-4xl`.
 
-**Formularios** (`PersonForm`): sin `max-w` propio — se adapta al contenedor padre. En la página de creación (`/people/new`) el contenedor ya tiene `max-w-4xl`.
+**Formularios** (`PersonForm`): sin `max-w` propio — se adapta al contenedor padre. En la página de creación (`/seres-queridos/new`) el contenedor ya tiene `max-w-4xl`.
 
 **PersonForm — layout dos columnas en desktop:**
 - A partir de `lg`: `grid grid-cols-2 items-start gap-6`.
-- **Cada sección va en su propia `Card`** (`border-border/60 shadow-sm`, con `CardContent p-5` y eyebrow `<h2>` `font-sans` + icono lucide `size-3.5`) — mismo registro de cards que la ficha de persona (`/seres-queridos/[id]`), para que crear y editar se vean como la misma libreta.
+- **Cada sección va en su propia `Card`** (`border-border/60 shadow-sm`, con `CardContent p-5` y eyebrow `<h2>` `font-sans` + icono lucide `size-3.5`) — mismo registro de cards que la ficha de persona (`/seres-queridos/[personId]`), para que crear y editar se vean como la misma libreta.
   - **Columna izquierda — card "Quién es"** (icono `UserRound`): avatar, nombre, relación, intereses, marcas favoritas, notas. `CardContent` con `space-y-5` (campos altos: avatar con botones, textareas).
   - **Columna derecha — card "Datos prácticos"** (icono `Ruler`: talla zapato, talla ropa, alergias, no le gusta) + card "Eventos" (`EventsSection`, icono `CalendarDays`, solo si `includeDates`). Las dos cards se apilan con `space-y-6` (mismo gap que el grid). `CardContent` con `space-y-4`.
 - Dentro de cada card, los grupos usan `space-y-2` label–input–error.
@@ -1425,7 +1425,7 @@ Padding de página responsive en todos los `<main>`: `p-4 sm:p-6 lg:p-8`. No usa
 | Grid de ideas | `sm:grid-cols-2 lg:grid-cols-3` | `grid-cols-1` |
 | Scroll | Scroll general de página | Scroll interno acotado |
 
-**Modo standalone**: usado por `/seres-queridos/[id]/gifts/page.tsx`, que es un thin wrapper. La ruta acepta `?occasion=...` para preseleccionar el evento. El back link usa `router.back()` y muestra "Volver" — siempre vuelve al paso anterior real del historial, sin importar desde dónde se llegó.
+**Modo standalone**: usado por `/seres-queridos/[personId]/gifts/page.tsx`, que es un thin wrapper. La ruta acepta `?occasion=...` para preseleccionar el evento. El back link usa `router.back()` y muestra "Volver" — siempre vuelve al paso anterior real del historial, sin importar desde dónde se llegó.
 
 **Selección de ocasión y botón Generar (sin botón "mudo"):** al entrar desde la ficha (`?from=person`, sin `?occasion`) no hay evento preseleccionado. Dos reglas evitan el botón deshabilitado sin explicación (anti-patrón):
 - **Auto-selección con un único evento**: si la persona tiene exactamente un evento, se preselecciona solo (caso más común). Con varios eventos NO se elige por el usuario (presupuestos distintos) — se deja que escoja.
@@ -1489,7 +1489,7 @@ La visibilidad se detecta con un listener de `scroll` en `scrollContainerRef` qu
 
 ### Sección Eventos (detalle de persona)
 
-La sección "Eventos" en `/people/[id]` gestiona fechas importantes de esa persona. Terminología: **evento** (no "fecha importante").
+La sección "Eventos" en `/seres-queridos/[personId]` gestiona fechas importantes de esa persona. Terminología: **evento** (no "fecha importante").
 
 **Collapsed / expanded:**
 - Por defecto solo se muestra el botón "Nuevo evento" (borde punteado, `border-dashed`).
@@ -1524,7 +1524,7 @@ Las acciones (`PencilLine`, `X`) van pegadas al borde derecho con `shrink-0`. **
 
 ### Sección Historial de regalos (detalle de persona)
 
-La sección "Historial de regalos" en `/people/[id]` registra regalos pasados para que la IA pueda aprender qué funciona con esa persona.
+La sección "Historial de regalos" en `/seres-queridos/[personId]` registra regalos pasados para que la IA pueda aprender qué funciona con esa persona.
 
 **Añadir regalo:**
 - Por defecto se muestra el botón "Añadir regalo" (borde punteado, `border-dashed`), igual que "Añadir evento".
@@ -1593,7 +1593,7 @@ Patrón para "volver a la sección anterior", visible en la parte superior de p�
 
 ### Edición inline (perfil de persona)
 
-`/people/[id]` no tiene página de edición separada. `/people/[id]/edit` redirige a `/people/[id]`. Toda la edición ocurre inline en el perfil, dividida en tres secciones independientes:
+`/seres-queridos/[personId]` no tiene página de edición separada. `/seres-queridos/[personId]/edit` redirige a `/seres-queridos/[personId]`. Toda la edición ocurre inline en el perfil, dividida en tres secciones independientes:
 
 | Sección | Campos | Cuándo guarda |
 |---|---|---|
@@ -1630,7 +1630,7 @@ Patrón para "volver a la sección anterior", visible en la parte superior de p�
 
 `tw-animate-css` ya está disponible (instalado por shadcn). Reglas:
 
-- **Aparición de listas grandes** (>3 elementos generados): stagger fade-in usando `animate-in fade-in slide-in-from-bottom-2 duration-500 fill-mode-both` + `style={{ animationDelay: '${i * 60}ms' }}`. 60ms entre cards, no más, para no demorar la lectura. Ejemplo: cards de `/people/[id]/gifts`.
+- **Aparición de listas grandes** (>3 elementos generados): stagger fade-in usando `animate-in fade-in slide-in-from-bottom-2 duration-500 fill-mode-both` + `style={{ animationDelay: '${i * 60}ms' }}`. 60ms entre cards, no más, para no demorar la lectura. Ejemplo: cards de `/seres-queridos/[personId]/gifts`.
 - **Hover sobre cards**: ya cubierto en sus reglas. `transition-all` o `transition-shadow` solo, duración por defecto (~150ms).
 - **Formularios inline expand/collapse**: cuando un formulario aparece in situ tras pulsar un botón "Añadir/Editar X" (`ImportantDateForm`, `EditImportantDateInline`, `GiftHistoryForm`, `EditGiftHistoryInline`, `AddEventForm` de `PersonForm`), añadir `animate-in fade-in slide-in-from-top-1 duration-200` al elemento raíz del formulario. Es excepción legítima a la regla "no animar elementos individuales" porque hay continuidad espacial (el contenedor expande, no aparece de la nada). 200ms corto para no demorar la interacción.
   - **Riesgo:** la animación se replay si el componente se desmonta/remonta. Verificar que ningún ancestro tiene un `key` que cambie con datos de Convex. El toggle interno (`useState` de `showForm`) mantiene el elemento montado mientras esté abierto; sin riesgo en los formularios actuales.
@@ -1889,8 +1889,8 @@ Lista de cosas que sé que faltan o que no han recibido pasada todavía. Se irá
 
 - [x] ~~Hover de cards interactivas~~ → resuelto, ver Componentes · Cards.
 - [x] ~~Iconografía~~ → resuelto: lucide-react adoptado, ver Componentes · Iconografía.
-- [x] ~~Página `/people/[id]` (detalle)~~ → edición inline por secciones (header / intereses+notas / datos prácticos). Sin página `/people/[id]/edit` (redirige al perfil). Guard de cambios sin guardar con `beforeunload` + dialog. Ver "Edición inline (perfil de persona)".
-- [x] ~~Página `/people/[id]/gifts`~~ → resuelto: panel de configuración con Select de evento (solo eventos del perfil, presupuesto automático), tarjetas de tipo con iconos lucide y descripción, botón "Generar" top-right del panel, skeletons visibles (`bg-muted/40 animate-pulse`), tarjetas con stagger animation, botón X con toast permanente + deshacer, back link con `ArrowLeft`.
+- [x] ~~Página `/seres-queridos/[personId]` (detalle)~~ → edición inline por secciones (header / intereses+notas / datos prácticos). Sin página `/seres-queridos/[personId]/edit` (redirige al perfil). Guard de cambios sin guardar con `beforeunload` + dialog. Ver "Edición inline (perfil de persona)".
+- [x] ~~Página `/seres-queridos/[personId]/gifts`~~ → resuelto: panel de configuración con Select de evento (solo eventos del perfil, presupuesto automático), tarjetas de tipo con iconos lucide y descripción, botón "Generar" top-right del panel, skeletons visibles (`bg-muted/40 animate-pulse`), tarjetas con stagger animation, botón X con toast permanente + deshacer, back link con `ArrowLeft`.
 - [ ] **Escalera de texto en oscuro desequilibrada**: 2.60 de hueco entre normal y secundario frente a 6.11 entre secundario y terciario, y la rampa `Cream` no tiene paso entre `400` y `500` para arreglarlo. O se rehace el espaciado de `Cream` en su tramo bajo, o el primer plano en oscuro pasa a salir de `Neutral` (bien espaciada, pero más griseada y choca con la regla de calidez). Ver «Reparto de los 151 usos».
 - [ ] **Cuatro elementos se apagan al pasar el ratón**: `badge.tsx` (variantes `outline` y `ghost`) y los dos enlaces legales de `/settings` usan `hover:text-muted-foreground` sobre `text-foreground`, así que **pierden** contraste al señalarlos. Los otros 11 usos interactivos van al contrario. Decidir si en el badge es deliberado.
 - [ ] **Completar los 7 grupos de rol de `color/`**: falta crear `feedback` (los 7 de retroalimentación que siguen en `fill/`) y `bg/disabled` (el par duplicado `fill/field-disabled` + `field/fill-disabled`). Y `text`, `icon`, `border` y `field` crecen en el objetivo sin contenido asignado. Ver «`color/` se reduce a grupos de rol».

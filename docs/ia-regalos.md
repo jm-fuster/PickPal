@@ -248,12 +248,14 @@ Por qué campo propio y no un chip en intereses: el prompt instruye a que `categ
 
 ## Pre-selección de ocasión por query param
 
-La página `/people/[personId]/gifts` acepta `?occasion=LABEL` en la URL. Si está presente, el selector de ocasión se inicializa con ese valor sin que el usuario tenga que buscarlo.
+La página `/seres-queridos/[personId]/gifts` acepta `?occasion=LABEL` en la URL. Si está presente, el selector de ocasión se inicializa con ese valor sin que el usuario tenga que buscarlo.
 
 **Puntos de entrada que usan este param:**
-- `UpcomingDateCard` (agenda/dashboard): el botón "Ver regalos" incluye `?occasion={date.label}`.
+- `UpcomingDateCard` (la agenda; el componente vive en `src/components/dashboard/`,
+  carpeta que conservó el nombre viejo de la ruta): el botón "Ver regalos" incluye
+  `?occasion={date.label}`.
 - `NotificationBell` (popover): cada fila incluye `?occasion={date.label}`.
-- Email de recordatorio (CTA único): el enlace apunta a `/people/{personId}/gifts?occasion={label}`.
+- Email de recordatorio (CTA único): el enlace apunta a `/seres-queridos/{personId}/gifts?occasion={label}`.
 
 **Implementación:** `useSearchParams()` en el cliente lee el param en el montaje; si coincide con algún evento del perfil, se llama `setOccasion` con ese valor. Si el label no existe en la lista de eventos (evento eliminado tras envío del email), el selector queda vacío y el usuario elige manualmente.
 
@@ -431,7 +433,7 @@ Los números concretos de RPM/RPD del free tier **ya no aparecen en la doc de Go
 
 | Archivo | Rol |
 |---|---|
-| [`src/app/(app)/people/[personId]/gifts/page.tsx`](../src/app/%28app%29/people/%5BpersonId%5D/gifts/page.tsx) | Página principal: selector de evento, tipo, generación, descarte con toast+undo |
+| [`src/app/(app)/seres-queridos/[personId]/gifts/page.tsx`](../src/app/%28app%29/seres-queridos/%5BpersonId%5D/gifts/page.tsx) | Página principal: selector de evento, tipo, generación, descarte con toast+undo |
 | [`src/components/gifts/GiftRecommendationCard.tsx`](../src/components/gifts/GiftRecommendationCard.tsx) | Tarjeta de idea: título, descripción, precio, categoría, chips de tienda, botones 👍/👎 |
 | [`src/components/gifts/GiftsPanel.tsx`](../src/components/gifts/GiftsPanel.tsx) | Orquesta generación, caché, estado local de ideas, `handleSave` y `handleDiscard` |
 | [`src/app/api/recommendations/route.ts`](../src/app/api/recommendations/route.ts) | API route: fetches Convex, llama a Gemini, inyecta `dislikedCategories`, persiste resultado |
@@ -459,7 +461,7 @@ Los números concretos de RPM/RPD del free tier **ya no aparecen en la doc de Go
 ### Flujo base
 - [ ] Crear persona con intereses y **añadir una fecha con presupuesto definido**
 - [ ] Añadir 1-2 marcas favoritas (en el alta o en la ficha) → al generar ideas físicas, algunas (no todas) mencionan la marca y su `amazonQuery` la incluye; ninguna marca aparece como badge de categoría
-- [ ] Ir a `/people/[id]/gifts`, el `<Select>` muestra los eventos con presupuesto
+- [ ] Ir a `/seres-queridos/[personId]/gifts`, el `<Select>` muestra los eventos con presupuesto
 - [ ] Seleccionar evento → botón "Generar" se activa
 - [ ] Click en "Generar" → aparecen 9 skeletons con fondo visible mientras carga
 - [ ] Aparecen 9 tarjetas con título, badge de categoría, precio y chips de tienda
