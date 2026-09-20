@@ -34,38 +34,39 @@ Preguntas abiertas del proyecto, y el registro de las que se cerraron.
      indexada por `clerkUserId`. Cero trabajo.
   5. **`/privacidad` hay que actualizarla.**
 
-  **Falta decidir — cuatro huecos que las respuestas de arriba no cubren:**
+  **Decidido también (Jorge, 20-sep-2026), tras revisar los huecos:**
 
-  - **a) Qué pasa cuando el creador borra su cuenta.** El más urgente, porque
-    choca con código ya escrito: `account.deleteMyAccount` recorre las personas
-    del usuario y las borra en cascada, así que cerrar la cuenta **le arrancaría
-    la ficha a los invitados sin avisar**. Salidas: bloquear el borrado mientras
-    haya invitados, transferir la propiedad al invitado más antiguo, o avisar y
-    borrar igual. _Inclinación: transferir — es lo único que no castiga a un
-    tercero por una decisión que no tomó._
+  6. **Si el creador borra su cuenta, la propiedad se transfiere** al invitado más
+     antiguo. Bloquear el borrado no es opción —irse es un derecho RGPD, no un
+     permiso— y borrar en cascada castigaría a un tercero por una decisión que no
+     tomó. Toca `account.deleteMyAccount`, que hoy arrastra las personas del
+     usuario sin mirar si están compartidas.
+  7. **Las tandas generadas NO se comparten.** Cada usuario genera las suyas. La
+     razón no es el coste —10 al día es holgado— sino que una tanda es material de
+     trabajo: depende del tipo de regalo que elijas y de lo que hayas descartado
+     antes, que son decisiones tuyas. Lo que se comparte es el resultado curado,
+     no el borrador. Además es lo que ya hace el índice
+     `by_user_person_occasion_type`, así que cuesta cero.
+  8. **El aviso de las notas cambia en el mismo commit que la compartición**, no
+     después. Hoy `AiNotesNotice` dice «no escribas nada que no quieras compartir
+     con ella» refiriéndose a la IA, y eso fija la expectativa de quien escribe.
+     Cambiar quién lo lee sin cambiar el aviso sería una traición a esa promesa.
+  9. **El invitado ve la ficha entera**, y se le dice al invitar. Una alergia
+     oculta es exactamente lo que provoca el regalo equivocado, que es el problema
+     que resuelve la app. Pero son datos de salud (art. 9 RGPD), así que la
+     pantalla de invitar tiene que decir qué se está compartiendo **antes** de
+     compartirlo, no enterrarlo en `/privacidad`.
 
-  - **b) ¿Las tandas generadas se comparten o son de cada uno?** La decisión 4
-    fija de quién es la cuota, no qué pasa con el resultado. La caché está
-    indexada por `(clerkUserId, personId, ocasión, tipo)`, así que **por defecto
-    cada usuario generaría su propia tanda sobre la misma persona** y dos
-    hermanos gastarían dos cuotas para lo mismo. _Inclinación: compartirlas, y
-    que regenerar sea explícito — igual que hoy, pero visible para todos._
+  **Lo único que queda por decidir:**
 
-  - **c) ¿Dónde se avisa de que las notas se comparten?** La decisión 2 es
-    correcta, pero hoy el campo lleva un aviso (`AiNotesNotice`) que dice que las
-    notas van a la IA de Google y que no escribas nada que no quieras compartir
-    **con ella**. Eso fija la expectativa de quien escribe. Si además las lee su
-    cuñado, el aviso tiene que decirlo **ahí, donde se escribe**, no solo en
-    `/privacidad`. _Inclinación: cambiar el texto del aviso en cuanto exista la
-    compartición, no después._
-
-  - **d) ¿El invitado ve la ficha entera?** Las **alergias son datos de salud**,
-    categoría especial del art. 9 del RGPD — la misma preocupación que este
-    documento ya recoge para el tono de piel del avatar. Compartir la ficha las
-    transmite a otra cuenta. No lo hace inviable, pero obliga a elegir entre ficha
-    completa o versión recortada, y a escribirlo. _Inclinación: ficha completa,
-    porque una alergia oculta es justo lo que provoca el regalo equivocado, pero
-    diciéndolo explícitamente al invitar._
+  - **¿Se comparten las ideas guardadas?** La decisión 7 deja fuera las tandas,
+    pero no dice nada del pulgar arriba. Si tampoco se comparten, la colaboración
+    solo ocurre **a toro pasado**, en el historial: os enteráis de lo que regaló el
+    otro cuando ya lo regaló, que es tarde para no repetir. Si se comparten, la
+    ficha gana una lista de «lo que estamos barajando» y esa es la coordinación de
+    verdad. `savedIdeas` ya tiene los dos índices que harían falta (`by_person` y
+    `by_user`), así que las dos salidas cuestan lo mismo. _Inclinación:
+    compartirlas, con autoría como en el historial._
 
   **Coste técnico.** Todo el modelo de permisos cuelga de una columna:
   `clerkUserId` en `people`. Hay **15 comprobaciones de propiedad** repartidas por
