@@ -10,7 +10,8 @@ Preguntas abiertas del proyecto, y el registro de las que se cerraron.
 
 ## Abiertas
 
-- [ ] **Compartir personas entre usuarios.**
+- [ ] **Compartir personas entre usuarios.** — *diseño cerrado el 20-sep-2026;
+  lo que queda es construirlo, no decidirlo.*
 
   El caso: tres hermanos comparten la ficha de sus padres. Hoy cada uno la crea
   por su cuenta y lleva su propio historial, sin saber qué regalaron los otros.
@@ -34,7 +35,7 @@ Preguntas abiertas del proyecto, y el registro de las que se cerraron.
      indexada por `clerkUserId`. Cero trabajo.
   5. **`/privacidad` hay que actualizarla.**
 
-  **Decidido también (Jorge, 20-sep-2026), tras revisar los huecos:**
+  **Decidido también, tras revisar los huecos que dejaban las cinco primeras:**
 
   6. **Si el creador borra su cuenta, la propiedad se transfiere** al invitado más
      antiguo. Bloquear el borrado no es opción —irse es un derecho RGPD, no un
@@ -57,16 +58,13 @@ Preguntas abiertas del proyecto, y el registro de las que se cerraron.
      pantalla de invitar tiene que decir qué se está compartiendo **antes** de
      compartirlo, no enterrarlo en `/privacidad`.
 
-  **Lo único que queda por decidir:**
-
-  - **¿Se comparten las ideas guardadas?** La decisión 7 deja fuera las tandas,
-    pero no dice nada del pulgar arriba. Si tampoco se comparten, la colaboración
-    solo ocurre **a toro pasado**, en el historial: os enteráis de lo que regaló el
-    otro cuando ya lo regaló, que es tarde para no repetir. Si se comparten, la
-    ficha gana una lista de «lo que estamos barajando» y esa es la coordinación de
-    verdad. `savedIdeas` ya tiene los dos índices que harían falta (`by_person` y
-    `by_user`), así que las dos salidas cuestan lo mismo. _Inclinación:
-    compartirlas, con autoría como en el historial._
+  10. **Las ideas guardadas SÍ se comparten**, con autoría como el historial. Es
+     la pieza que hace que compartir valga la pena: ver que tu hermana ya tiene
+     apalabrado el rodillo de cerámica **antes** de comprarlo tú. Sin esto la
+     coordinación llega a toro pasado, cuando el regalo ya está hecho, que es
+     tarde justo para lo que justificaba la función. Contrapartida aceptada: entre
+     quienes comparten la ficha se acaba la sorpresa. `savedIdeas` ya tiene los
+     dos índices necesarios (`by_person` y `by_user`).
 
   **Coste técnico.** Todo el modelo de permisos cuelga de una columna:
   `clerkUserId` en `people`. Hay **15 comprobaciones de propiedad** repartidas por
