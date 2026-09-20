@@ -5,17 +5,25 @@ on:
     branches: [main]
   pull_request:
 
-# El job de auto-merge necesita poder mergear el PR.
-permissions:
-  contents: write
-  pull-requests: write
+# Sin bloque `permissions` a nivel de workflow: lo que se declare aquí lo
+# heredan TODOS los jobs, y `test` ejecuta `npm ci`, que corre los scripts de
+# instalación de cada dependencia. Darle a ese job permiso de escritura es
+# regalarle el token a código de terceros. Cada job pide lo suyo, abajo.
 
 jobs:
   # Red de seguridad: typecheck + tests en cada push y PR.
   test:
     runs-on: ubuntu-latest
+    # Solo leer el código. No empuja, no comenta, no mergea.
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v7
+        with:
+          # Sin esto, checkout deja el token en .git/config del runner, donde
+          # cualquier script de instalación puede leerlo. Este job no empuja
+          # nada, así que no le hace falta.
+          persist-credentials: false
       - uses: actions/setup-node@v7
         with:
           # Lee .nvmrc en vez de fijar la versión aquí: así CI, el entorno local
@@ -37,6 +45,11 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' && github.actor == 'dependabot[bot]'
+    # Los únicos permisos de escritura del workflow, y solo en el job que los
+    # necesita para mergear.
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Leer metadatos de Dependabot
         id: meta

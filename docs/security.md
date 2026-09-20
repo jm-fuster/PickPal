@@ -201,10 +201,46 @@ Antes de mergear, verifica que el cambio no rompe ninguno de estos:
 - [ ] No se ha ejecutado `npm audit fix --force`.
 - [ ] `npm run lint`, `tsc` y `npm run build` pasan (los majors de tooling rompen el build sin que el CI lo note — el CI solo corre vitest).
 
+### Si tocas `.github/workflows/`:
+- [ ] Ningún bloque `permissions` a nivel de workflow — cada job declara el suyo.
+- [ ] El job que corre `npm ci` sigue con `contents: read` y `persist-credentials: false`.
+- [ ] Un job nuevo con permisos de escritura está justificado en el propio fichero.
+
 ### Si tocas el schema de Convex:
 - [ ] Índices nuevos no exponen datos cruzados (ej. un índice solo por `personId` sin `clerkUserId` en la query).
 - [ ] Campos sensibles nuevos están listados aquí.
 - [ ] Si el campo viene del cliente o de Gemini y es de tamaño/contenido variable, hay un validator en `convex/validators.ts` que se llama desde la mutation que escribe.
+
+---
+
+## Integración continua (`.github/workflows/ci.yml`)
+
+El `GITHUB_TOKEN` del workflow es una credencial más, y el job `test` ejecuta
+`npm ci`, que corre los scripts de instalación de cada dependencia del árbol.
+Todo lo que ese job pueda hacer, puede hacerlo un paquete comprometido.
+
+- **Nada de `permissions` a nivel de workflow.** Lo que se declara ahí lo
+  heredan todos los jobs. Cada job declara lo suyo: `test` va con
+  `contents: read`, y los permisos de escritura viven solo en
+  `dependabot-automerge`, que es el único que mergea.
+- **`persist-credentials: false`** en el `actions/checkout` de `test`: sin eso
+  el token queda en `.git/config` del runner, legible por cualquier script de
+  instalación. Ese job no empuja nada.
+- Si algún día un job necesita escribir, **dáselo a ese job**, no al workflow.
+
+### Riesgo asumido: auto-merge de Dependabot
+
+Los PRs de Dependabot `patch`/`minor` se mergean solos si los tests pasan, y
+`main` despliega solo. La cadena completa —versión nueva de un paquete →
+merge → producción— no pasa por ojos humanos. El gate es la suite de tests,
+que no está pensada para detectar un paquete malicioso.
+
+Es un equilibrio consciente para un proyecto de una persona: el coste de
+revisar a mano cada bump de parche es real, y quedarse desactualizado también
+es un riesgo. Pero la app guarda datos de terceros, así que **si esto se
+revisa alguna vez, el cambio es exigir aprobación manual para el auto-merge**,
+o acotarlo a un allowlist de paquetes. Anotado aquí para que sea una decisión
+y no un descuido.
 
 ---
 
