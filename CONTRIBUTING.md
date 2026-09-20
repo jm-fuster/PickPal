@@ -45,7 +45,7 @@ Hacen falta dos terminales a la vez: `npx convex dev` y `npm run dev`.
 ## Antes de abrir el PR
 
 ```bash
-npm test                                  # 134 tests con Vitest
+npm test                                  # 176 tests con Vitest
 npx tsc --noEmit                          # tipos de la app
 npx tsc -p convex/tsconfig.json --noEmit  # Convex tiene su propio tsconfig
 npm run lint
@@ -59,6 +59,20 @@ en `convex/` pasa CI y revienta el deploy en Vercel.
 
 Si añades código en `src/lib/`, escribe tests también — los existentes son la
 referencia de estilo (`*.test.ts` junto al fichero).
+
+Lo mismo en `convex/`, y ahí con más motivo: una mutation sin comprobación de
+propiedad no rompe nada visible, solo filtra. Los tests de Convex usan
+[`convex-test`](https://docs.convex.dev/testing/convex-test) y necesitan el
+runtime en el que corren las funciones de verdad, así que cada archivo abre con
+dos líneas:
+
+```ts
+/// <reference types="vite/client" />
+// @vitest-environment edge-runtime
+```
+
+El resto de la suite sigue en `node`. `convex/auth.test.ts` es el ejemplo más
+corto por el que empezar.
 
 ## Estilo
 

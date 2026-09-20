@@ -360,7 +360,7 @@ lint still flags two raw `<img>` uses for the generated avatars.
 ## Quality gates
 
 ```bash
-npm test        # 134 tests across 8 files
+npm test        # 176 tests across 13 files
 npm run lint
 npm run build
 ```

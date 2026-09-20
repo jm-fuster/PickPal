@@ -5,7 +5,7 @@
 ## Antes de pedir revisión
 
 ```bash
-npm test                                  # 134 tests
+npm test                                  # 176 tests
 npx tsc --noEmit                          # tipos de la app
 npx tsc -p convex/tsconfig.json --noEmit  # Convex tiene su propio tsconfig
 npm run lint

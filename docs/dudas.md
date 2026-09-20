@@ -4,7 +4,7 @@ Preguntas abiertas del proyecto, y el registro de las que se cerraron.
 
 > Repasado contra el código el 20-sep-2026. Cinco de las siete que figuraban como
 > abiertas ya las había respondido la implementación — entre ellas «cero tests»,
-> cuando hay 134 — y se han movido abajo con lo que se hizo de verdad.
+> cuando hay 176 — y se han movido abajo con lo que se hizo de verdad.
 
 ---
 
@@ -23,12 +23,6 @@ Preguntas abiertas del proyecto, y el registro de las que se cerraron.
   hoy a un único usuario (`clerkUserId` en `people`), y todo el modelo de permisos
   cuelga de esa columna. Abrirlo obliga a repensar la comprobación de propiedad
   que hoy hace cada función de Convex, así que no es un cambio pequeño.
-
-- [ ] **Los tests no cubren `convex/`.**
-  Los 134 tests viven en `src/lib/` y cubren utilidades y esquemas Zod. Las
-  mutations —que son donde están la validación server-side, la comprobación de
-  propiedad y la reserva de cuota— no tienen tests: `convex-test` no está
-  instalado. Es la laguna más grande de la suite.
 
 - [ ] **Exportación de datos.**
   `/privacidad` promete enviarla a mano si alguien la pide, porque no existe en el
@@ -67,10 +61,13 @@ Preguntas abiertas del proyecto, y el registro de las que se cerraron.
   gastar distinto en un cumpleaños que en un detalle de Navidad. Se guarda en
   céntimos.
 
-- [x] **¿Testing automatizado?** Sí: 134 tests con Vitest en 8 archivos. CI los
-  corre en cada push y PR junto a dos typechecks (`tsc --noEmit` y el de
-  `convex/tsconfig.json`, que tiene el suyo). Queda pendiente cubrir `convex/`,
-  arriba.
+- [x] **¿Testing automatizado?** Sí: 176 tests con Vitest en 13 archivos, y desde
+  el 20-sep-2026 cubren también `convex/` con `convex-test` — propiedad entre
+  usuarios, los cuatro cubos de límite, el secreto compartido de la cuota, el
+  borrado en cascada y la revalidación de lo que devuelve el modelo. Los de
+  `convex/` piden `environment: "edge-runtime"` con una directiva por archivo;
+  el resto sigue en `node`. CI los corre en cada push y PR junto a dos
+  typechecks (`tsc --noEmit` y el de `convex/tsconfig.json`, que tiene el suyo).
 
 - [x] **Nombre de la app:** PickPal. Repo: `jm-fuster/PickPal`. Proyectos en Clerk
   y Convex también `pickpal`. _Renombrado desde «Giftly» el 2026-05-04 por

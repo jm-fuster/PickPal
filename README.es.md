@@ -359,7 +359,7 @@ marca dos `<img>` crudos de los avatares generados.
 ## Puertas de calidad
 
 ```bash
-npm test        # 134 tests en 8 archivos
+npm test        # 176 tests en 13 archivos
 npm run lint
 npm run build
 ```
