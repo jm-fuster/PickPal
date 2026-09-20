@@ -17,6 +17,8 @@ and let a model think with you when the date comes around.
 [![CI](https://github.com/jm-fuster/PickPal/actions/workflows/ci.yml/badge.svg)](https://github.com/jm-fuster/PickPal/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-0C2912)](LICENSE)
 
+**[Open the demo](https://pickpal.jorgemolinafuster.com)**
+
 [Leer en español](README.es.md)
 
 </div>
@@ -45,9 +47,6 @@ Built as a personal project, and used for real. **The interface is in Spanish
 only** — there is no i18n layer, the routes are Spanish words, and the model is
 prompted in Spanish. Everything below is the English description of a Spanish
 product.
-
-The app is in private beta, so this README shows it through screenshots rather
-than a live link.
 
 ## What it does
 

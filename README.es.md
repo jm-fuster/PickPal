@@ -17,6 +17,8 @@ y deja que la IA piense contigo cuando llegue el momento.
 [![CI](https://github.com/jm-fuster/PickPal/actions/workflows/ci.yml/badge.svg)](https://github.com/jm-fuster/PickPal/actions/workflows/ci.yml)
 [![Licencia: MIT](https://img.shields.io/badge/licencia-MIT-0C2912)](LICENSE)
 
+**[Abrir la demo](https://pickpal.jorgemolinafuster.com)**
+
 [Read in English](README.md)
 
 </div>
@@ -41,8 +43,7 @@ regalaste el año pasado y qué cara puso. Cuando se acerca una de sus fechas, P
 avisa y puede convertir todo eso en ideas de regalo para esa persona, esa ocasión y ese
 presupuesto.
 
-Es un proyecto personal y lo uso de verdad. La app está en beta privada, así que aquí la
-verás en capturas y no detrás de un enlace.
+Es un proyecto personal y lo uso de verdad.
 
 ## Qué hace
 
