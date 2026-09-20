@@ -364,7 +364,12 @@ if (staleKnown.length) {
   w("Declaradas en `design/token-divergences.json` pero ya no divergen: o se arreglaron y toca");
   w("borrarlas, o el nombre de la prop está mal escrito.");
   w();
-  for (const k of staleKnown) w(`- \`${k.replace("|", "\` en modo ")}\``);
+  for (const k of staleKnown) {
+    // La clave es `${css}|${modo}`: se parte, no se sustituye. Con `replace`
+    // el modo se quedaba fuera de su comilla y sobraba una al final.
+    const [css, modo] = k.split("|");
+    w(`- \`${css}\` en modo \`${modo}\``);
+  }
   w();
 }
 
