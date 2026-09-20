@@ -200,7 +200,8 @@ al modelo se le habla en español.
 
 ## Ejecutarlo en local
 
-Node 22 o superior. CI fija la 22, y el repo no tiene campo `engines` ni `.nvmrc`.
+Node 22 o superior, declarado una sola vez en `.nvmrc` y espejado por `engines` en
+`package.json`. CI lee ese mismo archivo en vez de fijar su propia versión.
 
 Primero las cuentas, y después deja que `npx convex dev` enlace el proyecto antes de poner
 nada del lado de Convex: `npx convex env set` saca `CONVEX_DEPLOYMENT` de `.env.local` y

@@ -202,7 +202,8 @@ conventions · next-themes · Resend · Vitest.
 
 ## Running it locally
 
-Node 22 or newer — CI pins 22, and the repo has no `engines` field or `.nvmrc`.
+Node 22 or newer, declared once in `.nvmrc` and mirrored by `engines` in
+`package.json`. CI reads that same file rather than pinning a version of its own.
 
 Do the accounts first, then let `npx convex dev` link the project before you set
 anything on the Convex side — `npx convex env set` reads `CONVEX_DEPLOYMENT` out of
