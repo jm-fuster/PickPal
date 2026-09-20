@@ -56,3 +56,6 @@ next-env.d.ts
 *-prod-backup*.zip
 *.backup.zip
 docs/screenshots/.profile/
+
+# Proyecto enlazado con la CLI de Vercel.
+.vercel
