@@ -11,10 +11,69 @@ Preguntas abiertas del proyecto, y el registro de las que se cerraron.
 ## Abiertas
 
 - [ ] **Compartir personas entre usuarios.**
-  Ej.: la ficha de los padres, compartida entre hermanos. Cada persona pertenece
-  hoy a un único usuario (`clerkUserId` en `people`), y todo el modelo de permisos
-  cuelga de esa columna. Abrirlo obliga a repensar la comprobación de propiedad
-  que hoy hace cada función de Convex, así que no es un cambio pequeño.
+
+  El caso: tres hermanos comparten la ficha de sus padres. Hoy cada uno la crea
+  por su cuenta y lleva su propio historial, sin saber qué regalaron los otros.
+  Lo mismo para una pareja con los amigos comunes.
+
+  **Lo que de verdad lo justifica** no es ahorrarse teclear la ficha dos veces:
+  es que el historial alimenta la generación. Compartirlo hace que la IA deje de
+  proponer la misma taza que ya regaló tu hermana. Sin eso, compartir es poco más
+  que una comodidad.
+
+  **Decidido (Jorge, 20-sep-2026):**
+
+  1. **Borra solo quien la creó.** El invitado puede desligarse para dejar de
+     verla, pero no borrarla para todos.
+  2. **Las notas se ven.** Es la información que hace útil colaborar, y ocultarlas
+     dejaría la ficha compartida a medias.
+  3. **Historial conjunto, con autoría**: cada regalo queda asociado a quien lo
+     hizo. Barato: `giftHistory` ya lleva `clerkUserId`; hoy significa «el dueño»
+     y pasaría a significar «quién lo registró».
+  4. **La cuota es de quien genera.** Ya funciona así: `recommendationUsage` está
+     indexada por `clerkUserId`. Cero trabajo.
+  5. **`/privacidad` hay que actualizarla.**
+
+  **Falta decidir — cuatro huecos que las respuestas de arriba no cubren:**
+
+  - **a) Qué pasa cuando el creador borra su cuenta.** El más urgente, porque
+    choca con código ya escrito: `account.deleteMyAccount` recorre las personas
+    del usuario y las borra en cascada, así que cerrar la cuenta **le arrancaría
+    la ficha a los invitados sin avisar**. Salidas: bloquear el borrado mientras
+    haya invitados, transferir la propiedad al invitado más antiguo, o avisar y
+    borrar igual. _Inclinación: transferir — es lo único que no castiga a un
+    tercero por una decisión que no tomó._
+
+  - **b) ¿Las tandas generadas se comparten o son de cada uno?** La decisión 4
+    fija de quién es la cuota, no qué pasa con el resultado. La caché está
+    indexada por `(clerkUserId, personId, ocasión, tipo)`, así que **por defecto
+    cada usuario generaría su propia tanda sobre la misma persona** y dos
+    hermanos gastarían dos cuotas para lo mismo. _Inclinación: compartirlas, y
+    que regenerar sea explícito — igual que hoy, pero visible para todos._
+
+  - **c) ¿Dónde se avisa de que las notas se comparten?** La decisión 2 es
+    correcta, pero hoy el campo lleva un aviso (`AiNotesNotice`) que dice que las
+    notas van a la IA de Google y que no escribas nada que no quieras compartir
+    **con ella**. Eso fija la expectativa de quien escribe. Si además las lee su
+    cuñado, el aviso tiene que decirlo **ahí, donde se escribe**, no solo en
+    `/privacidad`. _Inclinación: cambiar el texto del aviso en cuanto exista la
+    compartición, no después._
+
+  - **d) ¿El invitado ve la ficha entera?** Las **alergias son datos de salud**,
+    categoría especial del art. 9 del RGPD — la misma preocupación que este
+    documento ya recoge para el tono de piel del avatar. Compartir la ficha las
+    transmite a otra cuenta. No lo hace inviable, pero obliga a elegir entre ficha
+    completa o versión recortada, y a escribirlo. _Inclinación: ficha completa,
+    porque una alergia oculta es justo lo que provoca el regalo equivocado, pero
+    diciéndolo explícitamente al invitar._
+
+  **Coste técnico.** Todo el modelo de permisos cuelga de una columna:
+  `clerkUserId` en `people`. Hay **15 comprobaciones de propiedad** repartidas por
+  nueve archivos de `convex/`, todas con la forma «¿esta fila es tuya? si no, no
+  existe». Compartir convierte esa relación en muchos-a-muchos: hace falta una
+  tabla de enlace `(personId, clerkUserId, rol)` y reescribir las quince para que
+  consulten propiedad **o** invitación. La parte buena es que esas quince están
+  cubiertas por `convex/auth.test.ts`, así que el cambio no sería a ciegas.
 
 ---
 
