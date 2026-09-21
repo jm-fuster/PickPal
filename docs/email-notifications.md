@@ -333,7 +333,7 @@ Si por alguna razón hay que reenviar un aviso ya marcado como enviado, hay que 
 - **Sin opciones por evento**: el toggle es global. No se puede silenciar el recordatorio de una persona o evento concreto.
 - **Sin verificación de email**: si el JWT trae `email_verified=false`, hoy no se rechaza. Aceptable mientras Clerk no permita registros sin verificar; revisar si cambia.
 - **Sin BIMI**: el avatar del remitente en Gmail requiere un registro DNS BIMI con logo SVG. Ver "Sender avatar". Fuera del alcance actual.
-- **Sin DMARC** (decidido el 2026-07-29): SPF y DKIM sí están; falta la política que dice al receptor qué hacer cuando fallan. Su valor real es impedir que suplanten el dominio, y con ~6 usuarios en beta privada el incentivo para hacerlo es nulo. El correo ya entrega a bandeja, no a spam, así que no arregla nada roto. Se retoma cuando el dominio pase a ser público o transporte algo sensible; no acumula deuda, es un registro DNS de un minuto:
+- **Sin DMARC** (decidido el 2026-07-29; **la condición de revisarlo ya se ha cumplido**): SPF y DKIM sí están; falta la política que dice al receptor qué hacer cuando fallan. Su valor real es impedir que suplanten el dominio, y se dejó fuera mientras el dominio escribía a un puñado de direcciones conocidas: nadie tenía incentivo para suplantarlo, y el correo ya entregaba a bandeja, no a spam. La decisión decía «se retoma cuando el dominio pase a ser público», y eso ya ha pasado, así que toca ponerlo. No acumula deuda: es un registro DNS de un minuto:
 
   ```
   _dmarc.pickpal  TXT  "v=DMARC1; p=quarantine"

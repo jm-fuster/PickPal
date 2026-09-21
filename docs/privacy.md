@@ -157,7 +157,7 @@ En el lado servidor:
 
 Los correos de aviso incrustan el avatar como `background-image` ([`convex/emails.ts`](../convex/emails.ts)), así que el **gestor de correo del destinatario** (o el proxy de imágenes de Gmail) también hace la petición a DiceBear. Disclosado en `/privacidad`.
 
-> Alternativa evaluada y descartada por ahora: proxear las imágenes a través del propio servidor (ocultaría la IP del usuario a cambio de tráfico, latencia y complejidad en el hosting). Si la app sale de beta, reevaluar.
+> Alternativa evaluada y descartada por ahora: proxear las imágenes a través del propio servidor (ocultaría la IP del usuario a cambio de tráfico, latencia y complejidad en el hosting). Pendiente de reevaluar: el disparador que se anotó era que la app dejase de estar restringida a un grupo pequeño, y eso ya ha ocurrido.
 
 ---
 

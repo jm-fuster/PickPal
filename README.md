@@ -17,7 +17,7 @@ and let a model think with you when the date comes around.
 [![CI](https://github.com/jm-fuster/PickPal/actions/workflows/ci.yml/badge.svg)](https://github.com/jm-fuster/PickPal/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-0C2912)](LICENSE)
 
-**[Open the demo](https://pickpal.jorgemolinafuster.com)**
+**[Open the app](https://pickpal.jorgemolinafuster.com)**
 
 [Leer en español](README.es.md)
 

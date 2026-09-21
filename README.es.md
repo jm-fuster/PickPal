@@ -17,7 +17,7 @@ y deja que la IA piense contigo cuando llegue el momento.
 [![CI](https://github.com/jm-fuster/PickPal/actions/workflows/ci.yml/badge.svg)](https://github.com/jm-fuster/PickPal/actions/workflows/ci.yml)
 [![Licencia: MIT](https://img.shields.io/badge/licencia-MIT-0C2912)](LICENSE)
 
-**[Abrir la demo](https://pickpal.jorgemolinafuster.com)**
+**[Abrir la app](https://pickpal.jorgemolinafuster.com)**
 
 [Read in English](README.md)
 
