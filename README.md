@@ -400,7 +400,11 @@ The routes in this README came out of `npm run build`.
 Issues and pull requests are welcome. For anything large, open an issue first so
 we can agree on the shape before you write it. See
 [`CONTRIBUTING.md`](CONTRIBUTING.md) — and note that it is currently out of date in
-a few places that this README supersedes.
+a few places that this README supersedes. It opens with an English summary; the
+rest of it, like everything under `docs/`, is in Spanish.
+
+Found a security bug? Do not open an issue — [`SECURITY.md`](SECURITY.md) says
+where to send it, in English and Spanish.
 
 ## Credits
 

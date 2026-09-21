@@ -397,7 +397,11 @@ historia. Las rutas de este README salieron de `npm run build`.
 
 Los issues y los PR son bienvenidos. Si es algo grande, abre antes una issue para acordar
 la forma. Mira [`CONTRIBUTING.md`](CONTRIBUTING.md), aunque ahora mismo está
-desactualizado en varios puntos que este README corrige.
+desactualizado en varios puntos que este README corrige. Abre con un resumen en inglés;
+el resto, como todo lo que hay bajo `docs/`, está en español.
+
+¿Has encontrado un fallo de seguridad? No abras una issue: en
+[`SECURITY.md`](SECURITY.md) está dónde mandarlo, en inglés y en español.
 
 ## Créditos
 

@@ -1,4 +1,13 @@
-# Contribuir a PickPal
+# Contributing · Contribuir a PickPal
+
+> **In English.** This guide is in Spanish, like everything under `docs/`. The
+> short version: [the README](README.md) is in English and covers setup and
+> configuration in full, so start there. Before opening a PR, run `npm test`,
+> `npx tsc --noEmit`, `npx tsc -p convex/tsconfig.json --noEmit` and
+> `npm run lint` — CI runs the first three, not the last two. Commit messages
+> go in English. For anything large, open an issue first. Issues and pull
+> requests in English are welcome: the product is Spanish only, the
+> conversation around it does not have to be.
 
 ¡Gracias por querer contribuir! Esta guía es corta a propósito.
 
