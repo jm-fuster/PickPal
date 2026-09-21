@@ -8,11 +8,9 @@
 > [aviso privado de GitHub](https://github.com/jm-fuster/PickPal/security/advisories/new)
 > o escribe a [pickpal@jorgemolinafuster.com](mailto:pickpal@jorgemolinafuster.com).
 
-[**English**](#english) · [**Español**](#espanol)
+[**English**](#english) · [**Español**](#español)
 
 ---
-
-<a id="english"></a>
 
 ## English
 
@@ -87,8 +85,6 @@ What gets processed is described at
 and anyone who wants to exercise their rights can write to the address above.
 
 ---
-
-<a id="espanol"></a>
 
 ## Español
 
