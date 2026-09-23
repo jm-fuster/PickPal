@@ -15,7 +15,7 @@ Guarda lo que sabes de cada persona, activa los avisos
 y deja que la IA piense contigo cuando llegue el momento.
 
 [![CI](https://github.com/jm-fuster/PickPal/actions/workflows/ci.yml/badge.svg)](https://github.com/jm-fuster/PickPal/actions/workflows/ci.yml)
-[![Licencia: MIT](https://img.shields.io/badge/licencia-MIT-0C2912)](LICENSE)
+[![Licencia: todos los derechos reservados](https://img.shields.io/badge/licencia-todos%20los%20derechos%20reservados-0C2912)](LICENSE)
 
 **[Abrir la app](https://pickpal.jorgemolinafuster.com)**
 
@@ -405,7 +405,7 @@ el resto, como todo lo que hay bajo `docs/`, está en español.
 
 ## Créditos
 
-El código es MIT. Parte de lo que viaja con él no es mío:
+El código es © Jorge Molina Fuster, con todos los derechos reservados. Parte de lo que viaja con él no es mío:
 
 - **Los avatares.** El estilo *dylan* de DiceBear, que es un remix de un archivo de Figma
   Community de **Natalia Spivak**, usado bajo
@@ -418,4 +418,4 @@ El código es MIT. Parte de lo que viaja con él no es mío:
 
 ## Licencia
 
-[MIT](LICENSE) © Jorge Molina Fuster
+© Jorge Molina Fuster. Todos los derechos reservados. Ver [LICENSE](LICENSE).

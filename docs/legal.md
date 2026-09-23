@@ -74,7 +74,7 @@ Las ideas de regalo se generan con un modelo de lenguaje (Google Gemini) a parti
 
 ## 7. Propiedad intelectual
 
-- El código de PickPal se distribuye bajo licencia MIT (ver [`LICENSE`](../LICENSE)).
+- El código de PickPal es propiedad de **Jorge Molina Fuster**, con todos los derechos reservados (ver [`LICENSE`](../LICENSE)). Las versiones publicadas antes del 23 de septiembre de 2026 bajo licencia MIT conservan esa licencia.
 - La marca, el diseño y el contenido editorial son propiedad de **Jorge Molina Fuster**.
 - Los datos introducidos por el usuario son **del usuario**. PickPal los procesa en los términos descritos en la política de privacidad.
 

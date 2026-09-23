@@ -1,21 +1,17 @@
-MIT License
+Copyright (c) 2026 Jorge Molina Fuster. All rights reserved.
 
-Copyright (c) 2026 Jorge Molina Fuster
+This repository is published for viewing only. No license is granted to use,
+copy, modify, merge, publish, distribute, sublicense, sell, or host this
+software or any part of it, or to create derivative works from it, without
+prior written permission from the copyright holder.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Viewing the source on GitHub, and forking it within GitHub as permitted by
+GitHub's Terms of Service, does not grant any of the rights above.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Versions of this repository published before 23 September 2026 under the MIT
+License remain available under that license for those specific versions.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+Third-party assets bundled with this project (avatars, store logos,
+photography, fonts) remain under their own licenses, as listed in README.md.
+
+Contact: https://github.com/jm-fuster

@@ -127,5 +127,6 @@ Captura si aplica.
 
 ## Licencia
 
-Al contribuir aceptas que tu código se publique bajo la
-[licencia MIT](LICENSE) del proyecto.
+Al contribuir cedes a Jorge Molina Fuster los derechos sobre tu aportación para que
+pueda incluirla en el proyecto, que se publica con todos los derechos reservados
+(ver [LICENSE](LICENSE)).

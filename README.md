@@ -15,7 +15,7 @@ Keep what you know about each person, decide when to be reminded,
 and let a model think with you when the date comes around.
 
 [![CI](https://github.com/jm-fuster/PickPal/actions/workflows/ci.yml/badge.svg)](https://github.com/jm-fuster/PickPal/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-0C2912)](LICENSE)
+[![License: All rights reserved](https://img.shields.io/badge/license-all%20rights%20reserved-0C2912)](LICENSE)
 
 **[Open the app](https://pickpal.jorgemolinafuster.com)**
 
@@ -408,7 +408,7 @@ where to send it, in English and Spanish.
 
 ## Credits
 
-The code is MIT. Some of what ships alongside it is not mine:
+The code is © Jorge Molina Fuster, all rights reserved. Some of what ships alongside it is not mine:
 
 - **Avatars.** DiceBear's *dylan* style, a remix of a Figma Community file by
   **Natalia Spivak**, used under
@@ -421,4 +421,4 @@ The code is MIT. Some of what ships alongside it is not mine:
 
 ## License
 
-[MIT](LICENSE) © Jorge Molina Fuster
+© Jorge Molina Fuster. All rights reserved. See [LICENSE](LICENSE).
