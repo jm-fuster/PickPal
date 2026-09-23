@@ -2,7 +2,9 @@
 
 > **In English.** This guide is in Spanish, like everything under `docs/`. The
 > short version: [the README](README.md) is in English and covers setup and
-> configuration in full, so start there. Before opening a PR, run `npm test`,
+> configuration in full, so start there. The code is all rights reserved; the
+> [LICENSE](LICENSE) lets you clone and run it only to prepare contributions.
+> Before opening a PR, run `npm test`,
 > `npx tsc --noEmit`, `npx tsc -p convex/tsconfig.json --noEmit` and
 > `npm run lint` — CI runs the first three, not the last two. Commit messages
 > go in English. For anything large, open an issue first.
@@ -127,6 +129,11 @@ Captura si aplica.
 
 ## Licencia
 
-Al contribuir cedes a Jorge Molina Fuster los derechos sobre tu aportación para que
-pueda incluirla en el proyecto, que se publica con todos los derechos reservados
-(ver [LICENSE](LICENSE)).
+El proyecto se publica con todos los derechos reservados (ver [LICENSE](LICENSE)).
+La licencia hace una excepción para contribuir: puedes clonar el repo y ejecutarlo
+en tu máquina para evaluarlo y preparar issues o PRs. No te permite desplegarlo,
+ofrecerlo como servicio ni usarlo en otro proyecto.
+
+Al abrir un PR concedes a Jorge Molina Fuster una licencia perpetua, mundial,
+irrevocable y gratuita para usar, modificar, sublicenciar y distribuir tu
+aportación como parte del proyecto, y confirmas que tienes derecho a hacerlo.

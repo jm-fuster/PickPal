@@ -8,6 +8,17 @@ prior written permission from the copyright holder.
 Viewing the source on GitHub, and forking it within GitHub as permitted by
 GitHub's Terms of Service, does not grant any of the rights above.
 
+Limited exception for contributors: you may clone this repository and run it
+on your own machine solely to evaluate it and to prepare contributions
+(issues and pull requests) to this repository. This does not permit
+deploying, hosting or offering it as a service, or using it in any other
+project.
+
+By submitting a contribution you grant Jorge Molina Fuster a perpetual,
+worldwide, irrevocable, royalty-free license to use, modify, sublicense and
+distribute it as part of this project, and you confirm that you have the
+right to do so.
+
 Versions of this repository published before 23 September 2026 under the MIT
 License remain available under that license for those specific versions.
 
