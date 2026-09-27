@@ -177,6 +177,8 @@ Flujo:
 
 El `clerkUserId` siempre se lee de la sesión vía `requireUser` — la mutation no acepta argumentos. No existe forma de que un usuario borre los datos de otro.
 
+**El borrado propio de Clerk está desactivado, y tiene que seguir así.** Clerk Dashboard → User & authentication → «Allow users to delete their account» está en **off**, aplicado también a los usuarios existentes (27-sep-2026). Si se activa, el perfil de Clerk (`UserButton` → Administrar cuenta) enseña su propio botón de borrar cuenta. Ese botón borra el usuario en Clerk pero no toca Convex, porque no hay webhook. Las fichas, fechas, alergias y ajustes se quedarían huérfanos, justo lo contrario de lo que promete `/privacidad`. El único camino de borrado es este flujo. «Allow users to change their email address» sí sigue activo: es rectificación, y los avisos leen el email del JWT de cada sesión.
+
 **Excepción desde que existe compartir (§9):** `deleteMyAccount` ya no borra incondicionalmente cada `people` del usuario. Si la persona tiene invitados, la propiedad se transfiere al más antiguo (`personShares.transferToOldestInviteeOrNull`) en lugar de borrarla — bloquear el borrado violaría el derecho RGPD a irse, y cascada la castigaría a un tercero por una decisión ajena. Solo se cascada-borra si no queda nadie más con acceso. Además, `deleteMyAccount` llama a `personShares.deleteSharesForUser` para desligar al usuario de toda ficha ajena que le hubieran compartido — la versión en bloque de `personShares.leave`.
 
 ### 8. Variables de entorno
