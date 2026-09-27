@@ -520,20 +520,40 @@ export function GiftsPanel({
           </div>
         </div>
       ) : showIdeas && showIdeas.length > 0 ? (
-        <div className={`grid gap-4 ${embedded ? "grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-3"}`}>
-          {showIdeas.map((idea, i) => (
-            <GiftRecommendationCard
-              key={idea.title}
-              idea={idea}
-              index={i}
-              giftType={giftType}
-              favoriteStores={favoriteStores}
-              favoriteBrands={person.favoriteBrands}
-              saved={isSaved(idea.title)}
-              onSave={() => handleSave(idea)}
-              onDiscard={() => handleDiscard(idea, i)}
-            />
-          ))}
+        <div className="flex flex-col gap-3">
+          <div className={`grid gap-4 ${embedded ? "grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-3"}`}>
+            {showIdeas.map((idea, i) => (
+              <GiftRecommendationCard
+                key={idea.title}
+                idea={idea}
+                index={i}
+                giftType={giftType}
+                favoriteStores={favoriteStores}
+                favoriteBrands={person.favoriteBrands}
+                saved={isSaved(idea.title)}
+                onSave={() => handleSave(idea)}
+                onDiscard={() => handleDiscard(idea, i)}
+              />
+            ))}
+          </div>
+          {/* Las pautas de la API de Pexels piden un enlace visible a Pexels.
+              Va fuera de las cards porque el crédito dentro de la cabecera
+              visual se descartó (docs/design-system.md · Cards). */}
+          {showIdeas.some((idea) => idea.image) && (
+            <p className="text-2xs text-muted-foreground">
+              Fotos de{" "}
+              <a
+                href="https://www.pexels.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Pexels (abre en una pestaña nueva)"
+                className="underline underline-offset-2 hover:text-foreground"
+              >
+                Pexels
+              </a>
+              .
+            </p>
+          )}
         </div>
       ) : showIdeas ? (
         /* El usuario descartó las 9 ideas: estado vacío con CTA, no un grid en blanco */

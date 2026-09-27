@@ -413,8 +413,8 @@ El código es © Jorge Molina Fuster, con todos los derechos reservados. Parte d
   persona, así que el crédito va aquí y en los créditos de la propia app, en `/terminos`.
 - **Los logos de tiendas** de `public/stores/` son marcas de sus dueños y se usan para
   identificarlas.
-- **Las fotos** de las tarjetas de ideas vienen de Pexels, enlazado desde los créditos de
-  `/terminos`.
+- **Las fotos** de las tarjetas de ideas vienen de Pexels, enlazado bajo la rejilla de ideas y
+  en los créditos de `/terminos`.
 - **La tipografía** es Geist en la interfaz y Fraunces en los títulos.
 
 ## Licencia

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LogoMark } from "@/components/ui/LogoMark";
 import { BackLink } from "@/components/layout/BackLink";
+import { AnalyticsOptOut } from "@/components/analytics-opt-out";
 
 export const metadata = {
   title: "Privacidad · PickPal",
@@ -265,10 +266,12 @@ export default function PrivacyPage() {
           <p className="text-sm text-foreground">
             La analítica de Vercel funciona sin cookies y solo cuenta visitas
             de forma agregada, sin identificarte. Si no quieres que cuente las
-            tuyas, activa en tu navegador la señal &laquo;Global Privacy
-            Control&raquo; o &laquo;No rastrear&raquo;: cuando llega, tu visita
-            no se registra.
+            tuyas, desactiva &laquo;Contar mis visitas&raquo; aquí abajo, o
+            activa en tu navegador la señal &laquo;Global Privacy
+            Control&raquo; o &laquo;No rastrear&raquo;. En los dos casos tu
+            visita no se registra.
           </p>
+          <AnalyticsOptOut />
         </section>
 
         <section className="space-y-3">
