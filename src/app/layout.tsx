@@ -5,7 +5,7 @@ import { esES } from "@clerk/localizations";
 import { ConvexClientProvider } from "./ConvexClientProvider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
-import { Analytics } from "@vercel/analytics/next";
+import { Analytics } from "@/components/analytics";
 import "./globals.css";
 
 // Clerk's esES speaks in "usted"; the rest of the product speaks in "tú".

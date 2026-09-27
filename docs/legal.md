@@ -76,7 +76,7 @@ Las ideas de regalo se generan con un modelo de lenguaje (Google Gemini) a parti
 
 - El código de PickPal es propiedad de **Jorge Molina Fuster**, con todos los derechos reservados (ver [`LICENSE`](../LICENSE)). Las versiones publicadas antes del 23 de septiembre de 2026 bajo licencia MIT conservan esa licencia.
 - La marca, el diseño y el contenido editorial son propiedad de **Jorge Molina Fuster**. `/terminos` lo dice así desde el 27-sep-2026; antes ponía «de sus titulares» sin nombrar a nadie.
-- Los logos de tiendas y marcas, las fotos de Pexels y los avatares de DiceBear son de sus respectivos titulares, y `/terminos` lo aclara.
+- Los logos de tiendas y marcas, las fotos de Pexels y los avatares de DiceBear son de sus respectivos titulares. `/terminos` tiene una sección «Créditos» desde el 27-sep-2026, con la atribución que exige la CC BY 4.0 del estilo «dylan» (autora, obra, licencia y enlaces) y el enlace a Pexels. Detalle en `privacy.md` §4.2.
 - Los datos introducidos por el usuario son **del usuario**. PickPal los procesa en los términos descritos en la política de privacidad.
 
 ---

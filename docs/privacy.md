@@ -55,7 +55,9 @@ El usuario introduce información sobre personas de su entorno (amigos, familia,
 
 - **Clerk** instala cookies técnicas de sesión (1ª parte). No requieren consentimiento bajo LSSI art. 22.2.
 - **Cloudflare Turnstile** (subencargado de Clerk) se carga en las pantallas de acceso como verificación anti-bot — está en el `script-src`/`frame-src` de la CSP. Ve la IP del visitante. Es medida de seguridad necesaria para prestar el servicio, no seguimiento, pero se menciona en `/privacidad` para no afirmar que Clerk es el único tercero presente en el login.
-- **No usamos cookies analíticas, publicitarias ni de terceros.** La analítica de uso se hace con **Vercel Web Analytics**, que es *cookieless* (no almacena ni accede a información en el dispositivo, recoge métricas agregadas), por lo que no requiere banner de consentimiento bajo LSSI art. 22.2.
+- **No usamos cookies analíticas, publicitarias ni de terceros.** La analítica de uso se hace con **Vercel Web Analytics**, sin cookies y con métricas agregadas.
+- **Que no use cookies no la saca del art. 22.2 LSSI.** Según las Directrices 2/2023 del CEPD, también cuenta un script que lee información del dispositivo y la envía, y el de Vercel manda cada visita. Lo que la hace defendible sin banner es el criterio de la [guía de cookies de la AEPD](https://www.aepd.es/sites/default/files/2020-07/guia-cookies.pdf) (2023) para la medición propia, agregada y con fines estadísticos: bajo riesgo si se informa y se deja negarse. Se informa en `/privacidad` («Cookies»). Para negarse, desde el 27-sep-2026 se respetan las señales Global Privacy Control y Do Not Track: `beforeSend` en [`src/components/analytics.tsx`](../src/components/analytics.tsx) descarta la visita. Antes, este punto decía que la analítica «no almacena ni accede a información en el dispositivo» y que por eso no necesitaba nada; era la conclusión equivocada.
+- _Revisar:_ un interruptor propio en la app («no contar mis visitas») sería una forma más clara de negarse que depender de una señal del navegador.
 - Si en el futuro se añade analítica basada en cookies (Plausible con cookies, GA, etc.) o publicidad, habrá que añadir banner de consentimiento y actualizar este documento.
 
 ### 2.5 Compartir fichas entre usuarios de PickPal
@@ -158,6 +160,8 @@ Durante un tiempo este párrafo afirmaba que el aviso existía "en la app" cuand
 
 ### 4.2 Imágenes de terceros (Pexels, Brandfetch y DiceBear)
 
+**Créditos.** El estilo «dylan» de DiceBear es una adaptación de una obra de Natalia Spivak con licencia CC BY 4.0, que exige atribución: está en `/terminos` («Créditos») desde el 27-sep-2026, con autora, obra, licencia y enlaces. Antes solo figuraba en el README, que no ve quien usa la app. Las pautas de la API de Pexels piden un enlace visible a Pexels y dar crédito al fotógrafo cuando sea posible. El enlace está en esos mismos créditos; _Revisar:_ el crédito por foto en la tarjeta de idea sigue pendiente, aunque el fotógrafo y su enlace ya se guardan con cada foto.
+
 Las fotos de las ideas, los logos de marca y los avatares se cargan por *hotlink* directo desde los CDNs de Pexels, Brandfetch y DiceBear: el navegador del usuario se conecta a esos dominios, que ven su **dirección IP**, user-agent y el dominio de origen (solo el origen, no la ruta, por la `Referrer-Policy` del sitio — `strict-origin-when-cross-origin`). Los tres dominios están en el `img-src` de la CSP.
 
 En el lado servidor:
@@ -203,7 +207,8 @@ PickPal permite al usuario guardar información sobre personas de su entorno que
 
 - **Quién responde de qué.** Para el usuario, apuntar los gustos y las fechas de su entorno suele ser una actividad personal o doméstica, y eso queda fuera del RGPD (art. 2.2.c). PickPal, que pone los medios, sí está sujeto (considerando 18). Como no hay un responsable por encima para el que pueda actuar de encargado, **PickPal se trata a sí mismo como responsable** de estos datos, con base en el interés legítimo (art. 6.1.f, ver §3). Esta sección decía antes que PickPal era «encargado» del usuario, y por eso mismo no se sostenía.
 - Por los términos de uso, al usuario le toca tener una relación personal legítima con esa persona y no introducir datos sensibles innecesarios.
-- Cualquier tercero puede solicitar el borrado o información sobre los datos que se guardan sobre él escribiendo a [pickpal@jorgemolinafuster.com](mailto:pickpal@jorgemolinafuster.com). Daremos curso a la petición localizando los registros que le mencionen y eliminándolos en un plazo máximo de 30 días.
+- Cualquier tercero puede solicitar el borrado o información sobre los datos que se guardan sobre él escribiendo a [pickpal@jorgemolinafuster.com](mailto:pickpal@jorgemolinafuster.com). Daremos curso a la petición localizando los registros que le mencionen y eliminándolos en un plazo máximo de un mes (art. 12.3). Desde el 27-sep-2026, `/privacidad` se lo dice directamente al tercero («Si alguien te ha añadido a PickPal…»). Antes solo le hablaba al usuario.
+- **Información a los terceros (art. 14).** Estas personas no dan sus datos a PickPal, y PickPal no tiene forma de contactarlas: no guarda su email ni su teléfono. Eso encaja en la excepción de esfuerzo desproporcionado del art. 14.5.b, cuya medida de acompañamiento es hacer pública la información. `/privacidad` es pública (`isPublicRoute` en [`src/proxy.ts`](../src/proxy.ts)) y tiene un párrafo dirigido a ellas.
 - **Datos sensibles** (salud, ideología, orientación sexual, etc., art. 9 RGPD): el usuario **no debe** introducirlos en notas. Si se detecta su uso sistemático, podemos suspender la cuenta.
 
 ---

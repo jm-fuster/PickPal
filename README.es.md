@@ -410,10 +410,11 @@ El código es © Jorge Molina Fuster, con todos los derechos reservados. Parte d
 - **Los avatares.** El estilo *dylan* de DiceBear, que es un remix de un archivo de Figma
   Community de **Natalia Spivak**, usado bajo
   [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). PickPal lo pinta para cada
-  persona, así que el crédito va aquí y no solo en un documento.
+  persona, así que el crédito va aquí y en los créditos de la propia app, en `/terminos`.
 - **Los logos de tiendas** de `public/stores/` son marcas de sus dueños y se usan para
   identificarlas.
-- **Las fotos** de las tarjetas de ideas vienen de Pexels y se acreditan en la app.
+- **Las fotos** de las tarjetas de ideas vienen de Pexels, enlazado desde los créditos de
+  `/terminos`.
 - **La tipografía** es Geist en la interfaz y Fraunces en los títulos.
 
 ## Licencia

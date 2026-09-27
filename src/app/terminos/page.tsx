@@ -164,9 +164,69 @@ export default function TermsPage() {
             </li>
             <li>
               El código, la marca, el diseño y los textos de PickPal son de
-              Jorge Molina Fuster, con todos los derechos reservados. Los logos
-              de tiendas y marcas, las fotos y los avatares ilustrados
-              pertenecen a sus respectivos titulares.
+              Jorge Molina Fuster, con todos los derechos reservados. Lo que es
+              de terceros está en &laquo;Créditos&raquo;.
+            </li>
+          </ul>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="text-xl font-medium">Créditos</h2>
+          <ul className="space-y-2 text-sm text-foreground list-disc pl-5">
+            <li>
+              Los avatares usan el estilo &laquo;Dylan&raquo; de{" "}
+              <a
+                href="https://www.dicebear.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2 hover:text-foreground"
+              >
+                DiceBear
+              </a>
+              , una adaptación de &laquo;
+              <a
+                href="https://www.figma.com/community/file/1356575240759683500"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2 hover:text-foreground"
+              >
+                Dylan! The Avatar Generator
+              </a>
+              &raquo;, de{" "}
+              <a
+                href="https://nataspvk.tilda.ws/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2 hover:text-foreground"
+              >
+                Natalia Spivak
+              </a>
+              , con licencia{" "}
+              <a
+                href="https://creativecommons.org/licenses/by/4.0/deed.es"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2 hover:text-foreground"
+              >
+                CC BY 4.0
+              </a>
+              .
+            </li>
+            <li>
+              Las fotos de las ideas de regalo vienen de{" "}
+              <a
+                href="https://www.pexels.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2 hover:text-foreground"
+              >
+                Pexels
+              </a>{" "}
+              y son de sus autores.
+            </li>
+            <li>
+              Los logos de tiendas y marcas pertenecen a sus propietarios y
+              solo se usan para identificarlas.
             </li>
           </ul>
         </section>

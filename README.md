@@ -413,10 +413,11 @@ The code is © Jorge Molina Fuster, all rights reserved. Some of what ships alon
 - **Avatars.** DiceBear's *dylan* style, a remix of a Figma Community file by
   **Natalia Spivak**, used under
   [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). PickPal renders it for
-  every person, so the credit belongs here rather than only in a document.
+  every person, so the credit is here and in the app's own credits, on `/terminos`.
 - **Store logos** in `public/stores/` are their owners' trademarks, used for
   identification.
-- **Stock photography** on idea cards comes from Pexels, credited in the app.
+- **Stock photography** on idea cards comes from Pexels, linked from the
+  credits on `/terminos`.
 - **Type** is Geist for the interface and Fraunces for headings.
 
 ## License

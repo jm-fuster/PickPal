@@ -207,6 +207,22 @@ export default function PrivacyPage() {
             alguien te pide quitar sus datos, puedes hacerlo desde su ficha o
             eliminando tu cuenta entera.
           </p>
+          <p className="text-sm text-foreground">
+            <span className="text-foreground">
+              Si alguien te ha añadido a PickPal
+            </span>{" "}
+            y quieres saber qué datos tuyos hay, oponerte a que se usen o que
+            los borremos, escribe a{" "}
+            <a
+              className="underline underline-offset-4"
+              href="mailto:pickpal@jorgemolinafuster.com"
+            >
+              pickpal@jorgemolinafuster.com
+            </a>
+            . Para encontrarlos nos ayuda saber tu nombre y, si lo sabes, quién
+            te añadió. Te responderemos en un plazo máximo de un mes. Esta
+            página es pública para que puedas leerla sin tener cuenta.
+          </p>
         </section>
 
         <section className="space-y-3">
@@ -244,8 +260,14 @@ export default function PrivacyPage() {
           <p className="text-sm text-foreground">
             Solo usamos cookies técnicas necesarias para mantener tu sesión
             iniciada (las gestiona Clerk). No usamos cookies de publicidad ni de
-            seguimiento, por lo que no hace falta ningún banner de
-            consentimiento. La analítica de Vercel funciona sin cookies.
+            seguimiento, así que no hace falta un banner de cookies.
+          </p>
+          <p className="text-sm text-foreground">
+            La analítica de Vercel funciona sin cookies y solo cuenta visitas
+            de forma agregada, sin identificarte. Si no quieres que cuente las
+            tuyas, activa en tu navegador la señal &laquo;Global Privacy
+            Control&raquo; o &laquo;No rastrear&raquo;: cuando llega, tu visita
+            no se registra.
           </p>
         </section>
 
