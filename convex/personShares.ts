@@ -6,6 +6,7 @@ import { checkAndIncrement } from "./rateLimit";
 
 const MAX_INVITEES_PER_PERSON = 20;
 const INVITE_DAILY_LIMIT = 20;
+export const INVITE_LOOKUP_DAILY_LIMIT = 30;
 const MAX_CLERK_ID_LENGTH = 100;
 
 /**
@@ -153,6 +154,33 @@ export const listMembers = query({
         since: s._creationTime,
       })),
     };
+  },
+});
+
+/**
+ * Paso previo a buscar un email en Clerk desde
+ * `src/app/api/people/[personId]/share/route.ts`. Esa ruta contesta distinto
+ * si el email tiene cuenta o no, así que sin este paso cualquier usuario podía
+ * usarla para averiguar, sin límite, si un email está registrado en PickPal.
+ * Exige ser el dueño de la ficha, igual que `invite`, y gasta una unidad de
+ * `invite_lookup` antes de que la ruta toque Clerk. Ver docs/security.md §9.
+ */
+export const reserveInviteLookup = mutation({
+  args: { personId: v.id("people") },
+  handler: async (ctx, { personId }) => {
+    const clerkUserId = await requireUser(ctx);
+    assertIsOwner(
+      await ctx.db.get(personId),
+      clerkUserId,
+      "Solo quien creó la ficha puede compartirla.",
+    );
+    await checkAndIncrement(
+      ctx,
+      clerkUserId,
+      "invite_lookup",
+      INVITE_LOOKUP_DAILY_LIMIT,
+    );
+    return null;
   },
 });
 

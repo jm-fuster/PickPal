@@ -5,6 +5,9 @@ import type { Id } from "./_generated/dataModel";
 import type { UserToNotify, EventToNotify } from "./notifications";
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
 const DEFAULT_FROM = "PickPal <hola@pickpal.jorgemolinafuster.com>";
+// El remitente no recibe correo (su subdominio es un CNAME a Vercel), así que
+// las respuestas van al buzón de contacto que publican /privacidad y /terminos.
+const REPLY_TO = "pickpal@jorgemolinafuster.com";
 const APP_BASE_URL = "https://pickpal.jorgemolinafuster.com";
 const LOGO_DATA_URI = `${APP_BASE_URL}/logo-mark-email.png`;
 const GIFT_ICON_DATA_URI = `${APP_BASE_URL}/gift-icon-email.png`;
@@ -222,6 +225,7 @@ async function sendViaResend(
     body: JSON.stringify({
       from,
       to,
+      reply_to: REPLY_TO,
       subject: buildSubject(events),
       html: buildHtml(events),
     }),

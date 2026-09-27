@@ -264,7 +264,8 @@ export default function TermsPage() {
               Ajustes
             </Link>
             , con &laquo;Eliminar mi cuenta&raquo;. Esto borra de forma
-            permanente todos tus datos en PickPal y cierra tu cuenta.
+            permanente tus datos en PickPal y cierra tu cuenta. La política de
+            privacidad explica qué pasa con las fichas compartidas.
           </p>
         </section>
 

@@ -37,6 +37,8 @@ El uso de PickPal está sujeto a los presentes términos y a la [política de pr
 
 Al registrarse y utilizar PickPal, el usuario acepta estos términos. Si no está de acuerdo, no debe registrarse ni utilizar el servicio.
 
+La casilla del registro de Clerk dice «Acepto los Términos de Servicio y he leído la Política de Privacidad». Antes decía «He leído y acepto… la Política de Privacidad», que es el texto por defecto de Clerk. Pero la política no se acepta: informa, y ninguna de sus bases legales es el consentimiento a ese documento. Pedir que se «acepte» emborrona eso. El texto se sobrescribe en la localización de [`src/app/layout.tsx`](../src/app/layout.tsx).
+
 ---
 
 ## 4. Cuenta de usuario
@@ -106,6 +108,7 @@ Estas limitaciones no afectan a derechos del consumidor que sean irrenunciables 
 El usuario puede dar de baja su cuenta en cualquier momento desde **Ajustes** (`/settings`). Tras la baja:
 
 - **El borrado es inmediato y transaccional**: al confirmar, se purgan las nueve tablas de la base de datos y a continuación se elimina la cuenta en el proveedor de identidad. No hay periodo de gracia ni papelera.
+- **Dos excepciones, las dos por fichas compartidas** (detalle en `privacy.md` §6): una ficha que el usuario compartió pasa a su primer invitado en vez de borrarse, y lo que añadió a fichas ajenas se queda en ellas, sin nombre ni email. `/terminos` remite a la política de privacidad para esto desde el 27-sep-2026; antes decía que se borraban «todos tus datos».
 - Las copias de seguridad de los proveedores de infraestructura se reciclan según sus propios plazos, y pueden conservarse los datos estrictamente necesarios para cumplir obligaciones legales (por ejemplo, logs de seguridad).
 
 ---

@@ -453,9 +453,10 @@ export default function SettingsPage() {
         <div className="space-y-1">
           <Label className="text-destructive">Eliminar cuenta</Label>
           <p className="text-xs text-muted-foreground">
-            Borra tu cuenta y todos tus datos en PickPal: seres queridos,
-            eventos, historial de regalos y ajustes. Esta acción no se puede
-            deshacer.
+            Borra tu cuenta y tus datos en PickPal: seres queridos, eventos,
+            historial de regalos y ajustes. Cada ficha que compartiste pasa a
+            la primera persona que invitaste, y lo que añadiste a fichas de
+            otros se queda en ellas. Esta acción no se puede deshacer.
           </p>
         </div>
         <Button

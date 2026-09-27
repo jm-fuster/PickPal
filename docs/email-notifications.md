@@ -201,6 +201,8 @@ Para el deployment de producción se añade `--prod` a cada comando. En PowerShe
 | `RESEND_API_KEY` | **sí** | — | API key de Resend. Sin ella, `sendBatchedReminderEmail` lanza error. |
 | `EMAIL_FROM` | no | `PickPal <hola@pickpal.jorgemolinafuster.com>` | Remitente, en formato `Nombre <dirección>`. El dominio debe estar verificado en Resend; la parte local no necesita buzón real. |
 
+**Las respuestas van a otro sitio.** El subdominio del remitente es un CNAME a Vercel y no puede recibir correo, así que quien contestaba a un aviso escribía a un buzón que no existe. Desde el 27-sep-2026, `sendViaResend` manda `reply_to: pickpal@jorgemolinafuster.com`, la misma dirección de contacto que publican `/privacidad` y `/terminos`. Es una constante (`REPLY_TO` en `convex/emails.ts`), no una variable de entorno: es la vía para ejercer derechos RGPD y no debe poder divergir entre entornos.
+
 ### Dominio de envío
 
 El dominio verificado en Resend es **`pickpal.jorgemolinafuster.com`**, el mismo que sirve la app (`APP_BASE_URL` en [`convex/emails.ts`](../convex/emails.ts)). El `.vercel.app` original queda como alias de Vercel.

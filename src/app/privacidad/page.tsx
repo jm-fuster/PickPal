@@ -289,7 +289,10 @@ export default function PrivacyPage() {
             Excepción: si habías compartido una ficha con otra persona
             usuaria, esa ficha no se borra al cerrar tu cuenta — pasa a ser de
             esa persona, para no borrarle sus propios datos por una decisión
-            que no tomó ella.
+            que no tomó ella. Por el mismo motivo, lo que añadiste a fichas
+            que otras personas compartieron contigo (entradas del historial e
+            ideas guardadas) se queda en esas fichas, sin tu nombre ni tu
+            email.
           </p>
         </section>
 
@@ -322,7 +325,9 @@ export default function PrivacyPage() {
                 Ajustes
               </Link>{" "}
               tienes &laquo;Eliminar mi cuenta&raquo;, que borra de forma
-              permanente todos tus datos en PickPal y cierra tu cuenta.
+              permanente tus datos en PickPal y cierra tu cuenta, con las
+              excepciones de las fichas compartidas que explica
+              &laquo;Cuánto lo conservamos&raquo;.
             </li>
             <li>
               <span className="text-foreground">Exportación:</span> en{" "}

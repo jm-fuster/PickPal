@@ -109,6 +109,28 @@ export async function POST(
   const { personId } = await params;
   const email = parsed.data.email.trim().toLowerCase();
 
+  // Antes de consultar Clerk. La respuesta de abajo dice si el email tiene
+  // cuenta, así que solo pregunta el dueño de la ficha y cada pregunta gasta
+  // cupo (`invite_lookup`). Ver docs/security.md §9.
+  try {
+    await fetchMutation(
+      api.personShares.reserveInviteLookup,
+      { personId: personId as Id<"people"> },
+      { token },
+    );
+  } catch (err) {
+    if (err instanceof ConvexError) {
+      return NextResponse.json(
+        { error: typeof err.data === "string" ? err.data : "No se pudo compartir la ficha." },
+        { status: 400 },
+      );
+    }
+    // Un personId malformado lanza un error de validación de argumentos: el
+    // mismo 404 que una ficha que no existe (docs/security.md §5).
+    console.error("[people/share] reserve lookup:", err);
+    return NextResponse.json({ error: "Persona no encontrada." }, { status: 404 });
+  }
+
   let targetUserId: string;
   try {
     const client = await clerkClient();

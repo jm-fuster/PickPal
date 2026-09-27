@@ -9,6 +9,7 @@
 import { convexTest } from "convex-test";
 import { describe, expect, test } from "vitest";
 import { api } from "./_generated/api";
+import { INVITE_LOOKUP_DAILY_LIMIT } from "./personShares";
 import schema from "./schema";
 
 const modules = import.meta.glob("./**/*.ts");
@@ -138,6 +139,39 @@ describe("invitar", () => {
       .withIdentity(ALICE)
       .query(api.personShares.listMembers, { personId });
     expect(miembros.invitees).toHaveLength(1);
+  });
+});
+
+describe("comprobar un email antes de invitar", () => {
+  // La ruta de compartir dice si un email tiene cuenta. Este paso previo
+  // impide usarla para averiguarlo sin límite (docs/security.md §9).
+  test("solo quien creó la ficha puede hacerlo", async () => {
+    const t = convexTest(schema, modules);
+    const personId = await crearYCompartir(t);
+
+    await expect(
+      t.withIdentity(BOB).mutation(api.personShares.reserveInviteLookup, {
+        personId,
+      }),
+    ).rejects.toThrow(/solo quien creó/i);
+    await expect(
+      t.withIdentity(CAROL).mutation(api.personShares.reserveInviteLookup, {
+        personId,
+      }),
+    ).rejects.toThrow(/solo quien creó/i);
+  });
+
+  test("cada comprobación gasta cupo, y el cupo diario tiene tope", async () => {
+    const t = convexTest(schema, modules);
+    const alice = t.withIdentity(ALICE);
+    const personId = await alice.mutation(api.people.create, PERSON);
+
+    for (let i = 0; i < INVITE_LOOKUP_DAILY_LIMIT; i++) {
+      await alice.mutation(api.personShares.reserveInviteLookup, { personId });
+    }
+    await expect(
+      alice.mutation(api.personShares.reserveInviteLookup, { personId }),
+    ).rejects.toThrow(/límite diario/i);
   });
 });
 

@@ -101,7 +101,7 @@ Aplícalo a cualquier mutation que:
 - Llame a APIs externas de pago (cuota).
 - Envíe notificaciones / emails.
 
-Buckets actuales: `create_person` (50/día), `create_date` (100/día), `save_idea` (50/día), `invite_person` (20/día — compartir una ficha, ver §9), `recommendationUsage` (10/día, tabla aparte por motivos históricos).
+Buckets actuales: `create_person` (50/día), `create_date` (100/día), `save_idea` (50/día), `invite_person` (20/día — compartir una ficha, ver §9), `invite_lookup` (30/día — comprobar un email antes de invitar, ver §9), `recommendationUsage` (10/día, tabla aparte por motivos históricos).
 
 **Cuota de recomendaciones = reserva atómica.** `api.recommendationUsage.reserve` (mutation) incrementa el contador **antes** de llamar a Gemini y lanza `ConvexError` si está agotado; al ser una transacción Convex, dos peticiones concurrentes en el límite no pueden superar las 10/día. Si la generación falla (saturación, timeout o validación del schema de Gemini), la API route llama a `refund` para devolver la unidad: como el `return` de éxito va tras el `upsert`, llegar al `catch` garantiza que no se persistió ninguna idea, así que un fallo de formato del proveedor no cuesta una generación. `refund` recibe el `day` UTC que devolvió `reserve` para devolver la unidad al bucket correcto aunque el fallo cruce la medianoche UTC. No existe un `consume` posterior al guardado: el patrón check-luego-consume tenía una carrera de coste y un caso "ideas guardadas pero el usuario ve error".
 
@@ -132,6 +132,8 @@ try {
 ```
 
 **Nunca** propagar `err.message` al cliente: filtra estructura interna (Convex, Gemini, env vars) que ayuda a un atacante a mapear el sistema. Tampoco se devuelven los `issues` de zod en los 400 (exponen la forma interna del schema): basta `{ error: "Parámetros inválidos" }`. Los IDs malformados o de otro usuario devuelven el mismo `404` que los inexistentes — el cliente no puede distinguir "no existe" de "no es tuyo".
+
+**Un endpoint que contesta distinto según exista o no un dato ajeno es un oráculo.** Por ejemplo, uno que dice si un email tiene cuenta. Hay que autorizar y limitar cada **pregunta**, no solo la escritura que viene detrás: si el rate limit solo cuenta los aciertos, los fallos salen gratis. Caso real y arreglo en §9.
 
 **Errores en `convex/**` → `ConvexError` + `userErrorMessage`.** Todo error pensado para que lo lea el usuario (validación, rate limit, ownership) se lanza como `throw new ConvexError("<mensaje en español>")` (import de `convex/values`). Motivo: en prod Convex redacta los `Error` planos a `[CONVEX M(modulo:funcion)] Server Error` — el mensaje nunca llega y el toast filtra identificadores internos. Solo los `ConvexError` conservan su `data` en el cliente. Los errores puramente internos (p. ej. `convex/emails.ts`) siguen siendo `Error`.
 
@@ -202,6 +204,14 @@ compartido, usado por `people.getAll` e `importantDates.getUpcoming`).
   con `clerkClient().users.getUserList({ emailAddress: [...] })`. La mutation
   vuelve a comprobar que quien llama es el dueño — la ruta es una comodidad
   de resolución, no la frontera de autorización real.
+- **Antes de consultar Clerk, la ruta llama a
+  `personShares.reserveInviteLookup`**, que exige ser el dueño de la ficha y
+  gasta una unidad de `invite_lookup` (30/día). La ruta contesta «No hay
+  ninguna cuenta de PickPal con ese email» cuando no la hay. Hasta el
+  27-sep-2026 la consulta a Clerk iba antes que cualquier comprobación, y el
+  límite de `invite_person` solo lo gastaban las invitaciones que salían bien.
+  Así, cualquier usuario podía preguntar sin límite, con cualquier `personId`,
+  si un email estaba registrado. Es el oráculo de §5.
 - **Invitar es solo del dueño**, con `assertIsOwner` (no reparte la
   capacidad de compartir), rate-limited (`invite_person`, 20/día) y con un
   tope de 20 invitados por ficha — evita que una cuenta comprometida reparta

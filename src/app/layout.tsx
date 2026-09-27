@@ -24,6 +24,23 @@ const clerkLocalization = {
       title: "Revisa tu correo",
       formSubtitle: "Introduce el código que te hemos enviado",
     },
+    // The terms are accepted; the privacy policy is only read. It informs,
+    // and asking people to "accept" it blurs the legal basis (docs/legal.md §3).
+    legalConsent: {
+      ...esES.signUp?.legalConsent,
+      checkbox: {
+        ...esES.signUp?.legalConsent?.checkbox,
+        label__termsOfServiceAndPrivacyPolicy:
+          'Acepto los {{ termsOfServiceLink || link("Términos de Servicio") }} y he leído la {{ privacyPolicyLink || link("Política de Privacidad") }}',
+        label__onlyPrivacyPolicy: "He leído la Política de Privacidad",
+      },
+      continue: {
+        ...esES.signUp?.legalConsent?.continue,
+        title: "Acepta los términos para continuar",
+        subtitle:
+          "Al continuar, aceptas los términos y confirmas que has leído la política de privacidad.",
+      },
+    },
   },
 };
 
