@@ -1,10 +1,10 @@
 # Aviso legal y términos · PickPal
 
-**Publicado el 20-sep-2026.** El contenido vivo es [`/terminos`](../src/app/terminos/page.tsx); este documento es la versión larga de trabajo y tiene que moverse con ella. NIF, domicilio, datos registrales y ciudad de jurisdicción **se han retirado a propósito**: el porqué y el disparador que obliga a revisarlo están en §1. Las secciones marcadas con _Revisar_ siguen requiriendo decisión consciente.
+**Publicado el 20-sep-2026, revisado el 27-sep-2026** (edad mínima a 18, titular nombrado en `/terminos` y régimen de Gemini corregido). El contenido vivo es [`/terminos`](../src/app/terminos/page.tsx); este documento es la versión larga de trabajo y tiene que moverse con ella. NIF, domicilio, datos registrales y ciudad de jurisdicción **se han retirado a propósito**: el porqué y el disparador que obliga a revisarlo están en §1. Las secciones marcadas con _Revisar_ siguen requiriendo decisión consciente.
 
 > **Bloqueo resuelto (20-sep-2026):** `pickpal@jorgemolinafuster.com` ya entrega. Cloudflare Email Routing sobre el apex `jorgemolinafuster.com`: los 3 MX de Cloudflare más un único `v=spf1 include:_spf.mx.cloudflare.net ~all` —hubo que borrar el `v=spf1 -all` anterior, porque dos registros SPF son un permerror— y una regla que reenvía a un buzón personal verificado. Comprobado con un envío real desde fuera del dominio antes de tocar estas páginas.
 
-Última actualización: `20 de septiembre de 2026`
+Última actualización: `27 de septiembre de 2026`
 
 > Cuando se publique la app, este contenido debe servirse en `/legal` (o separado en `/aviso-legal` y `/terminos`) y enlazarse desde el footer.
 
@@ -27,7 +27,7 @@ Datos identificativos y canal de contacto del titular del servicio:
 
 ## 2. Objeto
 
-PickPal es una aplicación web que permite al usuario guardar información sobre personas de su entorno (intereses, fechas señaladas, notas) y obtener recomendaciones personalizadas de regalo generadas por inteligencia artificial.
+PickPal es una aplicación web que permite al usuario guardar información sobre personas de su entorno (intereses, fechas señaladas, notas) y obtener recomendaciones personalizadas de regalo generadas por inteligencia artificial. La ofrece y la mantiene Jorge Molina Fuster como proyecto personal: `/terminos` lo dice en su primer párrafo, porque quien acepta unos términos tiene que saber con quién los acepta.
 
 El uso de PickPal está sujeto a los presentes términos y a la [política de privacidad](privacy.md).
 
@@ -43,7 +43,7 @@ Al registrarse y utilizar PickPal, el usuario acepta estos términos. Si no est�
 
 - Para usar PickPal hay que registrarse con **Google** o con **correo electrónico y contraseña**.
 - El usuario es responsable de mantener la confidencialidad de sus credenciales.
-- El usuario debe ser **mayor de 14 años**. Para menores de 14 se requiere consentimiento de sus tutores legales (RGPD art. 8 + LOPDGDD art. 7).
+- El usuario debe ser **mayor de 18 años**. Hasta el 27-sep-2026 el mínimo era 14, con consentimiento de los tutores por debajo (RGPD art. 8 + LOPDGDD art. 7). Se subió porque los términos de la Gemini API prohíben usarla en apps dirigidas a menores de 18 o que probablemente usen, y eso no lo arregla el consentimiento de los tutores (ver `privacy.md` §4.1 y §10).
 
 ---
 
@@ -68,14 +68,15 @@ Las ideas de regalo se generan con un modelo de lenguaje (Google Gemini) a parti
 - Las sugerencias son **orientativas**: precios, disponibilidad y descripciones pueden no ser exactos.
 - Los enlaces a Amazon son búsquedas: no garantizan la existencia ni el precio del producto.
 - PickPal **no se hace responsable** de compras realizadas a partir de las recomendaciones.
-- Para generar las ideas se envía a Google (Gemini) la ficha completa de la persona: nombre de pila (nunca apellidos), relación, intereses, marcas, notas íntegras, tallas, alergias/restricciones, dislikes, presupuesto, ocasión e historial de regalos. PickPal usa actualmente la capa gratuita de esa API, en la que Google puede usar esos datos para mejorar sus servicios y revisores humanos pueden leerlos; el detalle campo a campo está en la [política de privacidad](privacy.md) (§4.1). No basta con decir "los datos necesarios": el usuario tiene que poder saber que sus notas libres salen del sistema.
+- Para generar las ideas se envía a Google (Gemini) la ficha completa de la persona: nombre de pila (nunca apellidos), relación, intereses, marcas, notas íntegras, tallas, alergias/restricciones, dislikes, presupuesto, ocasión, historial de regalos y categorías descartadas. Como el titular está en el EEE, Google aplica sus reglas de datos de pago: trata los datos como encargado, no entrena con ellos y los registra 55 días solo para detectar abusos. El detalle campo a campo está en la [política de privacidad](privacy.md) (§4.1). No basta con decir "los datos necesarios": el usuario tiene que poder saber que sus notas libres salen del sistema.
 
 ---
 
 ## 7. Propiedad intelectual
 
 - El código de PickPal es propiedad de **Jorge Molina Fuster**, con todos los derechos reservados (ver [`LICENSE`](../LICENSE)). Las versiones publicadas antes del 23 de septiembre de 2026 bajo licencia MIT conservan esa licencia.
-- La marca, el diseño y el contenido editorial son propiedad de **Jorge Molina Fuster**.
+- La marca, el diseño y el contenido editorial son propiedad de **Jorge Molina Fuster**. `/terminos` lo dice así desde el 27-sep-2026; antes ponía «de sus titulares» sin nombrar a nadie.
+- Los logos de tiendas y marcas, las fotos de Pexels y los avatares de DiceBear son de sus respectivos titulares, y `/terminos` lo aclara.
 - Los datos introducidos por el usuario son **del usuario**. PickPal los procesa en los términos descritos en la política de privacidad.
 
 ---

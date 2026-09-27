@@ -37,8 +37,9 @@ export default function TermsPage() {
             PickPal es una aplicación web para guardar información sobre las
             personas a las que quieres regalar (intereses, fechas señaladas,
             notas) y obtener ideas de regalo personalizadas generadas por
-            inteligencia artificial. El uso del servicio se rige por estos
-            términos y por la{" "}
+            inteligencia artificial. La ofrece y la mantiene Jorge Molina
+            Fuster como proyecto personal. El uso del servicio se rige por
+            estos términos y por la{" "}
             <Link
               href="/privacidad"
               className="underline underline-offset-2 hover:text-foreground"
@@ -65,9 +66,7 @@ export default function TermsPage() {
               confidencialidad de tus credenciales.
             </li>
             <li>
-              Debes ser <span className="text-foreground">mayor de 14 años</span>.
-              Para menores de esa edad se requiere el consentimiento de sus
-              tutores legales.
+              Debes ser <span className="text-foreground">mayor de 18 años</span>.
             </li>
           </ul>
         </section>
@@ -164,8 +163,10 @@ export default function TermsPage() {
               procesa en los términos descritos en la política de privacidad.
             </li>
             <li>
-              La marca, el diseño y el contenido editorial de PickPal son de sus
-              titulares.
+              El código, la marca, el diseño y los textos de PickPal son de
+              Jorge Molina Fuster, con todos los derechos reservados. Los logos
+              de tiendas y marcas, las fotos y los avatares ilustrados
+              pertenecen a sus respectivos titulares.
             </li>
           </ul>
         </section>
@@ -241,7 +242,7 @@ export default function TermsPage() {
         </section>
 
         <p className="text-xs text-muted-foreground">
-          Última actualización: 20 de septiembre de 2026.
+          Última actualización: 27 de septiembre de 2026.
         </p>
       </main>
 

@@ -31,6 +31,22 @@ export default function PrivacyPage() {
         </div>
 
         <section className="space-y-3">
+          <h2 className="text-xl font-medium">Quién es el responsable</h2>
+          <p className="text-sm text-foreground">
+            PickPal es un proyecto personal de Jorge Molina Fuster, que es el
+            responsable del tratamiento de los datos. Para cualquier cuestión
+            de privacidad puedes escribirle a{" "}
+            <a
+              className="underline underline-offset-4"
+              href="mailto:pickpal@jorgemolinafuster.com"
+            >
+              pickpal@jorgemolinafuster.com
+            </a>
+            .
+          </p>
+        </section>
+
+        <section className="space-y-3">
           <h2 className="text-xl font-medium">Qué datos guardamos</h2>
           <ul className="space-y-2 text-sm text-foreground list-disc pl-5">
             <li>
@@ -57,6 +73,43 @@ export default function PrivacyPage() {
         </section>
 
         <section className="space-y-3">
+          <h2 className="text-xl font-medium">
+            Para qué los usamos y con qué base legal
+          </h2>
+          <ul className="space-y-2 text-sm text-foreground list-disc pl-5">
+            <li>
+              <span className="text-foreground">Darte el servicio</span> —tu
+              cuenta, tu libreta, las ideas de regalo y compartir fichas—: es la
+              ejecución del contrato que aceptas al registrarte (art. 6.1.b del
+              RGPD).
+            </li>
+            <li>
+              <span className="text-foreground">
+                Los datos de tus seres queridos:
+              </span>{" "}
+              el interés legítimo, tuyo y nuestro, en ayudarte a recordar sus
+              fechas y acertar con sus regalos (art. 6.1.f). Solo guardamos lo
+              que tú decides apuntar y no lo usamos para nada más.
+            </li>
+            <li>
+              <span className="text-foreground">Los avisos por correo:</span>{" "}
+              tu consentimiento (art. 6.1.a), que das al activarlos en Ajustes.
+              Puedes retirarlo cuando quieras desactivándolos allí; cada correo
+              trae el enlace.
+            </li>
+            <li>
+              <span className="text-foreground">Seguridad y uso:</span> los
+              límites diarios, los registros de errores y la analítica agregada
+              de Vercel se basan en nuestro interés legítimo en evitar abusos y
+              saber qué partes de la app se usan (art. 6.1.f).
+            </li>
+          </ul>
+          <p className="text-sm text-foreground">
+            Para crear la cuenta necesitas un email; todo lo demás es opcional.
+          </p>
+        </section>
+
+        <section className="space-y-3">
           <h2 className="text-xl font-medium">Quién procesa esos datos</h2>
           <ul className="space-y-2 text-sm text-foreground list-disc pl-5">
             <li>
@@ -80,10 +133,14 @@ export default function PrivacyPage() {
               (nunca los apellidos), la relación contigo, sus intereses y
               marcas favoritas, tus notas tal como las escribiste, las tallas,
               las alergias o restricciones, lo que no le gusta, el presupuesto,
-              la ocasión y el historial de regalos anteriores con su reacción.
-              Usamos la capa gratuita de su API: Google puede usar esos datos
-              para mejorar sus modelos y personal de Google podría revisarlos.
-              No escribas en las notas nada que no quieras compartir con Google.
+              la ocasión, el historial de regalos anteriores con su reacción y
+              las categorías de ideas que hayas descartado. Google trata estos
+              datos como encargado: no los usa para entrenar ni mejorar sus modelos
+              y solo los conserva hasta 55 días para detectar abusos de su
+              servicio; únicamente si sus sistemas marcan un posible abuso
+              puede revisarlos personal autorizado de Google. Aun así, salen de
+              PickPal: no escribas en las notas nada que no quieras compartir
+              con Google.
             </li>
             <li>
               <span className="text-foreground">Resend</span> — envía los
@@ -116,6 +173,22 @@ export default function PrivacyPage() {
               correos de aviso la carga tu gestor de correo.
             </li>
           </ul>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="text-xl font-medium">
+            Transferencias fuera de la Unión Europea
+          </h2>
+          <p className="text-sm text-foreground">
+            Clerk, Convex, Google, Vercel y Resend son empresas de Estados
+            Unidos, así que tus datos pueden tratarse allí. Todas tienen al
+            menos una de estas dos garantías: están adheridas al Marco de
+            Privacidad de Datos UE-EE. UU., que la Comisión Europea declaró
+            adecuado el 10 de julio de 2023, o han incorporado a su contrato
+            las cláusulas contractuales tipo aprobadas por la Comisión. Si
+            quieres una copia de esas cláusulas, pídenosla en el contacto de
+            abajo.
+          </p>
         </section>
 
         <section className="space-y-3 rounded-xl border border-border/60 p-5">
@@ -182,15 +255,24 @@ export default function PrivacyPage() {
             Todo lo que guardas se conserva mientras tu cuenta esté activa. Si
             eliminas tu cuenta, se borra de nuestra base de datos en ese mismo
             momento, sin periodo de gracia; las copias de seguridad de nuestros
-            proveedores pueden tardar algo más en reciclarse. Lo que ya se envió
-            a Google o a Resend para generar una idea o un correo se rige por
-            sus propias políticas de conservación.
+            proveedores pueden tardar algo más en reciclarse. Google conserva
+            hasta 55 días lo que recibe para generar ideas, solo para detectar
+            abusos; lo que se envió a Resend para escribir un correo se rige
+            por su propia política de conservación.
           </p>
           <p className="text-sm text-foreground">
             Excepción: si habías compartido una ficha con otra persona
             usuaria, esa ficha no se borra al cerrar tu cuenta — pasa a ser de
             esa persona, para no borrarle sus propios datos por una decisión
             que no tomó ella.
+          </p>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="text-xl font-medium">Menores</h2>
+          <p className="text-sm text-foreground">
+            PickPal es solo para mayores de 18 años. Si detectamos la cuenta de
+            un menor, la eliminaremos.
           </p>
         </section>
 
@@ -263,7 +345,7 @@ export default function PrivacyPage() {
         </section>
 
         <p className="text-xs text-muted-foreground">
-          Última actualización: 20 de septiembre de 2026.
+          Última actualización: 27 de septiembre de 2026.
         </p>
       </main>
 

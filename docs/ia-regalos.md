@@ -401,11 +401,11 @@ Si en algún momento futuro Gemini empieza a devolver datos hostiles (prompt inj
 
 La variable de entorno `GOOGLE_GENERATIVE_AI_API_KEY` debe configurarse en Vercel (y en `.env.local` para desarrollo).
 
-**PickPal usa la capa gratuita (free tier) de la Gemini API:**
-1. Crear la API key en [aistudio.google.com/apikey](https://aistudio.google.com/apikey) sobre un proyecto de Google Cloud **SIN facturación activada**. El free tier no requiere método de pago y está disponible en la UE.
-2. Coste: **0 €**. A cambio, Google usa los datos enviados para mejorar sus modelos y revisores humanos pueden leerlos (ver el coste de privacidad en [`privacy.md`](privacy.md) §4.1).
-3. Los límites del free tier de `gemini-3.5-flash` (RPM/RPD) se aplican **al proyecto entero**, así que el techo real lo marca el número de usuarios activos: el rate limit interno de 10 generaciones/usuario/día acota lo que gasta cada uno, no la suma. Con el uso actual sobra, pero es la cifra que hay que vigilar según crezca. El *thinking* se deja activo a propósito (desactivarlo degradaba el structured output) y `maxRetries: 2` da margen ante una tanda que no valide; el coste extra es asumible con el tope de 10 generaciones/día. Ver [`route.ts`](../src/app/api/recommendations/route.ts).
-4. **Proyecto de Google Cloud dedicado.** La [doc de Google](https://ai.google.dev/gemini-api/docs/rate-limits) dice literalmente que los rate limits "se aplican por proyecto, no por API key": crear una segunda key dentro del mismo proyecto **no** separa la cuota. Si el proyecto se comparte con otra app, esa app puede agotar el RPD del día y PickPal se queda sin generar. PickPal debe tener su propio proyecto.
+**Condiciones de datos.** Según los [términos adicionales](https://ai.google.dev/gemini-api/terms) (en vigor desde el 23-mar-2026), a quien usa la API desde el EEE Google le aplica sus reglas de datos de pago: no entrena con los datos, los trata como encargado y los registra 55 días solo para detectar abusos (ver [`privacy.md`](privacy.md) §4.1). Todo lo que `/privacidad` dice de Google depende de esas reglas, así que cuando Google publique una versión nueva de los términos hay que comprobar que siguen ahí.
+
+1. Crear la API key en [aistudio.google.com/apikey](https://aistudio.google.com/apikey).
+2. Los límites de `gemini-3.5-flash` (RPM/RPD) se aplican **al proyecto entero**, así que el techo real lo marca el número de usuarios activos: el rate limit interno de 10 generaciones/usuario/día acota lo que gasta cada uno, no la suma. Con el uso actual sobra, pero es la cifra que hay que vigilar según crezca. El *thinking* se deja activo a propósito (desactivarlo degradaba el structured output), y `maxRetries: 2` da margen ante una tanda que no valide. Ver [`route.ts`](../src/app/api/recommendations/route.ts).
+3. **Proyecto de Google Cloud dedicado.** La [doc de Google](https://ai.google.dev/gemini-api/docs/rate-limits) dice literalmente que los rate limits "se aplican por proyecto, no por API key": crear una segunda key dentro del mismo proyecto **no** separa la cuota. Si el proyecto se comparte con otra app, esa app puede agotar el RPD del día y PickPal se queda sin generar. PickPal debe tener su propio proyecto.
 
 ### Qué ve el usuario cuando falla el proveedor
 
@@ -423,9 +423,9 @@ La distinción del `429` importa porque agotar el **RPD** no se arregla reintent
 
 Los números concretos de RPM/RPD del free tier **ya no aparecen en la doc de Google** (antes se listaban por modelo). Ahora remite al panel de la cuenta en [aistudio.google.com/rate-limit](https://aistudio.google.com/rate-limit) y añade que "los límites especificados no están garantizados y la capacidad real puede variar". Por eso este doc no fija una cifra: consultar el panel. Las fuentes de terceros que sí dan números se contradicen entre sí (250 vs. 1.500 RPD) — no fiarse.
 
-> **Importante — activar billing elimina el free tier.** Si habilitas facturación en el proyecto, pierdes el free tier por completo: *toda* petición pasa a facturarse (no hay franja gratis dentro del paid tier) y un *spending cap* de 0 € hace que las llamadas fallen con "límite alcanzado". La única ventaja del paid tier es de privacidad: Google deja de usar los datos para entrenar. Si algún día se migra a paid tier, actualizar [`privacy.md`](privacy.md) y `/privacidad`.
+> **Facturación.** Activarla en un proyecto elimina su cuota gratuita: *toda* petición pasa a cobrarse, sin franja gratis dentro de la capa de pago. Con los precios publicados para `gemini-3.5-flash` (1,50 $ por millón de tokens de entrada y 9 $ por millón de salida, *thinking* incluido), una tanda de 9 ideas debería costar unos pocos céntimos. Es una estimación sin medir (unos 2.500 tokens de entrada y entre 2.000 y 5.000 de salida), así que hay que comprobarla con el `usage` que devuelve `generateObject`. El *spending cap* tiene que ser mayor que cero: con 0 € las llamadas fallan con "límite alcanzado". Si la key de desarrollo está en el mismo proyecto, también se cobrará.
 
-**Modelo actual:** `gemini-2.5-flash`. `gemini-2.0-flash` está retirado para API keys nuevas.
+**Modelo actual:** `gemini-3.5-flash`, desde el 20-sep-2026. `gemini-2.5-flash` y `gemini-2.0-flash` están retirados para API keys nuevas. El porqué de la elección está en el comentario de [`route.ts`](../src/app/api/recommendations/route.ts).
 
 ---
 

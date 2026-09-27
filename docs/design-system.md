@@ -1471,7 +1471,7 @@ La visibilidad se detecta con un listener de `scroll` en `scrollContainerRef` qu
 
 **Por qué sin `Alert` ni tinte destructivo**: no es un error ni un peligro inminente, es transparencia. Un banner ámbar junto a un campo opcional rompería el registro de libreta cálida y enseñaría al usuario a ignorarlo. El texto informa y sigue.
 
-**No es decoración, es un requisito legal** (RGPD art. 13: la información va donde se recogen los datos). Las notas se envían a Gemini en la capa gratuita, donde Google puede entrenar con ellas. Si se rediseña el formulario, el componente tiene que seguir montado en **ambas** pantallas — el texto vive en un componente compartido justamente para que no divergan. Contexto en [`docs/privacy.md`](privacy.md) §4.1.
+**No es decoración, es un requisito legal** (RGPD art. 13: la información va donde se recogen los datos). Las notas se envían a Gemini: Google las trata como encargado y no entrena con ellas, pero salen de PickPal. Si se rediseña el formulario, el componente tiene que seguir montado en **ambas** pantallas — el texto vive en un componente compartido justamente para que no divergan. Contexto en [`docs/privacy.md`](privacy.md) §4.1.
 
 ### Intereses — autocompletado y sugerencias (`InterestTagInput`)
 

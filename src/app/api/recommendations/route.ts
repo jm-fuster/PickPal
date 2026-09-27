@@ -492,10 +492,11 @@ export async function POST(req: NextRequest) {
       //   flash-latest       cuota agotada (alias flotante, además:
       //                      un cambio de modelo por debajo puede romper el
       //                      structured output sin avisar; no usar)
-      // En free tier la disponibilidad fluctúa por horas: 3.8 iba fino veinte
-      // minutos antes de la medición. Si vuelve a haber 503 sostenidos, medir
-      // otra vez antes de cambiar. Se prefiere el lento que responde al rápido
-      // que devuelve 503 a mitad de una generación que ya reservó cuota.
+      // Se midió en la capa gratuita, donde la disponibilidad fluctúa por
+      // horas: 3.8 iba fino veinte minutos antes de la medición. Si vuelve a
+      // haber 503 sostenidos, medir otra vez antes de cambiar. Se prefiere el
+      // lento que responde al rápido que devuelve 503 a mitad de una
+      // generación que ya reservó cuota.
       model: google("gemini-3.5-flash"),
       schema: noStores ? giftRecommendationsSchemaNoStores : giftRecommendationsSchema,
       prompt,
@@ -504,7 +505,7 @@ export async function POST(req: NextRequest) {
       // structured output (9 objetos con enums/arrays) y provocaba "response did
       // not match schema"; no hay motivo para tocarlo ahora.
       // `maxRetries: 2` da margen ante una tanda que no valide. El coste extra de
-      // tokens es asumible en free tier con el tope de 10 generaciones/día.
+      // tokens es asumible con el tope de 10 generaciones/día.
       maxRetries: 2,
     });
 

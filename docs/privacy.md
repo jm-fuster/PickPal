@@ -1,10 +1,12 @@
 # Política de privacidad · PickPal
 
-**Publicado el 20-sep-2026.** El contenido vivo es [`/privacidad`](../src/app/privacidad/page.tsx); este documento es la versión larga de trabajo y tiene que moverse con ella. El NIF y la dirección postal se han retirado a propósito (ver §1). Las secciones marcadas con _Revisar_ requieren decisión consciente.
+**Publicado el 20-sep-2026, revisado el 27-sep-2026.** El contenido vivo es [`/privacidad`](../src/app/privacidad/page.tsx); este documento es la versión larga de trabajo y tiene que moverse con ella. El NIF y la dirección postal se han retirado a propósito (ver §1). Las secciones marcadas con _Revisar_ requieren decisión consciente.
+
+> **Revisión del 27-sep-2026.** La página publicada no nombraba al responsable ni daba las bases legales (§3) ni las transferencias (§5): solo estaban aquí, y el art. 13 pide que las vea el usuario. Ahora las tres cosas están en `/privacidad`. En la misma pasada se corrigieron el régimen de Gemini (§4.1: desde el EEE, Google aplica sus reglas de datos de pago, así que no entrena con los datos), la edad mínima (§10: 18, no 14) y el papel de PickPal frente a los datos de terceros (§7: responsable, no encargado).
 
 > **Bloqueo resuelto (20-sep-2026):** `pickpal@jorgemolinafuster.com` ya entrega, vía Cloudflare Email Routing sobre el apex `jorgemolinafuster.com` (3 MX de Cloudflare + `v=spf1 include:_spf.mx.cloudflare.net ~all`, reenvío a buzón personal). Comprobado con un envío real desde fuera del dominio. El subdominio `pickpal.jorgemolinafuster.com` sigue siendo un CNAME a Vercel y **no puede** recibir correo; no intentes ponerle MX.
 
-Última actualización: `20 de septiembre de 2026`
+Última actualización: `27 de septiembre de 2026`
 
 > Cuando se publique la app, este contenido debe servirse en `/privacy` (p. ej. `src/app/(legal)/privacy/page.tsx`) y enlazarse desde el footer y desde la pantalla de registro.
 
@@ -90,11 +92,15 @@ de la propia app, no un tercero pasivo.
 | Finalidad | Datos | Base legal (RGPD art. 6) |
 |---|---|---|
 | Permitir el uso de la app (cuenta, login) | Datos de Clerk | Ejecución de contrato (b) |
-| Almacenar la libreta personal del usuario | Datos sobre terceros, fechas | Ejecución de contrato (b) + interés legítimo del usuario (f) |
-| Generar recomendaciones de regalo con IA | Datos de la persona seleccionada | Ejecución de contrato (b) |
-| Enviar avisos de fechas próximas | Email + fechas + nombre del ser querido | Consentimiento (a) — opt-in explícito: el toggle nace **apagado** (`DEFAULT_EMAIL_NOTIFICATIONS_ENABLED = false`) y solo se activa desde `/settings`. Ver [`email-notifications.md`](email-notifications.md) · "Por qué el toggle nace apagado". |
+| Almacenar la libreta personal del usuario | Datos del propio usuario | Ejecución de contrato (b) |
+| Almacenar y usar los datos de sus seres queridos (libreta, recomendaciones con IA, avisos, compartir) | Datos sobre terceros, fechas | Interés legítimo (f) — del usuario, en organizar fechas y regalos, y de PickPal, en prestarle el servicio. La (b) no les cubre: el tercero no es parte del contrato. Ver §7. |
+| Generar recomendaciones de regalo con IA | Ficha de la persona seleccionada | Ejecución de contrato (b) frente al usuario; (f) frente al tercero, como la fila anterior |
+| Enviar avisos de fechas próximas | Email + fechas + nombre del ser querido | Consentimiento (a) — opt-in explícito: el toggle nace **apagado** (`DEFAULT_EMAIL_NOTIFICATIONS_ENABLED = false`) y solo se activa desde `/settings`. Se retira apagándolo allí, y cada correo enlaza a esa pantalla (art. 13.2.c). Ver [`email-notifications.md`](email-notifications.md) · "Por qué el toggle nace apagado". |
 | Compartir la ficha de un ser querido con otro usuario | Ficha completa (incl. alergias), historial e ideas guardadas | Ejecución de contrato (b) — el usuario activa la función explícitamente, con disclosure previa (ver §2.5) |
 | Prevenir abuso (rate limit, logs) | Identificador de usuario, contadores | Interés legítimo (f) |
+| Analítica de uso agregada (Vercel Web Analytics, sin cookies) | Páginas vistas | Interés legítimo (f) |
+
+Desde el 27-sep-2026 estas bases están resumidas en `/privacidad` («Para qué los usamos y con qué base legal»), que es donde las pide el art. 13.1.c y d. Antes solo vivían en esta tabla.
 
 ---
 
@@ -104,16 +110,16 @@ Compartimos datos con los siguientes proveedores que actúan como encargados:
 
 | Proveedor | Para qué | Ubicación | Garantías |
 |---|---|---|---|
-| [Clerk](https://clerk.com) | Autenticación y gestión de cuentas | EE. UU. | DPA + SCCs / EU-US DPF |
-| [Convex](https://convex.dev) | Base de datos y backend | EE. UU. | DPA + SCCs / EU-US DPF |
-| [Google (Gemini API)](https://ai.google.dev) | Generación de recomendaciones | EE. UU. | DPA + SCCs / EU-US DPF |
-| [Vercel](https://vercel.com) | Hosting de la web y analítica de uso *cookieless* (Vercel Web Analytics) | EE. UU. | DPA + SCCs / EU-US DPF |
-| [Resend](https://resend.com) | Envío de los correos de aviso | EE. UU. | DPA + SCCs / EU-US DPF. Recibe el email del usuario, el **nombre del ser querido**, el evento, la fecha y la URL del avatar (ver 4.3) |
+| [Clerk](https://clerk.com) | Autenticación y gestión de cuentas | EE. UU. | DPA incorporado a sus términos, sin firma aparte. Transfiere por el EU-US DPF (está adherida) y deja las SCCs de respaldo |
+| [Convex](https://convex.dev) | Base de datos y backend | EE. UU. (el deployment de producción está en la región por defecto; el de desarrollo, en `eu-west-1`) | DPA incorporado a sus términos, con las SCCs incorporadas por referencia |
+| [Google (Gemini API)](https://ai.google.dev) | Generación de recomendaciones | EE. UU. | DPA de Google como encargado («Data Processing Addendum for Products Where Google is a Data Processor»), que Google aplica a quien usa la API desde el EEE (§4.1). Google LLC está adherida al EU-US DPF |
+| [Vercel](https://vercel.com) | Hosting de la web y analítica de uso *cookieless* (Vercel Web Analytics) | EE. UU. | Adherida al EU-US DPF, así que la transferencia está cubierta |
+| [Resend](https://resend.com) | Envío de los correos de aviso | EE. UU. | DPA vinculante al aceptar sus términos, con las SCCs incorporadas; además, adherida al EU-US DPF. Recibe el email del usuario, el **nombre del ser querido**, el evento, la fecha y la URL del avatar (ver 4.3) |
 | [Pexels](https://www.pexels.com) | Fotos de stock que ilustran las ideas de regalo | EE. UU. | Solo recibe búsquedas genéricas en inglés (server-side) y la IP del navegador al cargar las fotos (ver 4.2) |
 | [Brandfetch](https://brandfetch.com) | Resolver la web oficial de las marcas favoritas + servir sus logos | EE. UU. | Solo recibe el **nombre de la marca** (server-side) y la IP del navegador al cargar el logo (ver 4.2) |
 | [DiceBear](https://www.dicebear.com) | Avatares ilustrados de los seres queridos | UE | Recibe los rasgos elegidos para el dibujo (en el query string) y la IP del navegador (ver 4.2) |
 
-_Revisar antes de publicar:_ firmar / aceptar el DPA de cada proveedor (suelen estar en su panel) y confirmar que están en la lista DPF vigente.
+**Comprobado el 27-sep-2026** en el DPA publicado por cada proveedor: Clerk, Convex y Resend lo incorporan a sus términos sin firma aparte, y Google aplica el suyo a quien usa la Gemini API desde el EEE. Hay que volver a comprobarlo si cambia algún proveedor.
 
 ### 4.1 Datos enviados a Google Gemini
 
@@ -127,13 +133,20 @@ Cuando el usuario pide recomendaciones, `buildPrompt` ([`src/app/api/recommendat
 | Tallas (zapato, ropa), alergias / restricciones, cosas que no le gustan | Sí |
 | Presupuesto (min/max), ocasión | Sí |
 | Historial de regalos (hasta 10: nombre, ocasión, año, reacción) | Sí — las `notes` de cada entrada del historial **no** |
+| Categorías de ideas descartadas (`dislikedCategories`, las que el usuario ha ido rechazando) | Sí |
 | Fecha de nacimiento / edad | **No** (solo la etiqueta de la ocasión) |
 
-Mantener esta tabla sincronizada con `buildPrompt` y con el párrafo de Gemini en [`/privacidad`](../src/app/privacidad/page.tsx). El texto publicado decía "solo su nombre de pila y la ocasión", lo que dejaba fuera notas y alergias — precisamente los dos campos que más importa disclosar cuando el destinatario puede entrenar con ellos.
+Mantener esta tabla sincronizada con `buildPrompt` y con el párrafo de Gemini en [`/privacidad`](../src/app/privacidad/page.tsx). El texto publicado decía "solo su nombre de pila y la ocasión", lo que dejaba fuera notas y alergias — precisamente los dos campos que más importa contar, porque son texto libre y datos de salud que salen de PickPal.
 
 Nótese que **`alergias / restricciones` puede contener datos de salud** (art. 9 RGPD) y se envía. El campo existe porque una alergia alimentaria es lo que evita un regalo inservible; los términos piden anotar solo lo imprescindible, no un historial médico, y el aviso in-app junto a notas advierte del destino.
 
-Actualmente PickPal usa la **capa gratuita** de la Gemini API. Según los [términos de Google](https://ai.google.dev/gemini-api/terms), en los servicios *no* de pago **Google usa el contenido enviado y las respuestas para mejorar y desarrollar sus productos y sus modelos de machine learning**, y **revisores humanos pueden leer, anotar y procesar** las entradas y salidas de la API. Por eso advertimos al usuario de no introducir en las notas datos que no quiera compartir con Google, en tres sitios:
+**Régimen de Google, verificado el 27-sep-2026** contra los [términos adicionales de la Gemini API](https://ai.google.dev/gemini-api/terms) (en vigor desde el 23-mar-2026):
+
+- **Sin entrenamiento.** La sección *How Google Uses Your Data* aplica las reglas de datos de pago a quien usa la API desde el EEE, sea cual sea la capa. Google no usa las entradas ni las salidas para mejorar sus productos y las trata como encargado según su DPA. Este documento y `/privacidad` afirmaban lo contrario («Google puede entrenar con ellos») porque se escribieron sobre la cláusula genérica de la capa gratuita, sin leer esta excepción.
+- **Conservación:** Google registra las entradas y salidas **55 días**, solo para detectar abusos de su política de uso ([usage policies](https://ai.google.dev/gemini-api/docs/usage-policies)). Personal autorizado de Google solo las revisa si sus sistemas marcan un posible abuso.
+- **Edad:** la sección *Age Requirements* prohíbe usar la API en apps dirigidas a menores de 18 o que probablemente usen. Por eso la edad mínima es 18 (§10).
+
+Aunque Google no entrena con ellas, las notas salen de PickPal. Por eso se avisa al usuario de no escribir en ellas nada que no quiera compartir con Google, en tres sitios:
 
 1. **En la app**, junto a los dos campos de notas (alta y ficha): componente [`AiNotesNotice`](../src/components/people/AiNotesNotice.tsx). Es el aviso que de verdad se lee, porque está donde se escribe.
 2. En `/privacidad` (párrafo de Google) y en `/terminos` (sección de IA).
@@ -141,7 +154,7 @@ Actualmente PickPal usa la **capa gratuita** de la Gemini API. Según los [térm
 
 Durante un tiempo este párrafo afirmaba que el aviso existía "en la app" cuando no existía en ninguna pantalla. Si se toca el flujo de notas, comprobar que el componente sigue montado en **ambos** sitios.
 
-> Si en el futuro se migra a la **capa de pago** de Gemini, Google deja de usar los datos para mejorar sus productos (solo los retiene brevemente por seguridad/abuso). Si se hace ese cambio, **actualizar esta sección y la página `/privacidad`** para reflejarlo. Verificar en cada renovación de los términos.
+> **Todo lo que `/privacidad` dice de Google descansa en estas secciones de sus términos.** Si Google publica una versión nueva, o si se cambia de proveedor de IA, releerlas antes que nada y actualizar en el mismo commit esta sección, `/privacidad`, `/terminos` y el comentario de `AiNotesNotice`.
 
 ### 4.2 Imágenes de terceros (Pexels, Brandfetch y DiceBear)
 
@@ -163,10 +176,12 @@ Los correos de aviso incrustan el avatar como `background-image` ([`convex/email
 
 ## 5. Transferencias internacionales
 
-La mayoría de los proveedores anteriores tratan datos en EE. UU. (DiceBear opera en la UE). La legitimación se basa en:
+Los cinco encargados que reciben datos personales desde PickPal (Clerk, Convex, Google, Vercel y Resend) son empresas de EE. UU. Cada uno tiene al menos una garantía válida, comprobada en su DPA el 27-sep-2026; el detalle por proveedor está en la tabla de §4.
 
-- Cláusulas Contractuales Tipo (SCCs) aprobadas por la Comisión Europea, y/o
-- Adhesión al **EU-US Data Privacy Framework**.
+- **Adhesión al EU-US Data Privacy Framework** (decisión de adecuación de la Comisión de 10-jul-2023): Clerk, Google, Vercel y Resend.
+- **Cláusulas contractuales tipo** de la Comisión (Decisión 2021/914) incorporadas a su DPA: Clerk (como respaldo), Convex y Resend.
+
+`/privacidad` lo resume en «Transferencias fuera de la Unión Europea» (art. 13.1.f) y ofrece una copia de las cláusulas a quien la pida. Pexels, Brandfetch y DiceBear no reciben datos personales desde el servidor: solo ven la IP del navegador al cargar imágenes (§4.2). DiceBear opera en la UE.
 
 ---
 
@@ -176,7 +191,7 @@ La mayoría de los proveedores anteriores tratan datos en EE. UU. (DiceBear oper
 |---|---|
 | Cuenta de usuario y datos asociados | Mientras la cuenta esté activa. Al eliminar la cuenta, el purgado es **inmediato y transaccional** (`api.account.deleteMyAccount` recorre las 10 tablas del esquema y después se borra el usuario en Clerk) — no hay periodo de gracia ni papelera. **Excepción:** una ficha que hubieras compartido con otro usuario no se borra si tiene invitados — la propiedad pasa al más antiguo, ver §2.5. Las copias de seguridad de los proveedores se reciclan según sus propios plazos. |
 | Logs de seguridad (errores, rate limit) | Los contadores de rate limit viven en `rateLimitBuckets` / `recommendationUsage` con clave por día UTC y se borran con la cuenta. Los logs de ejecución los retiene el proveedor (Convex / Vercel) según su plan. |
-| Datos enviados a Gemini | No conservados por nosotros tras la respuesta. En la capa gratuita, Google puede usarlos para mejorar sus productos (ver §4.1); política de retención de Google aplicable. |
+| Datos enviados a Gemini | No los conservamos tras la respuesta. Google los registra 55 días, solo para detectar abusos, y no entrena con ellos (§4.1). |
 
 El plazo está publicado en `/privacidad` ("Cuánto lo conservamos") — art. 13.2.a RGPD. El flujo de borrado ya está implementado (ver `security.md` §7).
 
@@ -186,8 +201,8 @@ El plazo está publicado en `/privacidad` ("Cuánto lo conservamos") — art. 13
 
 PickPal permite al usuario guardar información sobre personas de su entorno que **no han prestado consentimiento directamente** (su pareja, familia, amigos).
 
-- El **usuario es el responsable** de los datos que introduce sobre terceros: debe asegurarse de tener una base legítima (relación personal cercana) y no introducir datos sensibles innecesarios.
-- **PickPal actúa como encargado** del tratamiento para esos datos.
+- **Quién responde de qué.** Para el usuario, apuntar los gustos y las fechas de su entorno suele ser una actividad personal o doméstica, y eso queda fuera del RGPD (art. 2.2.c). PickPal, que pone los medios, sí está sujeto (considerando 18). Como no hay un responsable por encima para el que pueda actuar de encargado, **PickPal se trata a sí mismo como responsable** de estos datos, con base en el interés legítimo (art. 6.1.f, ver §3). Esta sección decía antes que PickPal era «encargado» del usuario, y por eso mismo no se sostenía.
+- Por los términos de uso, al usuario le toca tener una relación personal legítima con esa persona y no introducir datos sensibles innecesarios.
 - Cualquier tercero puede solicitar el borrado o información sobre los datos que se guardan sobre él escribiendo a [pickpal@jorgemolinafuster.com](mailto:pickpal@jorgemolinafuster.com). Daremos curso a la petición localizando los registros que le mencionen y eliminándolos en un plazo máximo de 30 días.
 - **Datos sensibles** (salud, ideología, orientación sexual, etc., art. 9 RGPD): el usuario **no debe** introducirlos en notas. Si se detecta su uso sistemático, podemos suspender la cuenta.
 
@@ -221,7 +236,9 @@ Las medidas técnicas y organizativas se documentan en [`security.md`](security.
 
 ## 10. Menores
 
-PickPal no está dirigida a menores de 14 años. Si detectamos una cuenta de un menor sin consentimiento de sus tutores, será eliminada.
+PickPal es solo para mayores de 18 años. Si detectamos la cuenta de un menor, se elimina.
+
+Hasta el 27-sep-2026 el mínimo era 14 (RGPD art. 8 + LOPDGDD art. 7). Se subió porque los términos de la Gemini API prohíben usarla en apps dirigidas a menores de 18 o que probablemente usen (§4.1), y eso no lo arregla el consentimiento de los tutores.
 
 ---
 
