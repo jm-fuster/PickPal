@@ -45,12 +45,28 @@ Acepta `className` para controlar tamaño. Incluye `aria-hidden` — el contexto
 | Header móvil | `size-6` | `src/app/(app)/layout.tsx` |
 | Auth layout (sign-in / sign-up) | `size-7` | `src/app/(auth)/layout.tsx` |
 | Landing page header | `size-7` | `src/app/page.tsx` |
-| Favicon (SVG) | — | `public/logo-mark.svg` → metadata en `src/app/layout.tsx` |
+| Favicon e iconos de app | — | ver [Iconos de app y favicon](#iconos-de-app-y-favicon) |
+
+### Iconos de app y favicon
+
+Cada superficie recorta el icono de forma distinta, así que cada archivo lleva su propio margen. Ninguno debe llevar el logo a sangre.
+
+| Archivo | Tamaño | Dónde se usa | Fondo | Logo ocupa |
+|---|---|---|---|---|
+| `src/app/icon.svg` | 32 (viewBox `-2 -2 36 36`) | Pestaña del navegador (Chrome, Edge, Firefox) | Transparente | ~89 % |
+| `public/favicon.ico` | 16 · 32 · 48 | Pestaña en Safari y navegadores sin SVG | Transparente | ~89 % |
+| `public/apple-touch-icon.png` | 180×180 | Pantalla de inicio iOS (`metadata.icons.apple`) | `#FBF7EE` opaco | ~70 % |
+| `public/icon-192.png` · `icon-512.png` | 192 · 512 | Manifest, `purpose: "any"` | Transparente | 100 % |
+| `public/icon-maskable-512.png` | 512 | Manifest, `purpose: "maskable"` (Android) | `#FBF7EE` | 56 % |
+
+- **Maskable (Android)**: Android recorta con su propia máscara (círculo, squircle…) y solo garantiza visible el círculo central del 80 %. El logo, casi cuadrado, cabe entero en ese círculo al 56 % (0,8 / √2). Nunca marcar como `maskable` un PNG sin margen: es lo que dejaba el icono cortado.
+- **iOS**: no admite transparencia (la rellena de negro) ni SVG. Solo redondea las esquinas, por eso basta con menos margen que en Android. No volver a poner `src/app/apple-icon.svg`: Next lo publicaría como un segundo apple-touch-icon.
+- **Modo oscuro del favicon**: `icon.svg` lleva un `@media (prefers-color-scheme: dark)` que cambia el verde `#2F3B29` a crema `#FBF7EE`; el coral no cambia. Safari y el `.ico` ignoran la regla y muestran siempre el verde.
+- **Regenerar**: todos salen de `icon-512.png` (PNG) o de `icon.svg` (`.ico`) con `sharp`, que ya está en `node_modules`. Tras cambiarlos, desinstalar y volver a añadir la app para ver el icono nuevo; iOS y Android lo guardan en caché.
 
 ### Pendiente de logo
 
 - **Email**: los clientes de correo no soportan SVG. Necesita un PNG alojado en URL pública para poder meterlo en el header de `convex/emails.ts`. Diferido hasta tener deploy o CDN.
-- **Apple Touch Icon**: `apple-icon.png` 180×180 para iOS. Añadir a `public/` y registrar en `metadata.icons.apple`.
 
 ---
 
